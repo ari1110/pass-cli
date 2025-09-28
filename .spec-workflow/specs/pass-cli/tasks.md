@@ -10,7 +10,7 @@
   - _Requirements: Project setup foundation_
   - _Prompt: Implement the task for spec pass-cli, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Go Developer specializing in CLI application setup and project structure | Task: Initialize Go project with proper module structure, dependencies, and build configuration following Go best practices | Restrictions: Use minimal dependencies, follow standard Go project layout, ensure cross-platform compatibility | _Leverage: Go standard library, established CLI patterns | _Requirements: Foundation for all other development tasks | Success: Project builds successfully, dependencies are properly managed, structure follows Go conventions, Makefile supports development tasks | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 2. Implement crypto service for AES-256-GCM encryption
+- [x] 2. Implement crypto service for AES-256-GCM encryption
   - File: internal/crypto/crypto.go
   - Implement AES-256-GCM encryption and decryption functions
   - Add PBKDF2 key derivation with salt generation
