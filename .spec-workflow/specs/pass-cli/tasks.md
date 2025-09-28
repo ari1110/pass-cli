@@ -20,7 +20,7 @@
   - _Requirements: 1.1, 1.2, 1.6 (Security requirements)_
   - _Prompt: Implement the task for spec pass-cli, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Security Engineer with expertise in Go cryptography and AES implementation | Task: Create secure crypto service implementing AES-256-GCM encryption with PBKDF2 key derivation following security requirements 1.1, 1.2, and 1.6 | Restrictions: Use only Go standard library crypto packages, ensure constant-time operations, clear sensitive data from memory | _Leverage: crypto/aes, crypto/cipher, crypto/rand packages | _Requirements: Secure encryption for all stored credentials | Success: Encryption/decryption works correctly, key derivation uses proper salt and iterations, memory is cleared after operations | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 3. Create storage service for encrypted vault operations
+- [x] 3. Create storage service for encrypted vault operations
   - File: internal/storage/storage.go
   - Implement vault file I/O operations with proper permissions
   - Add vault initialization and validation functions
