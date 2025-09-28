@@ -1,0 +1,14 @@
+{
+  "filePath": ".spec-workflow/steering/product.md",
+  "currentVersion": 1,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-09-28T22:34:04.715Z",
+      "trigger": "initial",
+      "approvalId": "approval_1759098844695_qykvndo2z",
+      "approvalTitle": "Product overview document for pass-cli"
+    }
+  ]
+}

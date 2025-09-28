@@ -1,0 +1,14 @@
+{
+  "filePath": ".spec-workflow/steering/tech.md",
+  "currentVersion": 1,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-09-28T22:36:06.621Z",
+      "trigger": "initial",
+      "approvalId": "approval_1759098966588_9pzgv5l1w",
+      "approvalTitle": "Technology stack document for pass-cli"
+    }
+  ]
+}

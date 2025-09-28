@@ -1,0 +1,14 @@
+{
+  "filePath": ".spec-workflow/steering/structure.md",
+  "currentVersion": 1,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-09-28T22:38:10.258Z",
+      "trigger": "initial",
+      "approvalId": "approval_1759099090231_gehibmiqn",
+      "approvalTitle": "Project structure document for pass-cli"
+    }
+  ]
+}
