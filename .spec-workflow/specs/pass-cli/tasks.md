@@ -61,7 +61,7 @@
   - _Requirements: CLI foundation for all commands_
   - _Prompt: Implement the task for spec pass-cli, first run spec-workflow-guide to get the workflow guide then implement the task: Role: CLI Developer with expertise in Cobra framework and command-line application design | Task: Set up root command structure with Cobra and Viper configuration management, establishing foundation for all CLI operations | Restrictions: Follow Cobra best practices, ensure consistent command structure, provide comprehensive help | _Leverage: spf13/cobra and viper frameworks | _Requirements: Professional CLI interface with proper help and configuration | Success: Root command works with proper help text, configuration is properly managed, foundation supports all planned commands | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 7. Create init command for vault initialization
+- [x] 7. Create init command for vault initialization
   - File: cmd/init.go
   - Implement vault initialization command with master password setup
   - Add keychain integration option during initialization
