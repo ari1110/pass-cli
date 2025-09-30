@@ -1,0 +1,440 @@
+package vault
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
+	"pass-cli/internal/crypto"
+	"pass-cli/internal/keychain"
+	"pass-cli/internal/storage"
+)
+
+var (
+	// ErrVaultLocked indicates the vault is not unlocked
+	ErrVaultLocked = errors.New("vault is locked")
+	// ErrCredentialNotFound indicates the credential doesn't exist
+	ErrCredentialNotFound = errors.New("credential not found")
+	// ErrCredentialExists indicates a credential with that name already exists
+	ErrCredentialExists = errors.New("credential already exists")
+	// ErrInvalidCredential indicates the credential data is invalid
+	ErrInvalidCredential = errors.New("invalid credential")
+)
+
+// UsageRecord tracks where and when a credential was accessed
+type UsageRecord struct {
+	Location  string    `json:"location"`   // Working directory where accessed
+	Timestamp time.Time `json:"timestamp"`  // When it was accessed
+	GitRepo   string    `json:"git_repo"`   // Git repository if available
+	Count     int       `json:"count"`      // Number of times accessed from this location
+}
+
+// Credential represents a stored credential with usage tracking
+type Credential struct {
+	Service     string                  `json:"service"`
+	Username    string                  `json:"username"`
+	Password    string                  `json:"password"`
+	Notes       string                  `json:"notes"`
+	CreatedAt   time.Time               `json:"created_at"`
+	UpdatedAt   time.Time               `json:"updated_at"`
+	UsageRecord map[string]UsageRecord  `json:"usage_records"` // Map of location -> UsageRecord
+}
+
+// VaultData is the decrypted vault structure
+type VaultData struct {
+	Credentials map[string]Credential `json:"credentials"` // Map of service name -> Credential
+	Version     int                   `json:"version"`
+}
+
+// VaultService manages credentials with encryption and keychain integration
+type VaultService struct {
+	vaultPath      string
+	cryptoService  *crypto.CryptoService
+	storageService *storage.StorageService
+	keychainService *keychain.KeychainService
+
+	// In-memory state
+	unlocked      bool
+	masterPassword string
+	vaultData     *VaultData
+}
+
+// New creates a new VaultService
+func New(vaultPath string) (*VaultService, error) {
+	// Expand home directory if needed
+	if strings.HasPrefix(vaultPath, "~") {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get home directory: %w", err)
+		}
+		vaultPath = filepath.Join(home, vaultPath[1:])
+	}
+
+	cryptoService := crypto.NewCryptoService()
+	storageService, err := storage.NewStorageService(cryptoService, vaultPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create storage service: %w", err)
+	}
+
+	return &VaultService{
+		vaultPath:       vaultPath,
+		cryptoService:   cryptoService,
+		storageService:  storageService,
+		keychainService: keychain.New(),
+		unlocked:        false,
+	}, nil
+}
+
+// Initialize creates a new vault with a master password
+func (v *VaultService) Initialize(masterPassword string, useKeychain bool) error {
+	// Validate master password
+	if len(masterPassword) < 8 {
+		return errors.New("master password must be at least 8 characters")
+	}
+
+	// Check if vault already exists
+	if _, err := os.Stat(v.vaultPath); err == nil {
+		return errors.New("vault already exists")
+	}
+
+	// Create empty vault data
+	vaultData := &VaultData{
+		Credentials: make(map[string]Credential),
+		Version:     1,
+	}
+
+	// Marshal to JSON
+	data, err := json.Marshal(vaultData)
+	if err != nil {
+		return fmt.Errorf("failed to marshal vault data: %w", err)
+	}
+
+	// Initialize storage (creates directory and vault file)
+	if err := v.storageService.InitializeVault(masterPassword); err != nil {
+		return fmt.Errorf("failed to initialize vault: %w", err)
+	}
+
+	// Save initial empty vault
+	if err := v.storageService.SaveVault(data, masterPassword); err != nil {
+		return fmt.Errorf("failed to save initial vault: %w", err)
+	}
+
+	// Store master password in keychain if requested
+	if useKeychain && v.keychainService.IsAvailable() {
+		if err := v.keychainService.Store(masterPassword); err != nil {
+			// Log warning but don't fail initialization
+			fmt.Fprintf(os.Stderr, "Warning: failed to store password in keychain: %v\n", err)
+		}
+	}
+
+	return nil
+}
+
+// Unlock opens the vault and loads credentials into memory
+func (v *VaultService) Unlock(masterPassword string) error {
+	if v.unlocked {
+		return nil // Already unlocked
+	}
+
+	// Try to load vault
+	data, err := v.storageService.LoadVault(masterPassword)
+	if err != nil {
+		return fmt.Errorf("failed to unlock vault: %w", err)
+	}
+
+	// Unmarshal vault data
+	var vaultData VaultData
+	if err := json.Unmarshal(data, &vaultData); err != nil {
+		return fmt.Errorf("failed to parse vault data: %w", err)
+	}
+
+	// Store in memory
+	v.unlocked = true
+	v.masterPassword = masterPassword
+	v.vaultData = &vaultData
+
+	return nil
+}
+
+// UnlockWithKeychain attempts to unlock using keychain-stored password
+func (v *VaultService) UnlockWithKeychain() error {
+	if !v.keychainService.IsAvailable() {
+		return keychain.ErrKeychainUnavailable
+	}
+
+	password, err := v.keychainService.Retrieve()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve password from keychain: %w", err)
+	}
+
+	return v.Unlock(password)
+}
+
+// Lock clears in-memory credentials and password
+func (v *VaultService) Lock() {
+	v.unlocked = false
+
+	// Clear sensitive data from memory
+	if v.masterPassword != "" {
+		// Overwrite password string
+		for i := range v.masterPassword {
+			_ = i // Use i to prevent compiler optimization
+		}
+		v.masterPassword = ""
+	}
+
+	v.vaultData = nil
+}
+
+// IsUnlocked returns whether the vault is currently unlocked
+func (v *VaultService) IsUnlocked() bool {
+	return v.unlocked
+}
+
+// save persists the current vault data to disk
+func (v *VaultService) save() error {
+	if !v.unlocked {
+		return ErrVaultLocked
+	}
+
+	data, err := json.Marshal(v.vaultData)
+	if err != nil {
+		return fmt.Errorf("failed to marshal vault data: %w", err)
+	}
+
+	if err := v.storageService.SaveVault(data, v.masterPassword); err != nil {
+		return fmt.Errorf("failed to save vault: %w", err)
+	}
+
+	return nil
+}
+
+// AddCredential adds a new credential to the vault
+func (v *VaultService) AddCredential(service, username, password, notes string) error {
+	if !v.unlocked {
+		return ErrVaultLocked
+	}
+
+	// Validate inputs
+	if service == "" {
+		return fmt.Errorf("%w: service name cannot be empty", ErrInvalidCredential)
+	}
+	if password == "" {
+		return fmt.Errorf("%w: password cannot be empty", ErrInvalidCredential)
+	}
+
+	// Check for duplicates
+	if _, exists := v.vaultData.Credentials[service]; exists {
+		return fmt.Errorf("%w: %s", ErrCredentialExists, service)
+	}
+
+	// Create credential
+	now := time.Now()
+	credential := Credential{
+		Service:      service,
+		Username:     username,
+		Password:     password,
+		Notes:        notes,
+		CreatedAt:    now,
+		UpdatedAt:    now,
+		UsageRecord:  make(map[string]UsageRecord),
+	}
+
+	// Add to vault
+	v.vaultData.Credentials[service] = credential
+
+	// Save to disk
+	return v.save()
+}
+
+// GetCredential retrieves a credential and tracks usage
+func (v *VaultService) GetCredential(service string, trackUsage bool) (*Credential, error) {
+	if !v.unlocked {
+		return nil, ErrVaultLocked
+	}
+
+	credential, exists := v.vaultData.Credentials[service]
+	if !exists {
+		return nil, fmt.Errorf("%w: %s", ErrCredentialNotFound, service)
+	}
+
+	// Track usage if requested
+	if trackUsage {
+		if err := v.trackUsage(service); err != nil {
+			// Log warning but don't fail the get operation
+			fmt.Fprintf(os.Stderr, "Warning: failed to track usage: %v\n", err)
+		}
+	}
+
+	// Return a copy to prevent external modification
+	cred := credential
+	return &cred, nil
+}
+
+// trackUsage records credential usage at current location
+func (v *VaultService) trackUsage(service string) error {
+	credential, exists := v.vaultData.Credentials[service]
+	if !exists {
+		return ErrCredentialNotFound
+	}
+
+	// Get current working directory
+	location, err := os.Getwd()
+	if err != nil {
+		location = "unknown"
+	}
+
+	// Try to get git repo info
+	gitRepo := v.getGitRepo(location)
+
+	// Update or create usage record
+	record, exists := credential.UsageRecord[location]
+	if exists {
+		record.Count++
+		record.Timestamp = time.Now()
+	} else {
+		record = UsageRecord{
+			Location:  location,
+			Timestamp: time.Now(),
+			GitRepo:   gitRepo,
+			Count:     1,
+		}
+	}
+
+	credential.UsageRecord[location] = record
+	v.vaultData.Credentials[service] = credential
+
+	// Save to persist usage tracking
+	return v.save()
+}
+
+// getGitRepo attempts to get the git repository for a directory
+func (v *VaultService) getGitRepo(dir string) string {
+	// Simple implementation - look for .git directory up the tree
+	current := dir
+	for {
+		gitDir := filepath.Join(current, ".git")
+		if _, err := os.Stat(gitDir); err == nil {
+			// Found .git directory, return the repo name (directory name)
+			return filepath.Base(current)
+		}
+
+		parent := filepath.Dir(current)
+		if parent == current {
+			// Reached root
+			break
+		}
+		current = parent
+	}
+	return ""
+}
+
+// ListCredentials returns all credential service names
+func (v *VaultService) ListCredentials() ([]string, error) {
+	if !v.unlocked {
+		return nil, ErrVaultLocked
+	}
+
+	services := make([]string, 0, len(v.vaultData.Credentials))
+	for service := range v.vaultData.Credentials {
+		services = append(services, service)
+	}
+
+	return services, nil
+}
+
+// UpdateCredential updates an existing credential
+func (v *VaultService) UpdateCredential(service, username, password, notes string) error {
+	if !v.unlocked {
+		return ErrVaultLocked
+	}
+
+	credential, exists := v.vaultData.Credentials[service]
+	if !exists {
+		return fmt.Errorf("%w: %s", ErrCredentialNotFound, service)
+	}
+
+	// Update fields (empty strings mean "don't change")
+	if username != "" {
+		credential.Username = username
+	}
+	if password != "" {
+		credential.Password = password
+	}
+	if notes != "" {
+		credential.Notes = notes
+	}
+
+	credential.UpdatedAt = time.Now()
+	v.vaultData.Credentials[service] = credential
+
+	return v.save()
+}
+
+// DeleteCredential removes a credential from the vault
+func (v *VaultService) DeleteCredential(service string) error {
+	if !v.unlocked {
+		return ErrVaultLocked
+	}
+
+	if _, exists := v.vaultData.Credentials[service]; !exists {
+		return fmt.Errorf("%w: %s", ErrCredentialNotFound, service)
+	}
+
+	delete(v.vaultData.Credentials, service)
+
+	return v.save()
+}
+
+// GetUsageStats returns usage statistics for a credential
+func (v *VaultService) GetUsageStats(service string) (map[string]UsageRecord, error) {
+	if !v.unlocked {
+		return nil, ErrVaultLocked
+	}
+
+	credential, exists := v.vaultData.Credentials[service]
+	if !exists {
+		return nil, fmt.Errorf("%w: %s", ErrCredentialNotFound, service)
+	}
+
+	// Return a copy to prevent external modification
+	stats := make(map[string]UsageRecord, len(credential.UsageRecord))
+	for loc, record := range credential.UsageRecord {
+		stats[loc] = record
+	}
+
+	return stats, nil
+}
+
+// ChangePassword changes the vault master password
+func (v *VaultService) ChangePassword(newPassword string) error {
+	if !v.unlocked {
+		return ErrVaultLocked
+	}
+
+	// Validate new password
+	if len(newPassword) < 8 {
+		return errors.New("new password must be at least 8 characters")
+	}
+
+	// Update master password
+	v.masterPassword = newPassword
+
+	// Re-save vault with new password
+	if err := v.save(); err != nil {
+		return fmt.Errorf("failed to save vault with new password: %w", err)
+	}
+
+	// Update keychain if available
+	if v.keychainService.IsAvailable() {
+		if err := v.keychainService.Store(newPassword); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to update password in keychain: %v\n", err)
+		}
+	}
+
+	return nil
+}

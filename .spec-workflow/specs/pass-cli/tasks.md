@@ -40,7 +40,7 @@
   - _Requirements: 1.6 (Keychain integration)_
   - _Prompt: Implement the task for spec pass-cli, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Systems Integration Developer with expertise in cross-platform development and system APIs | Task: Create keychain service for cross-platform master password storage following requirement 1.6, with proper fallback mechanisms | Restrictions: Must handle keychain unavailability gracefully, test on multiple platforms, ensure secure storage | _Leverage: zalando/go-keyring library, platform detection | _Requirements: Seamless system keychain integration with fallbacks | Success: Keychain integration works on Windows/macOS/Linux, graceful fallback when unavailable, secure password storage | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 5. Create vault service for credential business logic
+- [x] 5. Create vault service for credential business logic
   - File: internal/vault/vault.go
   - Implement core credential management operations (CRUD)
   - Add credential validation and duplicate handling
