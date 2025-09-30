@@ -103,7 +103,7 @@
   - _Enhancement: Add --unused flag to show credentials never accessed or not accessed recently_
   - _Prompt: Implement the task for spec pass-cli, first run spec-workflow-guide to get the workflow guide then implement the task: Role: CLI Developer with expertise in data presentation and table formatting | Task: Implement list command for credential overview following requirement 1.4, with multiple output formats and filtering options | Restrictions: Must not display sensitive data, provide useful metadata, ensure readable output | _Leverage: Cobra framework, vault service, table formatting libraries | _Requirements: Clear overview of stored credentials | Success: Users can list credentials in multiple formats, filtering works correctly, no sensitive data exposed | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 11. Create update command for credential modification
+- [x] 11. Create update command for credential modification
   - File: cmd/update.go
   - Implement credential update functionality
   - Add selective field updating (username/password separately)
