@@ -1,0 +1,208 @@
+# GoReleaser configuration for Pass-CLI
+# https://goreleaser.com
+
+version: 2
+
+before:
+  hooks:
+    # Run tests before building
+    - go test ./...
+    # Run linters
+    - golangci-lint run
+
+builds:
+  - id: pass-cli
+    main: .
+    binary: pass-cli
+
+    # Version information injected at build time
+    ldflags:
+      - -s -w
+      - -X pass-cli/cmd.version={{.Version}}
+      - -X pass-cli/cmd.commit={{.ShortCommit}}
+      - -X pass-cli/cmd.date={{.Date}}
+
+    # Target platforms
+    goos:
+      - windows
+      - darwin
+      - linux
+
+    goarch:
+      - amd64
+      - arm64
+
+    # Platform-specific configurations
+    ignore:
+      # No known incompatibilities, but can add here if needed
+      # - goos: windows
+      #   goarch: arm64
+
+    # Build tags for conditional compilation
+    tags:
+      - netgo
+
+    # Environment variables for build
+    env:
+      - CGO_ENABLED=0
+
+    # Flags passed to go build
+    flags:
+      - -trimpath
+      - -mod=readonly
+
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+
+    # Files to include in archive
+    files:
+      - LICENSE*
+      - README*
+      - CHANGELOG*
+      - docs/*
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "^ci:"
+      - "Merge pull request"
+      - "Merge branch"
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug Fixes"
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: "Security"
+      regexp: '^.*?sec(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: "Performance"
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 3
+    - title: Others
+      order: 999
+
+release:
+  github:
+    owner: username
+    name: pass-cli
+
+  # Release name format
+  name_template: "v{{.Version}}"
+
+  # Create draft release (can be published manually)
+  draft: false
+
+  # Mark as prerelease if version contains alpha, beta, rc
+  prerelease: auto
+
+  # Include release notes
+  discussion_category_name: General
+
+  # Header and footer for release notes
+  header: |
+    ## Pass-CLI {{.Version}}
+
+    A secure, cross-platform CLI password and API key manager for developers.
+
+    ### Installation
+
+    #### Homebrew (macOS/Linux)
+    ```bash
+    brew install username/tap/pass-cli
+    ```
+
+    #### Scoop (Windows)
+    ```powershell
+    scoop bucket add username https://github.com/username/scoop-bucket
+    scoop install pass-cli
+    ```
+
+    #### Manual Installation
+    Download the appropriate archive for your platform below, extract it, and add the binary to your PATH.
+
+  footer: |
+    ### Verification
+
+    All binaries are checksummed and can be verified:
+    ```bash
+    sha256sum -c checksums.txt
+    ```
+
+    ### Full Changelog
+    See the full changelog at https://github.com/username/pass-cli/blob/main/CHANGELOG.md
+
+# Universal Binaries for macOS (combines amd64 and arm64)
+universal_binaries:
+  - id: pass-cli-darwin
+    replace: true
+    name_template: "pass-cli"
+    ids:
+      - pass-cli
+
+# Announce release (can configure Twitter, Discord, Slack, etc.)
+# announce:
+#   twitter:
+#     enabled: false
+#   discord:
+#     enabled: false
+
+# Metadata for package managers
+metadata:
+  mod_timestamp: "{{ .CommitTimestamp }}"
+
+# Signing (optional, for macOS binaries)
+# signs:
+#   - artifacts: checksum
+#     args:
+#       - "--batch"
+#       - "--local-user"
+#       - "{{ .Env.GPG_FINGERPRINT }}"
+#       - "--output"
+#       - "${signature}"
+#       - "--detach-sign"
+#       - "${artifact}"
+
+# Docker images (optional)
+# dockers:
+#   - image_templates:
+#       - "ghcr.io/username/pass-cli:{{ .Tag }}"
+#       - "ghcr.io/username/pass-cli:v{{ .Major }}"
+#       - "ghcr.io/username/pass-cli:v{{ .Major }}.{{ .Minor }}"
+#       - "ghcr.io/username/pass-cli:latest"
+#     dockerfile: Dockerfile
+#     use: buildx
+#     build_flag_templates:
+#       - "--platform=linux/amd64"
+#       - "--label=org.opencontainers.image.created={{.Date}}"
+#       - "--label=org.opencontainers.image.title={{.ProjectName}}"
+#       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+#       - "--label=org.opencontainers.image.version={{.Version}}"
+
+# SBOMs (Software Bill of Materials)
+sboms:
+  - id: archive
+    artifacts: archive
+  - id: binary
+    artifacts: binary

@@ -30,7 +30,7 @@
   - _Requirements: FR-1 (Comprehensive Testing), FR-5 (Performance Validation)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Integration Test Engineer with expertise in end-to-end testing and performance validation | Task: Create comprehensive integration test suite covering complete user workflows, cross-platform keychain scenarios, and performance benchmarks following requirements FR-1 and FR-5 | Restrictions: Must use build tags to separate from unit tests, ensure test isolation, handle platform differences gracefully | _Leverage: Full application stack, Go testing and benchmarking framework, temporary vaults | _Requirements: Complete workflow validation and performance verification | Success: All workflows tested end-to-end, keychain integration verified on all platforms, performance targets met (<100ms cached, <500ms unlock), stress tests pass with 1000+ credentials | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 4. Configure GoReleaser for cross-platform builds
+- [x] 4. Configure GoReleaser for cross-platform builds
   - File: .goreleaser.yml
   - Set up cross-compilation targets (Windows, macOS, Linux on amd64 and arm64)
   - Configure build flags, ldflags for version injection
