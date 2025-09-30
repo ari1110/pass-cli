@@ -1,6 +1,6 @@
 # Tasks Document
 
-- [ ] 1. Enhance crypto service tests with NIST test vectors
+- [x] 1. Enhance crypto service tests with NIST test vectors
   - File: internal/crypto/crypto_test.go
   - Add NIST test vectors for AES-256-GCM validation
   - Implement timing attack resistance tests
