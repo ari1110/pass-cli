@@ -51,7 +51,7 @@
   - _Enhancement: Add usage tracking data structure to Credential model (location, timestamps, access count, git repo info)_
   - _Prompt: Implement the task for spec pass-cli, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Backend Developer specializing in business logic and service architecture | Task: Implement vault service providing CRUD operations for credentials following requirements 1.2, 1.3, and 1.4, integrating all lower-level services | Restrictions: Must validate all inputs, handle concurrent access, maintain data integrity | _Leverage: All internal services (crypto, storage, keychain) | _Requirements: Complete credential management functionality | Success: All CRUD operations work correctly, validation prevents invalid data, service integrates properly with other components | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 6. Implement root command and CLI framework setup
+- [x] 6. Implement root command and CLI framework setup
   - File: cmd/root.go
   - Set up Cobra root command with global flags and configuration
   - Add Viper configuration management

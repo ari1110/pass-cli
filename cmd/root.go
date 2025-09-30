@@ -3,20 +3,51 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var (
-	cfgFile string
+	cfgFile   string
+	vaultPath string
+	verbose   bool
+
+	// Version information (set via ldflags during build)
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+
 	rootCmd = &cobra.Command{
 		Use:   "pass-cli",
 		Short: "A secure CLI password and API key manager",
 		Long: `Pass-CLI is a secure, cross-platform command-line password and API key manager
 designed for developers. It provides local encrypted storage with optional system
 keychain integration, allowing developers to securely manage credentials without
-relying on cloud services.`,
+relying on cloud services.
+
+Features:
+  • AES-256-GCM encryption with PBKDF2 key derivation
+  • Native OS keychain integration (Windows Credential Manager, macOS Keychain, Linux Secret Service)
+  • Script-friendly output for CI/CD integration
+  • Automatic usage tracking
+  • Offline-first design with no cloud dependencies
+
+Examples:
+  # Initialize a new vault
+  pass-cli init
+
+  # Add a new credential
+  pass-cli add github
+
+  # Retrieve a credential
+  pass-cli get github
+
+  # List all credentials
+  pass-cli list
+
+For more information, visit: https://github.com/username/pass-cli`,
 	}
 )
 
@@ -33,10 +64,37 @@ func init() {
 
 	// Global flags
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pass-cli/config.yaml)")
-	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "verbose output")
+	rootCmd.PersistentFlags().StringVar(&vaultPath, "vault", "", "vault file path (default is $HOME/.pass-cli/vault.enc)")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 
 	// Bind flags to viper
-	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
+	_ = viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
+	_ = viper.BindPFlag("vault", rootCmd.PersistentFlags().Lookup("vault"))
+}
+
+// GetVaultPath returns the vault path from flag, config, or default
+func GetVaultPath() string {
+	// Priority: flag > config > default
+	if vaultPath != "" {
+		return vaultPath
+	}
+
+	if viper.IsSet("vault") {
+		return viper.GetString("vault")
+	}
+
+	// Default vault path
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ".pass-cli/vault.enc"
+	}
+
+	return filepath.Join(home, ".pass-cli", "vault.enc")
+}
+
+// IsVerbose returns whether verbose mode is enabled
+func IsVerbose() bool {
+	return verbose || viper.GetBool("verbose")
 }
 
 // initConfig reads in config file and ENV variables if set.
