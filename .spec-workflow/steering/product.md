@@ -21,13 +21,15 @@ Pass-CLI is a secure, cross-platform command-line password and API key manager d
 ## Key Features
 
 1. **Local Encrypted Storage**: AES-256-GCM encryption with PBKDF2 key derivation for maximum security
-2. **System Keychain Integration**: Optional master password storage in Windows Credential Manager, macOS Keychain, or Linux Secret Service
+2. **System Keychain Integration**: Optional master password storage in Windows Credential Manager, macOS Keychain, or Linux Secret Service (unique differentiator for CLI password managers)
 3. **CLI-First Design**: Fast, intuitive commands optimized for developer workflows
-4. **Cross-Platform Compatibility**: Single binary distribution for Windows, macOS, and Linux
-5. **Offline Operation**: No cloud dependencies, works completely offline
-6. **Password Generation**: Cryptographically secure password generation with customizable options
-7. **Clipboard Integration**: Automatic credential copying with security timeouts
-8. **Package Manager Distribution**: Easy installation via Homebrew and Scoop
+4. **Script-Friendly Output**: Support for shell integration with `--quiet`, `--field`, and `--json` flags for use in scripts like `$env:API_KEY=$(pass-cli get service -q)`
+5. **Automatic Usage Tracking**: Intelligent tracking of where credentials are used based on working directory, with no manual flags required
+6. **Cross-Platform Compatibility**: Single binary distribution for Windows, macOS, and Linux
+7. **Offline Operation**: No cloud dependencies, works completely offline
+8. **Password Generation**: Cryptographically secure password generation with customizable options
+9. **Clipboard Integration**: Automatic credential copying with security timeouts
+10. **Package Manager Distribution**: Easy installation via Homebrew and Scoop
 
 ## Business Objectives
 
@@ -59,13 +61,49 @@ Pass-CLI is a secure, cross-platform command-line password and API key manager d
 - **Key Metrics Displayed**: Credential count, vault status, last updated timestamps
 - **Sharing Capabilities**: Export functionality for backup and migration
 
+## Competitive Landscape
+
+### Existing Solutions Analysis
+
+**gopass**
+- Free, open source, uses GPG + Git
+- No OS keychain integration
+- Asymmetric encryption (GPG hybrid approach)
+- Strong sync capabilities via Git
+
+**Bitwarden CLI**
+- Free tier + premium, requires server (cloud or self-hosted)
+- No native CLI keychain integration
+- Excellent web/mobile integration
+- Team collaboration features
+
+**KeePassXC**
+- Free, single .kdbx file
+- GUI can use keychain but CLI cannot
+- Strong security track record
+- Cross-platform compatibility
+
+**1Password CLI**
+- Paid only, has keychain integration
+- Requires desktop app for full functionality
+- Excellent UX and team features
+- Enterprise-grade security
+
+**Chezmoi**
+- Dotfiles manager with keychain integration
+- Not a pure password manager
+- Uses go-keyring library
+
+**Pass-CLI Positioning**: The only pure CLI password manager with native OS keychain integration, symmetric encryption (AES-256-GCM), and automatic usage tracking for developer workflows.
+
 ## Future Vision
 
 Pass-CLI aims to become the standard CLI credential manager for developers, setting the benchmark for security, usability, and integration capabilities in the developer tools ecosystem.
 
 ### Potential Enhancements
 - **Remote Access**: Secure vault synchronization across multiple development machines
-- **Analytics**: Usage patterns and security metrics for credential rotation recommendations
+- **Usage Analytics**: Comprehensive usage stats and insights based on automatic tracking
 - **Collaboration**: Team-based credential sharing with granular access controls
 - **Plugin Ecosystem**: Integration with popular development tools and CI/CD platforms
 - **Audit Logging**: Comprehensive access logs for security compliance
+- **Advanced Script Integration**: Enhanced output formats and shell completion

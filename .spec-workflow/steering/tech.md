@@ -19,17 +19,18 @@ Command-line interface (CLI) tool for secure credential management. Single-binar
 
 ### Application Architecture
 Layered architecture with clear separation of concerns:
-- **CLI Layer**: Command interface using Cobra framework
-- **Service Layer**: Business logic for credential management (Vault service)
-- **Storage Layer**: Encrypted file operations and persistence
+- **CLI Layer**: Command interface using Cobra framework with script-friendly output modes
+- **Service Layer**: Business logic for credential management (Vault service) with automatic usage tracking
+- **Storage Layer**: Encrypted file operations and persistence with atomic writes
 - **Crypto Layer**: AES-256-GCM encryption and key derivation
-- **Keychain Layer**: System integration for master password storage
+- **Keychain Layer**: System integration for master password storage (Windows Credential Manager, macOS Keychain, Linux Secret Service)
 
 ### Data Storage (if applicable)
 - **Primary storage**: Local encrypted JSON files in user home directory (`~/.pass-cli/vault.enc`)
+- **Usage tracking**: Embedded within vault data structure, tracking location and timestamp per credential
 - **Caching**: In-memory vault cache during active sessions
 - **Data formats**: JSON for structured data, binary for encrypted blobs
-- **Backup strategy**: Atomic writes with temporary files for corruption prevention
+- **Backup strategy**: Atomic writes with temporary files for corruption prevention, automatic backups before saves
 
 ### External Integrations (if applicable)
 - **System Keychains**: Windows Credential Manager, macOS Keychain, Linux Secret Service
@@ -79,10 +80,15 @@ Layered architecture with clear separation of concerns:
 - **Standards Compliance**: NIST encryption standards, OWASP secure coding practices
 
 ### Security & Compliance
-- **Encryption**: AES-256-GCM with cryptographically secure key derivation (PBKDF2, 100k+ iterations)
+- **Encryption**: AES-256-GCM with cryptographically secure key derivation (PBKDF2, 100k iterations)
 - **Key Management**: Never store master passwords in plaintext, secure memory clearing
-- **File Permissions**: Vault files created with 600 permissions (user read/write only)
+- **File Permissions**: Vault files created with 600 permissions on Unix (macOS/Linux), Windows ACLs on Windows
+- **Platform-Specific Security**:
+  - macOS: App-level keychain isolation
+  - Windows: User-level credential isolation
+  - Linux: D-Bus Secret Service integration
 - **Threat Model**: Protection against local file access, memory dumps, and weak passwords
+- **Defense in Depth**: Encryption is primary security layer, file permissions provide additional protection
 
 ### Scalability & Reliability
 - **Expected Load**: Single-user, local operations with hundreds of credentials
@@ -121,6 +127,27 @@ Layered architecture with clear separation of concerns:
    - Graceful fallback to password prompts
    - Enhanced user experience for daily workflows
    - OS-level security protections
+   - Unique differentiator among pure CLI password managers
+
+6. **Script-Friendly Output Design**:
+   - `--quiet` flag for clean output (no prompts or formatting)
+   - `--field` flag for extracting specific credential fields
+   - `--json` flag for structured output
+   - Enables shell integration: `$env:API_KEY=$(pass-cli get service -q)`
+   - `--no-clipboard` flag to prevent automatic clipboard copying
+
+7. **Automatic Usage Tracking**:
+   - Track credential usage based on $PWD (current working directory)
+   - No manual flags required (fully automatic)
+   - Store location, timestamps, access count, git repo info
+   - Enables intelligent warnings on deletion/updates
+   - Supports usage analysis and credential rotation insights
+
+8. **Platform-Specific File Security**:
+   - Unix (macOS/Linux): 0600 permissions for vault file
+   - Windows: User-level access via Windows ACLs
+   - Encryption as primary security (defense in depth approach)
+   - Accept Windows can't enforce Unix-style permissions
 
 ## Known Limitations
 
