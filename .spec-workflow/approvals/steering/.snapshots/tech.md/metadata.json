@@ -1,6 +1,6 @@
 {
   "filePath": ".spec-workflow/steering/tech.md",
-  "currentVersion": 1,
+  "currentVersion": 2,
   "snapshots": [
     {
       "version": 1,
@@ -9,6 +9,14 @@
       "trigger": "initial",
       "approvalId": "approval_1759098966588_9pzgv5l1w",
       "approvalTitle": "Technology stack document for pass-cli"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-09-30T03:05:14.953Z",
+      "trigger": "approved",
+      "approvalId": "approval_1759201426824_6ee0tcsu8",
+      "approvalTitle": "Updated tech.md with platform-specific decisions and new features"
     }
   ]
 }

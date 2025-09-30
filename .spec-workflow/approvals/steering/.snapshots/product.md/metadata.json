@@ -1,6 +1,6 @@
 {
   "filePath": ".spec-workflow/steering/product.md",
-  "currentVersion": 1,
+  "currentVersion": 2,
   "snapshots": [
     {
       "version": 1,
@@ -9,6 +9,14 @@
       "trigger": "initial",
       "approvalId": "approval_1759098844695_qykvndo2z",
       "approvalTitle": "Product overview document for pass-cli"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-09-30T03:05:34.791Z",
+      "trigger": "approved",
+      "approvalId": "approval_1759201426688_n8c5sk07v",
+      "approvalTitle": "Updated product.md with competitive landscape and new features"
     }
   ]
 }

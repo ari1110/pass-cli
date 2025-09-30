@@ -30,7 +30,7 @@
   - _Requirements: 1.1, 1.4 (Vault operations)_
   - _Prompt: Implement the task for spec pass-cli, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Backend Developer with expertise in file system operations and data persistence | Task: Implement storage service for encrypted vault file operations following requirements 1.1 and 1.4, ensuring proper file permissions and error handling | Restrictions: Must handle file corruption gracefully, ensure atomic writes, use secure file permissions (600) | _Leverage: Go standard library file operations, crypto service | _Requirements: Reliable vault file management with corruption detection | Success: Vault files are created with correct permissions, operations are atomic, corruption is detected and handled | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 4. Implement keychain service for system integration
+- [x] 4. Implement keychain service for system integration
   - File: internal/keychain/keychain.go
   - Create cross-platform keychain integration using go-keyring
   - Add availability detection and graceful fallback
