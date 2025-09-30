@@ -40,7 +40,16 @@ test-coverage:
 # Run integration tests
 .PHONY: test-integration
 test-integration:
-	go test -tags=integration ./test/...
+	go test -v -tags=integration -timeout 5m ./test
+
+# Run integration tests in short mode (skip performance/stress tests)
+.PHONY: test-integration-short
+test-integration-short:
+	go test -v -tags=integration -short -timeout 2m ./test
+
+# Run all tests (unit + integration)
+.PHONY: test-all
+test-all: test test-integration
 
 # Lint the code
 .PHONY: lint
@@ -96,7 +105,9 @@ help:
 	@echo "  install         Install the binary"
 	@echo "  test            Run unit tests"
 	@echo "  test-coverage   Run tests with coverage report"
-	@echo "  test-integration Run integration tests"
+	@echo "  test-integration Run integration tests (verbose, 5min timeout)"
+	@echo "  test-integration-short Run integration tests (skip stress/perf tests)"
+	@echo "  test-all        Run all tests (unit + integration)"
 	@echo "  lint            Run linter"
 	@echo "  fmt             Format code"
 	@echo "  vet             Run go vet"

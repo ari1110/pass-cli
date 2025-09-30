@@ -20,7 +20,7 @@
   - _Requirements: FR-1 (Comprehensive Testing), NFR-1 (Code Quality)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: QA Engineer with expertise in file system testing and edge case identification | Task: Enhance storage service tests with corruption scenarios, atomic write edge cases, and backup/restore validation following requirements FR-1 and NFR-1 | Restrictions: Must use temporary directories, test cross-platform behavior, clean up all test artifacts | _Leverage: Go testing framework, os/temp package, platform-specific file utilities | _Requirements: Comprehensive storage layer validation | Success: All corruption scenarios handled, atomic writes validated, backup/restore works correctly, test coverage >95% for storage package | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 3. Create integration test suite for end-to-end workflows
+- [x] 3. Create integration test suite for end-to-end workflows
   - File: test/integration_test.go
   - Implement complete workflow tests (init → add → get → update → delete)
   - Add cross-platform keychain integration tests
