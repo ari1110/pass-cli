@@ -4,6 +4,7 @@ go 1.25.1
 
 require (
 	al.essio.dev/pkg/shellescape v1.5.1 // indirect
+	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/danieljoos/wincred v1.2.2 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect

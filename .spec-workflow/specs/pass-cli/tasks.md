@@ -81,7 +81,7 @@
   - _Requirements: 1.2 (Credential storage)_
   - _Prompt: Implement the task for spec pass-cli, first run spec-workflow-guide to get the workflow guide then implement the task: Role: CLI Developer with expertise in secure input handling and credential management | Task: Implement add command for credential storage following requirement 1.2, with proper validation and secure input prompting | Restrictions: Must hide password input, validate service names, prevent accidental overwrites | _Leverage: Cobra framework, vault service, secure terminal input | _Requirements: Secure and user-friendly credential addition | Success: Users can add credentials securely, input is validated, duplicates are handled properly | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 9. Create get command for credential retrieval
+- [x] 9. Create get command for credential retrieval
   - File: cmd/get.go
   - Implement credential retrieval with automatic clipboard copying
   - Add service name completion and fuzzy matching
