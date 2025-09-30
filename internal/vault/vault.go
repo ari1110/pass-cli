@@ -347,6 +347,57 @@ func (v *VaultService) ListCredentials() ([]string, error) {
 	return services, nil
 }
 
+// CredentialMetadata contains non-sensitive credential information for listing
+type CredentialMetadata struct {
+	Service      string
+	Username     string
+	Notes        string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	UsageCount   int       // Total usage count across all locations
+	LastAccessed time.Time // Most recent access time
+	Locations    []string  // List of locations where accessed
+}
+
+// ListCredentialsWithMetadata returns all credentials with metadata (no passwords)
+func (v *VaultService) ListCredentialsWithMetadata() ([]CredentialMetadata, error) {
+	if !v.unlocked {
+		return nil, ErrVaultLocked
+	}
+
+	metadata := make([]CredentialMetadata, 0, len(v.vaultData.Credentials))
+	for _, cred := range v.vaultData.Credentials {
+		meta := CredentialMetadata{
+			Service:   cred.Service,
+			Username:  cred.Username,
+			Notes:     cred.Notes,
+			CreatedAt: cred.CreatedAt,
+			UpdatedAt: cred.UpdatedAt,
+		}
+
+		// Calculate usage statistics
+		var totalCount int
+		var lastAccessed time.Time
+		locations := make([]string, 0, len(cred.UsageRecord))
+
+		for loc, record := range cred.UsageRecord {
+			totalCount += record.Count
+			locations = append(locations, loc)
+			if record.Timestamp.After(lastAccessed) {
+				lastAccessed = record.Timestamp
+			}
+		}
+
+		meta.UsageCount = totalCount
+		meta.LastAccessed = lastAccessed
+		meta.Locations = locations
+
+		metadata = append(metadata, meta)
+	}
+
+	return metadata, nil
+}
+
 // UpdateCredential updates an existing credential
 func (v *VaultService) UpdateCredential(service, username, password, notes string) error {
 	if !v.unlocked {

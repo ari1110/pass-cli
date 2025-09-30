@@ -92,7 +92,7 @@
   - _Enhancement: Add --quiet flag (clean output for scripts), --field flag (extract specific fields), --no-clipboard flag (skip clipboard), automatic usage tracking based on $PWD_
   - _Prompt: Implement the task for spec pass-cli, first run spec-workflow-guide to get the workflow guide then implement the task: Role: CLI Developer with expertise in user experience and clipboard integration | Task: Create get command for credential retrieval following requirement 1.3, with clipboard copying and user-friendly features | Restrictions: Must handle clipboard failures gracefully, provide security warnings, clear clipboard after timeout | _Leverage: Cobra framework, vault service, cross-platform clipboard libraries | _Requirements: Quick and secure credential access | Success: Credentials are retrieved quickly, clipboard integration works, security is maintained | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 10. Implement list command for credential overview
+- [x] 10. Implement list command for credential overview
   - File: cmd/list.go
   - Create command to display all stored service names
   - Add formatting options (table, json, simple)
