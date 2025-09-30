@@ -71,7 +71,7 @@
   - _Requirements: 1.1 (Vault initialization)_
   - _Prompt: Implement the task for spec pass-cli, first run spec-workflow-guide to get the workflow guide then implement the task: Role: CLI Developer with expertise in user interaction and command implementation | Task: Create init command for vault initialization following requirement 1.1, with proper user prompts and keychain setup options | Restrictions: Must validate user input, provide clear feedback, handle errors gracefully | _Leverage: Cobra framework, vault service, secure input handling | _Requirements: User-friendly vault initialization process | Success: Users can initialize vaults with master passwords, keychain integration works, clear success/error messages | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 8. Implement add command for credential storage
+- [x] 8. Implement add command for credential storage
   - File: cmd/add.go
   - Create command to add new credentials with service/username/value
   - Add input validation and duplicate detection
