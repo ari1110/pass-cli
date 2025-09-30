@@ -125,7 +125,7 @@
   - _Enhancement: Display usage warnings (e.g., "⚠️ Warning: Used in 3 locations, last used 5 min ago") before confirming deletion_
   - _Prompt: Implement the task for spec pass-cli, first run spec-workflow-guide to get the workflow guide then implement the task: Role: CLI Developer with expertise in safe deletion operations and confirmation flows | Task: Implement delete command for credential removal following requirement 1.4, with proper confirmations and batch operations | Restrictions: Must require confirmation, support undo mechanisms, prevent accidental deletions | _Leverage: Cobra framework, vault service, confirmation dialogs | _Requirements: Safe credential deletion with protections | Success: Users can delete credentials safely, confirmations prevent accidents, batch operations work correctly | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 13. Create generate command for password generation
+- [x] 13. Create generate command for password generation
   - File: cmd/generate.go
   - Implement cryptographically secure password generation
   - Add customizable length and character set options
