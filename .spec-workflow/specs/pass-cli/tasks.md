@@ -114,7 +114,7 @@
   - _Enhancement: Display usage warnings (e.g., "Used in 3 locations, last used 5 min ago") before confirming update_
   - _Prompt: Implement the task for spec pass-cli, first run spec-workflow-guide to get the workflow guide then implement the task: Role: CLI Developer with expertise in data modification and user confirmation flows | Task: Create update command for credential modification following requirement 1.4, with selective updating and proper confirmations | Restrictions: Must confirm changes, validate new data, handle partial updates | _Leverage: Cobra framework, vault service, secure input handling | _Requirements: Safe and flexible credential updating | Success: Users can update credentials selectively, changes are confirmed, data integrity maintained | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 12. Implement delete command for credential removal
+- [x] 12. Implement delete command for credential removal
   - File: cmd/delete.go
   - Create command to remove credentials with confirmation
   - Add batch deletion capabilities
