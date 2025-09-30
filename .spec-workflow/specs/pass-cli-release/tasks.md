@@ -10,7 +10,7 @@
   - _Requirements: FR-1 (Comprehensive Testing), FR-6 (Security Validation)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Security Test Engineer with expertise in cryptographic testing and NIST standards | Task: Enhance crypto service tests with NIST test vectors, timing attack resistance tests, and memory clearing verification following requirements FR-1 and FR-6 | Restrictions: Must use official NIST test vectors, ensure tests are deterministic, verify constant-time operations | _Leverage: Go testing framework, crypto/subtle package, NIST test vector documentation | _Requirements: Validated cryptographic implementation with industry-standard tests | Success: All NIST test vectors pass, timing tests confirm constant-time operations, memory clearing is verified, test coverage >95% for crypto package | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 2. Enhance storage service tests with comprehensive scenarios
+- [x] 2. Enhance storage service tests with comprehensive scenarios
   - File: internal/storage/storage_test.go
   - Add corruption detection and recovery tests
   - Test atomic write edge cases (disk full, permission changes)
