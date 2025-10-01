@@ -115,7 +115,7 @@
   - _Requirements: FR-4 (Comprehensive Documentation), NFR-3 (Documentation Quality)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Technical Writer with expertise in CLI tool documentation | Task: Create comprehensive usage documentation with command reference and examples following requirements FR-4 and NFR-3 | Restrictions: Must test all examples, include script integration, cover all flags and options | _Leverage: Implemented commands, script-friendly output design, usage tracking features | _Requirements: Complete command reference | Success: All commands documented with working examples, script patterns tested, flag reference complete, configuration options explained | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 12. Create security documentation
+- [x] 12. Create security documentation
   - File: docs/security.md
   - Document encryption implementation (AES-256-GCM, PBKDF2)
   - Explain keychain integration per platform
