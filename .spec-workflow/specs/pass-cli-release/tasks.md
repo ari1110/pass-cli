@@ -160,11 +160,23 @@
 
 - [ ] 16. Prepare and execute v1.0 production release
   - Create git tag v1.0.0 with release notes
-  - Monitor GitHub Actions release pipeline
+  - Monitor GitHub Actions release pipeline (if configured)
   - Verify all artifacts and checksums
   - Test installations from production package managers
-  - Submit to official Homebrew and Scoop repositories (if applicable)
-  - Purpose: Execute production release
-  - _Leverage: Complete release infrastructure, validated process from dry run_
+  - **Immediate Distribution (available right after release):**
+    - GitHub Releases with direct download links
+    - Personal Homebrew tap (yourusername/tap/pass-cli)
+    - Personal Scoop bucket
+  - **Submit for Approval (takes days/weeks):**
+    - winget (microsoft/winget-pkgs) - create manifest and submit PR
+    - Snap Store - configure snapcraft.yaml and upload
+    - Scoop main bucket (optional for v1.0, consider for v1.1)
+    - Homebrew Core (optional, consider once project has more adoption)
+  - **Additional Package Managers:**
+    - Create winget manifest (YAML format for Windows Package Manager)
+    - Configure Snap package in .goreleaser.yml
+    - Document submission process for each package manager
+  - Purpose: Execute production release with comprehensive distribution strategy
+  - _Leverage: Complete release infrastructure, validated process from dry run, GoReleaser multi-platform support_
   - _Requirements: All FRs and NFRs, complete validation_
-  - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Release Manager with expertise in production releases | Task: Execute production v1.0 release including tagging, monitoring, verification, and package manager submission following all requirements | Restrictions: Must verify all steps, have rollback plan ready, monitor for issues post-release | _Leverage: Complete release infrastructure, dry run validation, release procedures | _Requirements: Production-ready v1.0 release | Success: Git tag created, GitHub Actions succeeds, all artifacts available, package managers work, installations verified on all platforms | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
+  - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Release Manager with expertise in production releases and package distribution | Task: Execute production v1.0 release including tagging, monitoring, verification, and multi-platform package manager setup following all requirements | Restrictions: Must verify all steps, have rollback plan ready, monitor for issues post-release, distinguish between immediate and approval-based distribution | _Leverage: Complete release infrastructure, dry run validation, GoReleaser capabilities, package manager documentation | _Requirements: Production-ready v1.0 release with multiple installation methods | Success: Git tag created, GitHub Actions succeeds, all artifacts available, package managers configured, immediate distribution working, approval-based submissions sent, installations verified on all platforms | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
