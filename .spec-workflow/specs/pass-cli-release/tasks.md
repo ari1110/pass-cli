@@ -61,7 +61,7 @@
   - _Requirements: FR-1 (Comprehensive Testing), NFR-1 (Code Quality)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Build Engineer with expertise in Make and development workflows | Task: Enhance Makefile with additional targets for testing, coverage, and release preparation following requirements FR-1 and NFR-1 | Restrictions: Must maintain existing targets, ensure cross-platform compatibility, provide clear target descriptions | _Leverage: Go toolchain commands, GoReleaser CLI, existing project structure | _Requirements: Convenient development and release commands | Success: All new targets work correctly, coverage reports generated, dry-run validates release config, security scan catches vulnerabilities | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 7. Create Homebrew formula for macOS and Linux
+- [x] 7. Create Homebrew formula for macOS and Linux
   - File: homebrew/pass-cli.rb (or separate tap repository)
   - Write formula with platform-specific URLs and checksums
   - Add installation and test blocks
