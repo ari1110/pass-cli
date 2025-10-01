@@ -104,7 +104,7 @@
   - _Requirements: FR-4 (Comprehensive Documentation), NFR-3 (Documentation Quality)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Technical Writer with expertise in installation documentation | Task: Create detailed installation documentation covering all methods and platforms following requirements FR-4 and NFR-3 | Restrictions: Must test all installation methods, include platform-specific notes, provide troubleshooting | _Leverage: Package manager documentation, release process, common installation issues | _Requirements: Complete installation guide | Success: Documentation covers all installation methods, checksum verification steps are clear, troubleshooting addresses common issues, building from source works | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 11. Create usage documentation with command reference
+- [x] 11. Create usage documentation with command reference
   - File: docs/usage.md
   - Document all commands with examples
   - Add flag reference for each command
