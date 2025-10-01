@@ -237,9 +237,28 @@ goreleaser release --snapshot --clean --skip=publish
 
 ### Common Issues
 
+**"Go language version mismatch" (golangci-lint)**:
+- **Issue**: golangci-lint fails with "binary was built with go X but current version is Y"
+- **Root Cause**: golangci-lint must be built with a Go version >= the project's Go version
+- **Solution**: Pin golangci-lint to a version built with compatible Go
+- **Example**: For Go 1.25+ projects, use golangci-lint v2.5+ with golangci-lint-action v7
+  ```yaml
+  - name: Run golangci-lint
+    uses: golangci/golangci-lint-action@v7
+    with:
+      version: v2.5  # Built with Go 1.25+
+  ```
+- **Reference**: https://github.com/golangci/golangci-lint/issues/5873
+
 **"Resource not accessible by integration"**:
 - Check workflow permissions
 - Ensure GITHUB_TOKEN has proper scopes
+- For cross-repo updates (Homebrew/Scoop), use Personal Access Tokens:
+  ```yaml
+  env:
+    HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+    SCOOP_BUCKET_TOKEN: ${{ secrets.SCOOP_BUCKET_TOKEN }}
+  ```
 
 **"No matching tag"**:
 - Verify tag format matches `v*`
