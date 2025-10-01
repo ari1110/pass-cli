@@ -50,7 +50,7 @@
   - _Requirements: FR-2 (Build Automation), NFR-2 (Distribution Quality)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: DevOps Engineer with expertise in GitHub Actions and CI/CD pipelines | Task: Create GitHub Actions workflow for automated testing, building, and releasing on git tags following requirements FR-2 and NFR-2 | Restrictions: Must fail fast on test/lint errors, only release on tags, use official actions with pinned versions | _Leverage: GitHub Actions marketplace, GoReleaser action, existing Makefile targets | _Requirements: Fully automated release pipeline | Success: Workflow runs on tags, tests and linting pass before release, artifacts uploaded correctly, GitHub release created automatically | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 6. Enhance Makefile with release and testing targets
+- [x] 6. Enhance Makefile with release and testing targets
   - File: Makefile
   - Add test-coverage target with HTML output
   - Add test-integration target with build tags

@@ -36,6 +36,21 @@ test:
 test-coverage:
 	go test -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report generated: coverage.html"
+
+# Run tests with coverage and show summary
+.PHONY: test-coverage-report
+test-coverage-report:
+	go test -coverprofile=coverage.out ./...
+	go tool cover -func=coverage.out
+	@echo ""
+	@echo "HTML report: coverage.html"
+	go tool cover -html=coverage.out -o coverage.html
+
+# Run tests with race detection
+.PHONY: test-race
+test-race:
+	go test -race -short ./...
 
 # Run integration tests
 .PHONY: test-integration
@@ -70,12 +85,61 @@ vet:
 .PHONY: check
 check: fmt vet lint test
 
+# Pre-commit checks (comprehensive)
+.PHONY: pre-commit
+pre-commit: fmt vet lint test-race security-scan
+	@echo "All pre-commit checks passed!"
+
+# Pre-release checks (full validation)
+.PHONY: pre-release
+pre-release: clean fmt vet lint test-all security-scan vuln-check release-check
+	@echo "All pre-release checks passed!"
+
+# Security scan with gosec
+.PHONY: security-scan
+security-scan:
+	@echo "Running security scan with gosec..."
+	@command -v gosec >/dev/null 2>&1 || { echo "Installing gosec..."; go install github.com/securego/gosec/v2/cmd/gosec@latest; }
+	gosec -fmt=json -out=gosec-report.json ./...
+	gosec ./...
+
+# Vulnerability check for dependencies
+.PHONY: vuln-check
+vuln-check:
+	@echo "Checking for vulnerable dependencies..."
+	@command -v govulncheck >/dev/null 2>&1 || { echo "Installing govulncheck..."; go install golang.org/x/vuln/cmd/govulncheck@latest; }
+	govulncheck ./...
+
+# GoReleaser dry run (test release without publishing)
+.PHONY: release-dry-run
+release-dry-run:
+	@echo "Running GoReleaser in snapshot mode (dry run)..."
+	@command -v goreleaser >/dev/null 2>&1 || { echo "Error: goreleaser not installed"; exit 1; }
+	goreleaser release --snapshot --clean --skip=publish
+
+# GoReleaser build only (snapshot mode)
+.PHONY: release-snapshot
+release-snapshot:
+	@echo "Building snapshot release..."
+	@command -v goreleaser >/dev/null 2>&1 || { echo "Error: goreleaser not installed"; exit 1; }
+	goreleaser build --snapshot --clean
+
+# Validate GoReleaser configuration
+.PHONY: release-check
+release-check:
+	@echo "Validating GoReleaser configuration..."
+	@command -v goreleaser >/dev/null 2>&1 || { echo "Error: goreleaser not installed"; exit 1; }
+	goreleaser check
+
 # Clean build artifacts
 .PHONY: clean
 clean:
 	go clean
 	rm -f $(BINARY_NAME)
+	rm -f $(BINARY_NAME).exe
 	rm -f coverage.out coverage.html
+	rm -f gosec-report.json
+	rm -rf dist/
 
 # Cross-compile for all platforms
 .PHONY: build-all
@@ -95,22 +159,68 @@ build-all:
 prepare-dist:
 	mkdir -p dist
 
+# Generate module dependency graph
+.PHONY: deps-graph
+deps-graph:
+	@echo "Generating dependency graph..."
+	go mod graph | grep pass-cli | head -20
+
+# Tidy and verify dependencies
+.PHONY: deps-tidy
+deps-tidy:
+	go mod tidy
+	go mod verify
+
+# Update dependencies
+.PHONY: deps-update
+deps-update:
+	go get -u ./...
+	go mod tidy
+
 # Help target
 .PHONY: help
 help:
-	@echo "Available targets:"
-	@echo "  build           Build the binary"
-	@echo "  build-dev       Build with debug info"
-	@echo "  build-all       Cross-compile for all platforms"
-	@echo "  install         Install the binary"
-	@echo "  test            Run unit tests"
-	@echo "  test-coverage   Run tests with coverage report"
-	@echo "  test-integration Run integration tests (verbose, 5min timeout)"
-	@echo "  test-integration-short Run integration tests (skip stress/perf tests)"
-	@echo "  test-all        Run all tests (unit + integration)"
-	@echo "  lint            Run linter"
-	@echo "  fmt             Format code"
-	@echo "  vet             Run go vet"
-	@echo "  check           Run all code quality checks"
-	@echo "  clean           Clean build artifacts"
-	@echo "  help            Show this help message"
+	@echo "Pass-CLI Makefile Commands"
+	@echo ""
+	@echo "Building:"
+	@echo "  build                  Build the binary"
+	@echo "  build-dev              Build with debug info"
+	@echo "  build-all              Cross-compile for all platforms"
+	@echo "  install                Install the binary to GOPATH"
+	@echo ""
+	@echo "Testing:"
+	@echo "  test                   Run unit tests"
+	@echo "  test-race              Run tests with race detection"
+	@echo "  test-coverage          Run tests with HTML coverage report"
+	@echo "  test-coverage-report   Run tests with coverage summary"
+	@echo "  test-integration       Run integration tests (5min timeout)"
+	@echo "  test-integration-short Run integration tests (skip perf/stress)"
+	@echo "  test-all               Run all tests (unit + integration)"
+	@echo ""
+	@echo "Code Quality:"
+	@echo "  fmt                    Format code with gofmt"
+	@echo "  vet                    Run go vet"
+	@echo "  lint                   Run golangci-lint"
+	@echo "  check                  Run fmt + vet + lint + test"
+	@echo "  pre-commit             Run all pre-commit checks"
+	@echo "  pre-release            Run comprehensive pre-release validation"
+	@echo ""
+	@echo "Security:"
+	@echo "  security-scan          Run gosec security scanner"
+	@echo "  vuln-check             Check for vulnerable dependencies"
+	@echo ""
+	@echo "Release:"
+	@echo "  release-check          Validate GoReleaser configuration"
+	@echo "  release-dry-run        Test full release process (no publish)"
+	@echo "  release-snapshot       Build snapshot release locally"
+	@echo ""
+	@echo "Dependencies:"
+	@echo "  deps-tidy              Tidy and verify go.mod"
+	@echo "  deps-update            Update all dependencies"
+	@echo "  deps-graph             Show dependency graph"
+	@echo ""
+	@echo "Cleanup:"
+	@echo "  clean                  Remove build artifacts and reports"
+	@echo ""
+	@echo "Help:"
+	@echo "  help                   Show this help message"
