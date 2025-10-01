@@ -207,48 +207,50 @@ sboms:
     artifacts: binary
 
 # Snap packages for universal Linux distribution
-snapcrafts:
-  - id: pass-cli-snap
-    name: pass-cli
-
-    summary: Secure CLI password and API key manager for developers
-    description: |
-      Pass-CLI is a secure, cross-platform command-line password and API key manager
-      designed specifically for developers. It provides encrypted vault storage using
-      AES-256-GCM encryption, optional keychain integration for automatic unlocking,
-      and clipboard integration for secure credential access.
-
-      Features:
-      - Strong encryption with AES-256-GCM and PBKDF2 key derivation
-      - Cross-platform keychain integration
-      - Secure clipboard integration with auto-clear
-      - Script-friendly output formats
-      - Encrypted backup and restore
-      - Password masking with visual feedback
-
-    # Snap grade (stable or devel)
-    grade: stable
-
-    # Confinement level (strict, classic, or devmode)
-    confinement: strict
-
-    # License
-    license: MIT
-
-    # Base snap
-    base: core22
-
-    # App configuration
-    apps:
-      pass-cli:
-        command: pass-cli
-        plugs:
-          - home
-          - network
-          - password-manager-service
-
-    # Publish to Snap Store
-    publish: false
+# Disabled: snapcraft not available in GitHub Actions environment
+# TODO: Add snapcraft installation step or use docker-based build
+# snapcrafts:
+#   - id: pass-cli-snap
+#     name: pass-cli
+#
+#     summary: Secure CLI password and API key manager for developers
+#     description: |
+#       Pass-CLI is a secure, cross-platform command-line password and API key manager
+#       designed specifically for developers. It provides encrypted vault storage using
+#       AES-256-GCM encryption, optional keychain integration for automatic unlocking,
+#       and clipboard integration for secure credential access.
+#
+#       Features:
+#       - Strong encryption with AES-256-GCM and PBKDF2 key derivation
+#       - Cross-platform keychain integration
+#       - Secure clipboard integration with auto-clear
+#       - Script-friendly output formats
+#       - Encrypted backup and restore
+#       - Password masking with visual feedback
+#
+#     # Snap grade (stable or devel)
+#     grade: stable
+#
+#     # Confinement level (strict, classic, or devmode)
+#     confinement: strict
+#
+#     # License
+#     license: MIT
+#
+#     # Base snap
+#     base: core22
+#
+#     # App configuration
+#     apps:
+#       pass-cli:
+#         command: pass-cli
+#         plugs:
+#           - home
+#           - network
+#           - password-manager-service
+#
+#     # Publish to Snap Store
+#     publish: false
 
 # Homebrew tap (automated formula creation and updates)
 brews:
