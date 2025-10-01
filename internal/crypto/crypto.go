@@ -77,6 +77,7 @@ func (c *CryptoService) Encrypt(data []byte, key []byte) ([]byte, error) {
 	}
 
 	// Encrypt data
+	// #nosec G407 -- Nonce is randomly generated via crypto/rand (line 75), not hardcoded
 	ciphertext := gcm.Seal(nil, nonce, data, nil)
 
 	// Prepend nonce to ciphertext

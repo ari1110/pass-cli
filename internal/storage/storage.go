@@ -268,6 +268,7 @@ func (s *StorageService) atomicWrite(path string, data []byte) error {
 	tempPath := path + TempSuffix
 
 	// Write to temporary file
+	// #nosec G304 -- Vault path is user-controlled by design for CLI tool
 	tempFile, err := os.OpenFile(tempPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, VaultPermissions)
 	if err != nil {
 		return fmt.Errorf("failed to create temp file: %w", err)
@@ -320,6 +321,7 @@ func (s *StorageService) createBackup() error {
 	}
 	defer func() { _ = src.Close() }()
 
+	// #nosec G304 -- Backup path is user-controlled by design for CLI tool
 	dst, err := os.OpenFile(backupPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, VaultPermissions)
 	if err != nil {
 		return fmt.Errorf("failed to create backup file: %w", err)
@@ -345,6 +347,7 @@ func (s *StorageService) restoreFromBackup() error {
 	}
 
 	// Copy backup to vault location
+	// #nosec G304 -- Backup path is user-controlled by design for CLI tool
 	src, err := os.Open(backupPath)
 	if err != nil {
 		return fmt.Errorf("failed to open backup file: %w", err)
