@@ -262,7 +262,7 @@ brews:
       token: "{{ .Env.GITHUB_TOKEN }}"
 
     # Where to place the formula in the tap repo
-    folder: Formula
+    directory: Formula
 
     # Metadata
     homepage: https://github.com/ari1110/pass-cli
@@ -293,14 +293,14 @@ scoops:
       token: "{{ .Env.GITHUB_TOKEN }}"
 
     # Where to place the manifest in the bucket repo
-    folder: bucket
+    directory: bucket
 
     # Metadata
     homepage: https://github.com/ari1110/pass-cli
     description: "Secure, cross-platform CLI password and API key manager for developers"
     license: MIT
 
-    # Post-install message
-    post_install: |
-      Write-Host "To get started with Pass-CLI:" -ForegroundColor Green
-      Write-Host "  pass-cli --vault $env:USERPROFILE\.pass-cli.enc init" -ForegroundColor Cyan
+    # Post-install message (array of PowerShell commands)
+    post_install:
+      - "Write-Host 'To get started with Pass-CLI:' -ForegroundColor Green"
+      - "Write-Host '  pass-cli --vault $env:USERPROFILE\\.pass-cli.enc init' -ForegroundColor Cyan"
