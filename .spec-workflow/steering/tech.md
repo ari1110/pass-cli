@@ -6,7 +6,7 @@ Command-line interface (CLI) tool for secure credential management. Single-binar
 ## Core Technologies
 
 ### Primary Language(s)
-- **Language**: Go 1.21+ (modern Go with enhanced security features)
+- **Language**: Go 1.25+ (modern Go with enhanced security features)
 - **Runtime/Compiler**: Go compiler with CGO disabled for static linking
 - **Language-specific tools**: Go modules for dependency management, built-in toolchain for cross-compilation
 
@@ -14,7 +14,11 @@ Command-line interface (CLI) tool for secure credential management. Single-binar
 - **github.com/spf13/cobra v1.10.1**: CLI framework and command management
 - **github.com/spf13/viper v1.21.0**: Configuration management and file handling
 - **github.com/zalando/go-keyring v0.2.6**: Cross-platform system keychain integration
+- **github.com/atotto/clipboard v0.1.4**: Cross-platform clipboard operations
+- **github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef**: Secure password input with masking
+- **github.com/olekukonko/tablewriter v1.1.0**: Formatted table output for credential display
 - **golang.org/x/crypto v0.42.0**: Extended cryptographic functions (PBKDF2)
+- **golang.org/x/term v0.35.0**: Terminal detection and input handling
 - **Standard library crypto packages**: AES-256-GCM implementation, secure random generation
 
 ### Application Architecture
@@ -47,8 +51,10 @@ Layered architecture with clear separation of concerns:
 
 ### Code Quality Tools
 - **Static Analysis**: golangci-lint v2.5.0 (comprehensive linter suite)
-- **Formatting**: goimports (automatic import management and code formatting)
+- **Security Scanning**: gosec (Go security checker)
+- **Formatting**: goimports and gofmt (automatic import management and code formatting)
 - **Testing Framework**: Go's built-in testing package with table-driven tests
+- **Code Coverage**: go test with coverage analysis
 - **Documentation**: Go doc comments and README.md with usage examples
 
 ### Version Control & Collaboration
@@ -76,7 +82,7 @@ Layered architecture with clear separation of concerns:
 
 ### Compatibility Requirements
 - **Platform Support**: Windows (amd64, arm64), macOS (amd64, arm64), Linux (amd64, arm64)
-- **Go Version**: Minimum Go 1.21 for security and performance features
+- **Go Version**: Minimum Go 1.25 for security and performance features
 - **Standards Compliance**: NIST encryption standards, OWASP secure coding practices
 
 ### Security & Compliance

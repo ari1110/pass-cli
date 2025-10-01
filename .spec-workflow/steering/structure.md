@@ -13,7 +13,9 @@ pass-cli/
 │   ├── list.go                 # List credentials command
 │   ├── update.go               # Update credential command
 │   ├── delete.go               # Delete credential command
-│   └── generate.go             # Generate password command
+│   ├── generate.go             # Generate password command
+│   ├── version.go              # Version command
+│   └── helpers.go              # Helper functions (password reading)
 ├── internal/                   # Private application code
 │   ├── crypto/                 # Encryption/decryption layer
 │   │   ├── crypto.go           # AES-256-GCM implementation
@@ -25,27 +27,37 @@ pass-cli/
 │   │   ├── keychain.go         # Cross-platform keychain access
 │   │   └── keychain_test.go    # Keychain unit tests
 │   └── vault/                  # Business logic layer
-│       ├── vault.go            # Credential management logic
-│       ├── vault_test.go       # Vault unit tests
-│       └── types.go            # Data structures and types
+│       ├── vault.go            # Credential management logic and types
+│       └── vault_test.go       # Vault unit tests
 ├── test/                       # Integration and end-to-end tests
 │   ├── integration_test.go     # Full workflow tests
-│   └── helpers.go              # Test utilities and fixtures
+│   └── README.md               # Test documentation
 ├── docs/                       # Project documentation
-│   ├── installation.md         # Installation instructions
-│   ├── usage.md                # Usage guide and examples
-│   └── security.md             # Security design and threat model
-├── scripts/                    # Build and utility scripts
-│   ├── build.sh                # Cross-platform build script
-│   └── test.sh                 # Comprehensive test runner
+│   ├── INSTALLATION.md         # Installation instructions
+│   ├── USAGE.md                # Usage guide and examples
+│   ├── SECURITY.md             # Security design and threat model
+│   ├── DEVELOPMENT.md          # Development guide
+│   ├── TROUBLESHOOTING.md      # Troubleshooting guide
+│   ├── RELEASE.md              # Release process documentation
+│   ├── CI-CD.md                # CI/CD pipeline documentation
+│   ├── HOMEBREW.md             # Homebrew installation guide
+│   └── SCOOP.md                # Scoop installation guide
+├── manifests/                  # Package manager manifests
+│   ├── winget/                 # Windows Package Manager manifest
+│   └── snap/                   # Snap package manifest
+├── homebrew/                   # Homebrew formula files
+├── scoop/                      # Scoop bucket files
 ├── .spec-workflow/             # Specification and workflow files
 │   ├── steering/               # Project steering documents
 │   └── specs/                  # Feature specifications
 ├── Makefile                    # Build targets and automation
+├── .goreleaser.yml             # GoReleaser configuration
 ├── go.mod                      # Go module definition
 ├── go.sum                      # Dependency checksums
 ├── .gitignore                  # Git ignore patterns
-└── README.md                   # Project overview and quick start
+├── README.md                   # Project overview and quick start
+├── SECURITY-AUDIT.md           # Security audit documentation
+└── RELEASE-DRY-RUN.md          # Release dry run notes
 ```
 
 ## Naming Conventions

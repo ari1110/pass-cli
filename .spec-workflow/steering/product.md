@@ -23,13 +23,14 @@ Pass-CLI is a secure, cross-platform command-line password and API key manager d
 1. **Local Encrypted Storage**: AES-256-GCM encryption with PBKDF2 key derivation for maximum security
 2. **System Keychain Integration**: Optional master password storage in Windows Credential Manager, macOS Keychain, or Linux Secret Service (unique differentiator for CLI password managers)
 3. **CLI-First Design**: Fast, intuitive commands optimized for developer workflows
-4. **Script-Friendly Output**: Support for shell integration with `--quiet`, `--field`, and `--json` flags for use in scripts like `$env:API_KEY=$(pass-cli get service -q)`
+4. **Script-Friendly Output**: Support for shell integration with `--quiet` and `--field` flags for use in scripts like `$env:API_KEY=$(pass-cli get service -q)`
 5. **Automatic Usage Tracking**: Intelligent tracking of where credentials are used based on working directory, with no manual flags required
 6. **Cross-Platform Compatibility**: Single binary distribution for Windows, macOS, and Linux
 7. **Offline Operation**: No cloud dependencies, works completely offline
 8. **Password Generation**: Cryptographically secure password generation with customizable options
-9. **Clipboard Integration**: Automatic credential copying with security timeouts
-10. **Package Manager Distribution**: Easy installation via Homebrew and Scoop
+9. **Clipboard Integration**: Automatic credential copying with optional `--no-clipboard` flag to disable
+10. **Masked Password Display**: Optional `--masked` flag to display passwords as asterisks for additional security
+11. **Package Manager Distribution**: Easy installation via Homebrew and Scoop
 
 ## Business Objectives
 
@@ -101,9 +102,10 @@ Pass-CLI is a secure, cross-platform command-line password and API key manager d
 Pass-CLI aims to become the standard CLI credential manager for developers, setting the benchmark for security, usability, and integration capabilities in the developer tools ecosystem.
 
 ### Potential Enhancements
+- **JSON Output Format**: Add `--json` flag for structured output to enable parsing with jq and other tools
 - **Remote Access**: Secure vault synchronization across multiple development machines
 - **Usage Analytics**: Comprehensive usage stats and insights based on automatic tracking
 - **Collaboration**: Team-based credential sharing with granular access controls
 - **Plugin Ecosystem**: Integration with popular development tools and CI/CD platforms
 - **Audit Logging**: Comprehensive access logs for security compliance
-- **Advanced Script Integration**: Enhanced output formats and shell completion
+- **Advanced Script Integration**: Enhanced shell completion and automation features
