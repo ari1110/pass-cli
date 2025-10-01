@@ -148,7 +148,7 @@
   - _Requirements: FR-6 (Security Validation), NFR-1 (Code Quality)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Security Auditor with expertise in Go security and cryptography | Task: Perform comprehensive security audit covering crypto, file permissions, error handling, and dependencies following requirements FR-6 and NFR-1 | Restrictions: Must address all findings before release, document any accepted risks, ensure no sensitive data exposure | _Leverage: Security scanning tools, crypto test results, error handling review | _Requirements: Complete security validation | Success: No critical security findings, crypto validated, file permissions correct, error messages safe, dependencies clean | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 15. Execute end-to-end release dry run
+- [x] 15. Execute end-to-end release dry run
   - Run complete release process in test mode
   - Validate all builds on all platforms
   - Test package installations from test artifacts
