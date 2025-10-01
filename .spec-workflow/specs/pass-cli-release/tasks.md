@@ -92,7 +92,7 @@
   - _Requirements: FR-4 (Comprehensive Documentation), NFR-3 (Documentation Quality)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Technical Writer with expertise in developer documentation and markdown | Task: Create comprehensive README.md covering installation, usage, features, and security following requirements FR-4 and NFR-3 | Restrictions: Must include working examples, accurate feature descriptions, clear installation steps | _Leverage: Application features, steering documents, competitive positioning | _Requirements: Clear, complete primary documentation | Success: README covers all features, installation steps work on all platforms, examples are tested and accurate, security section explains encryption and keychain integration | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 10. Create installation documentation
+- [x] 10. Create installation documentation
   - File: docs/installation.md
   - Write detailed package manager installation steps
   - Add manual binary installation instructions
