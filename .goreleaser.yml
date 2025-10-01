@@ -3,12 +3,11 @@
 
 version: 2
 
-before:
-  hooks:
-    # Run tests before building
-    - go test ./...
-    # Run linters
-    - golangci-lint run
+# Removed before hooks - CI already runs tests and linting
+# before:
+#   hooks:
+#     - go test ./...
+#     - golangci-lint run
 
 builds:
   - id: pass-cli
