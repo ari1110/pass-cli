@@ -40,7 +40,7 @@
   - _Requirements: FR-2 (Build Automation), FR-5 (Performance Validation)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: DevOps Engineer with expertise in Go build systems and GoReleaser | Task: Configure GoReleaser for automated cross-platform builds with proper flags, checksums, and release artifacts following requirements FR-2 and FR-5 | Restrictions: Must support all 6 platform/architecture combinations, ensure static linking, keep binaries under 20MB | _Leverage: GoReleaser best practices, Go linker flags, build optimization techniques | _Requirements: Automated, reproducible cross-platform builds | Success: GoReleaser builds all platforms successfully, binaries are statically linked, size under 20MB, checksums generated automatically | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 5. Create GitHub Actions workflow for CI/CD
+- [x] 5. Create GitHub Actions workflow for CI/CD
   - File: .github/workflows/release.yml
   - Set up test and lint jobs
   - Configure GoReleaser release job triggered on tags
