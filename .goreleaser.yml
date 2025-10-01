@@ -117,8 +117,8 @@ release:
   # Mark as prerelease if version contains alpha, beta, rc
   prerelease: auto
 
-  # Include release notes
-  discussion_category_name: General
+  # Include release notes (disabled - discussions not enabled)
+  # discussion_category_name: General
 
   # Header and footer for release notes
   header: |
