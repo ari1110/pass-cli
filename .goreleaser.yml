@@ -200,11 +200,13 @@ metadata:
 #       - "--label=org.opencontainers.image.version={{.Version}}"
 
 # SBOMs (Software Bill of Materials)
-sboms:
-  - id: archive
-    artifacts: archive
-  - id: binary
-    artifacts: binary
+# Disabled: syft not available in GitHub Actions environment
+# TODO: Add syft installation step or use goreleaser-action with syft pre-installed
+# sboms:
+#   - id: archive
+#     artifacts: archive
+#   - id: binary
+#     artifacts: binary
 
 # Snap packages for universal Linux distribution
 # Disabled: snapcraft not available in GitHub Actions environment
