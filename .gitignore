@@ -46,3 +46,4 @@ pass-cli
 .claude/
 .serena/
 .mcp.json
+.spec-workflow/
