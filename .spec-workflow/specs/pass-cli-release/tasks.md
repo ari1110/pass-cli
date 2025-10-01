@@ -126,7 +126,7 @@
   - _Requirements: FR-4 (Comprehensive Documentation), FR-6 (Security Validation)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Security Technical Writer with expertise in cryptography and threat modeling | Task: Create security documentation explaining encryption, keychain integration, and best practices following requirements FR-4 and FR-6 | Restrictions: Must be accurate about security properties, explain limitations clearly, avoid overpromising | _Leverage: Crypto implementation, keychain integration design, security decisions from tech.md | _Requirements: Complete security documentation | Success: Encryption explained clearly, keychain integration per platform documented, threat model realistic, best practices actionable | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 13. Create troubleshooting documentation
+- [x] 13. Create troubleshooting documentation
   - File: docs/troubleshooting.md
   - Document common installation issues and solutions
   - Add keychain access problem troubleshooting
