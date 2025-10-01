@@ -138,7 +138,7 @@
   - _Requirements: FR-4 (Comprehensive Documentation), NFR-3 (Documentation Quality)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Technical Support Engineer with expertise in troubleshooting documentation | Task: Create comprehensive troubleshooting guide covering common issues across platforms following requirements FR-4 and NFR-3 | Restrictions: Must address real problems users will encounter, provide clear solutions, include platform-specific issues | _Leverage: Testing experience, platform-specific behaviors, backup/restore mechanisms | _Requirements: Complete troubleshooting guide | Success: Common issues addressed with solutions, platform-specific problems covered, vault recovery documented, FAQ answers frequent questions | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 14. Perform final security audit and validation
+- [x] 14. Perform final security audit and validation
   - Run comprehensive security scan with gosec
   - Validate all cryptographic implementations
   - Review error messages for information leakage
