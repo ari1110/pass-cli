@@ -81,7 +81,7 @@
   - _Requirements: FR-3 (Package Distribution), NFR-2 (Distribution Quality)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Package Maintainer with expertise in Scoop manifest creation | Task: Create Scoop manifest for Pass-CLI distribution on Windows following requirements FR-3 and NFR-2 | Restrictions: Must follow Scoop manifest format, support both architectures, configure autoupdate | _Leverage: Scoop manifest documentation, existing manifests as examples, GitHub release artifacts | _Requirements: Working Scoop installation | Success: Manifest installs correctly on Windows (amd64/ARM64), binary is in PATH, autoupdate configured correctly | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 9. Write comprehensive README.md
+- [x] 9. Write comprehensive README.md
   - File: README.md
   - Create overview with key differentiators
   - Add installation instructions for all platforms
