@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/howeyc/gopass"
 	"golang.org/x/term"
 )
 
-// readPassword reads a password from stdin without echoing
+// readPassword reads a password from stdin with asterisk masking
 func readPassword() (string, error) {
 	// Get file descriptor for stdin
 	fd := int(os.Stdin.Fd())
@@ -20,8 +21,8 @@ func readPassword() (string, error) {
 		return password, err
 	}
 
-	// Read password without echoing
-	passwordBytes, err := term.ReadPassword(fd)
+	// Read password with asterisk masking using gopass
+	passwordBytes, err := gopass.GetPasswdMasked()
 	if err != nil {
 		return "", err
 	}
