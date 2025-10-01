@@ -250,3 +250,57 @@ snapcrafts:
 
     # Publish to Snap Store
     publish: false
+
+# Homebrew tap (automated formula creation and updates)
+brews:
+  - name: pass-cli
+
+    # Tap repository (GoReleaser will auto-create/update the formula)
+    repository:
+      owner: ari1110
+      name: homebrew-tap
+      token: "{{ .Env.GITHUB_TOKEN }}"
+
+    # Where to place the formula in the tap repo
+    folder: Formula
+
+    # Metadata
+    homepage: https://github.com/ari1110/pass-cli
+    description: "Secure, cross-platform CLI password and API key manager for developers"
+    license: MIT
+
+    # Installation details
+    install: |
+      bin.install "pass-cli"
+
+    # Test block (Homebrew requires this)
+    test: |
+      system "#{bin}/pass-cli", "version"
+
+    # Caveats shown after installation
+    caveats: |
+      To get started with Pass-CLI:
+        pass-cli --vault ~/.pass-cli.enc init
+
+# Scoop bucket (automated manifest creation and updates)
+scoops:
+  - name: pass-cli
+
+    # Bucket repository (GoReleaser will auto-create/update the manifest)
+    repository:
+      owner: ari1110
+      name: scoop-bucket
+      token: "{{ .Env.GITHUB_TOKEN }}"
+
+    # Where to place the manifest in the bucket repo
+    folder: bucket
+
+    # Metadata
+    homepage: https://github.com/ari1110/pass-cli
+    description: "Secure, cross-platform CLI password and API key manager for developers"
+    license: MIT
+
+    # Post-install message
+    post_install: |
+      Write-Host "To get started with Pass-CLI:" -ForegroundColor Green
+      Write-Host "  pass-cli --vault $env:USERPROFILE\.pass-cli.enc init" -ForegroundColor Cyan
