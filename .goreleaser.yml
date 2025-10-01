@@ -262,7 +262,7 @@ brews:
     repository:
       owner: ari1110
       name: homebrew-tap
-      token: "{{ .Env.GITHUB_TOKEN }}"
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
 
     # Where to place the formula in the tap repo
     directory: Formula
@@ -293,7 +293,7 @@ scoops:
     repository:
       owner: ari1110
       name: scoop-bucket
-      token: "{{ .Env.GITHUB_TOKEN }}"
+      token: "{{ .Env.SCOOP_BUCKET_TOKEN }}"
 
     # Where to place the manifest in the bucket repo
     directory: bucket
