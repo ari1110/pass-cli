@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0",
+  "description": "Secure CLI password manager with AES-256-GCM encryption",
+  "homepage": "https://github.com/yourusername/pass-cli",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/yourusername/pass-cli/releases/download/v1.0.0/pass-cli_1.0.0_windows_amd64.zip",
+      "hash": "REPLACE_WITH_ACTUAL_SHA256_FOR_WINDOWS_AMD64"
+    },
+    "arm64": {
+      "url": "https://github.com/yourusername/pass-cli/releases/download/v1.0.0/pass-cli_1.0.0_windows_arm64.zip",
+      "hash": "REPLACE_WITH_ACTUAL_SHA256_FOR_WINDOWS_ARM64"
+    }
+  },
+  "bin": "pass-cli.exe",
+  "checkver": {
+    "github": "https://github.com/yourusername/pass-cli"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/yourusername/pass-cli/releases/download/v$version/pass-cli_$version_windows_amd64.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/yourusername/pass-cli/releases/download/v$version/pass-cli_$version_windows_arm64.zip"
+      }
+    },
+    "hash": {
+      "url": "$baseurl/checksums.txt",
+      "regex": "$sha256\\s+$basename"
+    }
+  },
+  "post_install": [
+    "Write-Host 'Pass-CLI has been installed successfully!' -ForegroundColor Green",
+    "Write-Host ''",
+    "Write-Host 'To get started:' -ForegroundColor Yellow",
+    "Write-Host '  1. Initialize your vault: pass-cli init'",
+    "Write-Host '  2. Add a credential: pass-cli add myservice'",
+    "Write-Host '  3. Retrieve it: pass-cli get myservice'",
+    "Write-Host ''",
+    "Write-Host 'Your vault will be stored at: ~\\.pass-cli\\' -ForegroundColor Cyan",
+    "Write-Host 'For more information, run: pass-cli --help'"
+  ],
+  "notes": [
+    "Pass-CLI stores credentials securely using Windows Credential Manager.",
+    "Your vault is encrypted with AES-256-GCM encryption.",
+    "",
+    "Quick start:",
+    "  pass-cli init       - Initialize a new vault",
+    "  pass-cli add <name> - Add a new credential",
+    "  pass-cli get <name> - Retrieve a credential",
+    "  pass-cli list       - List all credentials",
+    "",
+    "Run 'pass-cli --help' for full documentation."
+  ]
+}

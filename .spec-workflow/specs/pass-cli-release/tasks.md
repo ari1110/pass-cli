@@ -71,7 +71,7 @@
   - _Requirements: FR-3 (Package Distribution), NFR-2 (Distribution Quality)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Package Maintainer with expertise in Homebrew formula creation | Task: Create Homebrew formula for Pass-CLI distribution on macOS and Linux following requirements FR-3 and NFR-2 | Restrictions: Must follow Homebrew formula style guide, support both architectures, include basic test | _Leverage: Homebrew formula documentation, existing formulas as examples, GitHub release artifacts | _Requirements: Working Homebrew installation | Success: Formula installs correctly on macOS (Intel/ARM) and Linux, binary is in PATH, basic test passes | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 8. Create Scoop manifest for Windows
+- [x] 8. Create Scoop manifest for Windows
   - File: scoop/pass-cli.json (or separate bucket repository)
   - Write manifest with architecture-specific URLs and hashes
   - Configure autoupdate and checkver
