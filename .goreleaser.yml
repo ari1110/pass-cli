@@ -105,7 +105,7 @@ changelog:
 
 release:
   github:
-    owner: username
+    owner: ari1110
     name: pass-cli
 
   # Release name format
@@ -130,12 +130,12 @@ release:
 
     #### Homebrew (macOS/Linux)
     ```bash
-    brew install username/tap/pass-cli
+    brew install ari1110/tap/pass-cli
     ```
 
     #### Scoop (Windows)
     ```powershell
-    scoop bucket add username https://github.com/username/scoop-bucket
+    scoop bucket add ari1110 https://github.com/ari1110/scoop-bucket
     scoop install pass-cli
     ```
 
@@ -151,7 +151,7 @@ release:
     ```
 
     ### Full Changelog
-    See the full changelog at https://github.com/username/pass-cli/blob/main/CHANGELOG.md
+    See the full changelog at https://github.com/ari1110/pass-cli/blob/main/CHANGELOG.md
 
 # Universal Binaries for macOS (combines amd64 and arm64)
 universal_binaries:
