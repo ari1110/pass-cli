@@ -49,11 +49,15 @@ func NewListView(credentials []vault.CredentialMetadata) *ListView {
 		items[i] = credentialItem{metadata: cred}
 	}
 
-	// Create list
-	l := list.New(items, list.NewDefaultDelegate(), 0, 0)
+	// Create list with custom delegate for better spacing
+	delegate := list.NewDefaultDelegate()
+	delegate.SetSpacing(0) // Reduce spacing between items
+
+	l := list.New(items, delegate, 0, 0)
 	l.Title = "Credentials"
-	l.SetShowStatusBar(true)
-	l.SetFilteringEnabled(true)
+	l.SetShowStatusBar(false) // Hide status bar to save space
+	l.SetFilteringEnabled(false) // We have our own search
+	l.SetShowHelp(false) // We show our own help
 	l.Styles.Title = lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("6")) // Cyan
@@ -75,12 +79,13 @@ func (v *ListView) SetSize(width, height int) {
 	v.width = width
 	v.height = height
 
-	// Reserve space for search bar (3 lines) and help (1 line)
-	listHeight := height - 4
+	// Reserve space for title (1), search bar (2), help (1), status bar (1)
+	listHeight := height - 5
 	if listHeight < 5 {
 		listHeight = 5
 	}
 	v.list.SetSize(width, listHeight)
+	v.searchInput.Width = width - 4
 }
 
 // Update handles messages
@@ -208,4 +213,9 @@ func (v *ListView) SelectedCredential() *vault.CredentialMetadata {
 	}
 
 	return &credItem.metadata
+}
+
+// IsSearchFocused returns whether the search input is currently focused
+func (v *ListView) IsSearchFocused() bool {
+	return v.searchFocused
 }

@@ -180,8 +180,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Update active view
 	if m.state == StateList && m.listView != nil {
-		// Check for special keys
-		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		// Check for special keys (but only if search is not focused)
+		if keyMsg, ok := msg.(tea.KeyMsg); ok && !m.listView.IsSearchFocused() {
 			switch keyMsg.String() {
 			case "enter":
 				selected := m.listView.SelectedCredential()
