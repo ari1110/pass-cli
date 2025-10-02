@@ -3,6 +3,7 @@ package tui
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"pass-cli/cmd/tui/views"
 	"pass-cli/internal/vault"
 )
 
@@ -29,6 +30,9 @@ type Model struct {
 	// Data
 	credentials   []vault.CredentialMetadata
 	selectedIndex int
+
+	// Views
+	listView *views.ListView
 
 	// UI state
 	width  int
@@ -75,11 +79,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+		if m.listView != nil {
+			m.listView.SetSize(m.width, m.height)
+		}
 
 	case vaultUnlockedMsg:
 		m.unlocking = false
 		m.state = StateList
-		// TODO: Load credentials
+		return m, loadCredentialsCmd(m.vaultService)
 
 	case vaultUnlockErrorMsg:
 		m.unlocking = false
@@ -89,6 +96,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case credentialsLoadedMsg:
 		m.credentials = msg.credentials
+		m.listView = views.NewListView(msg.credentials)
+		m.listView.SetSize(m.width, m.height)
+	}
+
+	// Update active view
+	if m.state == StateList && m.listView != nil {
+		var cmd tea.Cmd
+		m.listView, cmd = m.listView.Update(msg)
+		return m, cmd
 	}
 
 	return m, nil
@@ -106,7 +122,10 @@ func (m Model) View() string {
 
 	switch m.state {
 	case StateList:
-		return "Credential list view - coming soon!\n\nPress q to quit"
+		if m.listView != nil {
+			return m.listView.View()
+		}
+		return "Loading credentials...\n"
 	default:
 		return "TUI - coming soon!\n"
 	}

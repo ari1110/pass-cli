@@ -22,3 +22,15 @@ func unlockVaultCmd(vaultService *vault.VaultService) tea.Cmd {
 		}
 	}
 }
+
+// loadCredentialsCmd loads credentials from the vault
+func loadCredentialsCmd(vaultService *vault.VaultService) tea.Cmd {
+	return func() tea.Msg {
+		credentials, err := vaultService.ListCredentialsWithMetadata()
+		if err != nil {
+			return vaultUnlockErrorMsg{err: err}
+		}
+
+		return credentialsLoadedMsg{credentials: credentials}
+	}
+}

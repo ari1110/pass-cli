@@ -24,7 +24,7 @@
   - _Requirements: REQ-1, REQ-2_
   - _Prompt: Role: Go TUI Developer with Bubble Tea expertise | Task: Create Model struct with state fields, implement Init/Update/View methods following Bubble Tea pattern per REQ-1 and REQ-2, implement vault unlock flow trying keychain first then password prompt | Restrictions: Follow Elm architecture strictly, use VaultService API only, return placeholder strings for View() for now, simple state transitions only | Success: Model contains necessary state fields, Init unlocks vault with keychain support, Update handles quit keys, TUI launches and unlocks vault, can quit with q_
 
-- [ ] 4. Implement list view with search
+- [x] 4. Implement list view with search
   - File: cmd/tui/views/list.go, cmd/tui/components/searchbar.go, cmd/tui/update.go, cmd/tui/view.go, cmd/tui/model.go
   - Create credential list view with real-time search filtering and keyboard navigation
   - Purpose: Display credentials in searchable table with vim-style navigation
