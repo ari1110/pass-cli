@@ -104,7 +104,7 @@
   - _Requirements: REQ-1, REQ-8_
   - _Prompt: Role: Go TUI Developer specializing in layout rendering and Lipgloss | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Refactor View() method following REQ-1, REQ-8, check layout.IsTooSmall first and render warning if true, collect visible panels in slice (sidebar if visible, main content always, metadata if visible), render each with getPanelBorderStyle() using focused/unfocused styles, apply Width() and Height() from layout dimensions, use lipgloss.JoinHorizontal(lipgloss.Top, panels...) for main row, append process panel vertically if visible, append command bar if open, append status bar at bottom, maintain existing overlay logic (help, confirmations render over panels) | Restrictions: Must use layout dimensions from LayoutManager, respect panel visibility flags, preserve overlay behavior | _Leverage: Existing View() logic, lipgloss joining, getPanelBorderStyle() helper | Success: Multi-panel layout renders correctly, panels displayed side-by-side with proper borders, focused panel highlighted, overlays work over panels, status bar always at bottom, layout adapts to panel visibility_
 
-- [ ] 14. Update status bar with panel indicators
+- [x] 14. Update status bar with panel indicators
   - File: cmd/tui/components/statusbar.go
   - Add panel toggle indicators to shortcuts display
   - Purpose: Show available panel toggle keys in status bar
@@ -112,7 +112,7 @@
   - _Requirements: REQ-2_
   - _Prompt: Role: Go TUI Developer specializing in status indicators | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Update StatusBar following REQ-2, modify updateStatusBar() in model.go to include panel shortcuts in status bar, add "s: sidebar | m: metadata | p: processes" to shortcut strings for relevant states, update shortcuts when panel visibility changes, maintain existing view-specific shortcuts (List: "/: search | a: add", Detail: "m: toggle | c: copy | e: edit") | Restrictions: Must not remove existing shortcuts, keep shortcut strings concise, update dynamically based on state | _Leverage: Existing updateStatusBar() function, StatusBar.SetShortcuts() | Success: Status bar displays panel toggle shortcuts, shortcuts update correctly per view, all existing shortcuts preserved, panel indicators show current state_
 
-- [ ] 15. Implement sidebar category selection integration
+- [x] 15. Implement sidebar category selection integration
   - File: cmd/tui/model.go (continue)
   - Connect sidebar credential selection to main content display
   - Purpose: When credential selected in sidebar, show in main area and metadata panel

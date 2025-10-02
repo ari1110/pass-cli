@@ -384,6 +384,39 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
+	// Update sidebar if it has focus (in List or Detail states)
+	if (m.state == StateList || m.state == StateDetail) && m.panelFocus == FocusSidebar && m.sidebar != nil {
+		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+			switch keyMsg.String() {
+			case "enter":
+				// Get selected credential from sidebar
+				selected := m.sidebar.GetSelectedCredential()
+				if selected != nil {
+					// Load full credential details
+					m.panelFocus = FocusMain // Switch focus to main panel
+					m.updatePanelFocus()
+					// Update breadcrumb with category path
+					category := m.sidebar.GetSelectedCategory()
+					if category != "" {
+						m.breadcrumb.SetPath([]string{"Home", category, selected.Service})
+					}
+					return m, loadCredentialDetailsCmd(m.vaultService, selected.Service)
+				}
+			}
+		}
+		// Update sidebar with message
+		var cmd tea.Cmd
+		m.sidebar, cmd = m.sidebar.Update(msg)
+		return m, cmd
+	}
+
+	// Update metadata panel if it has focus (in Detail state)
+	if m.state == StateDetail && m.panelFocus == FocusMetadata && m.metadataPanel != nil {
+		var cmd tea.Cmd
+		m.metadataPanel, cmd = m.metadataPanel.Update(msg)
+		return m, cmd
+	}
+
 	// Update active view
 	if m.state == StateList && m.listView != nil {
 		// Check for special keys (but only if search is not focused)
@@ -660,10 +693,22 @@ func (m Model) updateStatusBar() {
 	switch m.state {
 	case StateList:
 		m.statusBar.SetCurrentView("List")
-		m.statusBar.SetShortcuts("/: search | a: add | ?: help | q: quit")
+		shortcuts := "/: search | a: add | :: cmd | ?: help | q: quit"
+		// Add panel shortcuts
+		panelShortcuts := m.getPanelShortcuts()
+		if panelShortcuts != "" {
+			shortcuts = panelShortcuts + " | " + shortcuts
+		}
+		m.statusBar.SetShortcuts(shortcuts)
 	case StateDetail:
 		m.statusBar.SetCurrentView("Detail")
-		m.statusBar.SetShortcuts("m: toggle | c: copy | e: edit | d: delete | esc: back | q: quit")
+		shortcuts := "m: toggle | c: copy | e: edit | d: delete | esc: back | q: quit"
+		// Add panel shortcuts
+		panelShortcuts := m.getPanelShortcuts()
+		if panelShortcuts != "" {
+			shortcuts = panelShortcuts + " | " + shortcuts
+		}
+		m.statusBar.SetShortcuts(shortcuts)
 	case StateAdd:
 		m.statusBar.SetCurrentView("Add")
 		m.statusBar.SetShortcuts("tab: next | ctrl+g: generate | ctrl+s: save | esc: cancel")

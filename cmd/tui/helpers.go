@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 	tea "github.com/charmbracelet/bubbletea"
@@ -268,6 +269,48 @@ func (m *Model) renderDashboardView() string {
 
 	// Join all vertical sections
 	return lipgloss.JoinVertical(lipgloss.Left, verticalSections...)
+}
+
+// getPanelShortcuts returns the panel toggle shortcuts for status bar
+func (m *Model) getPanelShortcuts() string {
+	shortcuts := []string{}
+
+	// Always show sidebar toggle
+	if m.sidebarVisible {
+		shortcuts = append(shortcuts, "s: hide sidebar")
+	} else {
+		shortcuts = append(shortcuts, "s: show sidebar")
+	}
+
+	// Show metadata toggle in Detail state
+	if m.state == StateDetail {
+		if m.metadataVisible {
+			shortcuts = append(shortcuts, "m: hide details")
+		} else {
+			shortcuts = append(shortcuts, "m: show details")
+		}
+	}
+
+	// Show process toggle if there are active processes
+	if m.processPanel != nil && m.processPanel.HasActiveProcesses() {
+		if m.processVisible {
+			shortcuts = append(shortcuts, "p: hide processes")
+		} else {
+			shortcuts = append(shortcuts, "p: show processes")
+		}
+	}
+
+	// Show tab navigation if multiple panels visible
+	visiblePanels := m.getVisiblePanels()
+	if len(visiblePanels) > 1 {
+		shortcuts = append(shortcuts, "tab: switch panel")
+	}
+
+	if len(shortcuts) == 0 {
+		return ""
+	}
+
+	return strings.Join(shortcuts, " | ")
 }
 
 // executeCommand executes a parsed command from the command bar
