@@ -64,7 +64,7 @@
   - _Requirements: REQ-5_
   - _Prompt: Role: Go TUI Developer specializing in navigation UI components | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Create Breadcrumb struct following REQ-5 with fields (path []string, width), implement NewBreadcrumb(), SetPath(), SetSize(), View() methods, render path segments joined with " > " separator, truncate middle segments with "..." when path exceeds panel width (e.g., "Home > ... > aws-prod"), use bold or colored styling to stand out from content, ensure minimum 3 segments visible (first, ..., last) when truncated | Restrictions: Must fit within allocated width, handle empty path gracefully, simple text rendering | _Leverage: lipgloss text truncation, styles/theme.go | Success: Breadcrumb displays path correctly, truncation works when width constrained, styling makes it visually distinct, updates when navigation changes_
 
-- [ ] 9. Extend Model with panel state management
+- [x] 9. Extend Model with panel state management
   - File: cmd/tui/model.go
   - Add panel state fields and initialization to existing Model
   - Purpose: Manage panel visibility, focus, and instances
@@ -72,7 +72,7 @@
   - _Requirements: REQ-1, REQ-2, REQ-9, REQ-13_
   - _Prompt: Role: Go TUI Developer with Bubble Tea Model-Update-View expertise | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Extend existing Model struct following REQ-1, REQ-2, REQ-9, REQ-13 by adding panel fields (layoutManager *LayoutManager, sidebar *SidebarPanel, metadataPanel *MetadataPanel, processPanel *ProcessPanel, commandBar *CommandBar, breadcrumb *Breadcrumb), panel state fields (panelFocus PanelFocus, sidebarVisible bool, metadataVisible bool, processVisible bool, commandBarOpen bool), category fields (categories []Category, currentCategory string), create PanelFocus enum (FocusSidebar, FocusMain, FocusMetadata, FocusCommandBar), initialize all panels in NewModel(), categorize credentials when loaded | Restrictions: Do not modify existing Model fields, only add new ones, maintain backward compatibility | _Leverage: Existing Model structure, NewModel() pattern | Success: Model compiles with new fields, panels initialized correctly, existing TUI functionality unaffected, panel states managed properly_
 
-- [ ] 10. Implement panel toggle key handling
+- [x] 10. Implement panel toggle key handling
   - File: cmd/tui/model.go (continue), cmd/tui/keys.go (if exists)
   - Add keyboard shortcuts for panel visibility toggles
   - Purpose: Enable s/m/p/f keys to show/hide panels
@@ -80,7 +80,7 @@
   - _Requirements: REQ-2, REQ-13_
   - _Prompt: Role: Go TUI Developer specializing in keyboard input handling | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Add panel toggle logic to Update() method following REQ-2, REQ-13, handle s key (toggle sidebar), m key (toggle metadata, but preserve existing m for password mask in detail view), p key (toggle process panel), f key (toggle all footer panels), Tab key (switch panel focus), Shift+Tab (previous panel focus), check hasInputFocus() before handling to avoid conflicts with forms/search, update panelFocus using nextPanelFocus() helper, trigger layout recalculation on visibility changes | Restrictions: Must not break existing key handlers, check input focus state, Tab only works when no input focused | _Leverage: Existing tea.KeyMsg handling, hasInputFocus() pattern | Success: Panel toggle keys work correctly, Tab switches focus between visible panels, existing keys (q, ?, /, a, e, d) still work, no conflicts with form input_
 
-- [ ] 11. Implement command bar integration
+- [x] 11. Implement command bar integration
   - File: cmd/tui/model.go (continue)
   - Add command bar opening, command execution logic
   - Purpose: Handle : key to open command bar and execute parsed commands
@@ -88,7 +88,7 @@
   - _Requirements: REQ-7_
   - _Prompt: Role: Go Developer specializing in command execution and state management | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Integrate CommandBar following REQ-7, handle : key to open command bar (set commandBarOpen = true, commandBar.Focus()), delegate Update() to commandBar when open, on Enter get Command from commandBar.GetCommand(), execute commands (:add opens form with pre-filled service, :search activates search with query, :category navigates to category, :help opens help, :quit exits), close command bar on Esc or after execution, display errors using commandBar.SetError() | Restrictions: Must not interfere with existing command handling, validate command before execution, close bar after successful command | _Leverage: Existing state transitions (StateAdd, StateList), search activation pattern | Success: : key opens command bar, commands parse correctly, :add/:search/:category/:help/:quit execute as specified, errors display in command bar, Esc cancels without executing_
 
-- [ ] 12. Implement Layout Manager integration in Update
+- [x] 12. Implement Layout Manager integration in Update
   - File: cmd/tui/model.go (continue)
   - Add layout recalculation on WindowSizeMsg and panel visibility changes
   - Purpose: Dynamically calculate panel dimensions and propagate to all components
@@ -96,7 +96,7 @@
   - _Requirements: REQ-10, REQ-11_
   - _Prompt: Role: Go TUI Developer specializing in responsive layout systems | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Integrate LayoutManager following REQ-10, REQ-11 in Update() method, on WindowSizeMsg or panel visibility change call layoutManager.Calculate() with current width, height, and getPanelStates() (returns PanelStates struct with visibility flags), check layout.IsTooSmall and return early if true, propagate dimensions to all panels using layout.Sidebar/Main/Metadata dimensions with each panel's SetSize() method, update existing views (listView, detailView, forms) with layout.Main dimensions | Restrictions: Must call SetSize() for all visible panels, handle IsTooSmall case, don't resize hidden panels | _Leverage: Existing WindowSizeMsg handling, SetSize() pattern | Success: Layout recalculates correctly on resize, panel dimensions update smoothly, minimum size detection works, all panels receive correct dimensions, existing views fit within main panel area_
 
-- [ ] 13. Implement multi-panel View rendering
+- [x] 13. Implement multi-panel View rendering
   - File: cmd/tui/view.go or cmd/tui/model.go View() method
   - Render multi-panel layout with lipgloss horizontal joins
   - Purpose: Display sidebar, main content, and metadata panels side-by-side

@@ -22,6 +22,16 @@ const (
 	StateHelp
 )
 
+// PanelFocus represents which panel has focus in dashboard mode
+type PanelFocus int
+
+const (
+	FocusSidebar PanelFocus = iota
+	FocusMain
+	FocusMetadata
+	FocusCommandBar
+)
+
 // Model is the main Bubble Tea model for the TUI
 type Model struct {
 	// Application state
@@ -57,6 +67,25 @@ type Model struct {
 	err       error
 	errMsg    string
 	unlocking bool
+
+	// === DASHBOARD COMPONENTS (new) ===
+	layoutManager *components.LayoutManager
+	sidebar       *components.SidebarPanel
+	metadataPanel *components.MetadataPanel
+	processPanel  *components.ProcessPanel
+	commandBar    *components.CommandBar
+	breadcrumb    *components.Breadcrumb
+
+	// Dashboard state
+	panelFocus      PanelFocus
+	sidebarVisible  bool
+	metadataVisible bool
+	processVisible  bool
+	commandBarOpen  bool
+
+	// Category state
+	categories      []components.Category
+	currentCategory string
 }
 
 // NewModel creates a new TUI model
@@ -76,6 +105,14 @@ func NewModel(vaultPath string) (*Model, error) {
 		"Unlocking",
 	)
 
+	// Initialize dashboard components
+	layoutManager := components.NewLayoutManager()
+	sidebar := components.NewSidebarPanel([]vault.CredentialMetadata{})
+	metadataPanel := components.NewMetadataPanel()
+	processPanel := components.NewProcessPanel()
+	commandBar := components.NewCommandBar()
+	breadcrumb := components.NewBreadcrumb()
+
 	return &Model{
 		state:           StateUnlocking,
 		vaultService:    vaultService,
@@ -83,6 +120,23 @@ func NewModel(vaultPath string) (*Model, error) {
 		keychainService: keychainService,
 		statusBar:       statusBar,
 		unlocking:       true,
+
+		// Initialize dashboard components
+		layoutManager: layoutManager,
+		sidebar:       sidebar,
+		metadataPanel: metadataPanel,
+		processPanel:  processPanel,
+		commandBar:    commandBar,
+		breadcrumb:    breadcrumb,
+
+		// Initialize dashboard state (sidebar visible by default)
+		panelFocus:      FocusSidebar,
+		sidebarVisible:  true,
+		metadataVisible: false,
+		processVisible:  false,
+		commandBarOpen:  false,
+		categories:      []components.Category{},
+		currentCategory: "",
 	}, nil
 }
 
@@ -153,15 +207,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+
+		// Calculate layout with panel visibility
+		m.recalculateLayout()
+
+		// Update status bar
 		if m.statusBar != nil {
 			m.statusBar.SetSize(m.width)
 		}
-		if m.listView != nil {
-			m.listView.SetSize(m.width, m.height)
-		}
-		if m.detailView != nil {
-			m.detailView.SetSize(m.width, m.height)
-		}
+
+		// Views will be sized according to the layout's main panel dimensions
+		// This happens in recalculateLayout() for views in List/Detail states
+		// For forms/help/confirm, use full dimensions
 		if m.addForm != nil {
 			m.addForm.SetSize(m.width, m.height)
 		}
@@ -194,6 +251,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.statusBar != nil {
 			m.statusBar.SetCredentialCount(len(msg.credentials))
 		}
+		// Update sidebar with categorized credentials
+		if m.sidebar != nil {
+			m.sidebar.UpdateCredentials(msg.credentials)
+			m.categories = components.CategorizeCredentials(msg.credentials)
+		}
 		// Return to list from add/edit/delete states
 		if m.state == StateAdd || m.state == StateEdit || m.state == StateConfirmDelete {
 			m.state = StateList
@@ -207,6 +269,119 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state = StateDetail
 		m.detailView = views.NewDetailView(msg.credential)
 		m.detailView.SetSize(m.width, m.height)
+		// Also update metadata panel with credential
+		if m.metadataPanel != nil {
+			m.metadataPanel.SetCredential(msg.credential)
+		}
+	}
+
+	// Check if any view has input focus for panel toggle keys
+	hasInputFocusForToggle := false
+	switch m.state {
+	case StateList:
+		hasInputFocusForToggle = m.listView != nil && m.listView.IsSearchFocused()
+	case StateAdd, StateEdit:
+		hasInputFocusForToggle = true // Forms always have input focus
+	case StateConfirmDelete, StateConfirmDiscard:
+		hasInputFocusForToggle = m.confirmView != nil && m.confirmView.IsTypedConfirmation()
+	}
+
+	// Handle panel toggle keys (only when no input focus and not in forms/confirmations)
+	if keyMsg, ok := msg.(tea.KeyMsg); ok && !hasInputFocusForToggle && !m.commandBarOpen {
+		switch keyMsg.String() {
+		case "s":
+			// Toggle sidebar (only in List/Detail states)
+			if m.state == StateList || m.state == StateDetail {
+				m.sidebarVisible = !m.sidebarVisible
+				m.recalculateLayout()
+				return m, nil
+			}
+		case "m":
+			// Toggle metadata panel (only in Detail state, avoid conflict with mask in DetailView)
+			if m.state == StateDetail && m.detailView != nil {
+				// Let detail view handle 'm' for password masking if it has focus
+				if m.panelFocus != FocusMetadata {
+					// If metadata panel is focused, let it handle the key
+					// Otherwise, toggle metadata panel visibility
+					if m.panelFocus == FocusMain {
+						// Main panel has focus, toggle metadata
+						m.metadataVisible = !m.metadataVisible
+						m.recalculateLayout()
+						return m, nil
+					}
+				}
+			}
+		case "p":
+			// Toggle process panel
+			if m.state == StateList || m.state == StateDetail {
+				m.processVisible = !m.processVisible
+				m.recalculateLayout()
+				return m, nil
+			}
+		case "f":
+			// Toggle all footer panels (process + command bar if open)
+			if m.state == StateList || m.state == StateDetail {
+				m.processVisible = !m.processVisible
+				m.recalculateLayout()
+				return m, nil
+			}
+		case "tab":
+			// Switch panel focus (only in List/Detail states)
+			if m.state == StateList || m.state == StateDetail {
+				m.panelFocus = m.nextPanelFocus()
+				m.updatePanelFocus()
+				return m, nil
+			}
+		case "shift+tab":
+			// Previous panel focus
+			if m.state == StateList || m.state == StateDetail {
+				m.panelFocus = m.previousPanelFocus()
+				m.updatePanelFocus()
+				return m, nil
+			}
+		case ":":
+			// Open command bar (only in List/Detail states)
+			if m.state == StateList || m.state == StateDetail {
+				m.commandBarOpen = true
+				m.panelFocus = FocusCommandBar
+				m.updatePanelFocus()
+				return m, m.commandBar.Focus()
+			}
+		}
+	}
+
+	// Handle command bar when open
+	if m.commandBarOpen {
+		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+			switch keyMsg.String() {
+			case "esc":
+				// Close command bar
+				m.commandBarOpen = false
+				m.commandBar.Blur()
+				m.panelFocus = FocusMain
+				m.updatePanelFocus()
+				return m, nil
+			case "enter":
+				// Execute command
+				cmd, err := m.commandBar.GetCommand()
+				if err != nil {
+					return m, nil
+				}
+				if cmd != nil {
+					return m.executeCommand(cmd)
+				}
+				// Close command bar after execution
+				m.commandBarOpen = false
+				m.commandBar.Blur()
+				m.panelFocus = FocusMain
+				m.updatePanelFocus()
+				return m, nil
+			}
+		}
+		// Update command bar
+		var cmd tea.Cmd
+		m.commandBar, cmd = m.commandBar.Update(msg)
+		return m, cmd
 	}
 
 	// Update active view
@@ -431,21 +606,14 @@ func (m Model) View() string {
 	// Update status bar based on current state
 	m.updateStatusBar()
 
-	// Render main content
+	// Check if we should render dashboard layout (List or Detail states only)
+	if m.state == StateList || m.state == StateDetail {
+		return m.renderDashboardView()
+	}
+
+	// For other states (forms, help, confirmations), render full screen
 	var mainContent string
 	switch m.state {
-	case StateList:
-		if m.listView != nil {
-			mainContent = m.listView.View()
-		} else {
-			mainContent = "Loading credentials...\n"
-		}
-	case StateDetail:
-		if m.detailView != nil {
-			mainContent = m.detailView.View()
-		} else {
-			mainContent = "Loading credential...\n"
-		}
 	case StateAdd:
 		if m.addForm != nil {
 			mainContent = m.addForm.View()
