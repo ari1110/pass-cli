@@ -152,7 +152,7 @@
   - _Requirements: REQ-7_
   - _Prompt: Role: QA Engineer specializing in parser testing | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Create unit tests for CommandBar following REQ-7, test command parsing (:add github → Command{Name: "add", Args: ["github"]}, :search query → Command{Name: "search", Args: ["query"]}, :quit → Command{Name: "quit", Args: []}), test invalid commands, test empty input, test command history (up/down navigation), test error display, test Focus()/Blur() state changes, use table-driven tests for command parsing scenarios | Restrictions: Test parsing logic, mock textinput for interaction tests, cover all command types | _Leverage: parseCommand() function, test patterns | Success: All command parsing scenarios tested, history navigation verified, error handling tested, Focus/Blur state changes verified, invalid commands handled gracefully, all tests pass_
 
-- [ ] 20. Add integration tests for panel system
+- [x] 20. Add integration tests for panel system
   - File: test/tui_dashboard_integration_test.go
   - Write end-to-end tests for dashboard functionality
   - Purpose: Verify complete panel system works with real vault and interactions
