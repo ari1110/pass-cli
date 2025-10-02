@@ -142,7 +142,7 @@
   - _Requirements: FR-5, NFR-2_
   - _Prompt: Implement the task for spec docs-review-update, first run spec-workflow-guide to get the workflow guide then implement the task: Role: QA Engineer with link validation expertise and systematic testing skills | Task: Validate all internal and external links across documentation, fixing broken links and ensuring all cross-references are functional following requirement FR-5 | Restrictions: Every link must be tested, broken links must be fixed not just documented, badge URLs must point to actual workflows | _Leverage: Link validation tools or scripts, gh CLI for GitHub resource validation, WebFetch for external URL testing | _Requirements: FR-5 (Cross-References), NFR-2 (Zero Broken Links) | Success: All internal links work, all external links functional, README badges point to correct workflows, no 404s or broken references, navigation is seamless | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 13. Review and update platform-specific documentation
+- [x] 13. Review and update platform-specific documentation
   - Files: manifests/winget/README.md, manifests/snap/README.md
   - Verify winget and snap documentation is accurate or marked as future work
   - Ensure configuration examples match v0.0.1 artifacts

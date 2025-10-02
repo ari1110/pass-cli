@@ -1,5 +1,9 @@
 # Snap Package for Pass-CLI
 
+## Status
+
+⚠️ **Future Distribution Channel** - Snap distribution is planned for future releases.
+
 GoReleaser is configured to build Snap packages automatically. This directory documents the Snap submission process.
 
 ## Snap Configuration

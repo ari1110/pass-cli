@@ -4,7 +4,11 @@ This directory contains the Windows Package Manager (winget) manifest for Pass-C
 
 ## Submission Process
 
-After creating the v1.0.0 release, follow these steps to submit Pass-CLI to the official winget repository:
+## Status
+
+⚠️ **Future Distribution Channel** - winget distribution is planned for future releases.
+
+After a stable release (v1.0.0+), follow these steps to submit Pass-CLI to the official winget repository:
 
 ### 1. Update the manifest with real checksums
 
@@ -12,7 +16,8 @@ After the release is built, update `pass-cli.yaml` with the actual SHA256 hashes
 
 ```powershell
 # Get checksums from the GitHub release checksums.txt file
-curl -L https://github.com/ari1110/pass-cli/releases/download/v1.0.0/checksums.txt
+# Replace VERSION with actual release version
+curl -L https://github.com/ari1110/pass-cli/releases/download/vVERSION/checksums.txt
 ```
 
 Replace `PLACEHOLDER_HASH_AMD64` and `PLACEHOLDER_HASH_ARM64` with the actual SHA256 values.
