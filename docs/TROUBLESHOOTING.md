@@ -116,7 +116,7 @@ scoop status
 
 # Remove and re-add bucket
 scoop bucket rm pass-cli
-scoop bucket add pass-cli https://github.com/ari1110/scoop-pass-cli
+scoop bucket add pass-cli https://github.com/ari1110/scoop-bucket
 
 # Clear cache and retry
 scoop cache rm pass-cli

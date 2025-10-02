@@ -562,7 +562,7 @@ Security updates are released as:
 Check for updates:
 ```bash
 pass-cli version
-# Compare with latest: https://github.com/yourusername/pass-cli/releases
+# Compare with latest: https://github.com/ari1110/pass-cli/releases
 ```
 
 ## Cryptographic Algorithm Details

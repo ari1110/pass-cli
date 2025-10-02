@@ -118,7 +118,7 @@
   - _Requirements: FR-4, NFR-2_
   - _Prompt: Implement the task for spec docs-review-update, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Package Maintainer with Homebrew and Scoop expertise and distribution knowledge | Task: Verify and update HOMEBREW.md and SCOOP.md ensuring formula/manifest details, auto-update config, and submission instructions are accurate following requirement FR-4 | Restrictions: Must match actual formula/manifest files, auto-update must match GoReleaser config, submission instructions must reflect real package manager processes | _Leverage: homebrew/ and scoop/ directories for actual files, .goreleaser.yml for auto-update configuration, package manager documentation | _Requirements: FR-4 (Operational Documentation), NFR-2 (Accuracy) | Success: Formula/manifest locations correct, auto-update configuration accurate, submission instructions complete, installation steps tested | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 11. Verify consistency across all documentation
+- [x] 11. Verify consistency across all documentation
   - Files: All documentation files
   - Check version numbers are consistently v0.0.1
   - Verify feature descriptions match across README, USAGE, SECURITY
