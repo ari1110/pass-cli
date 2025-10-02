@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"pass-cli/cmd/tui/components"
 	"pass-cli/cmd/tui/views"
@@ -53,7 +52,6 @@ type Model struct {
 	// UI state
 	width  int
 	height int
-	keys   keyMap
 
 	// Error handling
 	err       error
@@ -84,7 +82,6 @@ func NewModel(vaultPath string) (*Model, error) {
 		vaultPath:       vaultPath,
 		keychainService: keychainService,
 		statusBar:       statusBar,
-		keys:            DefaultKeyMap(),
 		unlocking:       true,
 	}, nil
 }
@@ -98,27 +95,59 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		// Handle help overlay
-		if m.state == StateHelp {
-			// Any key closes help overlay
-			m.state = m.previousState
-			m.helpView = nil
-			return m, nil
+		// Check if any view has input focus - if so, let it handle ALL keys first
+		hasInputFocus := false
+
+		switch m.state {
+		case StateList:
+			hasInputFocus = m.listView != nil && m.listView.IsSearchFocused()
+		case StateAdd:
+			hasInputFocus = m.addForm != nil // Forms always have input focus
+		case StateEdit:
+			hasInputFocus = m.editForm != nil // Forms always have input focus
+		case StateConfirmDelete, StateConfirmDiscard:
+			hasInputFocus = m.confirmView != nil && m.confirmView.IsTypedConfirmation()
 		}
 
-		// Handle help key (? or F1) from any view
-		if msg.String() == "?" || msg.String() == "f1" {
-			m.previousState = m.state
-			m.state = StateHelp
-			m.helpView = views.NewHelpView()
-			m.helpView.SetSize(m.width, m.height)
-			return m, nil
-		}
+		// If view has input focus, skip global key handling (except Ctrl+C for emergency quit)
+		if !hasInputFocus {
+			// Handle help overlay - allow scrolling with arrow keys
+			if m.state == StateHelp {
+				// Only close on specific keys, not arrow keys
+				switch msg.String() {
+				case "up", "down", "pgup", "pgdown", "home", "end":
+					// Let help view handle scrolling
+				case "q", "esc", "?", "f1", "enter", " ":
+					// These keys close help
+					m.state = m.previousState
+					m.helpView = nil
+					return m, nil
+				default:
+					// Any other key closes help
+					m.state = m.previousState
+					m.helpView = nil
+					return m, nil
+				}
+			}
 
-		// Handle quit keys globally
-		switch {
-		case key.Matches(msg, m.keys.Quit):
-			return m, tea.Quit
+			// Handle help key (? or F1) from any view (except when typing)
+			if msg.String() == "?" || msg.String() == "f1" {
+				m.previousState = m.state
+				m.state = StateHelp
+				m.helpView = views.NewHelpView()
+				m.helpView.SetSize(m.width, m.height)
+				return m, nil
+			}
+
+			// Handle quit keys (but only when not typing)
+			if msg.String() == "q" || msg.String() == "ctrl+c" {
+				return m, tea.Quit
+			}
+		} else {
+			// Even with input focus, allow Ctrl+C for emergency quit
+			if msg.String() == "ctrl+c" {
+				return m, tea.Quit
+			}
 		}
 
 	case tea.WindowSizeMsg:
@@ -375,6 +404,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		var cmd tea.Cmd
 		m.confirmView, cmd = m.confirmView.Update(msg)
+		return m, cmd
+	}
+
+	if m.state == StateHelp && m.helpView != nil {
+		var cmd tea.Cmd
+		m.helpView, cmd = m.helpView.Update(msg)
 		return m, cmd
 	}
 

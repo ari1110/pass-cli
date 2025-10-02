@@ -79,13 +79,21 @@ func (v *ListView) SetSize(width, height int) {
 	v.width = width
 	v.height = height
 
-	// Reserve space for title (1), search bar (2), help (1), status bar (1)
-	listHeight := height - 5
+	// Reserve space for title (1), search bar (3 with border), help (1), status bar (1)
+	listHeight := height - 6
 	if listHeight < 5 {
 		listHeight = 5
 	}
+
+	// Set list width (full width available)
 	v.list.SetSize(width, listHeight)
-	v.searchInput.Width = width - 4
+
+	// Set search input width accounting for border (2) + padding (2)
+	searchWidth := width - 6
+	if searchWidth < 20 {
+		searchWidth = 20
+	}
+	v.searchInput.Width = searchWidth
 }
 
 // Update handles messages
