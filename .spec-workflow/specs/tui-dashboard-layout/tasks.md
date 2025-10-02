@@ -1,6 +1,6 @@
 # Tasks Document
 
-- [ ] 1. Create Layout Manager component
+- [x] 1. Create Layout Manager component
   - File: cmd/tui/components/layout_manager.go
   - Implement centralized dimension calculation system with responsive breakpoints
   - Purpose: Calculate panel dimensions based on terminal size and visibility states
@@ -8,7 +8,7 @@
   - _Requirements: REQ-10, REQ-11_
   - _Prompt: Role: Go TUI Developer specializing in responsive layout systems | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Create LayoutManager struct with Calculate() method following REQ-10 and REQ-11, implementing three responsive breakpoints (full: >=120 cols, medium: 80-119, small: <80), calculate panel dimensions (sidebar, main, metadata, process, command bar) respecting minimum constraints (sidebar 20 cols, main 40 cols, metadata 25 cols), return Layout struct with IsTooSmall flag when terminal < 60x20 | Restrictions: Pure calculation logic with no UI rendering, must handle panel visibility states, no external dependencies beyond standard library | _Leverage: None, new component | Success: LayoutManager.Calculate() returns correct dimensions for all breakpoints, respects minimum sizes, handles edge cases (very small terminals, many panels), unit tests pass for all scenarios_
 
-- [ ] 2. Create Category Tree utility functions
+- [x] 2. Create Category Tree utility functions
   - File: cmd/tui/components/category_tree.go
   - Implement pure functions for categorizing credentials by service patterns
   - Purpose: Organize credentials into categories (APIs, Cloud, Databases, Git, etc.)
@@ -16,7 +16,7 @@
   - _Requirements: REQ-3_
   - _Prompt: Role: Go Developer specializing in data transformation and pattern matching | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Create CategorizeCredentials() function following REQ-3 that takes []vault.CredentialMetadata and returns []Category, implement pattern matching for 8 categories (APIs & Services, Cloud Infrastructure, Databases, Version Control, Communication, Payment Processing, AI Services, Uncategorized), create GetCategoryIcon() and GetStatusIcon() functions returning icon strings, use case-insensitive substring matching on service names | Restrictions: Pure functions with no state, must handle empty inputs gracefully, all credentials must be categorized (use Uncategorized as fallback) | _Leverage: vault.CredentialMetadata type | Success: CategorizeCredentials() correctly categorizes test credentials, icons are defined for all categories, unit tests cover all category patterns and edge cases_
 
-- [ ] 3. Extend theme with panel styles and icons
+- [x] 3. Extend theme with panel styles and icons
   - File: cmd/tui/styles/theme.go
   - Add panel border styles and icon mappings for dashboard
   - Purpose: Provide consistent styling for focused/unfocused panels and category icons
@@ -24,7 +24,7 @@
   - _Requirements: REQ-12_
   - _Prompt: Role: UI Designer with terminal color scheme expertise | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Extend existing theme.go following REQ-12 by adding ActivePanelBorderStyle (cyan border), InactivePanelBorderStyle (gray border), CategoryIcons map (☁️ Cloud, 🔑 APIs, 💾 Databases, 📦 Git, 📧 Comm, 💰 Payment, 🤖 AI, 📁 Uncat), StatusIcons map (⏳ pending, ✓ success, ✗ failed, ▶ collapsed, ▼ expanded), ensure 4.5:1 contrast ratio, graceful ASCII fallback for unsupported terminals | Restrictions: Do not modify existing styles, only add new ones, must maintain backward compatibility | _Leverage: Existing theme constants and styles | Success: New panel styles render correctly with focus highlighting, icons display properly or fallback gracefully, all existing styles continue to work, theme tests pass_
 
-- [ ] 4. Create Sidebar Panel component
+- [x] 4. Create Sidebar Panel component
   - File: cmd/tui/components/sidebar.go
   - Implement sidebar with category tree, stats, and quick actions
   - Purpose: Display navigable category tree with credential counts and statistics
@@ -32,7 +32,7 @@
   - _Requirements: REQ-3, REQ-4, REQ-14_
   - _Prompt: Role: Go TUI Developer specializing in interactive navigation components | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Create SidebarPanel struct following REQ-3, REQ-4, REQ-14 with fields (categories, selectedCategory, selectedCred, stats, viewport), implement NewSidebarPanel(), SetSize(), Update(), View(), GetSelectedCredential(), GetSelectedCategory() methods, support j/k/arrow navigation, Enter/l to expand/collapse categories, render category tree with expand/collapse indicators (▶/▼), display stats section (Total, Used, Recent) and quick actions ([a] Add, [:] Command, [?] Help), use viewport for scrolling | Restrictions: Must use bubbles/viewport, only render visible content, handle empty categories gracefully | _Leverage: viewport pattern from DetailView, theme.go styles | Success: Sidebar renders category tree correctly, navigation works smoothly, expansion/collapse state maintained, stats update when credentials change, scrolling works for long category lists_
 
-- [ ] 5. Create Metadata Panel component
+- [x] 5. Create Metadata Panel component
   - File: cmd/tui/components/metadata_panel.go
   - Implement right-side panel showing credential details
   - Purpose: Display selected credential information with usage records
@@ -40,7 +40,7 @@
   - _Requirements: REQ-6_
   - _Prompt: Role: Go TUI Developer specializing in information display components | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Create MetadataPanel struct following REQ-6 with fields (credential, passwordMasked, viewport), implement NewMetadataPanel(), SetCredential(), SetSize(), Update(), View(), TogglePasswordMask() methods, render credential service (header), username, password (masked by default), created/updated timestamps (relative format), usage records table (path, access count, last accessed), support m key to toggle password mask, use viewport for scrolling long content | Restrictions: Password masked by default, must use viewport for overflow, display "(not set)" for missing fields | _Leverage: DetailView's rendering logic, formatTime() function, viewport pattern | Success: Metadata panel displays all credential fields correctly, password masking works, usage records formatted in readable table, scrolling works for long content, updates when credential selection changes_
 
-- [ ] 6. Create Process Panel component
+- [x] 6. Create Process Panel component
   - File: cmd/tui/components/process_panel.go
   - Implement bottom panel showing async operation feedback
   - Purpose: Display operation status (generating password, saving, deleting)
@@ -48,7 +48,7 @@
   - _Requirements: REQ-8_
   - _Prompt: Role: Go TUI Developer specializing in status notification systems | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Create ProcessPanel struct following REQ-8 with fields (processes []Process, maxDisplay 5), Process struct (ID, Description, Status, Error, Timestamp), implement NewProcessPanel(), AddProcess(), UpdateProcess(), SetSize(), View() methods, render most recent 5 processes with status icons (⏳ running, ✓ success, ✗ failed), use green for success, red for errors, display process descriptions and timestamps, auto-hide panel when all processes complete after 3 seconds | Restrictions: Maximum 5 visible processes, must trim old processes, simple list rendering | _Leverage: styles/theme.go status icons, notification patterns | Success: Process panel displays active operations, status updates reflect correctly, success/error colors applied, auto-hide works after completion, processes don't overflow allocated space_
 
-- [ ] 7. Create Command Bar component
+- [x] 7. Create Command Bar component
   - File: cmd/tui/components/command_bar.go
   - Implement vim-style command input bar
   - Purpose: Execute commands like :add, :search, :category, :help, :quit
@@ -56,7 +56,7 @@
   - _Requirements: REQ-7_
   - _Prompt: Role: Go Developer specializing in command parsing and input handling | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Create CommandBar struct following REQ-7 with fields (input textinput.Model, history []string, historyIdx, error), Command struct (Name, Args []string), implement NewCommandBar(), Focus(), Blur(), SetSize(), Update(), View(), GetCommand(), SetError() methods, parse commands (:add [service], :search [query], :category [name], :help/:h, :quit/:q), support command history with up/down arrows, display : prompt, show errors in red below input, return parsed Command on Enter | Restrictions: Must use bubbles/textinput, commands start with :, Enter executes, Esc cancels | _Leverage: textinput patterns from forms, command parsing from main.go | Success: Command bar opens with : key, accepts text input, parses commands correctly, history navigation works, errors display properly, executes or cancels correctly_
 
-- [ ] 8. Create Breadcrumb component
+- [x] 8. Create Breadcrumb component
   - File: cmd/tui/components/breadcrumb.go
   - Implement navigation path display
   - Purpose: Show current location (Home > APIs > Cloud > aws-prod)

@@ -117,4 +117,112 @@ var (
 
 	TableDividerStyle = lipgloss.NewStyle().
 		Foreground(SubtleColor)
+
+	// Panel styles for dashboard
+	ActivePanelBorderStyle = lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(PrimaryColor). // Cyan border for active panel
+		Padding(0, 1)
+
+	InactivePanelBorderStyle = lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(SubtleColor). // Gray border for inactive panel
+		Padding(0, 1)
+
+	// Panel title styles
+	PanelTitleStyle = lipgloss.NewStyle().
+		Foreground(PrimaryColor).
+		Bold(true).
+		Padding(0, 1)
+
+	InactivePanelTitleStyle = lipgloss.NewStyle().
+		Foreground(SubtleColor).
+		Bold(true).
+		Padding(0, 1)
+
+	// Breadcrumb style
+	BreadcrumbStyle = lipgloss.NewStyle().
+		Foreground(PrimaryColor).
+		Bold(true)
+
+	BreadcrumbSeparatorStyle = lipgloss.NewStyle().
+		Foreground(SubtleColor)
 )
+
+// CategoryIcons maps category types to their display icons
+var CategoryIcons = map[string]string{
+	"APIs & Services":       "🔑",
+	"Cloud Infrastructure":  "☁️",
+	"Databases":             "💾",
+	"Version Control":       "📦",
+	"Communication":         "📧",
+	"Payment Processing":    "💰",
+	"AI Services":           "🤖",
+	"Uncategorized":         "📁",
+}
+
+// CategoryIconsASCII provides ASCII fallback for terminals without emoji support
+var CategoryIconsASCII = map[string]string{
+	"APIs & Services":       "[API]",
+	"Cloud Infrastructure":  "[CLD]",
+	"Databases":             "[DB]",
+	"Version Control":       "[GIT]",
+	"Communication":         "[MSG]",
+	"Payment Processing":    "[PAY]",
+	"AI Services":           "[AI]",
+	"Uncategorized":         "[???]",
+}
+
+// StatusIcons maps status types to their display icons
+var StatusIcons = map[string]string{
+	"pending":   "⏳",
+	"running":   "⏳",
+	"success":   "✓",
+	"failed":    "✗",
+	"collapsed": "▶",
+	"expanded":  "▼",
+}
+
+// StatusIconsASCII provides ASCII fallback for status icons
+var StatusIconsASCII = map[string]string{
+	"pending":   "[.]",
+	"running":   "[.]",
+	"success":   "[+]",
+	"failed":    "[X]",
+	"collapsed": "[>]",
+	"expanded":  "[v]",
+}
+
+// SupportsUnicode checks if the terminal supports Unicode icons
+// This is a simple heuristic - you can enhance it based on TERM environment variable
+var SupportsUnicode = true // Default to true, can be overridden based on terminal detection
+
+// GetCategoryIcon returns the appropriate category icon based on Unicode support
+func GetCategoryIcon(category string) string {
+	if SupportsUnicode {
+		if icon, ok := CategoryIcons[category]; ok {
+			return icon
+		}
+		return CategoryIcons["Uncategorized"]
+	}
+
+	if icon, ok := CategoryIconsASCII[category]; ok {
+		return icon
+	}
+	return CategoryIconsASCII["Uncategorized"]
+}
+
+// GetStatusIcon returns the appropriate status icon based on Unicode support
+func GetStatusIcon(status string) string {
+	if SupportsUnicode {
+		if icon, ok := StatusIcons[status]; ok {
+			return icon
+		}
+		return ""
+	}
+
+	if icon, ok := StatusIconsASCII[status]; ok {
+		return icon
+	}
+	return ""
+}
