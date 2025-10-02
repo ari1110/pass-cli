@@ -59,7 +59,7 @@
   - _Requirements: FR-2, FR-5, NFR-2_
   - _Prompt: Implement the task for spec docs-review-update, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Security Technical Writer with cryptography knowledge and threat modeling expertise | Task: Verify and update SECURITY.md ensuring all cryptographic specs, keychain integration details, and security architecture match actual implementation per tech.md following requirement FR-2 | Restrictions: All technical details must match implementation exactly, do not overstate security guarantees, threat model must be realistic | _Leverage: tech.md for authoritative security specifications (PBKDF2 100k iterations), crypto implementation for verification, keychain implementation for platform details | _Requirements: FR-2 (Critical Documentation), FR-5 (Consistency), NFR-2 (Accuracy) | Success: Encryption algorithm correct (AES-256-GCM), PBKDF2 iterations correct (100k not 600k), keychain integration accurate per platform, file permissions documented correctly, threat model realistic | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 6. Verify and fix DEVELOPMENT.md
+- [x] 6. Verify and fix DEVELOPMENT.md
   - File: docs/DEVELOPMENT.md
   - Update Go version requirement to 1.25+ per tech.md
   - Verify build commands match current Makefile
