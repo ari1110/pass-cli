@@ -96,7 +96,7 @@
   - _Requirements: All_
   - _Prompt: Role: QA Engineer with Go testing expertise | Task: Create comprehensive unit tests for TUI covering all requirements, test state transitions, key handling, search filtering, form validation, password toggling | Restrictions: Mock VaultService for all tests, test components in isolation, use table-driven tests, aim for 80%+ coverage | Success: State transition tests, key handling tests for all states, search filter tests, form validation tests, form navigation tests, password visibility toggle tests, status bar rendering tests, confirmation dialog tests, all tests pass with go test, coverage ≥80%_
 
-- [ ] 13. Add TUI integration tests
+- [x] 13. Add TUI integration tests
   - File: test/tui_integration_test.go
   - Create end-to-end integration tests for TUI workflows with real vault and keychain
   - Purpose: Verify TUI works correctly with real VaultService and system keychain
