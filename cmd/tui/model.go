@@ -3,7 +3,9 @@ package tui
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"pass-cli/cmd/tui/components"
 	"pass-cli/cmd/tui/views"
+	"pass-cli/internal/keychain"
 	"pass-cli/internal/vault"
 )
 
@@ -39,6 +41,12 @@ type Model struct {
 	editForm    *views.EditFormView
 	confirmView *views.ConfirmView
 
+	// Components
+	statusBar *components.StatusBar
+
+	// Services
+	keychainService *keychain.KeychainService
+
 	// State for confirmation dialogs
 	previousState AppState
 
@@ -60,12 +68,24 @@ func NewModel(vaultPath string) (*Model, error) {
 		return nil, err
 	}
 
+	// Initialize keychain service
+	keychainService := keychain.New()
+
+	// Initialize status bar
+	statusBar := components.NewStatusBar(
+		keychainService.IsAvailable(),
+		0,
+		"Unlocking",
+	)
+
 	return &Model{
-		state:        StateUnlocking,
-		vaultService: vaultService,
-		vaultPath:    vaultPath,
-		keys:         DefaultKeyMap(),
-		unlocking:    true,
+		state:           StateUnlocking,
+		vaultService:    vaultService,
+		vaultPath:       vaultPath,
+		keychainService: keychainService,
+		statusBar:       statusBar,
+		keys:            DefaultKeyMap(),
+		unlocking:       true,
 	}, nil
 }
 
@@ -87,6 +107,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+		if m.statusBar != nil {
+			m.statusBar.SetSize(m.width)
+		}
 		if m.listView != nil {
 			m.listView.SetSize(m.width, m.height)
 		}
@@ -118,6 +141,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.credentials = msg.credentials
 		m.listView = views.NewListView(msg.credentials)
 		m.listView.SetSize(m.width, m.height)
+		// Update status bar with credential count
+		if m.statusBar != nil {
+			m.statusBar.SetCredentialCount(len(msg.credentials))
+		}
 		// If we were in add/edit form, return to list
 		if m.state == StateAdd || m.state == StateEdit {
 			m.state = StateList
@@ -344,34 +371,80 @@ func (m Model) View() string {
 		return "Error: " + m.errMsg + "\n"
 	}
 
+	// Update status bar based on current state
+	m.updateStatusBar()
+
+	// Render main content
+	var mainContent string
 	switch m.state {
 	case StateList:
 		if m.listView != nil {
-			return m.listView.View()
+			mainContent = m.listView.View()
+		} else {
+			mainContent = "Loading credentials...\n"
 		}
-		return "Loading credentials...\n"
 	case StateDetail:
 		if m.detailView != nil {
-			return m.detailView.View()
+			mainContent = m.detailView.View()
+		} else {
+			mainContent = "Loading credential...\n"
 		}
-		return "Loading credential...\n"
 	case StateAdd:
 		if m.addForm != nil {
-			return m.addForm.View()
+			mainContent = m.addForm.View()
+		} else {
+			mainContent = "Loading form...\n"
 		}
-		return "Loading form...\n"
 	case StateEdit:
 		if m.editForm != nil {
-			return m.editForm.View()
+			mainContent = m.editForm.View()
+		} else {
+			mainContent = "Loading form...\n"
 		}
-		return "Loading form...\n"
 	case StateConfirmDiscard, StateConfirmDelete:
 		if m.confirmView != nil {
-			return m.confirmView.View()
+			mainContent = m.confirmView.View()
+		} else {
+			mainContent = "Loading...\n"
 		}
-		return "Loading...\n"
 	default:
-		return "TUI - coming soon!\n"
+		mainContent = "TUI - coming soon!\n"
+	}
+
+	// Append status bar
+	if m.statusBar != nil {
+		return mainContent + "\n" + m.statusBar.Render()
+	}
+
+	return mainContent
+}
+
+// updateStatusBar updates the status bar with current view information
+func (m Model) updateStatusBar() {
+	if m.statusBar == nil {
+		return
+	}
+
+	// Update current view name and shortcuts
+	switch m.state {
+	case StateList:
+		m.statusBar.SetCurrentView("List")
+		m.statusBar.SetShortcuts("/: search | a: add | ?: help | q: quit")
+	case StateDetail:
+		m.statusBar.SetCurrentView("Detail")
+		m.statusBar.SetShortcuts("m: toggle | c: copy | e: edit | d: delete | esc: back | q: quit")
+	case StateAdd:
+		m.statusBar.SetCurrentView("Add")
+		m.statusBar.SetShortcuts("tab: next | g: generate | ctrl+s: save | esc: cancel")
+	case StateEdit:
+		m.statusBar.SetCurrentView("Edit")
+		m.statusBar.SetShortcuts("tab: next | g: generate | ctrl+s: save | esc: cancel")
+	case StateConfirmDelete, StateConfirmDiscard:
+		m.statusBar.SetCurrentView("Confirm")
+		m.statusBar.SetShortcuts("y/n or enter/esc")
+	default:
+		m.statusBar.SetCurrentView("TUI")
+		m.statusBar.SetShortcuts("?: help | q: quit")
 	}
 }
 

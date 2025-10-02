@@ -64,7 +64,7 @@
   - _Requirements: REQ-7_
   - _Prompt: Role: Safety Engineer specializing in destructive action prevention | Task: Create delete confirmation dialog following REQ-7 with simple y/n for credentials without usage, typed service name confirmation for credentials with usage, display usage locations in red/warning color | Restrictions: Two modes simple and typed, usage locations prominently displayed, typed name must match exactly, center dialog as modal overlay | Success: d shows confirmation, displays service and username, simple y/n for no usage, typed confirmation for credentials with usage, usage locations in red, y confirms simple, exact service name confirms typed, n or Escape cancels, wrong name shows error, successful deletion returns to list_
 
-- [ ] 9. Create status bar with keychain indicator
+- [x] 9. Create status bar with keychain indicator
   - File: cmd/tui/components/statusbar.go, cmd/tui/view.go, cmd/tui/model.go
   - Create persistent status bar showing keychain status, credential count, current view, shortcuts
   - Purpose: Display system status and context-relevant keyboard shortcuts
