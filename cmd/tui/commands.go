@@ -1,13 +1,11 @@
 package tui
 
 import (
-	"fmt"
-
 	tea "github.com/charmbracelet/bubbletea"
 	"pass-cli/internal/vault"
 )
 
-// unlockVaultCmd attempts to unlock the vault using keychain, then password prompt
+// unlockVaultCmd attempts to unlock the vault using keychain, then falls back to password prompt
 func unlockVaultCmd(vaultService *vault.VaultService) tea.Cmd {
 	return func() tea.Msg {
 		// Try keychain first
@@ -15,11 +13,8 @@ func unlockVaultCmd(vaultService *vault.VaultService) tea.Cmd {
 			return vaultUnlockedMsg{}
 		}
 
-		// TODO: For now, just return error if keychain fails
-		// In future tasks, we'll add password prompt UI
-		return vaultUnlockErrorMsg{
-			err: fmt.Errorf("keychain unlock failed - password prompt UI not yet implemented"),
-		}
+		// Keychain failed, request password from user
+		return needPasswordMsg{}
 	}
 }
 

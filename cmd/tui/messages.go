@@ -21,3 +21,6 @@ type credentialsLoadedMsg struct {
 type credentialLoadedMsg struct {
 	credential *vault.Credential
 }
+
+// needPasswordMsg is sent when vault needs password to unlock
+type needPasswordMsg struct{}

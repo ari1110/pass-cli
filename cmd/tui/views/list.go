@@ -166,13 +166,11 @@ func (v *ListView) View() string {
 		listView = v.list.View()
 	}
 
-	help := v.renderHelp()
-
+	// Status bar handles shortcuts, so don't render help here
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		searchBar,
 		listView,
-		help,
 	)
 }
 

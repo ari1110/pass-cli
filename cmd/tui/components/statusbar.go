@@ -52,8 +52,8 @@ func (s *StatusBar) SetShortcuts(shortcuts string) {
 
 // Render returns the rendered status bar
 func (s *StatusBar) Render() string {
-	// Account for status bar padding (2 chars total from padding 0, 1)
-	availableWidth := s.width - 2
+	// Use actual terminal width without adjustment
+	availableWidth := s.width
 	if availableWidth < 10 {
 		availableWidth = 10
 	}
@@ -87,13 +87,14 @@ func (s *StatusBar) Render() string {
 	centerLen := lipgloss.Width(center)
 	rightLen := lipgloss.Width(right)
 
-	// Total space needed
-	totalContent := leftLen + centerLen + rightLen
+	// Reserve space for padding (2 chars)
+	contentWidth := availableWidth - 2
 
-	// If content fits, distribute evenly
-	if totalContent+4 < availableWidth { // +4 for minimum spacing
+	// If content fits comfortably, distribute evenly
+	totalContent := leftLen + centerLen + rightLen
+	if totalContent+4 <= contentWidth { // +4 for minimum spacing
 		// Calculate spacing
-		totalSpacing := availableWidth - totalContent
+		totalSpacing := contentWidth - totalContent
 		leftSpacing := totalSpacing / 2
 		rightSpacing := totalSpacing - leftSpacing
 
@@ -103,7 +104,7 @@ func (s *StatusBar) Render() string {
 			lipgloss.NewStyle().Width(rightSpacing).Render("") +
 			right
 
-		// Ensure we don't exceed width by using MaxWidth
+		// Use MaxWidth to prevent overflow
 		return lipgloss.NewStyle().
 			MaxWidth(availableWidth).
 			Foreground(styles.SubtleColor).
@@ -111,22 +112,40 @@ func (s *StatusBar) Render() string {
 			Render(content)
 	}
 
-	// If content doesn't fit, prioritize left and right, truncate center
-	available := availableWidth - leftLen - rightLen - 4 // 4 for spacing
-	if available < 0 {
-		available = 0
+	// Content doesn't fit - need to truncate intelligently
+	// Priority: left (fixed) > right (truncate) > center (truncate)
+
+	// Reserve space for left + minimum spacing
+	remainingWidth := contentWidth - leftLen - 2 // 2 for spacing
+
+	// Truncate right side if needed (shortcuts)
+	truncatedRight := right
+	maxRightWidth := remainingWidth - centerLen - 2 // 2 for spacing
+	if rightLen > maxRightWidth && maxRightWidth > 10 {
+		// Truncate shortcuts intelligently - keep as many complete shortcuts as possible
+		truncatedRight = s.truncateShortcuts(right, maxRightWidth)
+		rightLen = lipgloss.Width(truncatedRight)
 	}
 
+	// Recalculate remaining width for center
+	remainingForCenter := contentWidth - leftLen - rightLen - 4 // 4 for spacing
+
+	// Truncate center if needed
 	truncatedCenter := center
-	if centerLen > available {
-		if available > 3 {
-			truncatedCenter = center[:available-3] + "..."
+	if centerLen > remainingForCenter && remainingForCenter > 0 {
+		if remainingForCenter > 3 {
+			// Use lipgloss truncation for proper handling
+			truncatedCenter = lipgloss.NewStyle().MaxWidth(remainingForCenter - 3).Render(center) + "..."
 		} else {
 			truncatedCenter = ""
 		}
 	}
 
-	spacing := availableWidth - leftLen - lipgloss.Width(truncatedCenter) - rightLen
+	// Calculate final spacing
+	finalLeftLen := lipgloss.Width(left)
+	finalCenterLen := lipgloss.Width(truncatedCenter)
+	finalRightLen := lipgloss.Width(truncatedRight)
+	spacing := contentWidth - finalLeftLen - finalCenterLen - finalRightLen
 	if spacing < 2 {
 		spacing = 2
 	}
@@ -134,12 +153,60 @@ func (s *StatusBar) Render() string {
 	content := left +
 		lipgloss.NewStyle().Width(spacing).Render("") +
 		truncatedCenter +
-		right
+		truncatedRight
 
-	// Ensure we don't exceed width by using MaxWidth
+	// Use MaxWidth to prevent overflow
 	return lipgloss.NewStyle().
 		MaxWidth(availableWidth).
 		Foreground(styles.SubtleColor).
 		Padding(0, 1).
 		Render(content)
+}
+
+// truncateShortcuts intelligently truncates shortcuts to fit width
+// Tries to keep complete shortcut entries (e.g., "q: quit") rather than cutting mid-word
+func (s *StatusBar) truncateShortcuts(shortcuts string, maxWidth int) string {
+	if lipgloss.Width(shortcuts) <= maxWidth {
+		return shortcuts
+	}
+
+	// Split by " | " separator
+	parts := []string{}
+	current := ""
+	for i, r := range shortcuts {
+		current += string(r)
+		if i < len(shortcuts)-3 && shortcuts[i:i+3] == " | " {
+			parts = append(parts, current[:len(current)-3])
+			current = ""
+			i += 2 // Skip past " | "
+		}
+	}
+	if current != "" {
+		parts = append(parts, current)
+	}
+
+	// Add parts until we exceed width
+	result := ""
+	for _, part := range parts {
+		test := result
+		if test != "" {
+			test += " | "
+		}
+		test += part
+
+		if lipgloss.Width(test) > maxWidth-3 { // -3 for "..."
+			break
+		}
+		result = test
+	}
+
+	if result == "" {
+		// If even one shortcut doesn't fit, just truncate hard
+		if maxWidth > 3 {
+			return lipgloss.NewStyle().MaxWidth(maxWidth - 3).Render(shortcuts) + "..."
+		}
+		return ""
+	}
+
+	return result
 }

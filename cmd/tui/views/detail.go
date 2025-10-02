@@ -8,7 +8,6 @@ import (
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"pass-cli/cmd/tui/styles"
 	"pass-cli/internal/vault"
 )
@@ -84,13 +83,8 @@ func (v *DetailView) Update(msg tea.Msg) (*DetailView, tea.Cmd) {
 
 // View renders the detail view
 func (v *DetailView) View() string {
-	help := v.renderHelp()
-
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		v.viewport.View(),
-		help,
-	)
+	// Status bar handles shortcuts, so just return viewport
+	return v.viewport.View()
 }
 
 // updateContent updates the viewport content

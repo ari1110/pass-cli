@@ -206,12 +206,26 @@ func (m *Model) renderDashboardView() string {
 		mainContent = m.detailView.View()
 	}
 
+	// Border overhead: border (2) + padding (2) = 4 width, 2 height
+	// Subtract this when rendering so total size matches layout allocation
+	const borderWidth = 4
+	const borderHeight = 2
+
 	// Apply panel border styling
 	mainPanelStyle := styles.InactivePanelBorderStyle
 	if m.panelFocus == FocusMain {
 		mainPanelStyle = styles.ActivePanelBorderStyle
 	}
-	mainPanel := mainPanelStyle.Width(layout.Main.Width).Height(layout.Main.Height).Render(mainContent)
+	// Subtract border overhead so total rendered size = layout allocation
+	mainPanelWidth := layout.Main.Width - borderWidth
+	mainPanelHeight := layout.Main.Height - borderHeight
+	if mainPanelWidth < 10 {
+		mainPanelWidth = 10
+	}
+	if mainPanelHeight < 5 {
+		mainPanelHeight = 5
+	}
+	mainPanel := mainPanelStyle.Width(mainPanelWidth).Height(mainPanelHeight).Render(mainContent)
 
 	// Collect horizontal panels (sidebar, main, metadata)
 	var horizontalPanels []string
@@ -223,7 +237,16 @@ func (m *Model) renderDashboardView() string {
 		if m.panelFocus == FocusSidebar {
 			sidebarStyle = styles.ActivePanelBorderStyle
 		}
-		sidebarPanel := sidebarStyle.Width(layout.Sidebar.Width).Height(layout.Sidebar.Height).Render(sidebarContent)
+		// Subtract border overhead
+		sidebarWidth := layout.Sidebar.Width - borderWidth
+		sidebarHeight := layout.Sidebar.Height - borderHeight
+		if sidebarWidth < 10 {
+			sidebarWidth = 10
+		}
+		if sidebarHeight < 5 {
+			sidebarHeight = 5
+		}
+		sidebarPanel := sidebarStyle.Width(sidebarWidth).Height(sidebarHeight).Render(sidebarContent)
 		horizontalPanels = append(horizontalPanels, sidebarPanel)
 	}
 
@@ -237,7 +260,16 @@ func (m *Model) renderDashboardView() string {
 		if m.panelFocus == FocusMetadata {
 			metadataStyle = styles.ActivePanelBorderStyle
 		}
-		metadataPanel := metadataStyle.Width(layout.Metadata.Width).Height(layout.Metadata.Height).Render(metadataContent)
+		// Subtract border overhead
+		metadataWidth := layout.Metadata.Width - borderWidth
+		metadataHeight := layout.Metadata.Height - borderHeight
+		if metadataWidth < 10 {
+			metadataWidth = 10
+		}
+		if metadataHeight < 5 {
+			metadataHeight = 5
+		}
+		metadataPanel := metadataStyle.Width(metadataWidth).Height(metadataHeight).Render(metadataContent)
 		horizontalPanels = append(horizontalPanels, metadataPanel)
 	}
 
@@ -246,6 +278,15 @@ func (m *Model) renderDashboardView() string {
 
 	// Build vertical layout
 	var verticalSections []string
+
+	// Add breadcrumb at the top (if in detail view and we have a path)
+	if m.state == StateDetail && m.breadcrumb != nil {
+		breadcrumbView := m.breadcrumb.View()
+		if breadcrumbView != "" {
+			verticalSections = append(verticalSections, breadcrumbView)
+		}
+	}
+
 	verticalSections = append(verticalSections, mainRow)
 
 	// Add process panel if visible
@@ -267,8 +308,14 @@ func (m *Model) renderDashboardView() string {
 		verticalSections = append(verticalSections, m.statusBar.Render())
 	}
 
-	// Join all vertical sections
-	return lipgloss.JoinVertical(lipgloss.Left, verticalSections...)
+	// Join all vertical sections and constrain to terminal dimensions
+	output := lipgloss.JoinVertical(lipgloss.Left, verticalSections...)
+
+	// Use a style to constrain the entire output to terminal size
+	return lipgloss.NewStyle().
+		MaxWidth(m.width).
+		MaxHeight(m.height).
+		Render(output)
 }
 
 // getPanelShortcuts returns the panel toggle shortcuts for status bar
@@ -282,12 +329,12 @@ func (m *Model) getPanelShortcuts() string {
 		shortcuts = append(shortcuts, "s: show sidebar")
 	}
 
-	// Show metadata toggle in Detail state
+	// Show metadata/info toggle in Detail state
 	if m.state == StateDetail {
 		if m.metadataVisible {
-			shortcuts = append(shortcuts, "m: hide details")
+			shortcuts = append(shortcuts, "i: hide info")
 		} else {
-			shortcuts = append(shortcuts, "m: show details")
+			shortcuts = append(shortcuts, "i: show info")
 		}
 	}
 

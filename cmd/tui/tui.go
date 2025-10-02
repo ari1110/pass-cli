@@ -23,8 +23,12 @@ func Run() error {
 		return fmt.Errorf("failed to create TUI model: %w", err)
 	}
 
-	// Create Bubble Tea program
-	p := tea.NewProgram(model)
+	// Create Bubble Tea program with alternate screen buffer
+	p := tea.NewProgram(
+		model,
+		tea.WithAltScreen(),       // Use alternate screen buffer (takes over terminal)
+		tea.WithMouseCellMotion(), // Enable full mouse support
+	)
 
 	// Run the program
 	if _, err := p.Run(); err != nil {

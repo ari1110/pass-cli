@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"pass-cli/cmd/tui/components"
 	"pass-cli/cmd/tui/views"
@@ -13,6 +14,7 @@ type AppState int
 
 const (
 	StateUnlocking AppState = iota
+	StatePasswordPrompt
 	StateList
 	StateDetail
 	StateAdd
@@ -67,6 +69,10 @@ type Model struct {
 	err       error
 	errMsg    string
 	unlocking bool
+
+	// Password prompt
+	passwordInput textinput.Model
+	passwordError string
 
 	// === DASHBOARD COMPONENTS (new) ===
 	layoutManager *components.LayoutManager
@@ -142,7 +148,10 @@ func NewModel(vaultPath string) (*Model, error) {
 
 // Init initializes the model (Bubble Tea Init method)
 func (m Model) Init() tea.Cmd {
-	return unlockVaultCmd(m.vaultService)
+	return tea.Batch(
+		unlockVaultCmd(m.vaultService),
+		tea.EnterAltScreen, // Ensure alt screen is entered
+	)
 }
 
 // Update handles messages and updates the model (Bubble Tea Update method)
@@ -208,13 +217,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 
-		// Calculate layout with panel visibility
-		m.recalculateLayout()
-
-		// Update status bar
+		// Update status bar first with actual terminal width
 		if m.statusBar != nil {
 			m.statusBar.SetSize(m.width)
 		}
+
+		// Calculate layout with panel visibility
+		m.recalculateLayout()
 
 		// Views will be sized according to the layout's main panel dimensions
 		// This happens in recalculateLayout() for views in List/Detail states
@@ -231,6 +240,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.helpView != nil {
 			m.helpView.SetSize(m.width, m.height)
 		}
+
+		return m, nil
+
+	case needPasswordMsg:
+		// Keychain failed, show password prompt
+		m.unlocking = false
+		m.state = StatePasswordPrompt
+		m.passwordInput = textinput.New()
+		m.passwordInput.Placeholder = "Enter master password"
+		m.passwordInput.EchoMode = textinput.EchoPassword
+		m.passwordInput.Focus()
+		return m, textinput.Blink
 
 	case vaultUnlockedMsg:
 		m.unlocking = false
@@ -296,20 +317,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.recalculateLayout()
 				return m, nil
 			}
-		case "m":
-			// Toggle metadata panel (only in Detail state, avoid conflict with mask in DetailView)
-			if m.state == StateDetail && m.detailView != nil {
-				// Let detail view handle 'm' for password masking if it has focus
-				if m.panelFocus != FocusMetadata {
-					// If metadata panel is focused, let it handle the key
-					// Otherwise, toggle metadata panel visibility
-					if m.panelFocus == FocusMain {
-						// Main panel has focus, toggle metadata
-						m.metadataVisible = !m.metadataVisible
-						m.recalculateLayout()
-						return m, nil
-					}
-				}
+		case "i":
+			// Toggle info/metadata panel (only in Detail state)
+			if m.state == StateDetail {
+				m.metadataVisible = !m.metadataVisible
+				m.recalculateLayout()
+				return m, nil
 			}
 		case "p":
 			// Toggle process panel
@@ -414,6 +427,33 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if m.state == StateDetail && m.panelFocus == FocusMetadata && m.metadataPanel != nil {
 		var cmd tea.Cmd
 		m.metadataPanel, cmd = m.metadataPanel.Update(msg)
+		return m, cmd
+	}
+
+	// Handle password prompt state
+	if m.state == StatePasswordPrompt {
+		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+			switch keyMsg.String() {
+			case "enter":
+				password := m.passwordInput.Value()
+				if password == "" {
+					m.passwordError = "Password cannot be empty"
+					return m, nil
+				}
+				// Try to unlock with password
+				return m, func() tea.Msg {
+					if err := m.vaultService.Unlock(password); err != nil {
+						return vaultUnlockErrorMsg{err: err}
+					}
+					return vaultUnlockedMsg{}
+				}
+			case "ctrl+c", "esc":
+				return m, tea.Quit
+			}
+		}
+		// Update password input
+		var cmd tea.Cmd
+		m.passwordInput, cmd = m.passwordInput.Update(msg)
 		return m, cmd
 	}
 
@@ -634,6 +674,17 @@ func (m Model) View() string {
 
 	if m.err != nil {
 		return "Error: " + m.errMsg + "\n"
+	}
+
+	// Password prompt view
+	if m.state == StatePasswordPrompt {
+		view := "\n  🔐 Vault Locked\n\n"
+		view += "  " + m.passwordInput.View() + "\n"
+		if m.passwordError != "" {
+			view += "\n  ❌ " + m.passwordError + "\n"
+		}
+		view += "\n  Press Enter to unlock, Esc to quit\n"
+		return view
 	}
 
 	// Update status bar based on current state
