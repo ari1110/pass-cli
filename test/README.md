@@ -15,6 +15,9 @@ go test -v -tags=integration ./test -timeout 5m
 # Run specific test
 go test -v -tags=integration ./test -run TestIntegration_CompleteWorkflow
 
+# Run only keychain tests
+go test -v -tags=integration ./test -run TestIntegration_Keychain
+
 # Skip performance and stress tests (short mode)
 go test -v -tags=integration ./test -short
 ```
@@ -67,6 +70,24 @@ make test-all
 ### Version Test
 - **TestIntegration_Version**: Basic version command validation
 
+### Keychain Integration Tests
+- **TestIntegration_KeychainWorkflow**: End-to-end keychain integration
+  - Init vault with `--use-keychain` flag
+  - Verify password stored in system keychain
+  - Auto-unlock for add/get/list/update/delete commands (no password prompt)
+  - Full workflow validation with native OS keychain
+- **TestIntegration_KeychainFallback**: Keychain fallback behavior
+  - Graceful degradation when keychain entry is deleted
+  - Password prompt fallback when keychain unavailable
+- **TestIntegration_KeychainUnavailable**: Unavailable keychain handling
+  - Behavior when system keychain is not accessible
+  - Error messages and warnings
+- **TestIntegration_MultipleVaultsKeychain**: Multiple vault scenarios
+  - Shared keychain entry behavior
+  - Cross-vault operations
+- **TestIntegration_KeychainVerboseOutput**: Verbose mode keychain feedback
+  - Verification of keychain usage messages
+
 ## Test Architecture
 
 ### Build Tags
@@ -80,7 +101,7 @@ Each test:
 - Creates temporary vault directories
 - Uses unique vault paths
 - Cleans up after completion
-- Doesn't interfere with system keychains
+- Cleans up keychain entries after keychain tests
 
 ### Binary Building
 `TestMain` automatically:
@@ -106,6 +127,19 @@ Quiet mode outputs are logged for verification. The implementation appears to wo
 ### Cross-Platform
 Tests are designed to run on Windows, macOS, and Linux. Platform-specific features (like keychain integration) are handled gracefully.
 
+### Keychain Tests
+Keychain integration tests interact with real OS keychains:
+- **Windows**: Windows Credential Manager
+- **macOS**: Keychain Access
+- **Linux**: Secret Service (D-Bus)
+
+**Important Notes:**
+- Tests automatically skip if system keychain is unavailable
+- Tests clean up keychain entries in `defer` blocks
+- Safe to run locally - won't interfere with other apps
+- On CI/CD, keychain may not be available (tests will skip gracefully)
+- Use the keychain service name "pass-cli" and account "master-password"
+
 ## CI/CD Integration
 
 ```yaml
@@ -116,13 +150,20 @@ Tests are designed to run on Windows, macOS, and Linux. Platform-specific featur
 # With coverage
 - name: Run Integration Tests with Coverage
   run: go test -v -tags=integration -coverprofile=integration-coverage.out ./test
+
+# Note: Keychain tests will automatically skip in CI environments
+# where system keychain is unavailable. To run keychain tests in CI:
+# - macOS: Use macOS runners (keychain available by default)
+# - Linux: Install and configure gnome-keyring or similar
+# - Windows: Use Windows runners (Credential Manager available)
 ```
 
 ## Future Enhancements
 
 Potential additions for comprehensive testing:
-- Cross-platform keychain integration tests (requires platform-specific runners)
+- Per-vault keychain entries (currently uses single shared entry)
 - Concurrent access tests (multiple processes)
 - Backup/restore workflow tests
 - Import/export functionality tests (if implemented)
 - Migration tests for vault format changes
+- Keychain permission tests (verify proper OS-level isolation)
