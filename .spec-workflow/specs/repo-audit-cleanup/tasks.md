@@ -17,7 +17,7 @@
   - _Requirements: 1.1-1.5 (Root Directory Cleanup)_
   - _Prompt: Implement the task for spec repo-audit-cleanup, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Git operations specialist | Task: Move implementation documentation files from root to docs/development/ following requirements 1.1-1.5 using history-preserving git operations. Execute these commands: `git mv DASHBOARD_IMPLEMENTATION_SUMMARY.md docs/development/DASHBOARD_IMPLEMENTATION_SUMMARY.md`, `git mv DASHBOARD_TESTING_CHECKLIST.md docs/development/DASHBOARD_TESTING_CHECKLIST.md`, `git mv KEYBINDINGS_AUDIT.md docs/development/KEYBINDINGS_AUDIT.md`. Verify all files moved successfully and history preserved with `git log --follow docs/development/DASHBOARD_IMPLEMENTATION_SUMMARY.md` | Restrictions: MUST use `git mv` not manual move+add (preserves history), verify each move succeeded before next, do not modify file contents | Success: All three files moved to docs/development/, git history preserved (git log --follow shows original commits), root directory cleaner | Instructions: After completing this task, update tasks.md to mark task 2 as complete [x] and mark task 3 as in-progress [-]_
 
-- [ ] 3. Move test utility to test/ directory
+- [x] 3. Move test utility to test/ directory
   - File: test-tui.bat
   - Move from root to test/ using git mv
   - Purpose: Organize test utilities with other test files
