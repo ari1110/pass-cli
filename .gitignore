@@ -39,7 +39,6 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-pass-cli
 *.enc
 
 # Tool directories (keep local only)
