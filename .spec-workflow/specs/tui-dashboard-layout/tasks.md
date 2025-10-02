@@ -128,7 +128,7 @@
   - _Requirements: REQ-10, REQ-11_
   - _Prompt: Role: QA Engineer with Go testing expertise | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Create unit tests for LayoutManager following REQ-10, REQ-11, test full layout (140x40, all panels visible), medium layout (100x30, metadata hidden), small layout (70x25, sidebar and metadata hidden), too small (50x15, warning shown), test minimum constraints enforcement (sidebar min 20, main min 40, metadata min 25), test multi-panel main area division, test panel visibility combinations, use table-driven tests for breakpoint scenarios | Restrictions: Test calculations only, no UI rendering, cover all edge cases | _Leverage: Existing test patterns from model_test.go | Success: All layout calculation scenarios tested, edge cases covered (negative dimensions, zero panels, maximum panels), breakpoint logic verified, minimum constraints enforced correctly, tests pass reliably_
 
-- [ ] 17. Add unit tests for Category Tree
+- [x] 17. Add unit tests for Category Tree
   - File: cmd/tui/components/category_tree_test.go
   - Write tests for credential categorization logic
   - Purpose: Verify category matching patterns work correctly
@@ -136,7 +136,7 @@
   - _Requirements: REQ-3_
   - _Prompt: Role: QA Engineer specializing in data transformation testing | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Create unit tests for category_tree.go following REQ-3, test CategorizeCredentials() with various service names (aws-prod → Cloud, github → Git, postgres → Databases, stripe-api → Payment, openai → AI, random-service → Uncategorized), test case-insensitivity, test empty input, test all credentials categorized (none lost), test icon mappings for all categories, verify category counts match actual credentials | Restrictions: Pure function testing, no state or side effects, comprehensive pattern coverage | _Leverage: vault.CredentialMetadata, test helpers | Success: All categorization patterns tested and working, edge cases handled (empty, unknown services), icon mappings verified, count calculations correct, all tests pass_
 
-- [ ] 18. Add unit tests for Sidebar Panel
+- [x] 18. Add unit tests for Sidebar Panel
   - File: cmd/tui/components/sidebar_test.go
   - Write tests for sidebar navigation and rendering
   - Purpose: Verify sidebar interaction and state management
@@ -144,7 +144,7 @@
   - _Requirements: REQ-3, REQ-4, REQ-14_
   - _Prompt: Role: QA Engineer with UI component testing expertise | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Create unit tests for SidebarPanel following REQ-3, REQ-4, REQ-14, test category navigation (j/k/arrows move selection), test expansion/collapse (Enter/l toggles, h collapses), test credential selection within categories, test stats display updates, test viewport scrolling for long lists, test SetSize() updates dimensions correctly, test GetSelectedCredential() returns correct item, test empty categories gracefully handled | Restrictions: Mock viewport, test state management not rendering, cover all navigation paths | _Leverage: Existing view test patterns | Success: Navigation tests pass (up/down/expand/collapse), selection state maintained correctly, stats calculations verified, scrolling behavior tested, all interaction scenarios covered_
 
-- [ ] 19. Add unit tests for Command Bar
+- [x] 19. Add unit tests for Command Bar
   - File: cmd/tui/components/command_bar_test.go
   - Write tests for command parsing and execution
   - Purpose: Verify command bar correctly parses and handles commands
