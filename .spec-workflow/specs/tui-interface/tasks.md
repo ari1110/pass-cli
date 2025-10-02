@@ -8,7 +8,7 @@
   - _Requirements: REQ-1_
   - _Prompt: Role: DevOps Engineer with expertise in Go dependency management | Task: Add Bubble Tea framework dependencies to go.mod following REQ-1 by running go get for bubbletea v0.25.0, bubbles v0.18.0, and lipgloss v0.9.1, then running go mod tidy and go build to verify | Restrictions: Do not modify existing dependencies, do not use -u flag, maintain go.mod formatting | Success: Dependencies added with correct versions, go mod download completes without errors, project builds successfully_
 
-- [ ] 2. Create TUI entry point detection in main.go
+- [x] 2. Create TUI entry point detection in main.go
   - File: main.go, cmd/tui/tui.go
   - Add logic to detect no-args invocation and route to TUI mode
   - Purpose: Enable TUI launch when user runs pass-cli without arguments
