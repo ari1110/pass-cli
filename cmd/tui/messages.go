@@ -16,3 +16,8 @@ type vaultUnlockErrorMsg struct {
 type credentialsLoadedMsg struct {
 	credentials []vault.CredentialMetadata
 }
+
+// credentialLoadedMsg is sent when a single credential is loaded
+type credentialLoadedMsg struct {
+	credential *vault.Credential
+}

@@ -34,3 +34,16 @@ func loadCredentialsCmd(vaultService *vault.VaultService) tea.Cmd {
 		return credentialsLoadedMsg{credentials: credentials}
 	}
 }
+
+// loadCredentialDetailsCmd loads a single credential's full details
+func loadCredentialDetailsCmd(vaultService *vault.VaultService, service string) tea.Cmd {
+	return func() tea.Msg {
+		// Don't track usage when just viewing details in TUI
+		credential, err := vaultService.GetCredential(service, false)
+		if err != nil {
+			return vaultUnlockErrorMsg{err: err}
+		}
+
+		return credentialLoadedMsg{credential: credential}
+	}
+}

@@ -32,7 +32,8 @@ type Model struct {
 	selectedIndex int
 
 	// Views
-	listView *views.ListView
+	listView   *views.ListView
+	detailView *views.DetailView
 
 	// UI state
 	width  int
@@ -82,6 +83,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.listView != nil {
 			m.listView.SetSize(m.width, m.height)
 		}
+		if m.detailView != nil {
+			m.detailView.SetSize(m.width, m.height)
+		}
 
 	case vaultUnlockedMsg:
 		m.unlocking = false
@@ -98,12 +102,39 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.credentials = msg.credentials
 		m.listView = views.NewListView(msg.credentials)
 		m.listView.SetSize(m.width, m.height)
+
+	case credentialLoadedMsg:
+		m.state = StateDetail
+		m.detailView = views.NewDetailView(msg.credential)
+		m.detailView.SetSize(m.width, m.height)
 	}
 
 	// Update active view
 	if m.state == StateList && m.listView != nil {
+		// Check for Enter key to navigate to detail
+		if keyMsg, ok := msg.(tea.KeyMsg); ok && keyMsg.String() == "enter" {
+			selected := m.listView.SelectedCredential()
+			if selected != nil {
+				// Load full credential details
+				return m, loadCredentialDetailsCmd(m.vaultService, selected.Service)
+			}
+		}
+
 		var cmd tea.Cmd
 		m.listView, cmd = m.listView.Update(msg)
+		return m, cmd
+	}
+
+	if m.state == StateDetail && m.detailView != nil {
+		// Check for Escape to go back to list
+		if keyMsg, ok := msg.(tea.KeyMsg); ok && keyMsg.String() == "esc" {
+			m.state = StateList
+			m.detailView = nil
+			return m, nil
+		}
+
+		var cmd tea.Cmd
+		m.detailView, cmd = m.detailView.Update(msg)
 		return m, cmd
 	}
 
@@ -126,6 +157,11 @@ func (m Model) View() string {
 			return m.listView.View()
 		}
 		return "Loading credentials...\n"
+	case StateDetail:
+		if m.detailView != nil {
+			return m.detailView.View()
+		}
+		return "Loading credential...\n"
 	default:
 		return "TUI - coming soon!\n"
 	}

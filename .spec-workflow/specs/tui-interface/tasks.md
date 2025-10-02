@@ -32,7 +32,7 @@
   - _Requirements: REQ-3_
   - _Prompt: Role: Frontend Developer specializing in TUI interfaces | Task: Implement searchable credential list using bubbles/list and textinput following REQ-3, implement case-insensitive filtering on service and username, support arrow/vim keys, / to focus search, Escape to clear search | Restrictions: Use bubbles components not custom list, maintain focus management between search and list, do not implement detail view navigation yet | Success: List displays all credentials, search filters real-time, / focuses search, Escape clears, arrow/j/k navigate, Tab switches focus, shows no results message when appropriate_
 
-- [ ] 5. Implement detail view
+- [x] 5. Implement detail view
   - File: cmd/tui/views/detail.go, cmd/tui/update.go, cmd/tui/view.go, cmd/tui/model.go
   - Create credential detail view showing full information with masked password and copy-to-clipboard
   - Purpose: Display complete credential details with password toggle and clipboard integration
