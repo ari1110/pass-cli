@@ -33,7 +33,7 @@
   - _Requirements: 5.1-5.5 (Test Organization Review)_
   - _Prompt: Implement the task for spec repo-audit-cleanup, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Test documentation specialist | Task: Update test/README.md following requirements 5.1-5.5 to comprehensively document test organization. Add or update sections: 1) Test Types: "Unit tests (*_test.go files adjacent to source code), Integration tests (test/*.go files)", 2) Running Tests: "Run all: `go test ./...`, Run integration only: `go test ./test`, Run unit only: `go test ./cmd/... ./internal/...`", 3) Test Utilities: "test-tui.bat - Manual TUI testing script (run from project root)", 4) Test Data: "test-vault/ - Integration test fixture directory with encrypted vault for testing". Read existing test/README.md first and enhance it, don't completely rewrite | Restrictions: Keep README under 150 lines, use clear examples, maintain existing content that's still relevant, ensure instructions are accurate | Success: test/README.md clearly documents all test types, provides runnable commands, explains test utilities and test data, developers can understand test structure from README alone | Instructions: After completing this task, update tasks.md to mark task 4 as complete [x] and mark task 5 as in-progress [-]_
 
-- [ ] 5. Create or update docs/README.md as documentation index
+- [x] 5. Create or update docs/README.md as documentation index
   - File: docs/README.md
   - Create comprehensive index of all documentation with descriptions
   - Purpose: Help users and developers find relevant documentation quickly
