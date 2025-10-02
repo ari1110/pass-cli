@@ -80,7 +80,7 @@
   - _Requirements: REQ-9_
   - _Prompt: Role: Documentation Engineer specializing in interactive help systems | Task: Create help overlay displaying shortcuts organized by category following REQ-9, show global shortcuts plus current view shortcuts, two-column layout with Key and Action, scrollable if needed | Restrictions: Accessible from any view with ? or F1, display as modal overlay dimming background, organize in logical groups, any key closes overlay | Success: ? or F1 shows help from any view, background dimmed, title displayed, global shortcuts always shown, view-specific shortcuts shown based on state, two-column format, scrollable with indicators if too large, any key closes and returns to previous view_
 
-- [ ] 11. Create theme and styling
+- [x] 11. Create theme and styling
   - File: cmd/tui/styles/theme.go, cmd/tui/views/*.go, cmd/tui/components/*.go
   - Centralize all styling in theme file and apply throughout TUI
   - Purpose: Ensure visual consistency and professional appearance with 4.5:1 contrast

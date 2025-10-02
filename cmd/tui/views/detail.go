@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"pass-cli/cmd/tui/styles"
 	"pass-cli/internal/vault"
 )
 
@@ -97,81 +98,62 @@ func (v *DetailView) updateContent() {
 	var content strings.Builder
 
 	// Title
-	titleStyle := lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("6")). // Cyan
-		MarginBottom(1)
-	content.WriteString(titleStyle.Render("Credential Details"))
+	content.WriteString(styles.TitleStyle.Render("Credential Details"))
 	content.WriteString("\n\n")
 
 	// Notification
 	if v.notification != "" {
-		notifStyle := lipgloss.NewStyle().
-			Foreground(lipgloss.Color("2")). // Green
-			Bold(true)
-		content.WriteString(notifStyle.Render("✓ " + v.notification))
+		content.WriteString(styles.NotificationStyle.Render("✓ " + v.notification))
 		content.WriteString("\n\n")
 	}
 
 	// Service
-	labelStyle := lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("240"))
-	valueStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("15"))
-
-	content.WriteString(labelStyle.Render("Service: "))
-	content.WriteString(valueStyle.Render(v.credential.Service))
+	content.WriteString(styles.LabelStyle.Render("Service: "))
+	content.WriteString(styles.ValueStyle.Render(v.credential.Service))
 	content.WriteString("\n\n")
 
 	// Username
-	content.WriteString(labelStyle.Render("Username: "))
+	content.WriteString(styles.LabelStyle.Render("Username: "))
 	username := v.credential.Username
 	if username == "" {
 		username = "(not set)"
 	}
-	content.WriteString(valueStyle.Render(username))
+	content.WriteString(styles.ValueStyle.Render(username))
 	content.WriteString("\n\n")
 
 	// Password
-	content.WriteString(labelStyle.Render("Password: "))
+	content.WriteString(styles.LabelStyle.Render("Password: "))
 	password := v.credential.Password
 	if v.passwordMasked {
 		password = strings.Repeat("*", len(password))
 	}
-	passwordStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("15")).
-		Background(lipgloss.Color("235"))
-	content.WriteString(passwordStyle.Render(" " + password + " "))
+	content.WriteString(styles.PasswordStyle.Render(password))
 	content.WriteString("\n\n")
 
 	// Notes
 	if v.credential.Notes != "" {
-		content.WriteString(labelStyle.Render("Notes: "))
-		content.WriteString(valueStyle.Render(v.credential.Notes))
+		content.WriteString(styles.LabelStyle.Render("Notes: "))
+		content.WriteString(styles.ValueStyle.Render(v.credential.Notes))
 		content.WriteString("\n\n")
 	}
 
 	// Timestamps
-	content.WriteString(labelStyle.Render("Created: "))
-	content.WriteString(valueStyle.Render(formatTime(v.credential.CreatedAt)))
+	content.WriteString(styles.LabelStyle.Render("Created: "))
+	content.WriteString(styles.ValueStyle.Render(formatTime(v.credential.CreatedAt)))
 	content.WriteString("\n")
 
-	content.WriteString(labelStyle.Render("Updated: "))
-	content.WriteString(valueStyle.Render(formatTime(v.credential.UpdatedAt)))
+	content.WriteString(styles.LabelStyle.Render("Updated: "))
+	content.WriteString(styles.ValueStyle.Render(formatTime(v.credential.UpdatedAt)))
 	content.WriteString("\n\n")
 
 	// Usage records
 	if len(v.credential.UsageRecord) > 0 {
-		content.WriteString(labelStyle.Render("Usage Records:"))
+		content.WriteString(styles.LabelStyle.Render("Usage Records:"))
 		content.WriteString("\n\n")
 
-		tableStyle := lipgloss.NewStyle().
-			Foreground(lipgloss.Color("240"))
-
 		// Header
-		content.WriteString(tableStyle.Render(fmt.Sprintf("%-40s %-20s %s\n", "Location", "Last Accessed", "Count")))
-		content.WriteString(tableStyle.Render(strings.Repeat("-", 80)))
+		content.WriteString(styles.TableHeaderStyle.Render(fmt.Sprintf("%-40s %-20s %s\n", "Location", "Last Accessed", "Count")))
+		content.WriteString(styles.TableDividerStyle.Render(strings.Repeat("-", 80)))
 		content.WriteString("\n")
 
 		// Rows
@@ -186,7 +168,7 @@ func (v *DetailView) updateContent() {
 				repo = fmt.Sprintf(" (%s)", usage.GitRepo)
 			}
 
-			content.WriteString(valueStyle.Render(
+			content.WriteString(styles.TableRowStyle.Render(
 				fmt.Sprintf("%-40s %-20s %d\n",
 					location+repo,
 					formatTime(usage.Timestamp),
@@ -195,8 +177,8 @@ func (v *DetailView) updateContent() {
 			))
 		}
 	} else {
-		content.WriteString(labelStyle.Render("Usage Records: "))
-		content.WriteString(valueStyle.Render("None"))
+		content.WriteString(styles.LabelStyle.Render("Usage Records: "))
+		content.WriteString(styles.ValueStyle.Render("None"))
 		content.WriteString("\n")
 	}
 
@@ -206,9 +188,7 @@ func (v *DetailView) updateContent() {
 // renderHelp renders the help line
 func (v *DetailView) renderHelp() string {
 	help := "m: toggle password | c: copy password | e: edit | d: delete | esc: back to list | q: quit"
-	return lipgloss.NewStyle().
-		Foreground(lipgloss.Color("240")).
-		Render(help)
+	return styles.HelpStyle.Render(help)
 }
 
 // GetCredential returns the current credential

@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"pass-cli/cmd/tui/styles"
 )
 
 // Shortcut represents a keyboard shortcut with its description
@@ -64,18 +65,14 @@ func (h *HelpView) Update(msg tea.Msg) (*HelpView, tea.Cmd) {
 // View renders the help overlay
 func (h *HelpView) View() string {
 	// Modal styling
-	modalStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("6")). // Cyan
-		Padding(1, 2).
+	modalStyle := styles.ModalBorderStyle.
 		Width(h.viewport.Width + 4).
 		Align(lipgloss.Left)
 
 	modal := modalStyle.Render(h.viewport.View())
 
 	// Dim background by placing modal in center
-	dimStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("240"))
+	dimStyle := styles.SubtleStyle
 
 	overlay := lipgloss.Place(
 		h.width,
@@ -93,10 +90,7 @@ func (h *HelpView) updateContent() {
 	var content strings.Builder
 
 	// Title
-	titleStyle := lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("6")). // Cyan
-		Align(lipgloss.Center)
+	titleStyle := styles.TitleStyle.Align(lipgloss.Center)
 
 	content.WriteString(titleStyle.Render("Keyboard Shortcuts"))
 	content.WriteString("\n\n")
@@ -154,8 +148,7 @@ func (h *HelpView) updateContent() {
 
 	// Footer
 	content.WriteString("\n")
-	footerStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("240")).
+	footerStyle := styles.SubtleStyle.
 		Italic(true).
 		Align(lipgloss.Center)
 
@@ -169,9 +162,7 @@ func (h *HelpView) renderSection(title string, shortcuts []Shortcut) string {
 	var section strings.Builder
 
 	// Section title
-	sectionStyle := lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("6")). // Cyan
+	sectionStyle := styles.SubtitleStyle.
 		MarginTop(1).
 		MarginBottom(1)
 
@@ -179,13 +170,8 @@ func (h *HelpView) renderSection(title string, shortcuts []Shortcut) string {
 	section.WriteString("\n")
 
 	// Shortcuts in two-column format
-	keyStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("3")). // Yellow
-		Width(20).
-		Bold(true)
-
-	actionStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("15")) // White
+	keyStyle := styles.KeyStyle.Width(20)
+	actionStyle := styles.ValueStyle
 
 	for _, sc := range shortcuts {
 		key := keyStyle.Render("  " + sc.Key)
