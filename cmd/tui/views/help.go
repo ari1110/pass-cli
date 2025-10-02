@@ -133,7 +133,7 @@ func (h *HelpView) updateContent() {
 	content.WriteString(h.renderSection("Add/Edit Forms", []Shortcut{
 		{"Tab/↓", "Next field"},
 		{"Shift+Tab/↑", "Previous field"},
-		{"g", "Generate secure password"},
+		{"Ctrl+G", "Generate secure password"},
 		{"Ctrl+S", "Save credential"},
 		{"Esc", "Cancel (with confirmation)"},
 	}))

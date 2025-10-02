@@ -194,11 +194,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.statusBar != nil {
 			m.statusBar.SetCredentialCount(len(msg.credentials))
 		}
-		// If we were in add/edit form, return to list
-		if m.state == StateAdd || m.state == StateEdit {
+		// Return to list from add/edit/delete states
+		if m.state == StateAdd || m.state == StateEdit || m.state == StateConfirmDelete {
 			m.state = StateList
 			m.addForm = nil
 			m.editForm = nil
+			m.confirmView = nil
+			m.detailView = nil // Clear detail view since credential may have been deleted
 		}
 
 	case credentialLoadedMsg:
@@ -288,8 +290,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+s":
 				// Save the credential
 				return m, m.saveNewCredential()
-			case "g":
-				// Generate password
+			case "ctrl+g":
+				// Generate password (Ctrl+G to avoid conflict with typing 'g')
 				if password, err := generatePassword(20); err == nil {
 					m.addForm.SetPassword(password)
 					m.addForm.SetNotification("Password generated (20 characters)")
@@ -323,8 +325,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+s":
 				// Save the credential
 				return m, m.updateCredential()
-			case "g":
-				// Generate password
+			case "ctrl+g":
+				// Generate password (Ctrl+G to avoid conflict with typing 'g')
 				if password, err := generatePassword(20); err == nil {
 					m.editForm.SetPassword(password)
 					m.editForm.SetNotification("Password generated (20 characters)")
@@ -496,10 +498,10 @@ func (m Model) updateStatusBar() {
 		m.statusBar.SetShortcuts("m: toggle | c: copy | e: edit | d: delete | esc: back | q: quit")
 	case StateAdd:
 		m.statusBar.SetCurrentView("Add")
-		m.statusBar.SetShortcuts("tab: next | g: generate | ctrl+s: save | esc: cancel")
+		m.statusBar.SetShortcuts("tab: next | ctrl+g: generate | ctrl+s: save | esc: cancel")
 	case StateEdit:
 		m.statusBar.SetCurrentView("Edit")
-		m.statusBar.SetShortcuts("tab: next | g: generate | ctrl+s: save | esc: cancel")
+		m.statusBar.SetShortcuts("tab: next | ctrl+g: generate | ctrl+s: save | esc: cancel")
 	case StateConfirmDelete, StateConfirmDiscard:
 		m.statusBar.SetCurrentView("Confirm")
 		m.statusBar.SetShortcuts("y/n or enter/esc")

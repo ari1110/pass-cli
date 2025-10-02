@@ -52,6 +52,12 @@ func (s *StatusBar) SetShortcuts(shortcuts string) {
 
 // Render returns the rendered status bar
 func (s *StatusBar) Render() string {
+	// Account for status bar padding (2 chars total from padding 0, 1)
+	availableWidth := s.width - 2
+	if availableWidth < 10 {
+		availableWidth = 10
+	}
+
 	// Left side: keychain status and credential count
 	var keychainIndicator string
 	if s.keychainAvailable {
@@ -76,7 +82,7 @@ func (s *StatusBar) Render() string {
 		right = "?: help | q: quit"
 	}
 
-	// Calculate spacing
+	// Calculate lengths (accounting for styled characters)
 	leftLen := lipgloss.Width(left)
 	centerLen := lipgloss.Width(center)
 	rightLen := lipgloss.Width(right)
@@ -85,23 +91,28 @@ func (s *StatusBar) Render() string {
 	totalContent := leftLen + centerLen + rightLen
 
 	// If content fits, distribute evenly
-	if totalContent < s.width {
+	if totalContent+4 < availableWidth { // +4 for minimum spacing
 		// Calculate spacing
-		totalSpacing := s.width - totalContent
+		totalSpacing := availableWidth - totalContent
 		leftSpacing := totalSpacing / 2
 		rightSpacing := totalSpacing - leftSpacing
 
-		return styles.StatusBarStyle.Render(
-			left +
-				lipgloss.NewStyle().Width(leftSpacing).Render(" ") +
-				center +
-				lipgloss.NewStyle().Width(rightSpacing).Render(" ") +
-				right,
-		)
+		content := left +
+			lipgloss.NewStyle().Width(leftSpacing).Render("") +
+			center +
+			lipgloss.NewStyle().Width(rightSpacing).Render("") +
+			right
+
+		// Ensure we don't exceed width by using MaxWidth
+		return lipgloss.NewStyle().
+			MaxWidth(availableWidth).
+			Foreground(styles.SubtleColor).
+			Padding(0, 1).
+			Render(content)
 	}
 
-	// If content doesn't fit, prioritize left and right, truncate center if needed
-	available := s.width - leftLen - rightLen - 4 // 4 for spacing
+	// If content doesn't fit, prioritize left and right, truncate center
+	available := availableWidth - leftLen - rightLen - 4 // 4 for spacing
 	if available < 0 {
 		available = 0
 	}
@@ -115,15 +126,20 @@ func (s *StatusBar) Render() string {
 		}
 	}
 
-	spacing := s.width - leftLen - lipgloss.Width(truncatedCenter) - rightLen
+	spacing := availableWidth - leftLen - lipgloss.Width(truncatedCenter) - rightLen
 	if spacing < 2 {
 		spacing = 2
 	}
 
-	return styles.StatusBarStyle.Render(
-		left +
-			lipgloss.NewStyle().Width(spacing).Render(" ") +
-			truncatedCenter +
-			right,
-	)
+	content := left +
+		lipgloss.NewStyle().Width(spacing).Render("") +
+		truncatedCenter +
+		right
+
+	// Ensure we don't exceed width by using MaxWidth
+	return lipgloss.NewStyle().
+		MaxWidth(availableWidth).
+		Foreground(styles.SubtleColor).
+		Padding(0, 1).
+		Render(content)
 }
