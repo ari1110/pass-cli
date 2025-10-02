@@ -40,6 +40,7 @@ Thumbs.db
 
 # Project specific
 *.enc
+*.backup
 
 # Tool directories (keep local only)
 .claude/
