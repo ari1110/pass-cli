@@ -48,7 +48,7 @@
   - _Requirements: REQ-5_
   - _Prompt: Role: Forms Developer with input validation expertise | Task: Create add form with service, username, password, notes fields following REQ-5, implement Tab/Shift+Tab navigation, validate service name required and unique, support g key for password generation, Ctrl+S to save | Restrictions: Use bubbles textinput and textarea, validate before saving, show inline errors, support password generation with g key | Success: a key opens form, Tab navigates fields, focused field highlighted, g generates password with notification, Ctrl+S saves with validation, Escape shows discard confirmation, successful save returns to list with new item_
 
-- [ ] 7. Implement edit credential form
+- [x] 7. Implement edit credential form
   - File: cmd/tui/views/form_edit.go, cmd/tui/update.go, cmd/tui/view.go, cmd/tui/model.go
   - Create form for editing existing credentials with usage warnings
   - Purpose: Enable credential updates with pre-filled values and change tracking

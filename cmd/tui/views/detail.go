@@ -205,10 +205,15 @@ func (v *DetailView) updateContent() {
 
 // renderHelp renders the help line
 func (v *DetailView) renderHelp() string {
-	help := "m: toggle password | c: copy password | esc: back to list | q: quit"
+	help := "m: toggle password | c: copy password | e: edit | esc: back to list | q: quit"
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color("240")).
 		Render(help)
+}
+
+// GetCredential returns the current credential
+func (v *DetailView) GetCredential() *vault.Credential {
+	return v.credential
 }
 
 // formatTime formats a timestamp

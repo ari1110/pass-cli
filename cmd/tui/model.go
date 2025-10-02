@@ -36,6 +36,7 @@ type Model struct {
 	listView    *views.ListView
 	detailView  *views.DetailView
 	addForm     *views.AddFormView
+	editForm    *views.EditFormView
 	confirmView *views.ConfirmView
 
 	// State for confirmation dialogs
@@ -95,6 +96,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.addForm != nil {
 			m.addForm.SetSize(m.width, m.height)
 		}
+		if m.editForm != nil {
+			m.editForm.SetSize(m.width, m.height)
+		}
 		if m.confirmView != nil {
 			m.confirmView.SetSize(m.width, m.height)
 		}
@@ -118,6 +122,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.state == StateAdd || m.state == StateEdit {
 			m.state = StateList
 			m.addForm = nil
+			m.editForm = nil
 		}
 
 	case credentialLoadedMsg:
@@ -152,11 +157,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	if m.state == StateDetail && m.detailView != nil {
-		// Check for Escape to go back to list
-		if keyMsg, ok := msg.(tea.KeyMsg); ok && keyMsg.String() == "esc" {
-			m.state = StateList
-			m.detailView = nil
-			return m, nil
+		// Check for special keys
+		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+			switch keyMsg.String() {
+			case "esc":
+				// Go back to list
+				m.state = StateList
+				m.detailView = nil
+				return m, nil
+			case "e":
+				// Open edit form with current credential
+				cred := m.detailView.GetCredential()
+				if cred != nil {
+					m.state = StateEdit
+					m.editForm = views.NewEditFormView(cred)
+					m.editForm.SetSize(m.width, m.height)
+					return m, nil
+				}
+			}
 		}
 
 		var cmd tea.Cmd
@@ -199,13 +217,53 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
+	if m.state == StateEdit && m.editForm != nil {
+		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+			switch keyMsg.String() {
+			case "esc":
+				// Check if there are changes
+				if m.editForm.HasChanges() {
+					// Show confirmation dialog
+					m.previousState = StateEdit
+					m.state = StateConfirmDiscard
+					m.confirmView = views.NewConfirmView("Discard changes?")
+					m.confirmView.SetSize(m.width, m.height)
+					return m, nil
+				}
+				// No changes, go back to detail view
+				m.state = StateDetail
+				m.editForm = nil
+				return m, nil
+			case "ctrl+s":
+				// Save the credential
+				return m, m.updateCredential()
+			case "g":
+				// Generate password
+				if password, err := generatePassword(20); err == nil {
+					m.editForm.SetPassword(password)
+					m.editForm.SetNotification("Password generated (20 characters)")
+				}
+				return m, nil
+			}
+		}
+
+		var cmd tea.Cmd
+		m.editForm, cmd = m.editForm.Update(msg)
+		return m, cmd
+	}
+
 	if m.state == StateConfirmDiscard && m.confirmView != nil {
 		if keyMsg, ok := msg.(tea.KeyMsg); ok {
 			switch keyMsg.String() {
 			case "y":
 				// User confirmed discard
-				m.state = StateList
-				m.addForm = nil
+				if m.previousState == StateEdit {
+					m.state = StateDetail
+					m.editForm = nil
+				} else {
+					m.state = StateList
+					m.addForm = nil
+				}
 				m.confirmView = nil
 				return m, nil
 			case "n", "esc":
@@ -248,6 +306,11 @@ func (m Model) View() string {
 	case StateAdd:
 		if m.addForm != nil {
 			return m.addForm.View()
+		}
+		return "Loading form...\n"
+	case StateEdit:
+		if m.editForm != nil {
+			return m.editForm.View()
 		}
 		return "Loading form...\n"
 	case StateConfirmDiscard:
@@ -301,5 +364,41 @@ func (m *Model) saveNewCredential() tea.Cmd {
 		}
 
 		return credentialsLoadedMsg{credentials: credentials}
+	}
+}
+
+// updateCredential validates and updates an existing credential
+func (m *Model) updateCredential() tea.Cmd {
+	service, username, password, notes := m.editForm.GetValues()
+
+	// Service name should not be empty (though it's read-only)
+	if service == "" {
+		m.editForm.SetError("Service name is required")
+		return nil
+	}
+
+	// Update credential
+	return func() tea.Msg {
+		if err := m.vaultService.UpdateCredential(service, username, password, notes); err != nil {
+			return vaultUnlockErrorMsg{err: err}
+		}
+
+		// Reload credentials
+		credentials, err := m.vaultService.ListCredentialsWithMetadata()
+		if err != nil {
+			return vaultUnlockErrorMsg{err: err}
+		}
+
+		// Also reload the current credential details to show in detail view
+		cred, err := m.vaultService.GetCredential(service, false)
+		if err != nil {
+			return vaultUnlockErrorMsg{err: err}
+		}
+
+		// Update credentials list
+		m.credentials = credentials
+
+		// Return to detail view with updated credential
+		return credentialLoadedMsg{credential: cred}
 	}
 }
