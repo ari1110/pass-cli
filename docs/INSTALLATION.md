@@ -135,7 +135,7 @@ Manual installation gives you direct control over the binary location and versio
 
 1. **Visit the Releases Page**
 
-   Go to [GitHub Releases](https://github.com/ari1110/pass-cli/releases)
+   Go to [GitHub Releases](https://github.com/ari1110/pass-cli/releases/latest)
 
 2. **Choose Your Platform**
 
@@ -162,24 +162,27 @@ Verifying checksums ensures the downloaded file hasn't been tampered with.
 
 ```bash
 # Download your platform's archive and checksums.txt
+# Go to GitHub Releases and download your platform's archive
 # Example for Linux amd64:
-curl -LO https://github.com/ari1110/pass-cli/releases/download/v0.0.1/pass-cli_0.0.1_linux_amd64.tar.gz
-curl -LO https://github.com/ari1110/pass-cli/releases/download/v0.0.1/checksums.txt
+# 1. Visit: https://github.com/ari1110/pass-cli/releases/latest
+# 2. Download: pass-cli_VERSION_linux_amd64.tar.gz
+# 3. Download: checksums.txt
 
 # Verify checksum
 sha256sum -c checksums.txt --ignore-missing
-
-# Should output: pass-cli_0.0.1_linux_amd64.tar.gz: OK
 ```
 
 Alternative using `grep`:
 
 ```bash
+# Replace FILENAME with your downloaded file
+FILENAME="pass-cli_X.Y.Z_linux_amd64.tar.gz"
+
 # Extract expected checksum
-EXPECTED=$(grep pass-cli_0.0.1_linux_amd64.tar.gz checksums.txt | cut -d' ' -f1)
+EXPECTED=$(grep "$FILENAME" checksums.txt | cut -d' ' -f1)
 
 # Calculate actual checksum
-ACTUAL=$(sha256sum pass-cli_0.0.1_linux_amd64.tar.gz | cut -d' ' -f1)
+ACTUAL=$(sha256sum "$FILENAME" | cut -d' ' -f1)
 
 # Compare
 if [ "$EXPECTED" = "$ACTUAL" ]; then
@@ -193,13 +196,9 @@ fi
 #### Windows (PowerShell)
 
 ```powershell
-# Download your platform's archive and checksums.txt
-$version = "0.0.1"
-$file = "pass-cli_${version}_windows_amd64.zip"
-$baseUrl = "https://github.com/ari1110/pass-cli/releases/download/v${version}"
-
-Invoke-WebRequest "${baseUrl}/${file}" -OutFile $file
-Invoke-WebRequest "${baseUrl}/checksums.txt" -OutFile checksums.txt
+# After downloading from https://github.com/ari1110/pass-cli/releases/latest
+# Replace with your downloaded filename
+$file = "pass-cli_X.Y.Z_windows_amd64.zip"
 
 # Extract expected checksum
 $expected = (Get-Content checksums.txt | Select-String $file).ToString().Split()[0]

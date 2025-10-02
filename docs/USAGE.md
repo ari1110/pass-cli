@@ -519,12 +519,12 @@ pass-cli version --verbose
 
 **Default:**
 ```
-pass-cli version 0.0.1
+pass-cli version X.Y.Z
 ```
 
 **Verbose:**
 ```
-pass-cli version 0.0.1
+pass-cli version X.Y.Z
   commit: abc123f
   built:  2025-01-20T10:30:00Z
   go:     go1.25.1
