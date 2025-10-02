@@ -152,7 +152,7 @@
   - _Requirements: FR-4, NFR-3_
   - _Prompt: Implement the task for spec docs-review-update, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Platform Distribution Specialist with winget and snap expertise | Task: Review and update platform-specific documentation ensuring accuracy and appropriate status labels (available vs future) following requirement FR-4 | Restrictions: Must accurately reflect actual distribution status, future features clearly labeled, configuration examples must be correct | _Leverage: manifests/ directory for actual configs, .goreleaser.yml for distribution setup, platform package manager documentation | _Requirements: FR-4 (Operational Documentation), NFR-3 (Completeness) | Success: winget/snap status accurate (available or future), configs correct if implemented, clear labeling of distribution status | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 14. Identify and handle obsolete documentation
+- [x] 14. Identify and handle obsolete documentation
   - Files: Identify candidates like RELEASE-DRY-RUN.md, SECURITY-AUDIT.md
   - Review RELEASE-DRY-RUN.md and SECURITY-AUDIT.md for relevance
   - Determine if docs should be kept, archived, or removed
