@@ -1,8 +1,46 @@
-# Integration Tests
+# Testing Documentation
 
 This directory contains end-to-end integration tests for Pass-CLI.
 
+## Test Types
+
+Pass-CLI uses two types of tests:
+
+- **Unit Tests**: `*_test.go` files adjacent to source code in `cmd/` and `internal/` directories
+  - Test individual functions and components in isolation
+  - Fast execution, no external dependencies
+  - Run during development for quick feedback
+
+- **Integration Tests**: `*.go` files in this `test/` directory
+  - Test complete workflows and end-to-end scenarios
+  - Build actual binary and test real execution
+  - Use build tag `//go:build integration` to separate from unit tests
+
 ## Running Tests
+
+### Run All Tests
+```bash
+# Run both unit and integration tests
+go test ./...
+
+# Run with coverage
+go test -coverprofile=coverage.out ./...
+```
+
+### Run Unit Tests Only
+```bash
+# Run unit tests in cmd/ and internal/
+go test ./cmd/... ./internal/...
+```
+
+### Run Integration Tests Only
+```bash
+# Run integration tests in test/
+go test -v -tags=integration ./test
+
+# Or use make target
+make test-integration
+```
 
 ### Basic Integration Tests
 ```bash
@@ -139,6 +177,41 @@ Keychain integration tests interact with real OS keychains:
 - Safe to run locally - won't interfere with other apps
 - On CI/CD, keychain may not be available (tests will skip gracefully)
 - Use the keychain service name "pass-cli" and account "master-password"
+
+## Test Utilities
+
+### test-tui.bat
+Manual TUI testing script for interactive testing (Windows batch script).
+
+**Location**: `test/test-tui.bat`
+
+**Usage** (run from project root):
+```bash
+# Windows
+test\test-tui.bat
+
+# The script will:
+# 1. Build the pass-cli binary
+# 2. Initialize a test vault (test-tui-vault/vault.enc)
+# 3. Add sample credentials (github.com, gitlab.com, aws.com)
+# 4. Provide instructions to launch the TUI manually
+```
+
+**Purpose**: Quickly set up a test environment for manual TUI testing and exploration.
+
+## Test Data
+
+### test-vault/
+Integration test fixture directory containing encrypted vault for testing.
+
+**Location**: `test-vault/`
+
+**Contents**:
+- `vault.enc` - Pre-encrypted test vault with known password
+- Used by integration tests to validate vault operations
+- Contains sample credentials for testing purposes
+
+**Security Note**: This is a TEST vault only. Never use for real credentials.
 
 ## CI/CD Integration
 

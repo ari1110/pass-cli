@@ -25,7 +25,7 @@
   - _Requirements: 1.1-1.5 (Root Directory Cleanup), 5.1-5.2 (Test Organization Review)_
   - _Prompt: Implement the task for spec repo-audit-cleanup, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Test infrastructure organizer | Task: Move test-tui.bat from root to test/ directory following requirements 1.1-1.5 and 5.1-5.2. Execute: `git mv test-tui.bat test/test-tui.bat`. Verify the script still works from new location by checking if it references correct paths (should use relative paths or be run from project root) | Restrictions: Use git mv to preserve history, test that script still functions after move, do not modify script contents unless paths are broken | Success: test-tui.bat moved to test/ directory, git history preserved, script still functional from new location | Instructions: After completing this task, update tasks.md to mark task 3 as complete [x] and mark task 4 as in-progress [-]_
 
-- [ ] 4. Update test/README.md with comprehensive test documentation
+- [x] 4. Update test/README.md with comprehensive test documentation
   - File: test/README.md
   - Enhance existing README to document test types, utilities, and test data
   - Purpose: Provide clear guidance on test organization and execution
