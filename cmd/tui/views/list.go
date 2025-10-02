@@ -96,7 +96,7 @@ func (v *ListView) Update(msg tea.Msg) (*ListView, tea.Cmd) {
 				v.searchInput.SetValue("")
 				v.list.SetItems(v.allItems)
 				return v, nil
-			case "enter":
+			case "enter", "tab":
 				v.searchFocused = false
 				return v, nil
 			}
@@ -126,7 +126,7 @@ func (v *ListView) Update(msg tea.Msg) (*ListView, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "/":
+		case "/", "tab":
 			v.searchFocused = true
 			v.searchInput.Focus()
 			return v, textinput.Blink
@@ -140,7 +140,19 @@ func (v *ListView) Update(msg tea.Msg) (*ListView, tea.Cmd) {
 // View renders the list view
 func (v *ListView) View() string {
 	searchBar := v.renderSearchBar()
-	listView := v.list.View()
+
+	var listView string
+	if len(v.list.Items()) == 0 && v.searchInput.Value() != "" {
+		// Show "no results" message when search has no matches
+		noResultsStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("240")).
+			Italic(true).
+			Padding(2, 0)
+		listView = noResultsStyle.Render("No credentials found matching '" + v.searchInput.Value() + "'")
+	} else {
+		listView = v.list.View()
+	}
+
 	help := v.renderHelp()
 
 	return lipgloss.JoinVertical(
@@ -174,10 +186,10 @@ func (v *ListView) renderHelp() string {
 	if v.searchFocused {
 		return lipgloss.NewStyle().
 			Foreground(lipgloss.Color("240")).
-			Render("esc: clear search | enter: back to list")
+			Render("esc: clear search | tab/enter: back to list")
 	}
 
-	help := "a: add | /: search | ↑↓/jk: navigate | enter: view | q: quit"
+	help := "a: add | tab//: search | ↑↓/jk: navigate | enter: view | q: quit"
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color("240")).
 		Render(help)
