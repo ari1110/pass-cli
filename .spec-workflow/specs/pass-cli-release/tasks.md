@@ -158,11 +158,11 @@
   - _Requirements: FR-2 (Build Automation), FR-3 (Package Distribution), NFR-2 (Distribution Quality)_
   - _Prompt: Implement the task for spec pass-cli-release, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Release Engineer with expertise in release validation and testing | Task: Execute complete release dry run validating builds, packages, and documentation following requirements FR-2, FR-3, and NFR-2 | Restrictions: Must test on clean systems, verify all platforms, ensure documentation matches actual behavior | _Leverage: GoReleaser snapshot builds, test systems for each platform, package manager test repositories | _Requirements: Validated release process | Success: All builds succeed, packages install correctly, documentation is accurate, no critical issues found | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 16. Prepare and execute v1.0 production release
-  - Create git tag v1.0.0 with release notes
-  - Monitor GitHub Actions release pipeline (if configured)
-  - Verify all artifacts and checksums
-  - Test installations from production package managers
+- [x] 16. Prepare and execute v0.0.1 production release
+  - Create git tag v0.0.1 with release notes ✅
+  - Monitor GitHub Actions release pipeline ✅ (completed successfully in 4m36s)
+  - Verify all artifacts and checksums ✅ (6 platform binaries published)
+  - Test installations from production package managers ✅ (Scoop verified working)
   - **Immediate Distribution (available right after release):**
     - GitHub Releases with direct download links
     - Personal Homebrew tap (yourusername/tap/pass-cli)
