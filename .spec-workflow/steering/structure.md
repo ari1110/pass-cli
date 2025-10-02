@@ -66,7 +66,9 @@ pass-cli/
 ├── test/                       # Integration and end-to-end tests
 │   ├── integration_test.go     # Full workflow tests
 │   └── README.md               # Test documentation
-├── docs/                       # Project documentation
+├── test-vault/                 # Test fixtures (encrypted vault for integration tests)
+├── docs/                       # Project documentation (~10 files)
+│   ├── README.md               # Documentation index
 │   ├── INSTALLATION.md         # Installation instructions
 │   ├── USAGE.md                # Usage guide and examples
 │   ├── SECURITY.md             # Security design and threat model
@@ -75,12 +77,21 @@ pass-cli/
 │   ├── RELEASE.md              # Release process documentation
 │   ├── CI-CD.md                # CI/CD pipeline documentation
 │   ├── HOMEBREW.md             # Homebrew installation guide
-│   └── SCOOP.md                # Scoop installation guide
-├── manifests/                  # Package manager manifests
+│   ├── SCOOP.md                # Scoop installation guide
+│   ├── development/            # Implementation tracking documents
+│   │   ├── README.md                            # Development docs index
+│   │   ├── DASHBOARD_IMPLEMENTATION_SUMMARY.md  # Dashboard implementation
+│   │   ├── DASHBOARD_TESTING_CHECKLIST.md       # Testing checklist
+│   │   └── KEYBINDINGS_AUDIT.md                 # Keybindings audit
+│   └── archive/                # Historical documentation
+│       ├── README.md                    # Archive index
+│       ├── RELEASE-DRY-RUN.md           # Pre-release validation (v0.0.1)
+│       └── SECURITY-AUDIT.md            # Pre-release security audit (v0.0.1)
+├── manifests/                  # Platform-agnostic package manager manifests
 │   ├── winget/                 # Windows Package Manager manifest
 │   └── snap/                   # Snap package manifest
-├── homebrew/                   # Homebrew formula files
-├── scoop/                      # Scoop bucket files
+├── homebrew/                   # Homebrew formula (platform-native, root location)
+├── scoop/                      # Scoop bucket (platform-native, root location)
 ├── .spec-workflow/             # Specification and workflow files
 │   ├── steering/               # Project steering documents
 │   └── specs/                  # Feature specifications
@@ -89,10 +100,22 @@ pass-cli/
 ├── go.mod                      # Go module definition
 ├── go.sum                      # Dependency checksums
 ├── .gitignore                  # Git ignore patterns
-├── README.md                   # Project overview and quick start
-├── SECURITY-AUDIT.md           # Security audit documentation
-└── RELEASE-DRY-RUN.md          # Release dry run notes
+└── README.md                   # Project overview and quick start
 ```
+
+## Package Manager Organization
+
+Pass-CLI uses two patterns for package manager files:
+
+**Pattern A: Platform-Native (Root)**
+- **homebrew/** - Homebrew formula files
+- **scoop/** - Scoop bucket files
+- **Rationale**: These tools have established conventions of root-level directories (e.g., homebrew-core uses Formula/, scoop uses bucket/)
+
+**Pattern B: Platform-Agnostic (manifests/)**
+- **manifests/winget/** - Windows Package Manager
+- **manifests/snap/** - Snap packages
+- **Rationale**: Cross-platform manifest systems consolidated under `manifests/` for clarity and organization
 
 ## Naming Conventions
 
