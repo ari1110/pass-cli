@@ -120,7 +120,7 @@
   - _Requirements: REQ-3, REQ-6_
   - _Prompt: Role: Go TUI Developer with component integration expertise | Task: Implement spec tui-dashboard-layout, first run spec-workflow-guide to get the workflow guide then implement the task: Integrate sidebar selection following REQ-3, REQ-6, when sidebar has focus and user presses Enter on credential, get selected credential using sidebar.GetSelectedCredential(), load full credential details using loadCredentialDetailsCmd(), display in detail view in main content area, update metadata panel with SetCredential(), update breadcrumb with category path, trigger layout update if needed | Restrictions: Only handle selection when sidebar focused, must load full credential (not just metadata), update all relevant panels | _Leverage: Existing loadCredentialDetailsCmd, state transitions to StateDetail | Success: Selecting credential in sidebar loads details in main area, metadata panel updates simultaneously, breadcrumb shows path, focus can switch to main area, existing credential selection from list still works_
 
-- [ ] 16. Add unit tests for Layout Manager
+- [x] 16. Add unit tests for Layout Manager
   - File: cmd/tui/components/layout_manager_test.go
   - Write comprehensive tests for dimension calculations
   - Purpose: Ensure layout calculations work correctly across all scenarios

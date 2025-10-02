@@ -125,8 +125,20 @@ func CategorizeCredentials(credentials []vault.CredentialMetadata) []Category {
 func categorizeCredential(cred vault.CredentialMetadata) CategoryType {
 	serviceLower := strings.ToLower(cred.Service)
 
-	// Check each category's patterns
-	for category, patterns := range categoryPatterns {
+	// Check categories in specific order to avoid randomness from map iteration
+	// More specific categories should be checked first
+	categoryOrder := []CategoryType{
+		CategoryCloud,
+		CategoryDatabases,
+		CategoryVersionControl,
+		CategoryAI,
+		CategoryPayment,
+		CategoryCommunication,
+		CategoryAPIs, // Check this last as it has generic patterns like "service"
+	}
+
+	for _, category := range categoryOrder {
+		patterns := categoryPatterns[category]
 		for _, pattern := range patterns {
 			if strings.Contains(serviceLower, strings.ToLower(pattern)) {
 				return category
