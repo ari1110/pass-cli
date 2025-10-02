@@ -23,7 +23,7 @@
   - _Requirements: FR-2, FR-5, NFR-2_
   - _Prompt: Implement the task for spec docs-review-update, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Technical Writer with expertise in developer-facing documentation and GitHub workflows | Task: Verify and update README.md to match v0.0.1 release state, ensuring all URLs, features, and examples are accurate per product.md and tech.md following requirements FR-2 and FR-5 | Restrictions: Must preserve existing tone and style, all examples must be tested and working, no placeholder content | _Leverage: git remote for actual URLs, product.md for authoritative feature list, tech.md for technical specs, gh CLI for release info | _Requirements: FR-2 (Critical Documentation Verification), FR-5 (Consistency), NFR-2 (Accuracy) | Success: README has no placeholder URLs, feature list matches product.md exactly (including implemented flags, excluding --json), all examples work, version is v0.0.1 throughout | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 3. Verify and fix INSTALLATION.md
+- [x] 3. Verify and fix INSTALLATION.md
   - File: docs/INSTALLATION.md
   - Update Homebrew tap URLs to actual repository
   - Update Scoop bucket URLs to actual repository

@@ -25,16 +25,16 @@ Complete installation instructions for Pass-CLI across all supported platforms.
 ### macOS / Linux
 
 ```bash
-# Using Homebrew (coming soon)
-brew tap yourusername/pass-cli
+# Using Homebrew
+brew tap ari1110/homebrew-tap
 brew install pass-cli
 ```
 
 ### Windows
 
 ```powershell
-# Using Scoop (coming soon)
-scoop bucket add pass-cli https://github.com/yourusername/scoop-pass-cli
+# Using Scoop
+scoop bucket add pass-cli https://github.com/ari1110/scoop-bucket
 scoop install pass-cli
 ```
 
@@ -55,7 +55,7 @@ Homebrew is the recommended installation method for macOS and Linux.
 
 ```bash
 # Add the Pass-CLI tap
-brew tap yourusername/pass-cli
+brew tap ari1110/homebrew-tap
 
 # Install Pass-CLI
 brew install pass-cli
@@ -81,7 +81,7 @@ brew upgrade pass-cli
 brew info pass-cli
 
 # Install specific version (if available)
-brew install pass-cli@1.0.0
+brew install pass-cli@0.0.1
 ```
 
 ### Scoop (Windows)
@@ -98,7 +98,7 @@ Scoop is the recommended installation method for Windows.
 
 ```powershell
 # Add the Pass-CLI bucket
-scoop bucket add pass-cli https://github.com/yourusername/scoop-pass-cli
+scoop bucket add pass-cli https://github.com/ari1110/scoop-bucket
 
 # Install Pass-CLI
 scoop install pass-cli
@@ -124,7 +124,7 @@ scoop update pass-cli
 scoop info pass-cli
 
 # Install specific version
-scoop install pass-cli@1.0.0
+scoop install pass-cli@0.0.1
 ```
 
 ## Manual Installation
@@ -135,7 +135,7 @@ Manual installation gives you direct control over the binary location and versio
 
 1. **Visit the Releases Page**
 
-   Go to [GitHub Releases](https://github.com/yourusername/pass-cli/releases)
+   Go to [GitHub Releases](https://github.com/ari1110/pass-cli/releases)
 
 2. **Choose Your Platform**
 
@@ -163,23 +163,23 @@ Verifying checksums ensures the downloaded file hasn't been tampered with.
 ```bash
 # Download your platform's archive and checksums.txt
 # Example for Linux amd64:
-curl -LO https://github.com/yourusername/pass-cli/releases/download/v1.0.0/pass-cli_1.0.0_linux_amd64.tar.gz
-curl -LO https://github.com/yourusername/pass-cli/releases/download/v1.0.0/checksums.txt
+curl -LO https://github.com/ari1110/pass-cli/releases/download/v0.0.1/pass-cli_0.0.1_linux_amd64.tar.gz
+curl -LO https://github.com/ari1110/pass-cli/releases/download/v0.0.1/checksums.txt
 
 # Verify checksum
 sha256sum -c checksums.txt --ignore-missing
 
-# Should output: pass-cli_1.0.0_linux_amd64.tar.gz: OK
+# Should output: pass-cli_0.0.1_linux_amd64.tar.gz: OK
 ```
 
 Alternative using `grep`:
 
 ```bash
 # Extract expected checksum
-EXPECTED=$(grep pass-cli_1.0.0_linux_amd64.tar.gz checksums.txt | cut -d' ' -f1)
+EXPECTED=$(grep pass-cli_0.0.1_linux_amd64.tar.gz checksums.txt | cut -d' ' -f1)
 
 # Calculate actual checksum
-ACTUAL=$(sha256sum pass-cli_1.0.0_linux_amd64.tar.gz | cut -d' ' -f1)
+ACTUAL=$(sha256sum pass-cli_0.0.1_linux_amd64.tar.gz | cut -d' ' -f1)
 
 # Compare
 if [ "$EXPECTED" = "$ACTUAL" ]; then
@@ -194,9 +194,9 @@ fi
 
 ```powershell
 # Download your platform's archive and checksums.txt
-$version = "1.0.0"
+$version = "0.0.1"
 $file = "pass-cli_${version}_windows_amd64.zip"
-$baseUrl = "https://github.com/yourusername/pass-cli/releases/download/v${version}"
+$baseUrl = "https://github.com/ari1110/pass-cli/releases/download/v${version}"
 
 Invoke-WebRequest "${baseUrl}/${file}" -OutFile $file
 Invoke-WebRequest "${baseUrl}/checksums.txt" -OutFile checksums.txt
@@ -316,11 +316,11 @@ make --version  # Optional
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pass-cli.git
+git clone https://github.com/ari1110/pass-cli.git
 cd pass-cli
 
 # Checkout specific version (optional)
-git checkout v1.0.0
+git checkout v0.0.1
 
 # Or use main branch for latest
 git checkout main
@@ -355,7 +355,7 @@ go build -ldflags="-s -w" -o pass-cli .
 
 ```bash
 # Set version variables
-VERSION="1.0.0"
+VERSION="0.0.1"
 COMMIT=$(git rev-parse --short HEAD)
 DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -600,7 +600,7 @@ scoop cat pass-cli
 brew uninstall pass-cli
 
 # Remove tap (optional)
-brew untap yourusername/pass-cli
+brew untap ari1110/homebrew-tap
 
 # Remove vault (if desired)
 rm -rf ~/.pass-cli
@@ -694,15 +694,15 @@ history -c
 
 If you encounter issues not covered here:
 
-1. Check the [Troubleshooting Guide](troubleshooting.md)
-2. Review [GitHub Issues](https://github.com/yourusername/pass-cli/issues)
-3. Ask in [GitHub Discussions](https://github.com/yourusername/pass-cli/discussions)
-4. File a [new issue](https://github.com/yourusername/pass-cli/issues/new)
+1. Check the [Troubleshooting Guide](TROUBLESHOOTING.md)
+2. Review [GitHub Issues](https://github.com/ari1110/pass-cli/issues)
+3. Ask in [GitHub Discussions](https://github.com/ari1110/pass-cli/discussions)
+4. File a [new issue](https://github.com/ari1110/pass-cli/issues/new)
 
 ## Next Steps
 
 After installation:
 
-- Read the [Usage Guide](usage.md)
-- Review [Security Documentation](security.md)
+- Read the [Usage Guide](USAGE.md)
+- Review [Security Documentation](SECURITY.md)
 - Check out [Script Integration Examples](../README.md#-script-integration)
