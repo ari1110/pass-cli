@@ -17,6 +17,9 @@ Command-line interface (CLI) tool for secure credential management. Single-binar
 - **github.com/atotto/clipboard v0.1.4**: Cross-platform clipboard operations
 - **github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef**: Secure password input with masking
 - **github.com/olekukonko/tablewriter v1.1.0**: Formatted table output for credential display
+- **github.com/charmbracelet/bubbletea v1.3.10**: TUI framework with Elm-inspired architecture (Model-Update-View pattern)
+- **github.com/charmbracelet/lipgloss v1.1.0**: Terminal styling library for layout, colors, and borders
+- **github.com/charmbracelet/bubbles v0.21.0**: Reusable TUI components (text input, viewport, list)
 - **golang.org/x/crypto v0.42.0**: Extended cryptographic functions (PBKDF2)
 - **golang.org/x/term v0.35.0**: Terminal detection and input handling
 - **Standard library crypto packages**: AES-256-GCM implementation, secure random generation
@@ -24,6 +27,11 @@ Command-line interface (CLI) tool for secure credential management. Single-binar
 ### Application Architecture
 Layered architecture with clear separation of concerns:
 - **CLI Layer**: Command interface using Cobra framework with script-friendly output modes
+- **TUI Layer**: Interactive dashboard built with Bubble Tea framework
+  - **Model-Update-View Pattern**: Elm-inspired architecture for state management
+  - **Component-Based Design**: Reusable UI components (sidebar, panels, status bar)
+  - **Responsive Layout System**: Multi-panel dashboard with breakpoint-based adaptation
+  - **Styles & Theming**: Lipgloss-based styling with consistent color scheme and borders
 - **Service Layer**: Business logic for credential management (Vault service) with automatic usage tracking
 - **Storage Layer**: Encrypted file operations and persistence with atomic writes
 - **Crypto Layer**: AES-256-GCM encryption and key derivation
@@ -154,6 +162,20 @@ Layered architecture with clear separation of concerns:
    - Windows: User-level access via Windows ACLs
    - Encryption as primary security (defense in depth approach)
    - Accept Windows can't enforce Unix-style permissions
+
+9. **Bubble Tea TUI Framework**:
+   - Elm-inspired architecture (Model-Update-View) for predictable state management
+   - Composable components and message-based communication
+   - Strong ecosystem (Lipgloss for styling, Bubbles for components)
+   - Production-ready framework used by major CLI tools (gum, charm, gh-dash)
+   - Clean separation between state logic and rendering
+
+10. **Lipgloss Layout System**:
+   - Declarative styling with CSS-like API
+   - Automatic width/height calculation with border and padding support
+   - Composable layout primitives (JoinHorizontal, JoinVertical)
+   - Terminal color profile detection for broad compatibility
+   - Responsive design patterns for multi-panel layouts
 
 ## Known Limitations
 

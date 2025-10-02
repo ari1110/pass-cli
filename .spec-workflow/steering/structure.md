@@ -15,7 +15,41 @@ pass-cli/
 │   ├── delete.go               # Delete credential command
 │   ├── generate.go             # Generate password command
 │   ├── version.go              # Version command
-│   └── helpers.go              # Helper functions (password reading)
+│   ├── helpers.go              # Helper functions (password reading)
+│   └── tui/                    # TUI (Terminal User Interface) layer
+│       ├── tui.go              # TUI entry point and initialization
+│       ├── model.go            # Main Bubble Tea model (application state)
+│       ├── model_test.go       # Model unit tests
+│       ├── commands.go         # Bubble Tea commands (vault operations)
+│       ├── messages.go         # Bubble Tea message types
+│       ├── keys.go             # Keyboard bindings and key mappings
+│       ├── helpers.go          # Layout rendering and helper functions
+│       ├── components/         # Reusable TUI components
+│       │   ├── sidebar.go              # Category tree sidebar panel
+│       │   ├── sidebar_test.go         # Sidebar unit tests
+│       │   ├── category_tree.go        # Category tree logic
+│       │   ├── category_tree_test.go   # Category tree unit tests
+│       │   ├── metadata_panel.go       # Credential metadata panel
+│       │   ├── process_panel.go        # Background process status panel
+│       │   ├── command_bar.go          # Command palette / command bar
+│       │   ├── command_bar_test.go     # Command bar unit tests
+│       │   ├── statusbar.go            # Status bar with shortcuts
+│       │   ├── statusbar_test.go       # Status bar unit tests
+│       │   ├── breadcrumb.go           # Breadcrumb navigation
+│       │   ├── layout_manager.go       # Responsive layout calculations
+│       │   └── layout_manager_test.go  # Layout manager unit tests
+│       ├── views/              # TUI view components (screens)
+│       │   ├── list.go                 # Credential list view
+│       │   ├── list_test.go            # List view unit tests
+│       │   ├── detail.go               # Credential detail view
+│       │   ├── detail_test.go          # Detail view unit tests
+│       │   ├── form_add.go             # Add credential form view
+│       │   ├── form_add_test.go        # Add form unit tests
+│       │   ├── form_edit.go            # Edit credential form view
+│       │   ├── help.go                 # Help screen view
+│       │   └── confirm.go              # Confirmation dialog view
+│       └── styles/             # TUI styling and theming
+│           └── theme.go                # Color scheme and style definitions
 ├── internal/                   # Private application code
 │   ├── crypto/                 # Encryption/decryption layer
 │   │   ├── crypto.go           # AES-256-GCM implementation
@@ -173,7 +207,7 @@ func (v *Vault) AddCredential(service, username, value string) error {
 
 ### Dependency Direction
 ```
-CLI Commands (cmd/)
+CLI Commands (cmd/) & TUI Layer (cmd/tui/)
     ↓
 Business Logic (internal/vault/)
     ↓
@@ -182,9 +216,35 @@ Service Layers (internal/crypto/, internal/storage/, internal/keychain/)
 Standard Library & External Dependencies
 ```
 
+### TUI Layer Organization
+The TUI follows Bubble Tea's Model-Update-View architecture:
+```
+TUI Entry (tui.go)
+    ↓
+Model (model.go) - Application state
+    ↓
+├── Components (components/) - Reusable UI elements
+│   ├── Layout Manager - Responsive dimension calculations
+│   ├── Sidebar - Category tree navigation
+│   ├── Status Bar - Context shortcuts and hints
+│   └── Panels - Metadata, process, command bar
+├── Views (views/) - Screen-level components
+│   ├── List View - Credential browsing
+│   ├── Detail View - Credential details
+│   └── Forms - Add/Edit dialogs
+└── Styles (styles/) - Visual theming
+    └── Theme - Colors, borders, typography
+```
+
 ### Boundary Patterns
-- **Public API vs Internal**: `cmd/` packages expose CLI interface, `internal/` packages are implementation details
+- **Public API vs Internal**: `cmd/` packages expose CLI/TUI interface, `internal/` packages are implementation details
 - **Core vs Platform-specific**: Core crypto and vault logic is cross-platform, keychain integration handles OS differences
+- **CLI vs TUI**: Both layers use shared vault service, but have independent presentation logic
+  - CLI: Script-friendly output, flags-based configuration
+  - TUI: Interactive visual interface, keyboard navigation, stateful UI
+- **TUI Components vs Views**:
+  - Components: Reusable, composable UI elements (sidebar, panels, status bar)
+  - Views: Screen-level state machines (list, detail, forms)
 - **Stable vs Experimental**: Main packages are stable, future plugin system would be experimental
 - **Dependencies direction**: Higher layers depend on lower layers, never vice versa
 
