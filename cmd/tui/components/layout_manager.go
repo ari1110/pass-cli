@@ -340,10 +340,16 @@ func max(a, b int) int {
 }
 
 // setContentDimensions calculates and sets ContentWidth/ContentHeight for a panel.
-// For bordered panels, subtracts frame size. For non-bordered panels, content equals total dimensions.
+// For bordered panels, subtracts frame size using Lipgloss GetFrameSize() to account for border/padding overhead.
+// For non-bordered panels, content dimensions equal total dimensions.
+//
+// IMPORTANT: This uses GetFrameSize() instead of hardcoded constants because:
+// - GetFrameSize() automatically accounts for border style (e.g., RoundedBorder) and padding configuration
+// - If border/padding changes in theme.go, calculations adapt automatically
+// - Both ActivePanelBorderStyle and InactivePanelBorderStyle have identical frame sizes (same border + padding config)
 func setContentDimensions(panel *PanelDimensions, bordered bool) {
 	if bordered {
-		// Use Lipgloss GetFrameSize() to get border and padding overhead
+		// Calculate content dimensions using Lipgloss GetFrameSize() to account for border/padding overhead
 		horizontalFrame := styles.ActivePanelBorderStyle.GetHorizontalFrameSize()
 		verticalFrame := styles.ActivePanelBorderStyle.GetVerticalFrameSize()
 		panel.ContentWidth = panel.Width - horizontalFrame

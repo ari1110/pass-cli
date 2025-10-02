@@ -163,7 +163,12 @@ func (m *Model) recalculateLayout() {
 	}
 }
 
-// renderDashboardView renders the multi-panel dashboard layout
+// renderDashboardView renders the multi-panel dashboard.
+// Panels use Lipgloss GetFrameSize() to calculate border/padding overhead.
+//
+// IMPORTANT: Lipgloss .Width(n) sets content width and adds frame ON TOP,
+// so we subtract GetHorizontalFrameSize() before applying .Width() to ensure
+// total rendered width equals allocated layout width. Same applies for height.
 func (m *Model) renderDashboardView() string {
 	if m.layoutManager == nil {
 		// Fallback to simple view if layout manager not initialized
