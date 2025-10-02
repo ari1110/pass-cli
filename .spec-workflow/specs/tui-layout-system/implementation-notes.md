@@ -100,21 +100,47 @@ Task 6 integration tests should specifically verify:
    - Components render content correctly with ContentWidth/ContentHeight
    - No unexpected truncation or missing content
 
-## Real-World Testing Results
+## Integration Test Results
 
-_To be filled in after manual testing with actual TUI application_
-
-**Test Date:** [To be filled]
+**Test Date:** 2025-10-02
 
 **Issues Found:**
-- [List any issues discovered during manual testing]
+1. ✅ **CONFIRMED: Concern #1 was valid** - Width subtraction bug existed
+   - Rendered output was smaller than terminal dimensions
+   - Pattern: losing 2 pixels per panel (Full=6, Medium=4, Small=2)
 
-**Verification:**
-- [ ] All borders visible at various terminal sizes (80x24, 100x30, 120x40, 140x50)
-- [ ] No border overflow or cut-off
-- [ ] Panels resize smoothly on terminal resize
-- [ ] Focus changes don't affect dimensions
-- [ ] Components render correctly with new sizing
+**Root Cause Discovered:**
+Lipgloss `.Width(n)` behavior is **neither** "content width" nor "total width":
+- **Actual behavior**: `.Width(n)` sets width to `n`, then adds BORDER but NOT PADDING
+- With `RoundedBorder() + Padding(0,1)`:
+  - Frame size = 4 (border=2 + padding=2)
+  - `.Width(16)` produces total width = **18** (not 20!)
+  - Adds border (2 chars) automatically, but NOT padding (2 chars)
+
+**Correct Formula:**
+```go
+// WRONG (was using):
+panelWidth = layout.Panel.Width - GetHorizontalFrameSize()  // Width - 4
+// → Renders too small (subtracts border+padding, but Lipgloss adds back only border)
+
+// CORRECT (now using):
+panelWidth = layout.Panel.Width - paddingSize  // Width - 2
+// → Renders exact (subtracts padding, Lipgloss adds border)
+```
 
 **Resolution:**
-- [Document how issues were resolved, if any]
+- Changed from `Width - 4` to `Width - 2` for all bordered panels
+- Test `TestLipglossWidthBehavior` validates Lipgloss behavior empirically
+- Test `TestExactDimensionMatch` ensures rendered dimensions match terminal exactly
+
+**Verification:**
+- [x] All borders visible at various terminal sizes
+- [x] Rendered dimensions exactly match terminal dimensions
+- [x] No pixel loss (TestDiagnosePanelWidths shows "Pixels lost: 0")
+- [x] Focus changes don't affect dimensions (TestFocusDimensionsUnchanged passes)
+- [x] All integration tests pass
+
+**Concerns Status:**
+1. ✅ **RESOLVED**: Double subtraction bug - fixed by using `Width - 2` instead of `Width - 4`
+2. ✅ **VALIDATED**: Focus state frame sizes are identical - test confirms no dimension change on focus
+3. ⏸️ **PENDING**: Component expectations - need real-world testing with actual vault data

@@ -216,12 +216,11 @@ func (m *Model) renderDashboardView() string {
 	if m.panelFocus == FocusMain {
 		mainPanelStyle = styles.ActivePanelBorderStyle
 	}
-	// Lipgloss .Width(n) adds frame on top, so we subtract frame size first
-	// Get frame overhead (border + padding) to calculate content dimensions
-	horizontalFrame := mainPanelStyle.GetHorizontalFrameSize()
-	verticalFrame := mainPanelStyle.GetVerticalFrameSize()
-	mainPanelWidth := layout.Main.Width - horizontalFrame
-	mainPanelHeight := layout.Main.Height - verticalFrame
+	// Lipgloss .Width() adds border but not padding, so subtract padding only
+	// GetFrameSize()=4 (border=2 + padding=2), but .Width() already accounts for border
+	// So we subtract padding: Width - 2
+	mainPanelWidth := layout.Main.Width - 2
+	mainPanelHeight := layout.Main.Height - 2
 	if mainPanelWidth < 10 {
 		mainPanelWidth = 10
 	}
@@ -240,11 +239,9 @@ func (m *Model) renderDashboardView() string {
 		if m.panelFocus == FocusSidebar {
 			sidebarStyle = styles.ActivePanelBorderStyle
 		}
-		// Get frame overhead (border + padding) to calculate content dimensions
-		horizontalFrame := sidebarStyle.GetHorizontalFrameSize()
-		verticalFrame := sidebarStyle.GetVerticalFrameSize()
-		sidebarWidth := layout.Sidebar.Width - horizontalFrame
-		sidebarHeight := layout.Sidebar.Height - verticalFrame
+		// Lipgloss .Width() adds border but not padding, so subtract padding only (Width - 2)
+		sidebarWidth := layout.Sidebar.Width - 2
+		sidebarHeight := layout.Sidebar.Height - 2
 		if sidebarWidth < 10 {
 			sidebarWidth = 10
 		}
@@ -265,11 +262,9 @@ func (m *Model) renderDashboardView() string {
 		if m.panelFocus == FocusMetadata {
 			metadataStyle = styles.ActivePanelBorderStyle
 		}
-		// Get frame overhead (border + padding) to calculate content dimensions
-		horizontalFrame := metadataStyle.GetHorizontalFrameSize()
-		verticalFrame := metadataStyle.GetVerticalFrameSize()
-		metadataWidth := layout.Metadata.Width - horizontalFrame
-		metadataHeight := layout.Metadata.Height - verticalFrame
+		// Lipgloss .Width() adds border but not padding, so subtract padding only (Width - 2)
+		metadataWidth := layout.Metadata.Width - 2
+		metadataHeight := layout.Metadata.Height - 2
 		if metadataWidth < 10 {
 			metadataWidth = 10
 		}
