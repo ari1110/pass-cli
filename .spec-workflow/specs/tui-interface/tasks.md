@@ -40,7 +40,7 @@
   - _Requirements: REQ-4_
   - _Prompt: Role: UI/UX Developer specializing in secure information presentation | Task: Implement detail view showing service, username, masked password, notes, timestamps, usage records following REQ-4, support m to toggle password visibility, c to copy password, display usage records in table | Restrictions: Passwords masked by default with asterisks, use existing clipboard library, use bubbles/viewport for scrolling, do not implement edit/delete yet | Success: Enter on list item navigates to detail, password masked by default, m toggles visibility, c copies to clipboard with notification, usage records displayed in table, Escape returns to list_
 
-- [ ] 6. Implement add credential form
+- [x] 6. Implement add credential form
   - File: cmd/tui/views/form_add.go, cmd/tui/update.go, cmd/tui/view.go, cmd/tui/model.go
   - Create interactive form for adding new credentials with validation and password generation
   - Purpose: Enable credential creation with Tab navigation and field validation

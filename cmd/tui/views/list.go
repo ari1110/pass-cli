@@ -177,7 +177,7 @@ func (v *ListView) renderHelp() string {
 			Render("esc: clear search | enter: back to list")
 	}
 
-	help := "/: search | ↑↓/jk: navigate | enter: view | q: quit"
+	help := "a: add | /: search | ↑↓/jk: navigate | enter: view | q: quit"
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color("240")).
 		Render(help)

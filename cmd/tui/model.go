@@ -17,6 +17,7 @@ const (
 	StateAdd
 	StateEdit
 	StateConfirmDelete
+	StateConfirmDiscard
 	StateHelp
 )
 
@@ -32,8 +33,13 @@ type Model struct {
 	selectedIndex int
 
 	// Views
-	listView   *views.ListView
-	detailView *views.DetailView
+	listView    *views.ListView
+	detailView  *views.DetailView
+	addForm     *views.AddFormView
+	confirmView *views.ConfirmView
+
+	// State for confirmation dialogs
+	previousState AppState
 
 	// UI state
 	width  int
@@ -86,6 +92,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.detailView != nil {
 			m.detailView.SetSize(m.width, m.height)
 		}
+		if m.addForm != nil {
+			m.addForm.SetSize(m.width, m.height)
+		}
+		if m.confirmView != nil {
+			m.confirmView.SetSize(m.width, m.height)
+		}
 
 	case vaultUnlockedMsg:
 		m.unlocking = false
@@ -102,6 +114,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.credentials = msg.credentials
 		m.listView = views.NewListView(msg.credentials)
 		m.listView.SetSize(m.width, m.height)
+		// If we were in add/edit form, return to list
+		if m.state == StateAdd || m.state == StateEdit {
+			m.state = StateList
+			m.addForm = nil
+		}
 
 	case credentialLoadedMsg:
 		m.state = StateDetail
@@ -111,12 +128,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Update active view
 	if m.state == StateList && m.listView != nil {
-		// Check for Enter key to navigate to detail
-		if keyMsg, ok := msg.(tea.KeyMsg); ok && keyMsg.String() == "enter" {
-			selected := m.listView.SelectedCredential()
-			if selected != nil {
-				// Load full credential details
-				return m, loadCredentialDetailsCmd(m.vaultService, selected.Service)
+		// Check for special keys
+		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+			switch keyMsg.String() {
+			case "enter":
+				selected := m.listView.SelectedCredential()
+				if selected != nil {
+					// Load full credential details
+					return m, loadCredentialDetailsCmd(m.vaultService, selected.Service)
+				}
+			case "a":
+				// Open add form
+				m.state = StateAdd
+				m.addForm = views.NewAddFormView()
+				m.addForm.SetSize(m.width, m.height)
+				return m, nil
 			}
 		}
 
@@ -135,6 +161,63 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		var cmd tea.Cmd
 		m.detailView, cmd = m.detailView.Update(msg)
+		return m, cmd
+	}
+
+	if m.state == StateAdd && m.addForm != nil {
+		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+			switch keyMsg.String() {
+			case "esc":
+				// Check if there are changes
+				if m.addForm.HasChanges() {
+					// Show confirmation dialog
+					m.previousState = StateAdd
+					m.state = StateConfirmDiscard
+					m.confirmView = views.NewConfirmView("Discard new credential?")
+					m.confirmView.SetSize(m.width, m.height)
+					return m, nil
+				}
+				// No changes, just go back
+				m.state = StateList
+				m.addForm = nil
+				return m, nil
+			case "ctrl+s":
+				// Save the credential
+				return m, m.saveNewCredential()
+			case "g":
+				// Generate password
+				if password, err := generatePassword(20); err == nil {
+					m.addForm.SetPassword(password)
+					m.addForm.SetNotification("Password generated (20 characters)")
+				}
+				return m, nil
+			}
+		}
+
+		var cmd tea.Cmd
+		m.addForm, cmd = m.addForm.Update(msg)
+		return m, cmd
+	}
+
+	if m.state == StateConfirmDiscard && m.confirmView != nil {
+		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+			switch keyMsg.String() {
+			case "y":
+				// User confirmed discard
+				m.state = StateList
+				m.addForm = nil
+				m.confirmView = nil
+				return m, nil
+			case "n", "esc":
+				// User cancelled, go back to form
+				m.state = m.previousState
+				m.confirmView = nil
+				return m, nil
+			}
+		}
+
+		var cmd tea.Cmd
+		m.confirmView, cmd = m.confirmView.Update(msg)
 		return m, cmd
 	}
 
@@ -162,7 +245,61 @@ func (m Model) View() string {
 			return m.detailView.View()
 		}
 		return "Loading credential...\n"
+	case StateAdd:
+		if m.addForm != nil {
+			return m.addForm.View()
+		}
+		return "Loading form...\n"
+	case StateConfirmDiscard:
+		if m.confirmView != nil {
+			return m.confirmView.View()
+		}
+		return "Loading...\n"
 	default:
 		return "TUI - coming soon!\n"
+	}
+}
+
+// saveNewCredential validates and saves a new credential
+func (m *Model) saveNewCredential() tea.Cmd {
+	service, username, password, notes := m.addForm.GetValues()
+
+	// Validate service name
+	if service == "" {
+		m.addForm.SetError("Service name is required")
+		return nil
+	}
+
+	// Check if service already exists
+	for _, cred := range m.credentials {
+		if cred.Service == service {
+			m.addForm.SetError("Service already exists")
+			return nil
+		}
+	}
+
+	// Generate password if empty
+	if password == "" {
+		var err error
+		password, err = generatePassword(20)
+		if err != nil {
+			m.addForm.SetError("Failed to generate password")
+			return nil
+		}
+	}
+
+	// Add credential
+	return func() tea.Msg {
+		if err := m.vaultService.AddCredential(service, username, password, notes); err != nil {
+			return vaultUnlockErrorMsg{err: err}
+		}
+
+		// Reload credentials and return to list
+		credentials, err := m.vaultService.ListCredentialsWithMetadata()
+		if err != nil {
+			return vaultUnlockErrorMsg{err: err}
+		}
+
+		return credentialsLoadedMsg{credentials: credentials}
 	}
 }
