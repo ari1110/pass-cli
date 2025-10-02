@@ -40,6 +40,7 @@ type Model struct {
 	addForm     *views.AddFormView
 	editForm    *views.EditFormView
 	confirmView *views.ConfirmView
+	helpView    *views.HelpView
 
 	// Components
 	statusBar *components.StatusBar
@@ -98,6 +99,23 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		// Handle help overlay
+		if m.state == StateHelp {
+			// Any key closes help overlay
+			m.state = m.previousState
+			m.helpView = nil
+			return m, nil
+		}
+
+		// Handle help key (? or F1) from any view
+		if msg.String() == "?" || msg.String() == "f1" {
+			m.previousState = m.state
+			m.state = StateHelp
+			m.helpView = views.NewHelpView()
+			m.helpView.SetSize(m.width, m.height)
+			return m, nil
+		}
+
 		// Handle quit keys globally
 		switch {
 		case key.Matches(msg, m.keys.Quit):
@@ -124,6 +142,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		if m.confirmView != nil {
 			m.confirmView.SetSize(m.width, m.height)
+		}
+		if m.helpView != nil {
+			m.helpView.SetSize(m.width, m.height)
 		}
 
 	case vaultUnlockedMsg:
@@ -407,6 +428,12 @@ func (m Model) View() string {
 		} else {
 			mainContent = "Loading...\n"
 		}
+	case StateHelp:
+		if m.helpView != nil {
+			// Help overlay doesn't show status bar
+			return m.helpView.View()
+		}
+		mainContent = "Loading help...\n"
 	default:
 		mainContent = "TUI - coming soon!\n"
 	}

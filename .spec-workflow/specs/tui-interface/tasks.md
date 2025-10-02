@@ -72,7 +72,7 @@
   - _Requirements: REQ-8_
   - _Prompt: Role: UI Developer specializing in status displays | Task: Create status bar showing keychain indicator, credential count, current view, and shortcuts following REQ-8, left side shows keychain status and count, center shows view name, right side shows relevant shortcuts per state | Restrictions: Visible in all views at bottom, update real-time when data changes, use emoji icons, keep shortcuts relevant to current view, fill terminal width | Success: Status bar visible at bottom in all views, keychain available shows green lock, unavailable shows yellow, credential count updates on add/delete, view name displayed, shortcuts change per state, fills full width_
 
-- [ ] 10. Create help overlay
+- [x] 10. Create help overlay
   - File: cmd/tui/views/help.go, cmd/tui/update.go, cmd/tui/view.go, cmd/tui/model.go
   - Create help screen showing all keyboard shortcuts organized by category
   - Purpose: Make features discoverable without reading documentation
