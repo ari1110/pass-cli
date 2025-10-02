@@ -56,7 +56,7 @@
   - _Requirements: REQ-6_
   - _Prompt: Role: Forms Developer with update workflow expertise | Task: Create edit form pre-filled with current values following REQ-6, make service name read-only, show usage warning if credential has usage records, track changes for discard confirmation, support password generation | Restrictions: Service name read-only, pre-fill all fields, show usage warning with locations, only confirm discard if changes made | Success: e opens edit form pre-filled, service name read-only, other fields editable, Tab navigation works, g generates password, Ctrl+S saves, Escape confirms only if changed, usage warning displays locations, UpdatedAt updated after save_
 
-- [ ] 8. Implement delete confirmation dialog
+- [x] 8. Implement delete confirmation dialog
   - File: cmd/tui/views/confirm.go, cmd/tui/update.go, cmd/tui/view.go, cmd/tui/model.go
   - Create confirmation dialog for credential deletion with usage warnings
   - Purpose: Prevent accidental deletions with typed confirmation for high-risk deletions

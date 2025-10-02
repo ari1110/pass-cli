@@ -174,6 +174,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.editForm.SetSize(m.width, m.height)
 					return m, nil
 				}
+			case "d":
+				// Open delete confirmation
+				cred := m.detailView.GetCredential()
+				if cred != nil {
+					m.previousState = StateDetail
+					m.state = StateConfirmDelete
+					m.confirmView = views.NewDeleteConfirmView(cred)
+					m.confirmView.SetSize(m.width, m.height)
+					return m, nil
+				}
 			}
 		}
 
@@ -279,6 +289,48 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
+	if m.state == StateConfirmDelete && m.confirmView != nil {
+		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+			// Check if this is a typed confirmation
+			if m.confirmView.IsTypedConfirmation() {
+				switch keyMsg.String() {
+				case "enter":
+					// Validate typed service name
+					cred := m.confirmView.GetCredential()
+					typedValue := m.confirmView.GetTypedValue()
+					if typedValue != cred.Service {
+						m.confirmView.SetError("Service name doesn't match")
+						return m, nil
+					}
+					// Confirmed, delete the credential
+					return m, m.deleteCredential(cred.Service)
+				case "esc":
+					// User cancelled, go back
+					m.state = m.previousState
+					m.confirmView = nil
+					return m, nil
+				}
+			} else {
+				// Simple y/n confirmation
+				switch keyMsg.String() {
+				case "y":
+					// Confirmed, delete the credential
+					cred := m.confirmView.GetCredential()
+					return m, m.deleteCredential(cred.Service)
+				case "n", "esc":
+					// User cancelled, go back
+					m.state = m.previousState
+					m.confirmView = nil
+					return m, nil
+				}
+			}
+		}
+
+		var cmd tea.Cmd
+		m.confirmView, cmd = m.confirmView.Update(msg)
+		return m, cmd
+	}
+
 	return m, nil
 }
 
@@ -313,7 +365,7 @@ func (m Model) View() string {
 			return m.editForm.View()
 		}
 		return "Loading form...\n"
-	case StateConfirmDiscard:
+	case StateConfirmDiscard, StateConfirmDelete:
 		if m.confirmView != nil {
 			return m.confirmView.View()
 		}
@@ -400,5 +452,23 @@ func (m *Model) updateCredential() tea.Cmd {
 
 		// Return to detail view with updated credential
 		return credentialLoadedMsg{credential: cred}
+	}
+}
+
+// deleteCredential deletes a credential from the vault
+func (m *Model) deleteCredential(service string) tea.Cmd {
+	return func() tea.Msg {
+		// Delete the credential
+		if err := m.vaultService.DeleteCredential(service); err != nil {
+			return vaultUnlockErrorMsg{err: err}
+		}
+
+		// Reload credentials and return to list
+		credentials, err := m.vaultService.ListCredentialsWithMetadata()
+		if err != nil {
+			return vaultUnlockErrorMsg{err: err}
+		}
+
+		return credentialsLoadedMsg{credentials: credentials}
 	}
 }
