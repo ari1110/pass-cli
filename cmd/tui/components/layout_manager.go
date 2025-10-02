@@ -1,5 +1,9 @@
 package components
 
+import (
+	"pass-cli/cmd/tui/styles"
+)
+
 // LayoutManager handles responsive dimension calculations for the dashboard layout
 type LayoutManager struct {
 	minWidth  int
@@ -8,10 +12,12 @@ type LayoutManager struct {
 
 // PanelDimensions represents the dimensions of a single panel
 type PanelDimensions struct {
-	X      int
-	Y      int
-	Width  int
-	Height int
+	X             int
+	Y             int
+	Width         int // Total allocated width (includes border overhead)
+	Height        int // Total allocated height (includes border overhead)
+	ContentWidth  int // Width available for content (Width minus horizontal frame size from border + padding)
+	ContentHeight int // Height available for content (Height minus vertical frame size from border + padding)
 }
 
 // Layout represents the complete dashboard layout with all panel dimensions
@@ -97,6 +103,7 @@ func (lm *LayoutManager) Calculate(width, height int, states PanelStates) Layout
 		Width:  width,
 		Height: StatusBarHeight,
 	}
+	setContentDimensions(&layout.StatusBar, false) // StatusBar is non-bordered
 	availableHeight -= StatusBarHeight
 
 	// Reserve space for command bar if open
@@ -109,6 +116,7 @@ func (lm *LayoutManager) Calculate(width, height int, states PanelStates) Layout
 			Width:  width,
 			Height: commandBarHeight,
 		}
+		setContentDimensions(&layout.CommandBar, false) // CommandBar is non-bordered
 		availableHeight -= commandBarHeight
 	}
 
@@ -125,6 +133,7 @@ func (lm *LayoutManager) Calculate(width, height int, states PanelStates) Layout
 			Width:  width,
 			Height: processHeight,
 		}
+		setContentDimensions(&layout.Process, false) // Process panel is non-bordered
 		availableHeight -= processHeight
 	}
 
@@ -165,12 +174,15 @@ func (lm *LayoutManager) Calculate(width, height int, states PanelStates) Layout
 			}
 
 			layout.Sidebar = PanelDimensions{X: currentX, Y: currentY, Width: sidebarWidth, Height: mainContentHeight}
+			setContentDimensions(&layout.Sidebar, true) // Sidebar is bordered
 			currentX += sidebarWidth
 
 			layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: mainWidth, Height: mainContentHeight}
+			setContentDimensions(&layout.Main, true) // Main panel is bordered
 			currentX += mainWidth
 
 			layout.Metadata = PanelDimensions{X: currentX, Y: currentY, Width: metadataWidth, Height: mainContentHeight}
+			setContentDimensions(&layout.Metadata, true) // Metadata is bordered
 
 		} else if states.SidebarVisible {
 			// Sidebar + main only
@@ -183,9 +195,11 @@ func (lm *LayoutManager) Calculate(width, height int, states PanelStates) Layout
 			}
 
 			layout.Sidebar = PanelDimensions{X: currentX, Y: currentY, Width: sidebarWidth, Height: mainContentHeight}
+			setContentDimensions(&layout.Sidebar, true) // Sidebar is bordered
 			currentX += sidebarWidth
 
 			layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: mainWidth, Height: mainContentHeight}
+			setContentDimensions(&layout.Main, true) // Main panel is bordered
 
 		} else if states.MetadataVisible {
 			// Main + metadata only
@@ -198,13 +212,16 @@ func (lm *LayoutManager) Calculate(width, height int, states PanelStates) Layout
 			}
 
 			layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: mainWidth, Height: mainContentHeight}
+			setContentDimensions(&layout.Main, true) // Main panel is bordered
 			currentX += mainWidth
 
 			layout.Metadata = PanelDimensions{X: currentX, Y: currentY, Width: metadataWidth, Height: mainContentHeight}
+			setContentDimensions(&layout.Metadata, true) // Metadata is bordered
 
 		} else {
 			// Main only
 			layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: width, Height: mainContentHeight}
+			setContentDimensions(&layout.Main, true) // Main panel is bordered
 		}
 
 	case BreakpointMedium:
@@ -221,12 +238,15 @@ func (lm *LayoutManager) Calculate(width, height int, states PanelStates) Layout
 				mainWidth = width - sidebarWidth
 			} else {
 				layout.Sidebar = PanelDimensions{X: currentX, Y: currentY, Width: sidebarWidth, Height: mainContentHeight}
+				setContentDimensions(&layout.Sidebar, true) // Sidebar is bordered
 				currentX += sidebarWidth
 
 				layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: mainWidth, Height: mainContentHeight}
+				setContentDimensions(&layout.Main, true) // Main panel is bordered
 				currentX += mainWidth
 
 				layout.Metadata = PanelDimensions{X: currentX, Y: currentY, Width: metadataWidth, Height: mainContentHeight}
+				setContentDimensions(&layout.Metadata, true) // Metadata is bordered
 			}
 		}
 
@@ -235,21 +255,26 @@ func (lm *LayoutManager) Calculate(width, height int, states PanelStates) Layout
 			mainWidth := width - sidebarWidth
 
 			layout.Sidebar = PanelDimensions{X: currentX, Y: currentY, Width: sidebarWidth, Height: mainContentHeight}
+			setContentDimensions(&layout.Sidebar, true) // Sidebar is bordered
 			currentX += sidebarWidth
 
 			layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: mainWidth, Height: mainContentHeight}
+			setContentDimensions(&layout.Main, true) // Main panel is bordered
 
 		} else if !states.SidebarVisible && states.MetadataVisible {
 			metadataWidth := MinMetadataWidth
 			mainWidth := width - metadataWidth
 
 			layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: mainWidth, Height: mainContentHeight}
+			setContentDimensions(&layout.Main, true) // Main panel is bordered
 			currentX += mainWidth
 
 			layout.Metadata = PanelDimensions{X: currentX, Y: currentY, Width: metadataWidth, Height: mainContentHeight}
+			setContentDimensions(&layout.Metadata, true) // Metadata is bordered
 
 		} else {
 			layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: width, Height: mainContentHeight}
+			setContentDimensions(&layout.Main, true) // Main panel is bordered
 		}
 
 	case BreakpointSmall:
@@ -260,11 +285,14 @@ func (lm *LayoutManager) Calculate(width, height int, states PanelStates) Layout
 
 			if mainWidth >= MinMainWidth {
 				layout.Sidebar = PanelDimensions{X: currentX, Y: currentY, Width: sidebarWidth, Height: mainContentHeight}
+				setContentDimensions(&layout.Sidebar, true) // Sidebar is bordered
 				currentX += sidebarWidth
 				layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: mainWidth, Height: mainContentHeight}
+				setContentDimensions(&layout.Main, true) // Main panel is bordered
 			} else {
 				// Not enough space, main only
 				layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: width, Height: mainContentHeight}
+				setContentDimensions(&layout.Main, true) // Main panel is bordered
 			}
 
 		} else if !states.SidebarVisible && states.MetadataVisible {
@@ -273,16 +301,20 @@ func (lm *LayoutManager) Calculate(width, height int, states PanelStates) Layout
 
 			if mainWidth >= MinMainWidth {
 				layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: mainWidth, Height: mainContentHeight}
+				setContentDimensions(&layout.Main, true) // Main panel is bordered
 				currentX += mainWidth
 				layout.Metadata = PanelDimensions{X: currentX, Y: currentY, Width: metadataWidth, Height: mainContentHeight}
+				setContentDimensions(&layout.Metadata, true) // Metadata is bordered
 			} else {
 				// Not enough space, main only
 				layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: width, Height: mainContentHeight}
+				setContentDimensions(&layout.Main, true) // Main panel is bordered
 			}
 
 		} else {
 			// Main only (or both panels hidden due to space constraints)
 			layout.Main = PanelDimensions{X: currentX, Y: currentY, Width: width, Height: mainContentHeight}
+			setContentDimensions(&layout.Main, true) // Main panel is bordered
 		}
 	}
 
@@ -305,4 +337,20 @@ func max(a, b int) int {
 		return a
 	}
 	return b
+}
+
+// setContentDimensions calculates and sets ContentWidth/ContentHeight for a panel.
+// For bordered panels, subtracts frame size. For non-bordered panels, content equals total dimensions.
+func setContentDimensions(panel *PanelDimensions, bordered bool) {
+	if bordered {
+		// Use Lipgloss GetFrameSize() to get border and padding overhead
+		horizontalFrame := styles.ActivePanelBorderStyle.GetHorizontalFrameSize()
+		verticalFrame := styles.ActivePanelBorderStyle.GetVerticalFrameSize()
+		panel.ContentWidth = panel.Width - horizontalFrame
+		panel.ContentHeight = panel.Height - verticalFrame
+	} else {
+		// Non-bordered panels: content dimensions equal total dimensions
+		panel.ContentWidth = panel.Width
+		panel.ContentHeight = panel.Height
+	}
 }

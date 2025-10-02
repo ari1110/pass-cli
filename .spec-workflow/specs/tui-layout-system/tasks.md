@@ -1,6 +1,6 @@
 # Tasks Document
 
-- [ ] 1. Add ContentWidth/ContentHeight fields to PanelDimensions
+- [x] 1. Add ContentWidth/ContentHeight fields to PanelDimensions
   - File: cmd/tui/components/layout_manager.go
   - Add ContentWidth and ContentHeight int fields to PanelDimensions struct
   - Purpose: Store both total allocated dimensions and content dimensions after frame overhead
@@ -8,7 +8,7 @@
   - _Requirements: 3.1 (Layout Manager Enhancement acceptance criteria 1)_
   - _Prompt: Implement the task for spec tui-layout-system, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Go developer with expertise in layout systems | Task: Add ContentWidth and ContentHeight int fields to the PanelDimensions struct in cmd/tui/components/layout_manager.go following requirement 3.1. Add inline comments explaining: "ContentWidth is Width minus horizontal frame size (border + padding)" and "ContentHeight is Height minus vertical frame size (border + padding)" | Restrictions: Do not modify existing X, Y, Width, Height fields, do not change any calculation logic yet (that's next task), only add new fields to struct | Success: PanelDimensions struct compiles with new fields, inline documentation added, existing code unaffected | Instructions: After completing this task, update tasks.md to mark task 1 as complete [x] and mark task 2 as in-progress [-]_
 
-- [ ] 2. Calculate content dimensions in LayoutManager.Calculate()
+- [x] 2. Calculate content dimensions in LayoutManager.Calculate()
   - File: cmd/tui/components/layout_manager.go (continue from task 1)
   - Use GetFrameSize() methods to populate ContentWidth/ContentHeight for each panel
   - Import cmd/tui/styles package to access border styles
@@ -17,7 +17,7 @@
   - _Requirements: 2.1-2.5 (Use Lipgloss Built-in Frame Size Methods), 3.1-3.3 (Layout Manager Enhancement)_
   - _Prompt: Implement the task for spec tui-layout-system, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Go developer specializing in Lipgloss and layout calculations | Task: In LayoutManager.Calculate() method in cmd/tui/components/layout_manager.go, after calculating Width/Height for each PanelDimensions (lines 167-287), add code to calculate ContentWidth/ContentHeight using Lipgloss GetFrameSize() methods following requirements 2.1-2.5 and 3.1-3.3. For bordered panels (Sidebar, Main, Metadata): Call styles.ActivePanelBorderStyle.GetHorizontalFrameSize() and GetVerticalFrameSize(), then set ContentWidth = Width - horizontalFrameSize and ContentHeight = Height - verticalFrameSize. For non-bordered panels (StatusBar, Process, CommandBar): Set ContentWidth = Width and ContentHeight = Height (no frame overhead). Add import "pass-cli/cmd/tui/styles" at top of file | Restrictions: Do not change existing Width/Height calculations, do not modify breakpoint logic, preserve all existing layout behavior, only ADD content dimension calculations after Width/Height are set | Success: All PanelDimensions have ContentWidth/ContentHeight populated correctly, bordered panels use GetFrameSize() methods, non-bordered panels have content dimensions equal to total dimensions, code compiles without errors | Instructions: After completing this task, update tasks.md to mark task 2 as complete [x] and mark task 3 as in-progress [-]_
 
-- [ ] 3. Remove hardcoded border overhead constants from renderDashboardView()
+- [x] 3. Remove hardcoded border overhead constants from renderDashboardView()
   - File: cmd/tui/helpers.go
   - Delete const borderWidth = 4 and borderHeight = 2 constants (lines 211-212)
   - Remove all manual border overhead subtraction (lines 220-271)
@@ -26,7 +26,7 @@
   - _Requirements: 2.5 (zero hardcoded border overhead constants), 5.1 (Clear Documentation)_
   - _Prompt: Implement the task for spec tui-layout-system, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Go refactoring specialist | Task: Refactor renderDashboardView() in cmd/tui/helpers.go following requirements 2.5 and 5.1 by removing hardcoded border overhead constants. Changes: 1) Delete lines 211-212 (const borderWidth = 4, const borderHeight = 2), 2) Remove all manual overhead subtraction in lines 220-271 where we calculate mainPanelWidth = layout.Main.Width - borderWidth (and similar for sidebar/metadata), 3) For now, use style.Width(layout.Panel.Width).Height(layout.Panel.Height) WITHOUT subtracting anything - we'll fix the dimensions in the next task using ContentWidth/ContentHeight | Restrictions: Do not change lipgloss.JoinHorizontal/JoinVertical logic, do not change focus state logic, ensure code still compiles (it will render incorrectly but that's expected - next task fixes it) | Success: No hardcoded borderWidth/borderHeight constants remain, no manual subtraction of 4 or 2 from dimensions, code compiles without errors | Instructions: After completing this task, update tasks.md to mark task 3 as complete [x] and mark task 4 as in-progress [-]_
 
-- [ ] 4. Use GetFrameSize() for correct dimension calculation in renderDashboardView()
+- [x] 4. Use GetFrameSize() for correct dimension calculation in renderDashboardView()
   - File: cmd/tui/helpers.go (continue from task 3)
   - Calculate content width/height using GetFrameSize() before applying styles
   - Use ContentWidth/ContentHeight from layout for component SetSize() calls

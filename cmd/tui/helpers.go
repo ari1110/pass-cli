@@ -129,37 +129,37 @@ func (m *Model) recalculateLayout() {
 		return
 	}
 
-	// Update sidebar
+	// Update sidebar (using ContentWidth/ContentHeight for bordered panels)
 	if m.sidebar != nil && m.sidebarVisible {
-		m.sidebar.SetSize(layout.Sidebar.Width, layout.Sidebar.Height)
+		m.sidebar.SetSize(layout.Sidebar.ContentWidth, layout.Sidebar.ContentHeight)
 	}
 
-	// Update main content (list or detail view)
+	// Update main content (list or detail view) (using ContentWidth/ContentHeight for bordered panels)
 	if m.listView != nil && m.state == StateList {
-		m.listView.SetSize(layout.Main.Width, layout.Main.Height)
+		m.listView.SetSize(layout.Main.ContentWidth, layout.Main.ContentHeight)
 	}
 	if m.detailView != nil && m.state == StateDetail {
-		m.detailView.SetSize(layout.Main.Width, layout.Main.Height)
+		m.detailView.SetSize(layout.Main.ContentWidth, layout.Main.ContentHeight)
 	}
 
-	// Update metadata panel
+	// Update metadata panel (using ContentWidth/ContentHeight for bordered panels)
 	if m.metadataPanel != nil && m.metadataVisible {
-		m.metadataPanel.SetSize(layout.Metadata.Width, layout.Metadata.Height)
+		m.metadataPanel.SetSize(layout.Metadata.ContentWidth, layout.Metadata.ContentHeight)
 	}
 
-	// Update process panel
+	// Update process panel (non-bordered, ContentWidth == Width)
 	if m.processPanel != nil && m.processVisible {
-		m.processPanel.SetSize(layout.Process.Width, layout.Process.Height)
+		m.processPanel.SetSize(layout.Process.ContentWidth, layout.Process.ContentHeight)
 	}
 
-	// Update command bar
+	// Update command bar (non-bordered, ContentWidth == Width)
 	if m.commandBar != nil && m.commandBarOpen {
-		m.commandBar.SetSize(layout.CommandBar.Width, layout.CommandBar.Height)
+		m.commandBar.SetSize(layout.CommandBar.ContentWidth, layout.CommandBar.ContentHeight)
 	}
 
-	// Update breadcrumb
+	// Update breadcrumb (uses main panel's content width)
 	if m.breadcrumb != nil {
-		m.breadcrumb.SetSize(layout.Main.Width)
+		m.breadcrumb.SetSize(layout.Main.ContentWidth)
 	}
 }
 
@@ -206,19 +206,17 @@ func (m *Model) renderDashboardView() string {
 		mainContent = m.detailView.View()
 	}
 
-	// Border overhead: border (2) + padding (2) = 4 width, 2 height
-	// Subtract this when rendering so total size matches layout allocation
-	const borderWidth = 4
-	const borderHeight = 2
-
 	// Apply panel border styling
 	mainPanelStyle := styles.InactivePanelBorderStyle
 	if m.panelFocus == FocusMain {
 		mainPanelStyle = styles.ActivePanelBorderStyle
 	}
-	// Subtract border overhead so total rendered size = layout allocation
-	mainPanelWidth := layout.Main.Width - borderWidth
-	mainPanelHeight := layout.Main.Height - borderHeight
+	// Lipgloss .Width(n) adds frame on top, so we subtract frame size first
+	// Get frame overhead (border + padding) to calculate content dimensions
+	horizontalFrame := mainPanelStyle.GetHorizontalFrameSize()
+	verticalFrame := mainPanelStyle.GetVerticalFrameSize()
+	mainPanelWidth := layout.Main.Width - horizontalFrame
+	mainPanelHeight := layout.Main.Height - verticalFrame
 	if mainPanelWidth < 10 {
 		mainPanelWidth = 10
 	}
@@ -237,9 +235,11 @@ func (m *Model) renderDashboardView() string {
 		if m.panelFocus == FocusSidebar {
 			sidebarStyle = styles.ActivePanelBorderStyle
 		}
-		// Subtract border overhead
-		sidebarWidth := layout.Sidebar.Width - borderWidth
-		sidebarHeight := layout.Sidebar.Height - borderHeight
+		// Get frame overhead (border + padding) to calculate content dimensions
+		horizontalFrame := sidebarStyle.GetHorizontalFrameSize()
+		verticalFrame := sidebarStyle.GetVerticalFrameSize()
+		sidebarWidth := layout.Sidebar.Width - horizontalFrame
+		sidebarHeight := layout.Sidebar.Height - verticalFrame
 		if sidebarWidth < 10 {
 			sidebarWidth = 10
 		}
@@ -260,9 +260,11 @@ func (m *Model) renderDashboardView() string {
 		if m.panelFocus == FocusMetadata {
 			metadataStyle = styles.ActivePanelBorderStyle
 		}
-		// Subtract border overhead
-		metadataWidth := layout.Metadata.Width - borderWidth
-		metadataHeight := layout.Metadata.Height - borderHeight
+		// Get frame overhead (border + padding) to calculate content dimensions
+		horizontalFrame := metadataStyle.GetHorizontalFrameSize()
+		verticalFrame := metadataStyle.GetVerticalFrameSize()
+		metadataWidth := layout.Metadata.Width - horizontalFrame
+		metadataHeight := layout.Metadata.Height - verticalFrame
 		if metadataWidth < 10 {
 			metadataWidth = 10
 		}
