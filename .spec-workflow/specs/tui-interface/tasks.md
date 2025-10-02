@@ -88,7 +88,7 @@
   - _Requirements: REQ-10_
   - _Prompt: Role: UI Designer with terminal color scheme expertise | Task: Create centralized theme file with all styling following REQ-10, use Go cyan as primary brand color, maintain 4.5:1 contrast ratio, apply consistently throughout all views | Restrictions: All colors in one place, graceful degradation for basic terminals, rounded borders for modals, subtle colors for decorative elements, bold colors only for important info | Success: theme.go created with color constants and style definitions, all views import and use theme styles, selected items use bold primary background, errors in red, success in green, keychain indicator uses success/warning colors, borders use subtle gray, consistent padding, professional cohesive look_
 
-- [ ] 12. Add TUI unit tests
+- [x] 12. Add TUI unit tests
   - File: cmd/tui/model_test.go, cmd/tui/update_test.go, cmd/tui/views/list_test.go, cmd/tui/views/detail_test.go, cmd/tui/views/form_add_test.go, cmd/tui/components/statusbar_test.go
   - Create unit tests for TUI components and logic
   - Purpose: Ensure reliability and catch regressions with 80%+ coverage
