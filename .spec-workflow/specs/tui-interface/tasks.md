@@ -16,7 +16,7 @@
   - _Requirements: REQ-1, REQ-12_
   - _Prompt: Role: Go Developer specializing in CLI application architecture | Task: Modify main.go to check len(os.Args)==1 and call tui.Run() if true, otherwise call cmd.Execute() for CLI mode following REQ-1 and REQ-12, create cmd/tui/tui.go with stub Run() function | Restrictions: Must not break existing CLI behavior, preserve all existing functionality, TUI only when exactly zero arguments | Success: Running pass-cli without args launches TUI stub, running with any args executes CLI commands unchanged_
 
-- [ ] 3. Create main TUI model and initialization
+- [x] 3. Create main TUI model and initialization
   - File: cmd/tui/model.go, cmd/tui/tui.go, cmd/tui/messages.go, cmd/tui/keys.go
   - Implement core Bubble Tea model structure with state management and vault unlocking
   - Purpose: Establish foundation for all TUI views and state transitions

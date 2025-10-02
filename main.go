@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"pass-cli/cmd"
 	"pass-cli/cmd/tui"
@@ -10,6 +11,7 @@ func main() {
 	// If no arguments provided, launch TUI mode
 	if len(os.Args) == 1 {
 		if err := tui.Run(); err != nil {
+			fmt.Fprintln(os.Stderr, "Error:", err)
 			os.Exit(1)
 		}
 		return
