@@ -400,7 +400,15 @@ go mod verify
 
 ## Contributing
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for contribution guidelines.
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes following the development workflow above
+4. Run all tests and quality checks (`make pre-commit`)
+5. Submit a pull request
+
+For questions or discussions, visit [GitHub Discussions](https://github.com/ari1110/pass-cli/discussions).
 
 ## Getting Help
 

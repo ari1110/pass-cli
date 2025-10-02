@@ -301,10 +301,10 @@ goreleaser release --snapshot --clean --skip=publish
 Add to README.md:
 
 ```markdown
-[![CI](https://github.com/username/pass-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/username/pass-cli/actions/workflows/ci.yml)
-[![Release](https://github.com/username/pass-cli/actions/workflows/release.yml/badge.svg)](https://github.com/username/pass-cli/actions/workflows/release.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/username/pass-cli)](https://goreportcard.com/report/github.com/username/pass-cli)
-[![codecov](https://codecov.io/gh/username/pass-cli/branch/main/graph/badge.svg)](https://codecov.io/gh/username/pass-cli)
+[![CI](https://github.com/ari1110/pass-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/ari1110/pass-cli/actions/workflows/ci.yml)
+[![Release](https://github.com/ari1110/pass-cli/actions/workflows/release.yml/badge.svg)](https://github.com/ari1110/pass-cli/actions/workflows/release.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ari1110/pass-cli)](https://goreportcard.com/report/github.com/ari1110/pass-cli)
+[![codecov](https://codecov.io/gh/ari1110/pass-cli/branch/main/graph/badge.svg)](https://codecov.io/gh/ari1110/pass-cli)
 ```
 
 ## Security
@@ -344,4 +344,4 @@ Potential workflow improvements:
 - [GoReleaser Documentation](https://goreleaser.com)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [Release Process](RELEASE.md)
-- [Contributing Guidelines](../CONTRIBUTING.md)
+- [Development Guide](DEVELOPMENT.md)
