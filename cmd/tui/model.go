@@ -31,8 +31,7 @@ type Model struct {
 	vaultPath    string
 
 	// Data
-	credentials   []vault.CredentialMetadata
-	selectedIndex int
+	credentials []vault.CredentialMetadata
 
 	// Views
 	listView    *views.ListView
