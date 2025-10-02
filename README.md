@@ -6,14 +6,14 @@ Pass-CLI is a fast, secure password and API key manager that stores credentials 
 
 ## ✨ Key Features
 
-- **🔒 Military-Grade Encryption**: AES-256-GCM with PBKDF2 key derivation (600,000 iterations)
+- **🔒 Military-Grade Encryption**: AES-256-GCM with PBKDF2 key derivation (100,000 iterations)
 - **🔐 System Keychain Integration**: Seamless integration with Windows Credential Manager, macOS Keychain, and Linux Secret Service
 - **⚡ Lightning Fast**: Sub-100ms credential retrieval for smooth workflows
 - **🖥️ Cross-Platform**: Single binary for Windows, macOS (Intel/ARM), and Linux (amd64/arm64)
 - **📋 Clipboard Support**: Automatic credential copying with security timeouts
 - **🔑 Password Generation**: Cryptographically secure random passwords
 - **📊 Usage Tracking**: Automatic tracking of where credentials are used
-- **🤖 Script-Friendly**: Clean output modes for shell integration (`--quiet`, `--field`, `--json`)
+- **🤖 Script-Friendly**: Clean output modes for shell integration (`--quiet`, `--field`, `--masked`, `--no-clipboard`)
 - **🔌 Offline First**: No cloud dependencies, works completely offline
 - **📦 Easy Installation**: Available via Homebrew and Scoop
 
@@ -24,22 +24,22 @@ Pass-CLI is a fast, secure password and API key manager that stores credentials 
 #### macOS / Linux (Homebrew)
 
 ```bash
-# Coming soon - Add tap and install
-brew tap yourusername/pass-cli
+# Add tap and install
+brew tap ari1110/homebrew-tap
 brew install pass-cli
 ```
 
 #### Windows (Scoop)
 
 ```powershell
-# Coming soon - Add bucket and install
-scoop bucket add pass-cli https://github.com/yourusername/scoop-pass-cli
+# Add bucket and install
+scoop bucket add pass-cli https://github.com/ari1110/scoop-bucket
 scoop install pass-cli
 ```
 
 #### Manual Installation
 
-Download the latest release for your platform from [GitHub Releases](https://github.com/yourusername/pass-cli/releases):
+Download the latest release for your platform from [GitHub Releases](https://github.com/ari1110/pass-cli/releases):
 
 ```bash
 # Extract and move to PATH
@@ -110,8 +110,8 @@ pass-cli get myservice --quiet
 # Get specific field
 pass-cli get myservice --field username
 
-# JSON output for parsing
-pass-cli get myservice --json
+# Display with masked password
+pass-cli get myservice --masked
 ```
 
 ### List Credentials
@@ -120,11 +120,8 @@ pass-cli get myservice --json
 # List all credentials
 pass-cli list
 
-# Verbose mode (with metadata)
-pass-cli list --verbose
-
-# JSON output
-pass-cli list --json
+# Show unused credentials
+pass-cli list --unused
 ```
 
 ### Update Credentials
@@ -183,7 +180,7 @@ pass-cli version --verbose
 ### Encryption
 
 - **Algorithm**: AES-256-GCM (Galois/Counter Mode)
-- **Key Derivation**: PBKDF2-SHA256 with 600,000 iterations
+- **Key Derivation**: PBKDF2-SHA256 with 100,000 iterations
 - **Salt**: Unique 32-byte random salt per vault
 - **Authentication**: Built-in authentication tag (GCM) prevents tampering
 - **IV**: Unique initialization vector per credential
@@ -276,43 +273,12 @@ steps:
 | (default) | Formatted table | Human-readable display |
 | `--quiet` | Password only | Scripts, export to variables |
 | `--field <name>` | Specific field | Extract username, URL, etc. |
-| `--json` | JSON object | Parsing with jq, Python, etc. |
+| `--masked` | Masked password | Display password as asterisks |
 | `--copy` | Clipboard | Quick copy without display |
-
-### JSON Parsing Examples
-
-**With jq**:
-
-```bash
-# Extract username
-pass-cli get github --json | jq -r '.username'
-
-# Get all usernames
-pass-cli list --json | jq -r '.[].username'
-
-# Filter by URL
-pass-cli list --json | jq '.[] | select(.url | contains("github"))'
-```
-
-**With Python**:
-
-```python
-import json
-import subprocess
-
-# Get credential as JSON
-result = subprocess.run(
-    ['pass-cli', 'get', 'myservice', '--json'],
-    capture_output=True,
-    text=True
-)
-cred = json.loads(result.stdout)
-password = cred['password']
-```
 
 ## 📊 Usage Tracking
 
-Pass-CLI automatically tracks where credentials are accessed:
+Pass-CLI automatically tracks where credentials are accessed based on your current working directory:
 
 ```bash
 # Access from different directories
@@ -322,15 +288,15 @@ pass-cli get database
 cd ~/project-b
 pass-cli get database
 
-# View usage information
-pass-cli get database --json
-# Shows: "used_in": ["/home/user/project-a", "/home/user/project-b"]
+# View usage information with list command
+pass-cli list --unused --days 30
 ```
 
 This helps you:
 - Identify which projects use which credentials
 - Track credential usage patterns
 - Audit credential access
+- Find unused credentials for cleanup
 
 ## 🛠️ Advanced Usage
 
@@ -373,7 +339,7 @@ vault: ~/.pass-cli/vault.enc
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pass-cli.git
+git clone https://github.com/ari1110/pass-cli.git
 cd pass-cli
 
 # Build binary
@@ -457,9 +423,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔗 Links
 
 - **Documentation**: [docs/](docs/)
-- **Releases**: [GitHub Releases](https://github.com/yourusername/pass-cli/releases)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/pass-cli/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/pass-cli/discussions)
+- **Releases**: [GitHub Releases](https://github.com/ari1110/pass-cli/releases)
+- **Issues**: [GitHub Issues](https://github.com/ari1110/pass-cli/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/ari1110/pass-cli/discussions)
 
 ## ❓ FAQ
 
@@ -470,7 +436,7 @@ Pass-CLI offers:
 - Built-in clipboard support
 - Usage tracking
 - Cross-platform Windows support
-- Script-friendly JSON output
+- Script-friendly output modes (--quiet, --field, --masked)
 - Single binary distribution
 
 ### Is my data stored in the cloud?
@@ -504,8 +470,8 @@ Yes! Pass-CLI is MIT licensed and free for commercial use. It's designed for pro
 
 ## 📞 Support
 
-- **Bug Reports**: [GitHub Issues](https://github.com/yourusername/pass-cli/issues)
-- **Feature Requests**: [GitHub Discussions](https://github.com/yourusername/pass-cli/discussions)
+- **Bug Reports**: [GitHub Issues](https://github.com/ari1110/pass-cli/issues)
+- **Feature Requests**: [GitHub Discussions](https://github.com/ari1110/pass-cli/discussions)
 - **Security Issues**: Email security@example.com (please don't file public issues)
 
 ---
