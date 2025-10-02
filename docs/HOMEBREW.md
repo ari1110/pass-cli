@@ -17,7 +17,7 @@ The Homebrew formula enables easy installation of Pass-CLI on macOS and Linux sy
 
 ```bash
 # Add the tap
-brew tap yourusername/pass-cli
+brew tap ari1110/homebrew-tap
 
 # Install Pass-CLI
 brew install pass-cli
@@ -44,8 +44,8 @@ A Homebrew tap is a GitHub repository that contains Homebrew formulae.
 
 ```bash
 # Clone your new repository
-git clone https://github.com/yourusername/homebrew-pass-cli.git
-cd homebrew-pass-cli
+git clone https://github.com/ari1110/homebrew-tap.git
+cd homebrew-tap
 
 # Create Formula directory
 mkdir -p Formula
@@ -65,7 +65,7 @@ After creating a release, you need to update the SHA256 checksums in the formula
 
 ```bash
 # Download each release artifact and calculate its checksum
-curl -L "https://github.com/yourusername/pass-cli/releases/download/v1.0.0/pass-cli_1.0.0_darwin_amd64.tar.gz" | sha256sum
+curl -L "https://github.com/ari1110/pass-cli/releases/download/v0.0.1/pass-cli_0.0.1_darwin_amd64.tar.gz" | sha256sum
 
 # Repeat for each platform:
 # - darwin_amd64
@@ -85,7 +85,7 @@ curl -L "https://github.com/yourusername/pass-cli/releases/download/v1.0.0/pass-
 brew install --build-from-source homebrew/pass-cli.rb
 
 # Or use brew install with the tap
-brew install --debug --verbose yourusername/pass-cli/pass-cli
+brew install --debug --verbose ari1110/homebrew-tap/pass-cli
 
 # Test the installation
 pass-cli version
@@ -159,11 +159,11 @@ Test on all supported platforms:
 5. **Create Pull Request**
    ```bash
    git add Formula/pass-cli.rb
-   git commit -m "pass-cli 1.0.0 (new formula)"
+   git commit -m "pass-cli 0.0.1 (new formula)"
    git push origin pass-cli
 
    # Create PR on GitHub
-   gh pr create --title "pass-cli 1.0.0 (new formula)" \
+   gh pr create --title "pass-cli 0.0.1 (new formula)" \
                 --body "Secure CLI password manager with AES-256-GCM encryption"
    ```
 
@@ -177,7 +177,7 @@ Your submission must include:
 - [ ] Accurate description and homepage
 - [ ] Valid license
 - [ ] SHA256 checksums for all platforms
-- [ ] Commit message format: `pass-cli 1.0.0 (new formula)`
+- [ ] Commit message format: `pass-cli 0.0.1 (new formula)`
 
 ## Updating the Formula
 
@@ -190,7 +190,7 @@ When releasing a new version:
 
 2. **Update URLs**
    ```ruby
-   url "https://github.com/yourusername/pass-cli/releases/download/v1.1.0/..."
+   url "https://github.com/ari1110/pass-cli/releases/download/v1.1.0/..."
    ```
 
 3. **Update SHA256 Checksums**
@@ -220,8 +220,8 @@ Consider adding automation to update checksums:
 ```bash
 # Example script to calculate checksums
 #!/bin/bash
-VERSION="1.0.0"
-BASE_URL="https://github.com/yourusername/pass-cli/releases/download/v${VERSION}"
+VERSION="0.0.1"
+BASE_URL="https://github.com/ari1110/pass-cli/releases/download/v${VERSION}"
 
 for os in darwin linux; do
   for arch in amd64 arm64; do

@@ -35,7 +35,7 @@
   - _Requirements: FR-2, NFR-2_
   - _Prompt: Implement the task for spec docs-review-update, first run spec-workflow-guide to get the workflow guide then implement the task: Role: DevOps Engineer with expertise in package management and cross-platform distribution | Task: Verify and update INSTALLATION.md with accurate URLs, artifacts, and platform-specific instructions for v0.0.1 following requirement FR-2 | Restrictions: All URLs must point to actual repositories/releases, installation steps must be tested on each platform, checksum instructions must be verifiable | _Leverage: gh release view for actual artifacts, Homebrew tap repository, Scoop bucket repository, GoReleaser output | _Requirements: FR-2 (Critical Documentation), NFR-2 (Accuracy) | Success: All installation methods documented correctly, URLs are functional, manual installation steps match actual v0.0.1 artifacts, checksums are accurate | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 4. Verify and fix USAGE.md
+- [x] 4. Verify and fix USAGE.md
   - File: docs/USAGE.md
   - Verify all command examples use correct CLI syntax
   - Ensure flags match implementation (--quiet, --field, --masked, --no-clipboard; NOT --json)
@@ -47,7 +47,7 @@
   - _Requirements: FR-2, FR-5, NFR-2_
   - _Prompt: Implement the task for spec docs-review-update, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Technical Writer with CLI expertise and hands-on testing experience | Task: Verify and update USAGE.md ensuring all commands, flags, and examples are accurate for v0.0.1, removing any unimplemented features like --json following requirements FR-2 and FR-5 | Restrictions: Every command example must be tested and work, only document implemented flags per product.md, script examples must use v0.0.1 features only | _Leverage: pass-cli binary for testing, --help output for syntax verification, product.md for implemented features, tech.md for script-friendly design | _Requirements: FR-2 (Critical Documentation), FR-5 (Consistency), NFR-2 (Executable Examples) | Success: All commands tested and working, flags match implementation exactly (--quiet/--field/--masked/--no-clipboard yes, --json no), script examples functional, usage tracking accurately described | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 5. Verify and fix SECURITY.md
+- [x] 5. Verify and fix SECURITY.md
   - File: docs/SECURITY.md
   - Verify encryption specs match tech.md (AES-256-GCM, PBKDF2 100k iterations)
   - Ensure keychain integration details are accurate per platform
@@ -71,7 +71,7 @@
   - _Requirements: FR-3, NFR-2_
   - _Prompt: Implement the task for spec docs-review-update, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Developer Experience Engineer with Go expertise and build system knowledge | Task: Verify and update DEVELOPMENT.md ensuring all versions, commands, and setup instructions match current development environment per tech.md following requirement FR-3 | Restrictions: All commands must be tested and work, versions must match go.mod and tech.md exactly, setup instructions must be complete | _Leverage: go.mod for dependency versions, Makefile for build commands, tech.md for authoritative tech specs (Go 1.25+, specific library versions) | _Requirements: FR-3 (Developer Documentation Alignment), NFR-2 (Accuracy) | Success: Go version is 1.25+, dependency versions match tech.md, build commands work, development setup is complete and tested | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 7. Verify and fix CI-CD.md
+- [x] 7. Verify and fix CI-CD.md
   - File: docs/CI-CD.md
   - Update GitHub Actions versions to reflect recent dependency updates
   - Verify workflow descriptions match actual .github/workflows/ files
@@ -83,7 +83,7 @@
   - _Requirements: FR-3, NFR-2_
   - _Prompt: Implement the task for spec docs-review-update, first run spec-workflow-guide to get the workflow guide then implement the task: Role: DevOps Engineer with GitHub Actions expertise and CI/CD pipeline knowledge | Task: Verify and update CI-CD.md ensuring all workflow descriptions, action versions, and secrets match current GitHub Actions setup following requirement FR-3 | Restrictions: Must match actual workflow files exactly, action versions must reflect recent updates (setup-go v6, checkout v5, etc.), badge URLs must be functional | _Leverage: .github/workflows/ci.yml and release.yml for actual configuration, recent PR merges for action version updates | _Requirements: FR-3 (Developer Documentation), NFR-2 (Accuracy) | Success: GitHub Actions versions current (post-dependency updates), workflow descriptions match reality, secrets documented correctly, badges functional | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 8. Verify and fix RELEASE.md
+- [x] 8. Verify and fix RELEASE.md
   - File: docs/RELEASE.md
   - Verify release process matches .goreleaser.yml configuration
   - Update version tagging conventions (currently v0.0.1)
@@ -95,7 +95,7 @@
   - _Requirements: FR-3, NFR-2_
   - _Prompt: Implement the task for spec docs-review-update, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Release Manager with GoReleaser expertise and package distribution knowledge | Task: Verify and update RELEASE.md ensuring release process documentation matches actual GoReleaser configuration and v0.0.1 release experience following requirement FR-3 | Restrictions: Process must match .goreleaser.yml exactly, version conventions must reflect actual tagging (v0.0.1), distribution channels must be accurate | _Leverage: .goreleaser.yml for configuration details, v0.0.1 release artifacts and process, PAT configuration for auto-updates | _Requirements: FR-3 (Developer Documentation), NFR-2 (Accuracy) | Success: Release process matches GoReleaser config, version tagging documented correctly, distribution channels accurate, PAT setup clear, dry-run instructions work | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 9. Verify and fix TROUBLESHOOTING.md
+- [x] 9. Verify and fix TROUBLESHOOTING.md
   - File: docs/TROUBLESHOOTING.md
   - Verify common issues reflect v0.0.1 known issues
   - Ensure platform-specific problems are accurate
@@ -107,7 +107,7 @@
   - _Requirements: FR-4, NFR-2_
   - _Prompt: Implement the task for spec docs-review-update, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Technical Support Engineer with troubleshooting expertise and cross-platform knowledge | Task: Verify and update TROUBLESHOOTING.md ensuring common issues, platform-specific problems, and solutions are accurate for v0.0.1 following requirement FR-4 | Restrictions: Solutions must be tested and work, issues must be real not hypothetical, contact info must be current | _Leverage: GitHub issues for real user problems, testing experience across platforms, product.md for clarifying expected behavior | _Requirements: FR-4 (Operational Documentation), NFR-2 (Accuracy), NFR-3 (Completeness) | Success: Common issues documented, platform-specific problems covered, solutions tested and working, contact info current, FAQ answers real questions | Instructions: Mark this task as in-progress [-] in tasks.md when starting, then mark as complete [x] when finished_
 
-- [ ] 10. Verify and fix HOMEBREW.md and SCOOP.md
+- [x] 10. Verify and fix HOMEBREW.md and SCOOP.md
   - Files: docs/HOMEBREW.md, docs/SCOOP.md
   - Verify formula/manifest locations are correct
   - Ensure auto-update configuration matches GoReleaser setup

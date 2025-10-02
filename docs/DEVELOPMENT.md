@@ -21,7 +21,7 @@ This guide covers the development workflow for Pass-CLI contributors.
 
 ```bash
 # Clone the repository
-git clone https://github.com/username/pass-cli.git
+git clone https://github.com/ari1110/pass-cli.git
 cd pass-cli
 
 # Install dependencies
@@ -404,8 +404,8 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for contribution guidelines.
 
 ## Getting Help
 
-- **Issues**: [GitHub Issues](https://github.com/username/pass-cli/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/username/pass-cli/discussions)
+- **Issues**: [GitHub Issues](https://github.com/ari1110/pass-cli/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/ari1110/pass-cli/discussions)
 - **Documentation**: [docs/](.)
 
 ## Resources

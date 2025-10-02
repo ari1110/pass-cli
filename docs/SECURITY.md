@@ -612,5 +612,5 @@ pass-cli version
 ---
 
 **Last Updated**: 2025-01-20
-**Version**: 1.0.0
+**Version**: v0.0.1
 **Maintained By**: Pass-CLI Security Team

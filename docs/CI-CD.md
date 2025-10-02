@@ -92,6 +92,20 @@ This document describes the automated CI/CD pipeline for Pass-CLI.
 - Release artifacts retained for 30 days
 - Coverage reports uploaded to Codecov
 
+### GitHub Actions Versions
+
+Current action versions in use:
+
+- **actions/checkout**: v5
+- **actions/setup-go**: v6
+- **actions/upload-artifact**: v4
+- **actions/download-artifact**: v5
+- **codecov/codecov-action**: v5
+- **golangci/golangci-lint-action**: v8 (with golangci-lint v2.5)
+- **securego/gosec**: master
+- **github/codeql-action/upload-sarif**: v3
+- **goreleaser/goreleaser-action**: v6
+
 ## Dependabot Integration
 
 **Configuration**: `.github/dependabot.yml`
@@ -241,10 +255,10 @@ goreleaser release --snapshot --clean --skip=publish
 - **Issue**: golangci-lint fails with "binary was built with go X but current version is Y"
 - **Root Cause**: golangci-lint must be built with a Go version >= the project's Go version
 - **Solution**: Pin golangci-lint to a version built with compatible Go
-- **Example**: For Go 1.25+ projects, use golangci-lint v2.5+ with golangci-lint-action v7
+- **Example**: For Go 1.25+ projects, use golangci-lint v2.5+ with golangci-lint-action v8
   ```yaml
   - name: Run golangci-lint
-    uses: golangci/golangci-lint-action@v7
+    uses: golangci/golangci-lint-action@v8
     with:
       version: v2.5  # Built with Go 1.25+
   ```

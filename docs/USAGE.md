@@ -170,7 +170,6 @@ pass-cli get <service> [flags]
 | `--copy` | `-c` | bool | Copy to clipboard only (no display) |
 | `--no-clipboard` | | bool | Skip clipboard copy |
 | `--masked` | | bool | Display password as asterisks |
-| `--json` | | bool | Output as JSON |
 
 #### Field Options
 
@@ -209,9 +208,6 @@ pass-cli get github --no-clipboard
 
 # Display with masked password
 pass-cli get github --masked
-
-# JSON output
-pass-cli get github --json
 ```
 
 #### Output Examples
@@ -237,21 +233,6 @@ mySecretPassword123!
 ```bash
 $ pass-cli get github --field username --quiet
 user@example.com
-```
-
-**JSON output:**
-```json
-{
-  "service": "github",
-  "username": "user@example.com",
-  "password": "mySecretPassword123!",
-  "url": "https://github.com",
-  "notes": "Personal account",
-  "created": "2025-01-15T10:30:00Z",
-  "modified": "2025-01-15T10:30:00Z",
-  "accessed": "2025-01-20T14:22:00Z",
-  "used_in": ["/home/user/project-a", "/home/user/project-b"]
-}
 ```
 
 #### Notes
@@ -310,21 +291,6 @@ pass-cli list --unused --days 90
 | aws-prod | admin@company.com    | 2025-01-18 09:15    |
 | database | dbuser               | 2025-01-15 16:30    |
 +----------+----------------------+---------------------+
-```
-
-**JSON format:**
-```json
-[
-  {
-    "service": "github",
-    "username": "user@example.com",
-    "url": "https://github.com",
-    "created": "2025-01-15T10:30:00Z",
-    "modified": "2025-01-15T10:30:00Z",
-    "accessed": "2025-01-20T14:22:00Z"
-  },
-  ...
-]
 ```
 
 **Simple format:**
@@ -593,19 +559,6 @@ pass-cli get github --field username --quiet
 # user@example.com
 ```
 
-### JSON Mode
-
-Structured data for parsing.
-
-```bash
-pass-cli get github --json | jq '.username'
-# "user@example.com"
-
-pass-cli list --format json | jq '.[].service'
-# "github"
-# "aws-prod"
-```
-
 ### Simple Mode (List Only)
 
 Service names only, one per line.
@@ -698,20 +651,6 @@ try {
 
 ```python
 import subprocess
-import json
-
-# Get credential
-result = subprocess.run(
-    ['pass-cli', 'get', 'github', '--json'],
-    capture_output=True,
-    text=True,
-    check=True
-)
-cred = json.loads(result.stdout)
-
-# Use credential
-username = cred['username']
-password = cred['password']
 
 # Get password only
 result = subprocess.run(
@@ -721,6 +660,15 @@ result = subprocess.run(
     check=True
 )
 password = result.stdout.strip()
+
+# Get specific field
+result = subprocess.run(
+    ['pass-cli', 'get', 'github', '--field', 'username', '--quiet'],
+    capture_output=True,
+    text=True,
+    check=True
+)
+username = result.stdout.strip()
 ```
 
 ### Makefile Examples
@@ -801,9 +749,7 @@ Pass-CLI automatically tracks where credentials are accessed based on your curre
 cd ~/projects/my-app
 pass-cli get database
 
-# Later, view tracking info
-pass-cli get database --json | jq '.used_in'
-# ["/home/user/projects/my-app"]
+# Usage tracking is automatic based on current directory
 ```
 
 ### Use Cases
@@ -815,9 +761,6 @@ pass-cli get database --json | jq '.used_in'
 ### Viewing Usage
 
 ```bash
-# JSON output includes usage tracking
-pass-cli get myservice --json
-
 # List unused credentials
 pass-cli list --unused --days 30
 ```
@@ -905,4 +848,4 @@ echo "$NEW_PWD" | some-service-update-command
 - Run any command with `--help` flag
 - See [README](../README.md) for overview
 - Check [Troubleshooting Guide](TROUBLESHOOTING.md) for common issues
-- Visit [GitHub Issues](https://github.com/yourusername/pass-cli/issues)
+- Visit [GitHub Issues](https://github.com/ari1110/pass-cli/issues)

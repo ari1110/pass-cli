@@ -90,8 +90,8 @@ brew update
 brew doctor
 
 # Remove and re-add tap
-brew untap yourusername/pass-cli
-brew tap yourusername/pass-cli
+brew untap ari1110/pass-cli
+brew tap ari1110/pass-cli
 
 # Try verbose installation
 brew install --verbose pass-cli
@@ -116,7 +116,7 @@ scoop status
 
 # Remove and re-add bucket
 scoop bucket rm pass-cli
-scoop bucket add pass-cli https://github.com/yourusername/scoop-pass-cli
+scoop bucket add pass-cli https://github.com/ari1110/scoop-pass-cli
 
 # Clear cache and retry
 scoop cache rm pass-cli
@@ -149,7 +149,7 @@ xattr -d com.apple.quarantine /usr/local/bin/pass-cli
 
 **Option 3: Build from source** (trusted)
 ```bash
-git clone https://github.com/yourusername/pass-cli
+git clone https://github.com/ari1110/pass-cli
 cd pass-cli
 make build
 sudo mv pass-cli /usr/local/bin/
@@ -965,7 +965,7 @@ A: Individual credentials cannot be recovered:
    - [Installation Guide](INSTALLATION.md)
    - [Usage Guide](USAGE.md)
    - [Security Documentation](SECURITY.md)
-3. **Search existing issues**: [GitHub Issues](https://github.com/yourusername/pass-cli/issues)
+3. **Search existing issues**: [GitHub Issues](https://github.com/ari1110/pass-cli/issues)
 
 ### Reporting Issues
 
@@ -987,8 +987,8 @@ pass-cli <command> --verbose 2>&1
 
 ### Getting Help
 
-- **GitHub Issues**: [Report bugs](https://github.com/yourusername/pass-cli/issues/new)
-- **GitHub Discussions**: [Ask questions](https://github.com/yourusername/pass-cli/discussions)
+- **GitHub Issues**: [Report bugs](https://github.com/ari1110/pass-cli/issues/new)
+- **GitHub Discussions**: [Ask questions](https://github.com/ari1110/pass-cli/discussions)
 - **Security Issues**: Email security@example.com (don't file publicly)
 
 ---

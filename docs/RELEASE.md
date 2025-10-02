@@ -57,8 +57,8 @@ make check
 
 ```bash
 # Create and push a version tag
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push origin v1.0.0
+git tag -a v0.0.1 -m "Release v0.0.1"
+git push origin v0.0.1
 ```
 
 ### 3. Run GoReleaser
@@ -114,8 +114,10 @@ For each release, GoReleaser creates:
 Pass-CLI follows [Semantic Versioning](https://semver.org/):
 
 - **MAJOR** (v1.0.0): Incompatible API changes
-- **MINOR** (v1.1.0): New features (backward compatible)
-- **PATCH** (v1.0.1): Bug fixes (backward compatible)
+- **MINOR** (v0.1.0): New features (backward compatible)
+- **PATCH** (v0.0.2): Bug fixes (backward compatible)
+
+**Current Release**: v0.0.1 (Initial release)
 
 ## GitHub Actions Integration
 
@@ -142,7 +144,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: '1.25.1'
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6

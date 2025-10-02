@@ -17,7 +17,7 @@ The Scoop manifest enables easy installation of Pass-CLI on Windows systems thro
 
 ```powershell
 # Add the bucket
-scoop bucket add pass-cli https://github.com/yourusername/scoop-pass-cli
+scoop bucket add pass-cli https://github.com/ari1110/scoop-bucket
 
 # Install Pass-CLI
 scoop install pass-cli
@@ -49,8 +49,8 @@ A Scoop bucket is a GitHub repository that contains Scoop manifests.
 
 ```powershell
 # Clone your new repository
-git clone https://github.com/yourusername/scoop-pass-cli.git
-cd scoop-pass-cli
+git clone https://github.com/ari1110/scoop-bucket.git
+cd scoop-bucket
 
 # Create bucket directory structure
 mkdir bucket
@@ -70,7 +70,7 @@ After creating a release, you need to update the SHA256 hashes in the manifest:
 
 ```powershell
 # Download each release artifact and calculate its hash
-$url = "https://github.com/yourusername/pass-cli/releases/download/v1.0.0/pass-cli_1.0.0_windows_amd64.zip"
+$url = "https://github.com/ari1110/pass-cli/releases/download/v0.0.1/pass-cli_0.0.1_windows_amd64.zip"
 $hash = (Get-FileHash (Invoke-WebRequest $url -OutFile temp.zip -PassThru).FullName -Algorithm SHA256).Hash
 
 # Repeat for each architecture:
@@ -83,7 +83,7 @@ $hash = (Get-FileHash (Invoke-WebRequest $url -OutFile temp.zip -PassThru).FullN
 Alternatively, use Scoop's built-in hash tool:
 
 ```powershell
-scoop hash https://github.com/yourusername/pass-cli/releases/download/v1.0.0/pass-cli_1.0.0_windows_amd64.zip
+scoop hash https://github.com/ari1110/pass-cli/releases/download/v0.0.1/pass-cli_0.0.1_windows_amd64.zip
 ```
 
 ## Testing the Manifest
@@ -95,7 +95,7 @@ scoop hash https://github.com/yourusername/pass-cli/releases/download/v1.0.0/pas
 scoop install .\scoop\pass-cli.json
 
 # Or test from the bucket
-scoop bucket add pass-cli https://github.com/yourusername/scoop-pass-cli
+scoop bucket add pass-cli https://github.com/ari1110/scoop-bucket
 scoop install pass-cli
 
 # Test the installation
@@ -132,7 +132,7 @@ Test on all supported Windows architectures:
 
 ```json
 {
-  "version": "1.0.0",              // Current version
+  "version": "0.0.1",              // Current version
   "description": "...",             // Short description
   "homepage": "...",                // Project homepage
   "license": "MIT"                  // License identifier
@@ -169,7 +169,7 @@ Test on all supported Windows architectures:
 ```json
 {
   "checkver": {
-    "github": "https://github.com/yourusername/pass-cli"
+    "github": "https://github.com/ari1110/pass-cli"
   },
   "autoupdate": {
     "architecture": {
@@ -206,8 +206,8 @@ Test on all supported Windows architectures:
 For autoupdate to work, create a `checksums.txt` file with each release:
 
 ```text
-abc123...  pass-cli_1.0.0_windows_amd64.zip
-def456...  pass-cli_1.0.0_windows_arm64.zip
+abc123...  pass-cli_0.0.1_windows_amd64.zip
+def456...  pass-cli_0.0.1_windows_arm64.zip
 ```
 
 This can be automated in your release process:
@@ -284,11 +284,11 @@ checksum:
 5. **Create Pull Request**
    ```powershell
    git add bucket\pass-cli.json
-   git commit -m "pass-cli: Add version 1.0.0"
+   git commit -m "pass-cli: Add version 0.0.1"
    git push origin pass-cli
 
    # Create PR on GitHub
-   gh pr create --title "pass-cli: Add version 1.0.0" `
+   gh pr create --title "pass-cli: Add version 0.0.1" `
                 --body "Secure CLI password manager with AES-256-GCM encryption"
    ```
 
@@ -301,7 +301,7 @@ Your submission must include:
 - [ ] Correct SHA256 hashes
 - [ ] Working autoupdate configuration
 - [ ] Tested installation
-- [ ] Commit message format: `pass-cli: Add version 1.0.0`
+- [ ] Commit message format: `pass-cli: Add version 0.0.1`
 - [ ] PR description explaining the app
 
 ## Updating the Manifest
@@ -317,12 +317,12 @@ When releasing a new version:
 
 2. **Update URLs**
    ```json
-   "url": "https://github.com/yourusername/pass-cli/releases/download/v1.1.0/..."
+   "url": "https://github.com/ari1110/pass-cli/releases/download/v1.1.0/..."
    ```
 
 3. **Update Hashes**
    ```powershell
-   scoop hash https://github.com/yourusername/pass-cli/releases/download/v1.1.0/pass-cli_1.1.0_windows_amd64.zip
+   scoop hash https://github.com/ari1110/pass-cli/releases/download/v1.1.0/pass-cli_1.1.0_windows_amd64.zip
    ```
 
 4. **Test and Submit**
@@ -359,7 +359,7 @@ param(
     [string]$Version
 )
 
-$baseUrl = "https://github.com/yourusername/pass-cli/releases/download/v$Version"
+$baseUrl = "https://github.com/ari1110/pass-cli/releases/download/v$Version"
 $manifest = Get-Content scoop\pass-cli.json | ConvertFrom-Json
 
 # Update version
@@ -413,10 +413,10 @@ Usage:
 
 ```powershell
 # Recalculate the hash
-scoop hash https://github.com/yourusername/pass-cli/releases/download/v1.0.0/pass-cli_1.0.0_windows_amd64.zip
+scoop hash https://github.com/ari1110/pass-cli/releases/download/v0.0.1/pass-cli_0.0.1_windows_amd64.zip
 
 # Or manually
-$hash = (Get-FileHash .\pass-cli_1.0.0_windows_amd64.zip).Hash
+$hash = (Get-FileHash .\pass-cli_0.0.1_windows_amd64.zip).Hash
 ```
 
 ### Installation Fails
