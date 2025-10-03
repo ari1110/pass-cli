@@ -12,7 +12,7 @@ import (
 type playgroundModel struct {
 	width       int
 	height      int
-	currentPage int // 0 = background, 1 = simple flex layout
+	currentPage int // 0 = background, 1 = two panels (1:2), 2 = three panels (1:2:1)
 }
 
 func initialModel() playgroundModel {
@@ -30,7 +30,7 @@ func (m playgroundModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		case "right", "l":
-			if m.currentPage < 1 {
+			if m.currentPage < 2 {
 				m.currentPage++
 			}
 		case "left", "h":
@@ -63,7 +63,9 @@ func (m playgroundModel) View() string {
 	case 0:
 		headerText = "🧪 Dashbrew Playground - Page 0: Background Only"
 	case 1:
-		headerText = "🧪 Dashbrew Playground - Page 1: Flex Layout (2 Panels)"
+		headerText = "🧪 Dashbrew Playground - Page 1: Two Panels (1:2 Ratio)"
+	case 2:
+		headerText = "🧪 Dashbrew Playground - Page 2: Three Panels (1:2:1 Ratio)"
 	}
 
 	header := lipgloss.NewStyle().
@@ -100,13 +102,17 @@ func (m playgroundModel) renderContent(contentHeight int) string {
 			Render("")
 	}
 
-	// Page 1: Simple flex-based layout - two panels side by side
-	// Left panel flex: 1, Right panel flex: 2
-	return m.renderFlexLayout(contentHeight)
+	if m.currentPage == 1 {
+		// Page 1: Two-panel flex layout (1:2 ratio)
+		return m.renderTwoPanelLayout(contentHeight)
+	}
+
+	// Page 2: Three-panel flex layout (1:2:1 ratio)
+	return m.renderThreePanelLayout(contentHeight)
 }
 
-// renderFlexLayout demonstrates flex-based proportional sizing
-func (m playgroundModel) renderFlexLayout(contentHeight int) string {
+// renderTwoPanelLayout demonstrates two-panel flex layout (1:2 ratio)
+func (m playgroundModel) renderTwoPanelLayout(contentHeight int) string {
 	// Flex values
 	leftFlex := 1
 	rightFlex := 2
@@ -158,6 +164,82 @@ func (m playgroundModel) renderFlexLayout(contentHeight int) string {
 
 	// Wrap with background to fill any remaining space
 	// Note: JoinHorizontal doesn't fill background, so we need to do it manually
+	return lipgloss.NewStyle().
+		Background(lipgloss.Color("234")).
+		Width(m.width).
+		Height(contentHeight).
+		Render(joined)
+}
+
+// renderThreePanelLayout demonstrates three-panel flex layout (1:2:1 ratio)
+func (m playgroundModel) renderThreePanelLayout(contentHeight int) string {
+	// Flex values
+	leftFlex := 1
+	centerFlex := 2
+	rightFlex := 1
+	totalFlex := leftFlex + centerFlex + rightFlex
+
+	// Calculate widths based on flex ratio
+	leftWidth := m.width * leftFlex / totalFlex
+	centerWidth := m.width * centerFlex / totalFlex
+	rightWidth := m.width - leftWidth - centerWidth // Remaining space to avoid rounding issues
+
+	// Create a sample style to get frame size
+	sampleStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		Padding(0, 1)
+	horizontalFrame := sampleStyle.GetHorizontalFrameSize()
+	verticalFrame := sampleStyle.GetVerticalFrameSize()
+
+	// Create left panel - Width/Height are CONTENT dimensions
+	leftContentWidth := leftWidth - horizontalFrame
+	leftContentHeight := contentHeight - verticalFrame
+
+	leftPanel := lipgloss.NewStyle().
+		Width(leftContentWidth).
+		Height(leftContentHeight).
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("6")).
+		BorderBackground(lipgloss.Color("234")).
+		Background(lipgloss.Color("237")).
+		Padding(0, 1).
+		Align(lipgloss.Center, lipgloss.Center).
+		Render(fmt.Sprintf("Left\n\nFlex: %d\nWidth: %d", leftFlex, leftWidth))
+
+	// Create center panel
+	centerContentWidth := centerWidth - horizontalFrame
+	centerContentHeight := contentHeight - verticalFrame
+
+	centerPanel := lipgloss.NewStyle().
+		Width(centerContentWidth).
+		Height(centerContentHeight).
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("6")).
+		BorderBackground(lipgloss.Color("234")).
+		Background(lipgloss.Color("237")).
+		Padding(0, 1).
+		Align(lipgloss.Center, lipgloss.Center).
+		Render(fmt.Sprintf("Center\n\nFlex: %d\nWidth: %d", centerFlex, centerWidth))
+
+	// Create right panel
+	rightContentWidth := rightWidth - horizontalFrame
+	rightContentHeight := contentHeight - verticalFrame
+
+	rightPanel := lipgloss.NewStyle().
+		Width(rightContentWidth).
+		Height(rightContentHeight).
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("6")).
+		BorderBackground(lipgloss.Color("234")).
+		Background(lipgloss.Color("237")).
+		Padding(0, 1).
+		Align(lipgloss.Center, lipgloss.Center).
+		Render(fmt.Sprintf("Right\n\nFlex: %d\nWidth: %d", rightFlex, rightWidth))
+
+	// Join panels horizontally
+	joined := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, centerPanel, rightPanel)
+
+	// Wrap with background to fill any remaining space
 	return lipgloss.NewStyle().
 		Background(lipgloss.Color("234")).
 		Width(m.width).
