@@ -177,6 +177,11 @@ func (m playgroundModel) View() string {
 		return "Initializing..."
 	}
 
+	// Reserve space for header (1 line) and footer (1 line)
+	const headerHeight = 1
+	const footerHeight = 1
+	contentHeight := m.height - headerHeight - footerHeight
+
 	var b strings.Builder
 
 	// Header showing current layer
@@ -191,37 +196,37 @@ func (m playgroundModel) View() string {
 
 	switch m.currentLayer {
 	case LayerNone:
-		b.WriteString(m.renderTerminalInfo())
+		b.WriteString(m.renderTerminalInfo(contentHeight))
 
 	case LayerLayout:
-		b.WriteString(m.renderLayoutInfo())
+		b.WriteString(m.renderLayoutInfo(contentHeight))
 
 	case LayerStatusBar:
-		b.WriteString(m.renderStatusBarLayer())
+		b.WriteString(m.renderStatusBarLayer(contentHeight))
 
 	case LayerSidebar:
-		b.WriteString(m.renderSidebarLayer())
+		b.WriteString(m.renderSidebarLayer(contentHeight))
 
 	case LayerMetadata:
-		b.WriteString(m.renderMetadataLayer())
+		b.WriteString(m.renderMetadataLayer(contentHeight))
 
 	case LayerFull:
-		b.WriteString(m.renderFullLayout())
+		b.WriteString(m.renderFullLayout(contentHeight))
 	}
 
-	// Footer with navigation hints
+	// Footer with navigation hints (no extra newline, content should be exact height)
 	footer := lipgloss.NewStyle().
 		Foreground(styles.SubtleColor).
 		Width(m.width).
 		Align(lipgloss.Center).
 		Render("← h/left: Previous Layer | l/right: Next Layer → | q: Quit")
 
-	b.WriteString("\n" + footer)
+	b.WriteString(footer)
 
 	return b.String()
 }
 
-func (m playgroundModel) renderTerminalInfo() string {
+func (m playgroundModel) renderTerminalInfo(contentHeight int) string {
 	info := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(styles.PrimaryColor).
@@ -230,15 +235,16 @@ func (m playgroundModel) renderTerminalInfo() string {
 		Render(fmt.Sprintf(
 			"Terminal Dimensions\n\n"+
 				"Width:  %d columns\n"+
-				"Height: %d rows\n\n"+
+				"Height: %d rows\n"+
+				"Content Height: %d rows\n\n"+
 				"Press → or 'l' to start building layers",
-			m.width, m.height,
+			m.width, m.height, contentHeight,
 		))
 
-	return lipgloss.Place(m.width, m.height-4, lipgloss.Center, lipgloss.Center, info)
+	return lipgloss.Place(m.width, contentHeight, lipgloss.Center, lipgloss.Center, info)
 }
 
-func (m playgroundModel) renderLayoutInfo() string {
+func (m playgroundModel) renderLayoutInfo(contentHeight int) string {
 	states := components.PanelStates{
 		SidebarVisible:   true,
 		MetadataVisible:  true,
@@ -249,11 +255,14 @@ func (m playgroundModel) renderLayoutInfo() string {
 
 	layout := m.layoutMgr.Calculate(m.width, m.height, states)
 
+	// Make info box width responsive
+	infoWidth := min(70, m.width-4)
+
 	info := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(styles.PrimaryColor).
 		Padding(1, 2).
-		Width(70).
+		Width(infoWidth).
 		Render(fmt.Sprintf(
 			"Layout Manager Calculations\n\n"+
 				"Terminal:       %d×%d\n"+
@@ -274,34 +283,50 @@ func (m playgroundModel) renderLayoutInfo() string {
 			layout.StatusBar.Width, layout.StatusBar.Height,
 		))
 
-	return lipgloss.Place(m.width, m.height-4, lipgloss.Center, lipgloss.Center, info)
+	return lipgloss.Place(m.width, contentHeight, lipgloss.Center, lipgloss.Center, info)
 }
 
-func (m playgroundModel) renderStatusBarLayer() string {
-	// Show layout info plus actual status bar
-	layoutInfo := m.renderLayoutInfo()
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
 
-	// Render actual status bar at bottom
+func (m playgroundModel) renderStatusBarLayer(contentHeight int) string {
+	// Render actual status bar
 	m.statusBar.SetSize(m.width)
 	statusBarView := m.statusBar.Render()
 
-	// Combine
-	lines := strings.Split(layoutInfo, "\n")
-	if len(lines) > 3 {
-		lines = lines[:len(lines)-3] // Remove footer space
-	}
+	// Create info about status bar
+	infoHeight := contentHeight - 3 // Reserve 3 lines for title + status bar + spacing
+	infoWidth := min(60, m.width-4)
 
-	content := strings.Join(lines, "\n")
-	content += "\n\n" + lipgloss.NewStyle().
-		Foreground(styles.SuccessColor).
-		Bold(true).
-		Render("Status Bar Preview:") + "\n"
-	content += statusBarView
+	info := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(styles.SuccessColor).
+		Padding(1, 2).
+		Width(infoWidth).
+		Render(fmt.Sprintf(
+			"Status Bar Component\n\n"+
+				"Width: %d\n"+
+				"Height: 1\n"+
+				"Position: Bottom\n\n"+
+				"✓ Rendering at bottom",
+			m.width,
+		))
 
-	return content
+	infoPlaced := lipgloss.Place(m.width, infoHeight, lipgloss.Center, lipgloss.Center, info)
+
+	return infoPlaced + "\n" +
+		lipgloss.NewStyle().Foreground(styles.SuccessColor).Bold(true).Render("Status Bar Preview:") + "\n" +
+		statusBarView
 }
 
-func (m playgroundModel) renderSidebarLayer() string {
+func (m playgroundModel) renderSidebarLayer(contentHeight int) string {
+	// Reserve 1 line for status bar
+	panelHeight := contentHeight - 1
+
 	m.sidebar.SetFocus(true)
 	sidebarView := m.sidebar.View()
 
@@ -325,52 +350,67 @@ func (m playgroundModel) renderSidebarLayer() string {
 			len(m.testCredentials),
 		))
 
-	// Position sidebar at calculated X,Y
+	// Position debug info in remaining space
 	mainWidth := m.width - m.layout.Sidebar.Width
-	debugPlaced := lipgloss.Place(mainWidth, m.layout.Sidebar.Height, lipgloss.Center, lipgloss.Center, debugInfo)
+	debugPlaced := lipgloss.Place(mainWidth, panelHeight, lipgloss.Center, lipgloss.Center, debugInfo)
 
 	content := lipgloss.JoinHorizontal(lipgloss.Top, sidebarView, debugPlaced)
 	m.statusBar.SetSize(m.width)
 	return content + "\n" + m.statusBar.Render()
 }
 
-func (m playgroundModel) renderMetadataLayer() string {
+func (m playgroundModel) renderMetadataLayer(contentHeight int) string {
+	// Reserve 1 line for status bar
+	panelHeight := contentHeight - 1
+
 	m.sidebar.SetFocus(true)
 	m.metadata.SetFocus(false)
 	sidebarView := m.sidebar.View()
 	metadataView := m.metadata.View()
 
-	content := lipgloss.JoinHorizontal(lipgloss.Top, sidebarView, metadataView)
+	// Ensure content fits in available height
+	sidebarResized := lipgloss.NewStyle().Height(panelHeight).Render(sidebarView)
+	metadataResized := lipgloss.NewStyle().Height(panelHeight).Render(metadataView)
+
+	content := lipgloss.JoinHorizontal(lipgloss.Top, sidebarResized, metadataResized)
 	m.statusBar.SetSize(m.width)
 	return content + "\n" + m.statusBar.Render()
 }
 
-func (m playgroundModel) renderFullLayout() string {
-	// For now, same as metadata - we'll add main panel later
+func (m playgroundModel) renderFullLayout(contentHeight int) string {
+	// Reserve 1 line for status bar
+	panelHeight := contentHeight - 1
+
 	m.sidebar.SetFocus(false)
 	m.metadata.SetFocus(true)
 	sidebarView := m.sidebar.View()
 	metadataView := m.metadata.View()
 
 	// Create a simple main panel placeholder
+	mainContent := lipgloss.Place(
+		m.layout.Main.ContentWidth,
+		m.layout.Main.ContentHeight,
+		lipgloss.Center,
+		lipgloss.Center,
+		"[Main Content Area]\n\nList/Detail View Goes Here",
+	)
+
 	mainPanel := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(styles.SubtleColor).
 		Width(m.layout.Main.Width).
-		Height(m.layout.Main.Height).
-		Render(lipgloss.Place(
-			m.layout.Main.ContentWidth,
-			m.layout.Main.ContentHeight,
-			lipgloss.Center,
-			lipgloss.Center,
-			"[Main Content Area]\n\nList/Detail View Goes Here",
-		))
+		Height(panelHeight).
+		Render(mainContent)
+
+	// Ensure all panels fit in available height
+	sidebarResized := lipgloss.NewStyle().Height(panelHeight).Render(sidebarView)
+	metadataResized := lipgloss.NewStyle().Height(panelHeight).Render(metadataView)
 
 	content := lipgloss.JoinHorizontal(
 		lipgloss.Top,
-		sidebarView,
+		sidebarResized,
 		mainPanel,
-		metadataView,
+		metadataResized,
 	)
 
 	m.statusBar.SetSize(m.width)
