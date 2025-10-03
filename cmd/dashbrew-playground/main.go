@@ -12,7 +12,7 @@ import (
 type playgroundModel struct {
 	width       int
 	height      int
-	currentPage int // 0 = background, 1 = two panels (1:2), 2 = three panels (1:2:1), 3 = vertical layout
+	currentPage int // 0 = background, 1 = two panels (1:2), 2 = three panels (1:2:1), 3 = vertical layout, 4 = nested containers
 }
 
 // Minimum terminal dimensions
@@ -36,7 +36,7 @@ func (m playgroundModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		case "right", "l":
-			if m.currentPage < 3 {
+			if m.currentPage < 4 {
 				m.currentPage++
 			}
 		case "left", "h":
@@ -79,6 +79,8 @@ func (m playgroundModel) View() string {
 		headerText = "🧪 Dashbrew Playground - Page 2: Three Panels (1:2:1 Ratio)"
 	case 3:
 		headerText = "🧪 Dashbrew Playground - Page 3: Vertical Layout (1:3:1 Ratio)"
+	case 4:
+		headerText = "🧪 Dashbrew Playground - Page 4: Nested Containers (Row in Column)"
 	}
 
 	header := lipgloss.NewStyle().
@@ -155,8 +157,13 @@ func (m playgroundModel) renderContent(contentHeight int) string {
 		return m.renderThreePanelLayout(contentHeight)
 	}
 
-	// Page 3: Vertical flex layout (1:3:1 ratio)
-	return m.renderVerticalLayout(contentHeight)
+	if m.currentPage == 3 {
+		// Page 3: Vertical flex layout (1:3:1 ratio)
+		return m.renderVerticalLayout(contentHeight)
+	}
+
+	// Page 4: Nested containers (row inside column)
+	return m.renderNestedLayout(contentHeight)
 }
 
 // renderTwoPanelLayout demonstrates two-panel flex layout (1:2 ratio)
@@ -369,6 +376,96 @@ func (m playgroundModel) renderVerticalLayout(contentHeight int) string {
 		Width(m.width).
 		Height(contentHeight).
 		Render(joined)
+}
+
+// renderNestedLayout demonstrates nested containers (row inside column)
+// Similar to our actual TUI: top content area, bottom status bar
+func (m playgroundModel) renderNestedLayout(contentHeight int) string {
+	// Vertical flex (column): divide height
+	contentFlex := 9
+	statusFlex := 1
+	totalVerticalFlex := contentFlex + statusFlex
+
+	// Calculate heights
+	mainContentHeight := contentHeight * contentFlex / totalVerticalFlex
+	statusHeight := contentHeight - mainContentHeight // Remaining
+
+	// Create a sample style to get frame size
+	sampleStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		Padding(0, 1)
+	horizontalFrame := sampleStyle.GetHorizontalFrameSize()
+	verticalFrame := sampleStyle.GetVerticalFrameSize()
+
+	// === NESTED ROW CONTAINER (inside top area) ===
+	// Horizontal flex (row): divide width for sidebar, main, metadata
+	leftFlex := 1
+	centerFlex := 2
+	rightFlex := 1
+	totalHorizontalFlex := leftFlex + centerFlex + rightFlex
+
+	leftWidth := m.width * leftFlex / totalHorizontalFlex
+	centerWidth := m.width * centerFlex / totalHorizontalFlex
+	rightWidth := m.width - leftWidth - centerWidth
+
+	// Create three horizontal panels
+	leftPanel := lipgloss.NewStyle().
+		Width(leftWidth - horizontalFrame).
+		Height(mainContentHeight - verticalFrame).
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("6")).
+		BorderBackground(lipgloss.Color("234")).
+		Background(lipgloss.Color("237")).
+		Padding(0, 1).
+		Align(lipgloss.Center, lipgloss.Center).
+		Render("Sidebar\n\nFlex: 1")
+
+	centerPanel := lipgloss.NewStyle().
+		Width(centerWidth - horizontalFrame).
+		Height(mainContentHeight - verticalFrame).
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("6")).
+		BorderBackground(lipgloss.Color("234")).
+		Background(lipgloss.Color("237")).
+		Padding(0, 1).
+		Align(lipgloss.Center, lipgloss.Center).
+		Render("Main Content\n\nFlex: 2")
+
+	rightPanel := lipgloss.NewStyle().
+		Width(rightWidth - horizontalFrame).
+		Height(mainContentHeight - verticalFrame).
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("6")).
+		BorderBackground(lipgloss.Color("234")).
+		Background(lipgloss.Color("237")).
+		Padding(0, 1).
+		Align(lipgloss.Center, lipgloss.Center).
+		Render("Metadata\n\nFlex: 1")
+
+	// Join horizontal panels
+	rowContainer := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, centerPanel, rightPanel)
+
+	// === STATUS BAR (bottom) ===
+	statusBar := lipgloss.NewStyle().
+		Width(m.width - horizontalFrame).
+		Height(statusHeight - verticalFrame).
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("3")). // Yellow for status
+		BorderBackground(lipgloss.Color("234")).
+		Background(lipgloss.Color("236")). // Different bg for status
+		Padding(0, 1).
+		Align(lipgloss.Center, lipgloss.Center).
+		Render("Status Bar | Flex: 1")
+
+	// Join vertically (row container + status bar)
+	columnContainer := lipgloss.JoinVertical(lipgloss.Left, rowContainer, statusBar)
+
+	// Wrap with background
+	return lipgloss.NewStyle().
+		Background(lipgloss.Color("234")).
+		Width(m.width).
+		Height(contentHeight).
+		Render(columnContainer)
 }
 
 func main() {
