@@ -12,7 +12,7 @@ import (
 type playgroundModel struct {
 	width       int
 	height      int
-	currentPage int // 0 = no box, 1 = empty box
+	currentPage int // 0 = no box, 1 = empty box, 2 = bordered box
 }
 
 func initialModel() playgroundModel {
@@ -30,7 +30,7 @@ func (m playgroundModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		case "right", "l":
-			if m.currentPage < 1 {
+			if m.currentPage < 2 {
 				m.currentPage++
 			}
 		case "left", "h":
@@ -59,10 +59,13 @@ func (m playgroundModel) View() string {
 
 	// Header - purple background
 	var headerText string
-	if m.currentPage == 0 {
+	switch m.currentPage {
+	case 0:
 		headerText = "🏗️  Page 0: No Box (Just Background)"
-	} else {
+	case 1:
 		headerText = "🏗️  Page 1: Empty Box (No Border, No Text)"
+	case 2:
+		headerText = "🏗️  Page 2: Bordered Box (No Text)"
 	}
 
 	header := lipgloss.NewStyle().
@@ -99,20 +102,44 @@ func (m playgroundModel) renderContent(contentHeight int) string {
 			Render("")
 	}
 
-	// Page 1: Empty box with no border, no text
-	emptyBox := lipgloss.NewStyle().
+	if m.currentPage == 1 {
+		// Page 1: Empty box with no border, no text
+		emptyBox := lipgloss.NewStyle().
+			Width(40).
+			Height(10).
+			Background(lipgloss.Color("237")). // Slightly lighter gray than background
+			Render("")
+
+		// Center the empty box with background whitespace styling
+		centered := lipgloss.Place(
+			m.width,
+			contentHeight,
+			lipgloss.Center,
+			lipgloss.Center,
+			emptyBox,
+			lipgloss.WithWhitespaceBackground(lipgloss.Color("234")),
+		)
+
+		return centered
+	}
+
+	// Page 2: Bordered box with no text
+	borderedBox := lipgloss.NewStyle().
 		Width(40).
 		Height(10).
-		Background(lipgloss.Color("237")). // Slightly lighter gray than background
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("6")).     // Cyan border
+		BorderBackground(lipgloss.Color("234")).   // Dark gray background for border cells
+		Background(lipgloss.Color("237")).         // Light gray background for content
 		Render("")
 
-	// Center the empty box with background whitespace styling
+	// Center the bordered box with background whitespace styling
 	centered := lipgloss.Place(
 		m.width,
 		contentHeight,
 		lipgloss.Center,
 		lipgloss.Center,
-		emptyBox,
+		borderedBox,
 		lipgloss.WithWhitespaceBackground(lipgloss.Color("234")),
 	)
 
