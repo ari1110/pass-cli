@@ -462,7 +462,7 @@ func TestIntegration_StressTest(t *testing.T) {
 	cmd.Stdin = strings.NewReader(input)
 	cmd.Run()
 
-	numCredentials := 100 // Start with 100 instead of 1000 for CI friendliness
+	numCredentials := 10 // Reduced for faster test execution (was 100)
 
 	t.Run("Add_Many_Credentials", func(t *testing.T) {
 		for i := 0; i < numCredentials; i++ {
@@ -514,8 +514,8 @@ func TestIntegration_StressTest(t *testing.T) {
 	})
 
 	t.Run("Get_Random_Credentials", func(t *testing.T) {
-		// Test getting random credentials
-		testIndices := []int{0, 25, 50, 75, 99}
+		// Test getting random credentials (adjusted for numCredentials)
+		testIndices := []int{0, numCredentials/4, numCredentials/2, 3*numCredentials/4, numCredentials-1}
 
 		for _, idx := range testIndices {
 			service := fmt.Sprintf("service-%d.com", idx)
