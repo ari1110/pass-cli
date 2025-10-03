@@ -184,10 +184,11 @@ func (m playgroundModel) View() string {
 
 	var b strings.Builder
 
-	// Header showing current layer
+	// Header showing current layer - with distinct background
 	header := lipgloss.NewStyle().
 		Bold(true).
-		Foreground(styles.PrimaryColor).
+		Foreground(lipgloss.Color("15")). // White text
+		Background(lipgloss.Color("53")).  // Purple background for header
 		Width(m.width).
 		Align(lipgloss.Center).
 		Render(fmt.Sprintf("🏗️  TUI Playground - Layer: %s", m.currentLayer))
@@ -214,9 +215,10 @@ func (m playgroundModel) View() string {
 		b.WriteString(m.renderFullLayout(contentHeight))
 	}
 
-	// Footer with navigation hints (no extra newline, content should be exact height)
+	// Footer with navigation hints - with distinct background
 	footer := lipgloss.NewStyle().
-		Foreground(styles.SubtleColor).
+		Foreground(lipgloss.Color("15")).  // White text
+		Background(lipgloss.Color("236")). // Dark gray background for footer
 		Width(m.width).
 		Align(lipgloss.Center).
 		Render("← h/left: Previous Layer | l/right: Next Layer → | q: Quit")
@@ -241,7 +243,12 @@ func (m playgroundModel) renderTerminalInfo(contentHeight int) string {
 			m.width, m.height, contentHeight,
 		))
 
-	return lipgloss.Place(m.width, contentHeight, lipgloss.Center, lipgloss.Center, info)
+	// Add background to content area
+	return lipgloss.NewStyle().
+		Background(lipgloss.Color("234")). // Dark gray background
+		Width(m.width).
+		Height(contentHeight).
+		Render(lipgloss.Place(m.width, contentHeight, lipgloss.Center, lipgloss.Center, info))
 }
 
 func (m playgroundModel) renderLayoutInfo(contentHeight int) string {
@@ -283,7 +290,12 @@ func (m playgroundModel) renderLayoutInfo(contentHeight int) string {
 			layout.StatusBar.Width, layout.StatusBar.Height,
 		))
 
-	return lipgloss.Place(m.width, contentHeight, lipgloss.Center, lipgloss.Center, info)
+	// Add background to content area
+	return lipgloss.NewStyle().
+		Background(lipgloss.Color("234")). // Dark gray background
+		Width(m.width).
+		Height(contentHeight).
+		Render(lipgloss.Place(m.width, contentHeight, lipgloss.Center, lipgloss.Center, info))
 }
 
 func min(a, b int) int {
@@ -316,10 +328,20 @@ func (m playgroundModel) renderStatusBarLayer(contentHeight int) string {
 			m.width,
 		))
 
-	infoPlaced := lipgloss.Place(m.width, infoHeight, lipgloss.Center, lipgloss.Center, info)
+	// Add background to info area
+	infoWithBg := lipgloss.NewStyle().
+		Background(lipgloss.Color("234")). // Dark gray background
+		Width(m.width).
+		Height(infoHeight).
+		Render(lipgloss.Place(m.width, infoHeight, lipgloss.Center, lipgloss.Center, info))
 
-	return infoPlaced + "\n" +
-		lipgloss.NewStyle().Foreground(styles.SuccessColor).Bold(true).Render("Status Bar Preview:") + "\n" +
+	return infoWithBg + "\n" +
+		lipgloss.NewStyle().
+		Background(lipgloss.Color("234")).
+		Width(m.width).
+		Foreground(styles.SuccessColor).
+		Bold(true).
+		Render("Status Bar Preview:") + "\n" +
 		statusBarView
 }
 
@@ -350,11 +372,15 @@ func (m playgroundModel) renderSidebarLayer(contentHeight int) string {
 			len(m.testCredentials),
 		))
 
-	// Position debug info in remaining space
+	// Position debug info in remaining space with background color
 	mainWidth := m.width - m.layout.Sidebar.Width
-	debugPlaced := lipgloss.Place(mainWidth, panelHeight, lipgloss.Center, lipgloss.Center, debugInfo)
+	debugWithBg := lipgloss.NewStyle().
+		Background(lipgloss.Color("235")). // Dark gray for main area
+		Width(mainWidth).
+		Height(panelHeight).
+		Render(lipgloss.Place(mainWidth, panelHeight, lipgloss.Center, lipgloss.Center, debugInfo))
 
-	content := lipgloss.JoinHorizontal(lipgloss.Top, sidebarView, debugPlaced)
+	content := lipgloss.JoinHorizontal(lipgloss.Top, sidebarView, debugWithBg)
 	m.statusBar.SetSize(m.width)
 	return content + "\n" + m.statusBar.Render()
 }
@@ -368,11 +394,18 @@ func (m playgroundModel) renderMetadataLayer(contentHeight int) string {
 	sidebarView := m.sidebar.View()
 	metadataView := m.metadata.View()
 
-	// Ensure content fits in available height
-	sidebarResized := lipgloss.NewStyle().Height(panelHeight).Render(sidebarView)
-	metadataResized := lipgloss.NewStyle().Height(panelHeight).Render(metadataView)
+	// Add background colors to clearly show panel boundaries
+	sidebarWithBg := lipgloss.NewStyle().
+		Background(lipgloss.Color("234")). // Darker gray for sidebar area
+		Height(panelHeight).
+		Render(sidebarView)
 
-	content := lipgloss.JoinHorizontal(lipgloss.Top, sidebarResized, metadataResized)
+	metadataWithBg := lipgloss.NewStyle().
+		Background(lipgloss.Color("235")). // Slightly lighter gray for metadata area
+		Height(panelHeight).
+		Render(metadataView)
+
+	content := lipgloss.JoinHorizontal(lipgloss.Top, sidebarWithBg, metadataWithBg)
 	m.statusBar.SetSize(m.width)
 	return content + "\n" + m.statusBar.Render()
 }
@@ -398,19 +431,27 @@ func (m playgroundModel) renderFullLayout(contentHeight int) string {
 	mainPanel := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(styles.SubtleColor).
+		Background(lipgloss.Color("237")). // Medium gray for main content area
 		Width(m.layout.Main.Width).
 		Height(panelHeight).
 		Render(mainContent)
 
-	// Ensure all panels fit in available height
-	sidebarResized := lipgloss.NewStyle().Height(panelHeight).Render(sidebarView)
-	metadataResized := lipgloss.NewStyle().Height(panelHeight).Render(metadataView)
+	// Add distinct backgrounds to each panel
+	sidebarWithBg := lipgloss.NewStyle().
+		Background(lipgloss.Color("234")). // Darkest gray for sidebar
+		Height(panelHeight).
+		Render(sidebarView)
+
+	metadataWithBg := lipgloss.NewStyle().
+		Background(lipgloss.Color("235")). // Dark gray for metadata
+		Height(panelHeight).
+		Render(metadataView)
 
 	content := lipgloss.JoinHorizontal(
 		lipgloss.Top,
-		sidebarResized,
+		sidebarWithBg,
 		mainPanel,
-		metadataResized,
+		metadataWithBg,
 	)
 
 	m.statusBar.SetSize(m.width)
