@@ -14,13 +14,20 @@ func main() {
 
 	for i := 1; i < len(os.Args); i++ {
 		arg := os.Args[i]
+
+		// Special flags that should use CLI mode, not TUI
+		if arg == "--help" || arg == "-h" || arg == "--version" {
+			shouldUseTUI = false
+			break
+		}
+
 		// If argument doesn't start with - or --, it's a command
 		if arg != "" && arg[0] != '-' {
 			shouldUseTUI = false
 			break
 		}
 		// Skip the value for flags like --vault <path>
-		if (arg == "--vault" || arg == "-v") && i+1 < len(os.Args) {
+		if arg == "--vault" && i+1 < len(os.Args) {
 			i++ // Skip next argument (the vault path)
 		}
 	}
