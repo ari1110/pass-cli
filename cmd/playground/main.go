@@ -12,7 +12,7 @@ import (
 type playgroundModel struct {
 	width       int
 	height      int
-	currentPage int // 0 = no box, 1 = empty box, 2 = bordered box
+	currentPage int // 0 = no box, 1 = empty box, 2 = bordered box, 3 = bordered box with text
 }
 
 func initialModel() playgroundModel {
@@ -30,7 +30,7 @@ func (m playgroundModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		case "right", "l":
-			if m.currentPage < 2 {
+			if m.currentPage < 3 {
 				m.currentPage++
 			}
 		case "left", "h":
@@ -66,6 +66,8 @@ func (m playgroundModel) View() string {
 		headerText = "🏗️  Page 1: Empty Box (No Border, No Text)"
 	case 2:
 		headerText = "🏗️  Page 2: Bordered Box (No Text)"
+	case 3:
+		headerText = "🏗️  Page 3: Bordered Box With Text"
 	}
 
 	header := lipgloss.NewStyle().
@@ -123,15 +125,42 @@ func (m playgroundModel) renderContent(contentHeight int) string {
 		return centered
 	}
 
-	// Page 2: Bordered box with no text
+	if m.currentPage == 2 {
+		// Page 2: Bordered box with no text
+		borderedBox := lipgloss.NewStyle().
+			Width(40).
+			Height(10).
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("6")).   // Cyan border
+			BorderBackground(lipgloss.Color("234")). // Dark gray background for border cells
+			Background(lipgloss.Color("237")).       // Light gray background for content
+			Render("")
+
+		// Center the bordered box with background whitespace styling
+		centered := lipgloss.Place(
+			m.width,
+			contentHeight,
+			lipgloss.Center,
+			lipgloss.Center,
+			borderedBox,
+			lipgloss.WithWhitespaceBackground(lipgloss.Color("234")),
+		)
+
+		return centered
+	}
+
+	// Page 3: Bordered box with text
+	boxContent := "Hello, TUI!\n\nThis is a test box\nwith multiple lines\nof text content."
+
 	borderedBox := lipgloss.NewStyle().
 		Width(40).
 		Height(10).
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("6")).     // Cyan border
-		BorderBackground(lipgloss.Color("234")).   // Dark gray background for border cells
-		Background(lipgloss.Color("237")).         // Light gray background for content
-		Render("")
+		BorderForeground(lipgloss.Color("6")).   // Cyan border
+		BorderBackground(lipgloss.Color("234")). // Dark gray background for border cells
+		Background(lipgloss.Color("237")).       // Light gray background for content
+		Align(lipgloss.Center, lipgloss.Center). // Center text within the box
+		Render(boxContent)
 
 	// Center the bordered box with background whitespace styling
 	centered := lipgloss.Place(
