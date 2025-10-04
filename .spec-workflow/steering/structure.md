@@ -18,12 +18,14 @@ pass-cli/
 │   ├── helpers.go              # Helper functions (password reading)
 │   └── tui/                    # TUI (Terminal User Interface) layer
 │       ├── tui.go              # TUI entry point and initialization
-│       ├── model.go            # Main Bubble Tea model (application state)
+│       ├── model.go            # Main tview model (application state)
 │       ├── model_test.go       # Model unit tests
-│       ├── commands.go         # Bubble Tea commands (vault operations)
-│       ├── messages.go         # Bubble Tea message types
+│       ├── commands.go         # tview commands (vault operations)
+│       ├── messages.go         # tview message types
+│       ├── events.go           # Global event handlers and keyboard shortcuts
 │       ├── keys.go             # Keyboard bindings and key mappings
 │       ├── helpers.go          # Layout rendering and helper functions
+│       ├── helpers_test.go     # Helper function unit tests
 │       ├── components/         # Reusable TUI components
 │       │   ├── sidebar.go              # Category tree sidebar panel
 │       │   ├── sidebar_test.go         # Sidebar unit tests
@@ -64,10 +66,16 @@ pass-cli/
 │       ├── vault.go            # Credential management logic and types
 │       └── vault_test.go       # Vault unit tests
 ├── test/                       # Integration and end-to-end tests
-│   ├── integration_test.go     # Full workflow tests
-│   └── README.md               # Test documentation
+│   ├── integration_test.go            # Full workflow tests
+│   ├── keychain_integration_test.go   # Keychain integration tests
+│   ├── tui_integration_test.go        # TUI integration tests
+│   ├── tui_dashboard_integration_test.go # TUI dashboard integration tests
+│   ├── test-tui.bat                   # TUI manual testing script (Windows)
+│   └── README.md                      # Test documentation
 ├── test-vault/                 # Test fixtures (encrypted vault for integration tests)
-├── docs/                       # Project documentation (~10 files)
+│   ├── vault.enc               # Test encrypted vault file
+│   └── vault.enc.backup        # Backup of test vault file
+├── docs/                       # Project documentation
 │   ├── README.md               # Documentation index
 │   ├── INSTALLATION.md         # Installation instructions
 │   ├── USAGE.md                # Usage guide and examples
@@ -82,26 +90,78 @@ pass-cli/
 │   │   ├── README.md                            # Development docs index
 │   │   ├── DASHBOARD_IMPLEMENTATION_SUMMARY.md  # Dashboard implementation
 │   │   ├── DASHBOARD_TESTING_CHECKLIST.md       # Testing checklist
-│   │   └── KEYBINDINGS_AUDIT.md                 # Keybindings audit
+│   │   ├── KEYBINDINGS_AUDIT.md                 # Keybindings audit
+│   │   └── TVIEW_MIGRATION_CHECKLIST.md         # tview migration visual regression checklist
 │   └── archive/                # Historical documentation
 │       ├── README.md                    # Archive index
 │       ├── RELEASE-DRY-RUN.md           # Pre-release validation (v0.0.1)
 │       └── SECURITY-AUDIT.md            # Pre-release security audit (v0.0.1)
 ├── manifests/                  # Platform-agnostic package manager manifests
 │   ├── winget/                 # Windows Package Manager manifest
+│   │   ├── pass-cli.yaml       # WinGet package manifest
+│   │   └── README.md           # WinGet manifest documentation
 │   └── snap/                   # Snap package manifest
+│       └── README.md           # Snap manifest documentation
 ├── homebrew/                   # Homebrew formula (platform-native, root location)
+│   └── pass-cli.rb             # Homebrew formula file
 ├── scoop/                      # Scoop bucket (platform-native, root location)
+│   └── pass-cli.json           # Scoop bucket manifest
 ├── .spec-workflow/             # Specification and workflow files
 │   ├── steering/               # Project steering documents
-│   └── specs/                  # Feature specifications
+│   │   ├── product.md          # Product vision and features
+│   │   ├── tech.md             # Technology stack and architecture
+│   │   └── structure.md        # Directory structure and conventions
+│   ├── specs/                  # Feature specifications
+│   │   ├── tview-migration/    # tview framework migration spec
+│   │   └── tview-migration-remediation/ # tview migration remediation spec
+│   ├── archive/                # Archived completed specs
+│   │   └── specs/              # Completed specification archives
+│   ├── templates/              # Spec document templates
+│   ├── user-templates/         # User-customizable templates
+│   ├── config.example.toml     # Example configuration file
+│   └── session.json            # Active session state
+├── .github/                    # GitHub-specific configuration
+│   ├── workflows/              # GitHub Actions CI/CD workflows
+│   │   ├── ci.yml              # Continuous integration workflow
+│   │   └── release.yml         # Release automation workflow
+│   └── dependabot.yml          # Dependabot configuration
+├── .claude/                    # Claude Code configuration (git-ignored)
+│   └── settings.local.json     # Local Claude settings
+├── .serena/                    # Serena MCP server data (git-ignored)
+│   ├── cache/                  # Cached analysis data
+│   ├── memories/               # Project memory files
+│   └── project.yml             # Serena project configuration
+├── dist/                       # Build output directory (git-ignored)
+│   └── [build artifacts]       # GoReleaser build artifacts
 ├── Makefile                    # Build targets and automation
 ├── .goreleaser.yml             # GoReleaser configuration
+├── .mcp.json                   # Model Context Protocol server configuration
+├── CLAUDE.md                   # Claude operational guide and standards
 ├── go.mod                      # Go module definition
 ├── go.sum                      # Dependency checksums
 ├── .gitignore                  # Git ignore patterns
-└── README.md                   # Project overview and quick start
+├── README.md                   # Project overview and quick start
+├── coverage.out                # Test coverage report (git-ignored)
+└── pass-cli-test.exe           # Test binary (git-ignored)
 ```
+
+## Git-Ignored Directories and Files
+
+The following directories and files are excluded from version control (defined in `.gitignore`):
+
+**Build Artifacts**:
+- `dist/` - GoReleaser build output (binaries, archives, checksums)
+- `*.exe` - Compiled executables (e.g., `pass-cli-test.exe`)
+- `coverage.out` - Test coverage reports
+
+**IDE and Tool Configuration**:
+- `.claude/` - Claude Code local settings and configuration
+- `.serena/` - Serena MCP server cache and memory files
+
+**Test Data**:
+- `test-vault/` - Test vault files (contains sensitive test data)
+
+These directories exist in the working tree but are not tracked by git to keep the repository clean and prevent accidental commits of local configurations, build artifacts, or sensitive test data.
 
 ## Package Manager Organization
 
@@ -117,13 +177,32 @@ Pass-CLI uses two patterns for package manager files:
 - **manifests/snap/** - Snap packages
 - **Rationale**: Cross-platform manifest systems consolidated under `manifests/` for clarity and organization
 
+## Root-Level Configuration Files
+
+**Build and Release**:
+- `Makefile` - Build targets, test commands, and development automation
+- `.goreleaser.yml` - GoReleaser configuration for multi-platform releases
+- `go.mod` / `go.sum` - Go module dependencies and checksums
+
+**Version Control**:
+- `.gitignore` - Git exclusion patterns
+
+**Documentation**:
+- `README.md` - Project overview and quick start guide
+- `CLAUDE.md` - Claude operational guide and development standards
+
+**Tool Configuration**:
+- `.mcp.json` - Model Context Protocol server configuration (Serena, spec-workflow)
+
 ## Naming Conventions
 
 ### Files
 - **Commands**: `snake_case.go` (e.g., `add.go`, `generate.go`)
 - **Packages**: `lowercase` single word (e.g., `crypto`, `storage`, `keychain`)
-- **Internal modules**: `lowercase.go` (e.g., `vault.go`, `types.go`)
-- **Tests**: `[filename]_test.go` (e.g., `crypto_test.go`, `vault_test.go`)
+- **Internal modules**: `lowercase.go` or `snake_case.go` (e.g., `vault.go`, `category_tree.go`, `layout_manager.go`)
+- **Tests**: `[filename]_test.go` (e.g., `crypto_test.go`, `vault_test.go`, `category_tree_test.go`)
+- **TUI modules**: `lowercase.go` or `snake_case.go` (e.g., `model.go`, `events.go`, `form_add.go`, `command_bar.go`)
+- **Test scripts**: Platform-specific extensions (e.g., `test-tui.bat` for Windows)
 
 ### Code
 - **Types/Structs**: `PascalCase` (e.g., `Credential`, `EncryptedVault`)
@@ -135,8 +214,8 @@ Pass-CLI uses two patterns for package manager files:
 
 ### Import Order
 1. **Standard library**: `crypto/aes`, `encoding/json`, `os`, `path/filepath`
-2. **External dependencies**: `github.com/spf13/cobra`, `github.com/zalando/go-keyring`
-3. **Internal packages**: `pass-cli/internal/crypto`, `pass-cli/internal/storage`
+2. **External dependencies**: `github.com/spf13/cobra`, `github.com/zalando/go-keyring`, `github.com/rivo/tview`, `github.com/gdamore/tcell/v2`
+3. **Internal packages**: `pass-cli/internal/crypto`, `pass-cli/internal/storage`, `pass-cli/cmd/tui/components`
 
 ### Module/Package Organization
 ```go
@@ -149,12 +228,15 @@ import (
 
 // External dependencies
 import (
+    "github.com/gdamore/tcell/v2"
+    "github.com/rivo/tview"
     "github.com/spf13/cobra"
     "github.com/zalando/go-keyring"
 )
 
 // Internal packages
 import (
+    "pass-cli/cmd/tui/components"
     "pass-cli/internal/crypto"
     "pass-cli/internal/vault"
 )
@@ -240,23 +322,29 @@ Standard Library & External Dependencies
 ```
 
 ### TUI Layer Organization
-The TUI follows Bubble Tea's Model-Update-View architecture:
+The TUI follows tview's component-based architecture:
 ```
 TUI Entry (tui.go)
     ↓
-Model (model.go) - Application state
+Model (model.go) - Application state and tview.Pages coordinator
     ↓
+├── Events (events.go) - Global keyboard shortcuts and event handling
 ├── Components (components/) - Reusable UI elements
 │   ├── Layout Manager - Responsive dimension calculations
-│   ├── Sidebar - Category tree navigation
-│   ├── Status Bar - Context shortcuts and hints
-│   └── Panels - Metadata, process, command bar
+│   ├── Sidebar - Category tree navigation (tview.TreeView)
+│   ├── Status Bar - Context shortcuts and hints (tview.TextView)
+│   ├── Breadcrumb - Navigation path display (tview.TextView)
+│   ├── Metadata Panel - Credential metadata display (tview.Flex)
+│   ├── Process Panel - Background process status
+│   └── Command Bar - Command palette (tview.Modal + tview.InputField)
 ├── Views (views/) - Screen-level components
-│   ├── List View - Credential browsing
-│   ├── Detail View - Credential details
-│   └── Forms - Add/Edit dialogs
+│   ├── List View - Credential browsing (tview.Table)
+│   ├── Detail View - Credential details (tview.TextView)
+│   ├── Forms - Add/Edit dialogs (tview.Form)
+│   ├── Help - Help screen (tview.TextView)
+│   └── Confirm - Confirmation dialogs (tview.Modal)
 └── Styles (styles/) - Visual theming
-    └── Theme - Colors, borders, typography
+    └── Theme - Colors, borders, typography (tcell colors)
 ```
 
 ### Boundary Patterns
@@ -264,10 +352,11 @@ Model (model.go) - Application state
 - **Core vs Platform-specific**: Core crypto and vault logic is cross-platform, keychain integration handles OS differences
 - **CLI vs TUI**: Both layers use shared vault service, but have independent presentation logic
   - CLI: Script-friendly output, flags-based configuration
-  - TUI: Interactive visual interface, keyboard navigation, stateful UI
+  - TUI: Interactive visual interface (tview), keyboard navigation, stateful UI
 - **TUI Components vs Views**:
-  - Components: Reusable, composable UI elements (sidebar, panels, status bar)
-  - Views: Screen-level state machines (list, detail, forms)
+  - Components: Reusable, composable UI elements built on tview primitives (sidebar, panels, status bar)
+  - Views: Screen-level components using tview primitives (list with tview.Table, detail with tview.TextView, forms with tview.Form)
+- **TUI Framework**: Uses tview (rivo/tview) for terminal UI rendering, built on tcell for terminal control
 - **Stable vs Experimental**: Main packages are stable, future plugin system would be experimental
 - **Dependencies direction**: Higher layers depend on lower layers, never vice versa
 
