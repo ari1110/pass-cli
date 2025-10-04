@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -68,6 +69,9 @@ func (m playgroundModel) View() string {
 	// 2. Content (height - 2 lines)
 	// 3. Footer (1 line)
 
+	// Calculate content height first for diagnostic output
+	contentHeight := m.height - 2
+
 	// Header - purple background
 	var headerText string
 	switch m.currentPage {
@@ -78,9 +82,9 @@ func (m playgroundModel) View() string {
 	case 2:
 		headerText = "🧪 Dashbrew Playground - Page 2: Three Panels (1:2:1 Ratio)"
 	case 3:
-		headerText = "🧪 Dashbrew Playground - Page 3: Vertical Layout (1:3:1 Ratio)"
+		headerText = fmt.Sprintf("🧪 Page 3: Vertical Layout (1:3:1) | Total Height: %d | Content: %d", m.height, contentHeight)
 	case 4:
-		headerText = "🧪 Dashbrew Playground - Page 4: Nested Containers (Row in Column)"
+		headerText = fmt.Sprintf("🧪 Page 4: Nested (Row in Column) | Total Height: %d | Content: %d", m.height, contentHeight)
 	}
 
 	header := lipgloss.NewStyle().
@@ -92,7 +96,6 @@ func (m playgroundModel) View() string {
 		Render(headerText)
 
 	// Content - dark gray background
-	contentHeight := m.height - 2
 	content := m.renderContent(contentHeight)
 
 	// Footer - medium gray background
@@ -103,8 +106,31 @@ func (m playgroundModel) View() string {
 		Align(lipgloss.Center).
 		Render("h/left: Previous | l/right: Next | q: Quit")
 
-	// Combine all sections
-	return header + "\n" + content + "\n" + footer
+	// DEBUG: Check component line counts
+	headerLines := len(strings.Split(header, "\n"))
+	contentLines := len(strings.Split(content, "\n"))
+	footerLines := len(strings.Split(footer, "\n"))
+
+	// Combine all sections using JoinVertical (no extra newlines)
+	result := lipgloss.JoinVertical(lipgloss.Left, header, content, footer)
+
+	// DEBUG: Check total line count
+	totalLines := len(strings.Split(result, "\n"))
+	if m.currentPage == 3 || m.currentPage == 4 {
+		// Replace footer with debug info instead of adding extra line
+		debugFooter := fmt.Sprintf("H:%d C:%d F:%d = %d | Expected:%d Diff:%d | %s",
+			headerLines, contentLines, footerLines, headerLines+contentLines+footerLines,
+			m.height, totalLines-m.height, "h/left/l/right/q")
+		footer = lipgloss.NewStyle().
+			Background(lipgloss.Color("236")).
+			Foreground(lipgloss.Color("15")).
+			Width(m.width).
+			Align(lipgloss.Center).
+			Render(debugFooter)
+		result = lipgloss.JoinVertical(lipgloss.Left, header, content, footer)
+	}
+
+	return result
 }
 
 // renderTooSmallMessage displays a warning when terminal is too small
@@ -304,6 +330,17 @@ func (m playgroundModel) renderThreePanelLayout(contentHeight int) string {
 
 // renderVerticalLayout demonstrates vertical flex layout (column direction, 1:3:1 ratio)
 func (m playgroundModel) renderVerticalLayout(contentHeight int) string {
+	// Minimum height needed for 3 stacked panels with borders (roughly 4 lines each)
+	minRequiredHeight := 15
+	if contentHeight < minRequiredHeight {
+		return lipgloss.NewStyle().
+			Width(m.width).
+			Height(contentHeight).
+			Background(lipgloss.Color("234")).
+			Align(lipgloss.Center, lipgloss.Center).
+			Render(fmt.Sprintf("Terminal too short for vertical layout\nNeed at least %d lines\nCurrent: %d lines", minRequiredHeight+2, contentHeight+2))
+	}
+
 	// Flex values for vertical stacking
 	topFlex := 1
 	middleFlex := 3
@@ -326,6 +363,15 @@ func (m playgroundModel) renderVerticalLayout(contentHeight int) string {
 	topContentWidth := m.width - horizontalFrame
 	topContentHeight := topHeight - verticalFrame
 
+	// Render only what fits based on content height
+	topText := "Top"
+	if topContentHeight >= 3 {
+		topText = fmt.Sprintf("Top\nFlex: %d", topFlex)
+	}
+	if topContentHeight >= 5 {
+		topText = fmt.Sprintf("Top\nFlex: %d\nAlloc: %d\nCont: %d", topFlex, topHeight, topContentHeight)
+	}
+
 	topPanel := lipgloss.NewStyle().
 		Width(topContentWidth).
 		Height(topContentHeight).
@@ -334,12 +380,19 @@ func (m playgroundModel) renderVerticalLayout(contentHeight int) string {
 		BorderBackground(lipgloss.Color("234")).
 		Background(lipgloss.Color("237")).
 		Padding(0, 1).
-		Align(lipgloss.Center, lipgloss.Center).
-		Render(fmt.Sprintf("Top Panel\n\nFlex: %d | Height: %d", topFlex, topHeight))
+		Render(topText)
 
 	// Create middle panel
 	middleContentWidth := m.width - horizontalFrame
 	middleContentHeight := middleHeight - verticalFrame
+
+	middleText := "Middle"
+	if middleContentHeight >= 3 {
+		middleText = fmt.Sprintf("Middle\nFlex: %d", middleFlex)
+	}
+	if middleContentHeight >= 5 {
+		middleText = fmt.Sprintf("Middle\nFlex: %d\nAlloc: %d\nCont: %d", middleFlex, middleHeight, middleContentHeight)
+	}
 
 	middlePanel := lipgloss.NewStyle().
 		Width(middleContentWidth).
@@ -349,12 +402,19 @@ func (m playgroundModel) renderVerticalLayout(contentHeight int) string {
 		BorderBackground(lipgloss.Color("234")).
 		Background(lipgloss.Color("237")).
 		Padding(0, 1).
-		Align(lipgloss.Center, lipgloss.Center).
-		Render(fmt.Sprintf("Middle Panel\n\nFlex: %d | Height: %d", middleFlex, middleHeight))
+		Render(middleText)
 
 	// Create bottom panel
 	bottomContentWidth := m.width - horizontalFrame
 	bottomContentHeight := bottomHeight - verticalFrame
+
+	bottomText := "Bottom"
+	if bottomContentHeight >= 3 {
+		bottomText = fmt.Sprintf("Bottom\nFlex: %d", bottomFlex)
+	}
+	if bottomContentHeight >= 5 {
+		bottomText = fmt.Sprintf("Bottom\nFlex: %d\nAlloc: %d\nCont: %d", bottomFlex, bottomHeight, bottomContentHeight)
+	}
 
 	bottomPanel := lipgloss.NewStyle().
 		Width(bottomContentWidth).
@@ -364,18 +424,14 @@ func (m playgroundModel) renderVerticalLayout(contentHeight int) string {
 		BorderBackground(lipgloss.Color("234")).
 		Background(lipgloss.Color("237")).
 		Padding(0, 1).
-		Align(lipgloss.Center, lipgloss.Center).
-		Render(fmt.Sprintf("Bottom Panel\n\nFlex: %d | Height: %d", bottomFlex, bottomHeight))
+		Render(bottomText)
 
 	// Join panels vertically
 	joined := lipgloss.JoinVertical(lipgloss.Left, topPanel, middlePanel, bottomPanel)
 
-	// Wrap with background to fill any remaining space
-	return lipgloss.NewStyle().
-		Background(lipgloss.Color("234")).
-		Width(m.width).
-		Height(contentHeight).
-		Render(joined)
+	// Note: Don't set Height() on wrapper - joined content is already the correct height
+	// Setting Height() again can cause overflow issues
+	return joined
 }
 
 // renderNestedLayout demonstrates nested containers (row inside column)
@@ -409,63 +465,82 @@ func (m playgroundModel) renderNestedLayout(contentHeight int) string {
 	rightWidth := m.width - leftWidth - centerWidth
 
 	// Create three horizontal panels
+	rowContentHeight := mainContentHeight - verticalFrame
+
+	leftText := "Side"
+	if rowContentHeight >= 3 {
+		leftText = "Sidebar\n\nFlex: 1"
+	}
+
 	leftPanel := lipgloss.NewStyle().
-		Width(leftWidth - horizontalFrame).
-		Height(mainContentHeight - verticalFrame).
+		Width(leftWidth-horizontalFrame).
+		Height(rowContentHeight).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("6")).
 		BorderBackground(lipgloss.Color("234")).
 		Background(lipgloss.Color("237")).
 		Padding(0, 1).
 		Align(lipgloss.Center, lipgloss.Center).
-		Render("Sidebar\n\nFlex: 1")
+		Render(leftText)
+
+	centerText := "Main"
+	if rowContentHeight >= 3 {
+		centerText = "Main Content\n\nFlex: 2"
+	}
 
 	centerPanel := lipgloss.NewStyle().
-		Width(centerWidth - horizontalFrame).
-		Height(mainContentHeight - verticalFrame).
+		Width(centerWidth-horizontalFrame).
+		Height(rowContentHeight).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("6")).
 		BorderBackground(lipgloss.Color("234")).
 		Background(lipgloss.Color("237")).
 		Padding(0, 1).
 		Align(lipgloss.Center, lipgloss.Center).
-		Render("Main Content\n\nFlex: 2")
+		Render(centerText)
+
+	rightText := "Meta"
+	if rowContentHeight >= 3 {
+		rightText = "Metadata\n\nFlex: 1"
+	}
 
 	rightPanel := lipgloss.NewStyle().
-		Width(rightWidth - horizontalFrame).
-		Height(mainContentHeight - verticalFrame).
+		Width(rightWidth-horizontalFrame).
+		Height(rowContentHeight).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("6")).
 		BorderBackground(lipgloss.Color("234")).
 		Background(lipgloss.Color("237")).
 		Padding(0, 1).
 		Align(lipgloss.Center, lipgloss.Center).
-		Render("Metadata\n\nFlex: 1")
+		Render(rightText)
 
 	// Join horizontal panels
 	rowContainer := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, centerPanel, rightPanel)
 
 	// === STATUS BAR (bottom) ===
+	statusContentHeight := statusHeight - verticalFrame
+	statusText := "Status"
+	if statusContentHeight >= 1 {
+		statusText = fmt.Sprintf("Status Bar | Flex: 1 | H: %d", statusHeight)
+	}
+
 	statusBar := lipgloss.NewStyle().
-		Width(m.width - horizontalFrame).
-		Height(statusHeight - verticalFrame).
+		Width(m.width-horizontalFrame).
+		Height(statusContentHeight).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("3")). // Yellow for status
 		BorderBackground(lipgloss.Color("234")).
 		Background(lipgloss.Color("236")). // Different bg for status
 		Padding(0, 1).
 		Align(lipgloss.Center, lipgloss.Center).
-		Render("Status Bar | Flex: 1")
+		Render(statusText)
 
 	// Join vertically (row container + status bar)
 	columnContainer := lipgloss.JoinVertical(lipgloss.Left, rowContainer, statusBar)
 
-	// Wrap with background
-	return lipgloss.NewStyle().
-		Background(lipgloss.Color("234")).
-		Width(m.width).
-		Height(contentHeight).
-		Render(columnContainer)
+	// Note: Don't set Height() on wrapper - joined content is already the correct height
+	return columnContainer
 }
 
 func main() {
