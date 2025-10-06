@@ -36,7 +36,7 @@
   - _Requirements: 3.1, 3.2, 3.6_
   - _Prompt: Read the requirements and design for the spec tui-tview-implementation and implement this task: Role: Go developer implementing TUI components with tview | Task: Create components/sidebar.go with Sidebar struct embedding tview.TreeView, fields for appState and rootNode. Implement: NewSidebar(appState) to create TreeView with root "All Credentials" node and setup, Refresh() to rebuild tree from appState.GetCategories() (clear children, add category nodes, expand root), onSelect() handler calling appState.SetSelectedCategory(), applyStyles() for borders and colors. Tree structure: root node "All Credentials" with category children. Follow cmd/tui-tview-skeleton/components/sidebar.go.md | Restrictions: Only read from AppState (GetCategories), never modify state directly except via SetSelectedCategory, create component once and reuse (stored in AppState), use styles from theme.go when available or hardcode tcell colors temporarily, SetSelectedFunc for selection not keyboard intercept | Success: sidebar.go compiles, tree builds correctly from categories, selection updates AppState, Refresh() rebuilds tree, rounded borders applied, follows skeleton documentation_
 
-- [ ] 5. Create Table component for credential list display
+- [x] 5. Create Table component for credential list display
   - File: cmd/tui-tview/components/table.go
   - Implement CredentialTable wrapping tview.Table with filtering, column layout, selection handling, and refresh logic
   - Purpose: Display filtered credential list in table format
