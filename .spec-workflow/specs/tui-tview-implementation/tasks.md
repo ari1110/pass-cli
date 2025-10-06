@@ -28,7 +28,7 @@
 
 ## Phase 2: Basic Components
 
-- [ ] 4. Create Sidebar component with category tree navigation
+- [x] 4. Create Sidebar component with category tree navigation
   - File: cmd/tui-tview/components/sidebar.go
   - Implement Sidebar wrapping tview.TreeView with category display, tree building, selection handling, and refresh logic
   - Purpose: Provide category tree navigation
