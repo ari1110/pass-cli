@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/atotto/clipboard"
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"pass-cli/cmd/tui-tview/models"
+	"pass-cli/cmd/tui-tview/styles"
 	"pass-cli/internal/vault"
 )
 
@@ -175,15 +175,7 @@ func (dv *DetailView) CopyPasswordToClipboard() error {
 }
 
 // applyStyles applies theme colors and borders to the detail view.
-// Uses hardcoded colors temporarily (theme.go to be implemented later).
+// Uses theme system for consistent styling.
 func (dv *DetailView) applyStyles() {
-	// Hardcoded colors (to be replaced with styles/theme.go)
-	borderColor := tcell.NewRGBColor(88, 166, 255)   // Blue
-	backgroundColor := tcell.NewRGBColor(40, 42, 54) // Dark background
-
-	dv.SetBorder(true).
-		SetTitle(" Details ").
-		SetTitleAlign(tview.AlignLeft).
-		SetBorderColor(borderColor).
-		SetBackgroundColor(backgroundColor)
+	styles.ApplyBorderedStyle(dv.TextView, "Details", true)
 }

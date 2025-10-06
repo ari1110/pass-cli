@@ -1,9 +1,9 @@
 package components
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"pass-cli/cmd/tui-tview/models"
+	"pass-cli/cmd/tui-tview/styles"
 )
 
 // Sidebar wraps tview.TreeView to display credential categories.
@@ -18,9 +18,11 @@ type Sidebar struct {
 // NewSidebar creates and configures a new Sidebar component.
 // Creates TreeView with root "All Credentials" node and builds initial tree.
 func NewSidebar(appState *models.AppState) *Sidebar {
+	theme := styles.GetCurrentTheme()
+
 	// Create root node
 	root := tview.NewTreeNode("All Credentials").
-		SetColor(tcell.NewRGBColor(139, 233, 253)). // Cyan accent color
+		SetColor(theme.BorderColor). // Cyan accent color
 		SetSelectable(true).
 		SetExpanded(true)
 
@@ -50,6 +52,8 @@ func NewSidebar(appState *models.AppState) *Sidebar {
 // Refresh rebuilds the category tree from current AppState.
 // Clears existing children and adds category nodes from appState.GetCategories().
 func (s *Sidebar) Refresh() {
+	theme := styles.GetCurrentTheme()
+
 	// Get categories from state (thread-safe read)
 	categories := s.appState.GetCategories()
 
@@ -60,7 +64,7 @@ func (s *Sidebar) Refresh() {
 	for _, category := range categories {
 		node := tview.NewTreeNode(category).
 			SetSelectable(true).
-			SetColor(tcell.NewRGBColor(248, 248, 242)) // White text
+			SetColor(theme.TextPrimary) // White text
 		s.rootNode.AddChild(node)
 	}
 
@@ -84,9 +88,5 @@ func (s *Sidebar) onSelect(node *tview.TreeNode) {
 // applyStyles applies borders, colors, and title to the sidebar.
 // Uses rounded borders with cyan accent color and dark background.
 func (s *Sidebar) applyStyles() {
-	s.SetBorder(true).
-		SetTitle(" Categories ").
-		SetTitleAlign(tview.AlignLeft).
-		SetBorderColor(tcell.NewRGBColor(139, 233, 253)). // Cyan border
-		SetBackgroundColor(tcell.NewRGBColor(40, 42, 54))  // Dark background
+	styles.ApplyBorderedStyle(s.TreeView, "Categories", true)
 }

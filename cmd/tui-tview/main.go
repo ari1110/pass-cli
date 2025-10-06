@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/howeyc/gopass"
+	"pass-cli/cmd/tui-tview/styles"
 	"pass-cli/internal/vault"
 )
 
@@ -92,6 +93,9 @@ func promptForPassword() (string, error) {
 // launchTUI initializes and runs the TUI application
 // This is a stub that will be implemented in subsequent tasks
 func launchTUI(vaultService *vault.VaultService) error {
+	// Set rounded borders globally
+	styles.SetRoundedBorders()
+
 	// TODO: Implement TUI initialization in next tasks
 	// This will include:
 	// 1. Create tview.Application

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"pass-cli/cmd/tui-tview/models"
+	"pass-cli/cmd/tui-tview/styles"
 	"pass-cli/internal/vault"
 )
 
@@ -54,11 +54,12 @@ func NewCredentialTable(appState *models.AppState) *CredentialTable {
 // buildHeader creates the fixed header row with column titles.
 // Header row is not selectable and uses accent color.
 func (ct *CredentialTable) buildHeader() {
+	theme := styles.GetCurrentTheme()
 	headers := []string{"Service", "Username", "Last Used"}
 
 	for col, header := range headers {
 		cell := tview.NewTableCell(header).
-			SetTextColor(tcell.NewRGBColor(139, 233, 253)). // Cyan accent
+			SetTextColor(theme.TableHeader). // Purple header
 			SetAlign(tview.AlignLeft).
 			SetSelectable(false).
 			SetExpansion(1)
@@ -98,18 +99,20 @@ func (ct *CredentialTable) Refresh() {
 // populateRows adds credential rows to the table.
 // Stores credential reference in cell metadata for selection handling.
 func (ct *CredentialTable) populateRows(credentials []vault.CredentialMetadata) {
+	theme := styles.GetCurrentTheme()
+
 	for i, cred := range credentials {
 		row := i + 1 // +1 to skip header row
 
 		// Service column
 		serviceCell := tview.NewTableCell(cred.Service).
-			SetTextColor(tcell.NewRGBColor(248, 248, 242)). // White text
+			SetTextColor(theme.TextPrimary). // White text
 			SetAlign(tview.AlignLeft).
 			SetReference(cred) // Store credential in cell for selection
 
 		// Username column
 		usernameCell := tview.NewTableCell(cred.Username).
-			SetTextColor(tcell.NewRGBColor(189, 147, 249)). // Purple text
+			SetTextColor(theme.TableHeader). // Purple text
 			SetAlign(tview.AlignLeft)
 
 		// Last used column
@@ -118,7 +121,7 @@ func (ct *CredentialTable) populateRows(credentials []vault.CredentialMetadata) 
 			lastUsed = formatRelativeTime(cred.LastAccessed)
 		}
 		lastUsedCell := tview.NewTableCell(lastUsed).
-			SetTextColor(tcell.NewRGBColor(98, 114, 164)). // Gray text
+			SetTextColor(theme.TextSecondary). // Gray text
 			SetAlign(tview.AlignLeft)
 
 		ct.SetCell(row, 0, serviceCell)
@@ -163,11 +166,8 @@ func (ct *CredentialTable) filterByCategory(creds []vault.CredentialMetadata, ca
 // applyStyles applies borders, colors, and title to the table.
 // Uses rounded borders with cyan accent color and dark background.
 func (ct *CredentialTable) applyStyles() {
-	ct.SetBorder(true).
-		SetTitle(" Credentials ").
-		SetTitleAlign(tview.AlignLeft).
-		SetBorderColor(tcell.NewRGBColor(139, 233, 253)). // Cyan border
-		SetBackgroundColor(tcell.NewRGBColor(40, 42, 54))  // Dark background
+	styles.ApplyBorderedStyle(ct.Table, "Credentials", true)
+	styles.ApplyTableStyle(ct.Table)
 }
 
 // formatRelativeTime formats a timestamp as a relative time string.
