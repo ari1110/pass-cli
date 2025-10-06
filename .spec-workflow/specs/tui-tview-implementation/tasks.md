@@ -136,7 +136,7 @@
 
 ## Testing and Validation
 
-- [ ] 16. Create unit tests for core components
+- [x] 16. Create unit tests for core components
   - Files: cmd/tui-tview/models/state_test.go, cmd/tui-tview/components/sidebar_test.go, cmd/tui-tview/components/table_test.go, cmd/tui-tview/layout/manager_test.go
   - Write unit tests for state management, component refresh logic, and layout mode determination
   - Purpose: Ensure core logic reliability and catch regressions

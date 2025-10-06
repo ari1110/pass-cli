@@ -10,14 +10,24 @@ import (
 	"github.com/rivo/tview"
 )
 
+// VaultService interface defines the vault operations needed by AppState.
+// This interface enables testing with mock implementations.
+type VaultService interface {
+	ListCredentialsWithMetadata() ([]vault.CredentialMetadata, error)
+	AddCredential(service, username, password, category string) error
+	UpdateCredential(service, username, password, category string) error
+	DeleteCredential(service string) error
+	GetCredential(service string, trackUsage bool) (*vault.Credential, error)
+}
+
 // AppState holds all application state with thread-safe access.
 // This is the single source of truth for the entire TUI.
 type AppState struct {
 	// Concurrency control
 	mu sync.RWMutex // Protects all fields below
 
-	// Vault service
-	vault *vault.VaultService
+	// Vault service (interface for testability)
+	vault VaultService
 
 	// Credential data
 	credentials []vault.CredentialMetadata
@@ -40,7 +50,7 @@ type AppState struct {
 }
 
 // NewAppState creates a new AppState with the given vault service.
-func NewAppState(vaultService *vault.VaultService) *AppState {
+func NewAppState(vaultService VaultService) *AppState {
 	return &AppState{
 		vault:       vaultService,
 		credentials: make([]vault.CredentialMetadata, 0),
