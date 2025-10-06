@@ -52,7 +52,7 @@
   - _Requirements: 3.1, 3.2, 3.6, 7.4_
   - _Prompt: Read the requirements and design for the spec tui-tview-implementation and implement this task: Role: Go developer implementing TUI detail views | Task: Create components/detail.go with DetailView struct embedding tview.TextView, fields for appState and passwordVisible bool. Implement: NewDetailView(appState) to create TextView with dynamic text and setup, Refresh() to get selected credential and format display using formatCredential(), TogglePasswordVisibility() to toggle passwordVisible flag and refresh, CopyPasswordToClipboard() using clipboard.WriteAll() returning error, formatCredential() to create formatted text showing service, username, password (masked if !passwordVisible as "********"), URL, notes, timestamps. Follow cmd/tui-tview-skeleton/components/detail.go.md | Restrictions: Only read from AppState (GetSelectedCredential), do not modify credentials, handle nil credential gracefully (show "No credential selected"), use existing clipboard library, passwordVisible state is internal to component, use styles or hardcode temporarily | Success: detail.go compiles, formats credential display correctly, password toggle works, clipboard copy works, handles nil selection, Refresh() updates display, follows skeleton documentation_
 
-- [ ] 7. Create StatusBar component with context-aware shortcuts
+- [x] 7. Create StatusBar component with context-aware shortcuts
   - File: cmd/tui-tview/components/statusbar.go
   - Implement StatusBar wrapping tview.TextView with context-aware keyboard shortcut display and status messages
   - Purpose: Show available shortcuts and status messages
