@@ -6,7 +6,7 @@ Command-line interface (CLI) tool for secure credential management. Single-binar
 ## Core Technologies
 
 ### Primary Language(s)
-- **Language**: Go 1.25+ (modern Go with enhanced security features)
+- **Language**: Go 1.25.1 (modern Go with enhanced security features)
 - **Runtime/Compiler**: Go compiler with CGO disabled for static linking
 - **Language-specific tools**: Go modules for dependency management, built-in toolchain for cross-compilation
 
@@ -17,7 +17,9 @@ Command-line interface (CLI) tool for secure credential management. Single-binar
 - **github.com/atotto/clipboard v0.1.4**: Cross-platform clipboard operations
 - **github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef**: Secure password input with masking
 - **github.com/olekukonko/tablewriter v1.1.0**: Formatted table output for credential display
-- **github.com/charmbracelet/bubbletea v1.3.10**: TUI framework with Elm-inspired architecture (Model-Update-View pattern)
+- **github.com/charmbracelet/bubbletea v1.3.10**: TUI framework with Elm-inspired architecture (Model-Update-View pattern) - LEGACY implementation
+- **github.com/rivo/tview v0.42.0**: Terminal UI framework (indirect dependency, actively used for migration)
+- **github.com/gdamore/tcell/v2 v2.9.0**: Terminal cell-based view library (indirect, used by tview)
 - **github.com/charmbracelet/lipgloss v1.1.0**: Terminal styling library for layout, colors, and borders
 - **github.com/charmbracelet/bubbles v0.21.0**: Reusable TUI components (text input, viewport, list)
 - **golang.org/x/crypto v0.42.0**: Extended cryptographic functions (PBKDF2)
@@ -27,11 +29,22 @@ Command-line interface (CLI) tool for secure credential management. Single-binar
 ### Application Architecture
 Layered architecture with clear separation of concerns:
 - **CLI Layer**: Command interface using Cobra framework with script-friendly output modes
-- **TUI Layer**: Interactive dashboard built with Bubble Tea framework
-  - **Model-Update-View Pattern**: Elm-inspired architecture for state management
-  - **Component-Based Design**: Reusable UI components (sidebar, panels, status bar)
+- **TUI Layer**: Interactive dashboard currently in transition from Bubble Tea to tview
+  - **Current State**: Dual implementation - Bubble Tea (legacy, default) and tview (migration in progress)
+  - **Bubble Tea Components** (legacy): Model-Update-View pattern, component-based design with sidebar, panels, and status bar
+  - **tview Components** (new): TreeView-based sidebar, Flex layouts, Modal components, InputField components
+  - **Component-Based Design**: Reusable UI components (sidebar, metadata panel, command bar, breadcrumb, status bar)
+  - **Both implementations coexist**: Toggle in cmd/tui/tui.go (useBubbleTea flag currently true)
   - **Responsive Layout System**: Multi-panel dashboard with breakpoint-based adaptation
-  - **Styles & Theming**: Lipgloss-based styling with consistent color scheme and borders
+    - Breakpoints: 80 columns (medium - shows sidebar + main), 120 columns (large - shows sidebar + main + metadata)
+    - Layout calculation handled by LayoutManager component
+    - Panels automatically show/hide based on terminal width
+  - **Styles & Theming**: Lipgloss-based styling for Bubble Tea, tcell colors for tview
+    - Theme defined in cmd/tui/styles/theme.go
+    - Rounded borders for panels
+    - Active/inactive panel color distinction
+    - Context-aware keyboard shortcuts displayed in status bar
+  - **Testing**: Multi-terminal emulator testing required (Windows Terminal, iTerm2, gnome-terminal, Alacritty)
 - **Service Layer**: Business logic for credential management (Vault service) with automatic usage tracking
 - **Storage Layer**: Encrypted file operations and persistence with atomic writes
 - **Crypto Layer**: AES-256-GCM encryption and key derivation
@@ -58,27 +71,39 @@ Layered architecture with clear separation of concerns:
 - **Cross-compilation**: Native Go support for Windows, macOS, Linux (amd64, arm64)
 
 ### Code Quality Tools
-- **Static Analysis**: golangci-lint v2.5.0 (comprehensive linter suite)
-- **Security Scanning**: gosec (Go security checker)
+- **Static Analysis**: golangci-lint v2.5 (comprehensive linter suite, configured in CI)
+- **Security Scanning**: gosec v2 (Go security checker, runs in CI/CD pipeline)
+- **Vulnerability Checking**: govulncheck (Go vulnerability database scanner)
 - **Formatting**: goimports and gofmt (automatic import management and code formatting)
 - **Testing Framework**: Go's built-in testing package with table-driven tests
-- **Code Coverage**: go test with coverage analysis
+- **Code Coverage**: go test with coverage analysis and Codecov integration
 - **Documentation**: Go doc comments and README.md with usage examples
 
 ### Version Control & Collaboration
 - **VCS**: Git with conventional commit messages
 - **Branching Strategy**: GitHub Flow with feature branches and pull requests
 - **Code Review Process**: Required reviews for main branch, automated CI checks
+- **CI/CD Platform**: GitHub Actions
+  - **CI Workflow**: Unit tests, integration tests, linting, security scans on all PRs and main branch pushes
+  - **Test Matrix**: Cross-platform testing on Ubuntu, macOS, and Windows with Go 1.25
+  - **Release Workflow**: Automated releases with GoReleaser on version tags
+  - **Actions Used**: actions/checkout@v5, actions/setup-go@v6, golangci/golangci-lint-action@v8, goreleaser/goreleaser-action@v6, codecov/codecov-action@v5
 
 ## Deployment & Distribution
 - **Target Platform(s)**: Windows 10+, macOS 10.15+, Linux distributions with glibc 2.17+
+- **Build & Release Tool**: GoReleaser v2 (latest version, automated via GitHub Actions)
+  - **Build Configuration**: .goreleaser.yml with CGO_ENABLED=0, -trimpath, -mod=readonly flags
+  - **Version Injection**: Build-time ldflags for version, commit hash, and build date
+  - **Universal Binaries**: Automatic creation of macOS universal binaries (amd64 + arm64)
 - **Distribution Method**:
-  - GitHub Releases with automated binary builds
-  - Homebrew formula for macOS/Linux
-  - Scoop manifest for Windows
-  - Direct binary download
-- **Installation Requirements**: No runtime dependencies (static binary)
-- **Update Mechanism**: Package manager updates, manual binary replacement
+  - GitHub Releases with automated binary builds (Windows, macOS, Linux for amd64 and arm64)
+  - Homebrew tap (ari1110/homebrew-tap) with automated formula updates
+  - Scoop bucket (ari1110/scoop-bucket) with automated manifest updates
+  - Direct binary download with SHA256 checksums
+- **Archive Formats**: .tar.gz for Unix-like systems, .zip for Windows
+- **Installation Requirements**: No runtime dependencies (static binary, CGO disabled)
+- **Update Mechanism**: Package manager updates (Homebrew/Scoop), manual binary replacement
+- **Release Verification**: SHA256 checksums provided in checksums.txt for all releases
 
 ## Technical Requirements & Constraints
 
@@ -89,9 +114,10 @@ Layered architecture with clear separation of concerns:
 - **Binary size**: <20MB for cross-platform compatibility
 
 ### Compatibility Requirements
-- **Platform Support**: Windows (amd64, arm64), macOS (amd64, arm64), Linux (amd64, arm64)
-- **Go Version**: Minimum Go 1.25 for security and performance features
+- **Platform Support**: Windows (amd64, arm64), macOS (amd64, arm64 + universal binary), Linux (amd64, arm64)
+- **Go Version**: Go 1.25.1 (specified in go.mod, tested in CI with 1.25)
 - **Standards Compliance**: NIST encryption standards, OWASP secure coding practices
+- **Build Tags**: netgo (for static linking without CGO)
 
 ### Security & Compliance
 - **Encryption**: AES-256-GCM with cryptographically secure key derivation (PBKDF2, 100k iterations)
@@ -163,19 +189,22 @@ Layered architecture with clear separation of concerns:
    - Encryption as primary security (defense in depth approach)
    - Accept Windows can't enforce Unix-style permissions
 
-9. **Bubble Tea TUI Framework**:
-   - Elm-inspired architecture (Model-Update-View) for predictable state management
-   - Composable components and message-based communication
-   - Strong ecosystem (Lipgloss for styling, Bubbles for components)
-   - Production-ready framework used by major CLI tools (gum, charm, gh-dash)
-   - Clean separation between state logic and rendering
+9. **TUI Framework Migration (Bubble Tea → tview)**:
+   - **Current State**: Bubble Tea (default) with tview migration in progress
+   - **Reason for Migration**: Better component ecosystem and native tree/list views
+   - **Bubble Tea (Legacy)**: Elm-inspired Model-Update-View architecture
+   - **tview (New)**: Widget-based framework with TreeView, Flex, Modal, Pages components
+   - **Migration Strategy**: Dual implementation with feature flag toggle, complete component parity before switchover
+   - **Code Structure**: Each component has both Bubble Tea and tview implementations in same files
+   - **Recent Progress**: Implemented tview versions of Sidebar (TreeView), StatusBar (TextView), MetadataPanel (Flex), Breadcrumb (TextView), CommandBar (Modal + InputField)
 
-10. **Lipgloss Layout System**:
-   - Declarative styling with CSS-like API
-   - Automatic width/height calculation with border and padding support
-   - Composable layout primitives (JoinHorizontal, JoinVertical)
-   - Terminal color profile detection for broad compatibility
-   - Responsive design patterns for multi-panel layouts
+10. **Lipgloss and tcell Styling**:
+   - **Lipgloss**: Declarative styling with CSS-like API for Bubble Tea components
+   - **tcell**: Direct terminal cell manipulation and color management for tview
+   - **Styling Approach**: Consistent color palette defined in styles/theme.go, converted between Lipgloss and tcell color formats
+   - **Automatic width/height calculation** with border and padding support
+   - **Composable layout primitives**: JoinHorizontal, JoinVertical for Lipgloss; Flex for tview
+   - **Terminal color profile detection** for broad compatibility
 
 ## Known Limitations
 
@@ -183,3 +212,8 @@ Layered architecture with clear separation of concerns:
 - **Sync Capabilities**: No built-in synchronization across devices (future enhancement)
 - **Audit Logging**: Basic operation logging only, no comprehensive audit trail
 - **Plugin System**: Monolithic design, no extensibility via plugins (acceptable for v1.0)
+- **TUI Framework Migration**: Active migration from Bubble Tea to tview in progress
+  - Current default: Bubble Tea (useBubbleTea=true in tui.go)
+  - Some components have dual implementations (increases code size temporarily)
+  - Full migration expected to reduce dependencies and improve component reusability
+  - No user-facing impact until migration is complete and toggle is switched

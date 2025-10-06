@@ -20,20 +20,17 @@ Pass-CLI is a secure, cross-platform command-line password and API key manager d
 
 ## Key Features
 
-1. **Local Encrypted Storage**: AES-256-GCM encryption with PBKDF2 key derivation for maximum security
-2. **System Keychain Integration**: Optional master password storage in Windows Credential Manager, macOS Keychain, or Linux Secret Service (unique differentiator for CLI password managers)
-3. **Dual Interface Design**:
-   - **CLI Commands**: Fast, script-friendly commands for automation and workflow integration
-   - **Interactive TUI Dashboard**: Full-featured terminal UI with multi-panel layout, category tree navigation, real-time search, and visual credential management
-4. **Script-Friendly Output**: Support for shell integration with `--quiet` and `--field` flags for use in scripts like `$env:API_KEY=$(pass-cli get service -q)`
+1. **Local Encrypted Storage**: AES-256-GCM encryption with PBKDF2 key derivation (100,000 iterations) for maximum security
+2. **System Keychain Integration**: Automatic master password storage in Windows Credential Manager, macOS Keychain, or Linux Secret Service (unique differentiator for CLI password managers)
+3. **Fast CLI Commands**: Script-friendly commands for automation and workflow integration with sub-100ms credential retrieval
+4. **Script-Friendly Output**: Support for shell integration with `--quiet`, `--field`, and `--masked` flags for use in scripts like `$env:API_KEY=$(pass-cli get service -q)`
 5. **Automatic Usage Tracking**: Intelligent tracking of where credentials are used based on working directory, with no manual flags required
-6. **Cross-Platform Compatibility**: Single binary distribution for Windows, macOS, and Linux
+6. **Cross-Platform Compatibility**: Single binary distribution for Windows, macOS (Intel/ARM), and Linux (amd64/arm64)
 7. **Offline Operation**: No cloud dependencies, works completely offline
-8. **Password Generation**: Cryptographically secure password generation with customizable options
-9. **Clipboard Integration**: Automatic credential copying with optional `--no-clipboard` flag to disable
+8. **Password Generation**: Cryptographically secure password generation with customizable length and character options
+9. **Clipboard Integration**: Automatic credential copying with 30-second timeout and optional `--no-clipboard` flag to disable
 10. **Masked Password Display**: Optional `--masked` flag to display passwords as asterisks for additional security
-11. **Category-Based Organization**: Hierarchical category system with visual tree navigation in TUI mode
-12. **Package Manager Distribution**: Easy installation via Homebrew and Scoop
+11. **Package Manager Ready**: Homebrew and Scoop manifests prepared for distribution (pending publication to official repositories)
 
 ## Business Objectives
 
@@ -44,11 +41,11 @@ Pass-CLI is a secure, cross-platform command-line password and API key manager d
 
 ## Success Metrics
 
-- **Adoption**: 1,000+ GitHub stars within 6 months
-- **Distribution**: Available in Homebrew and Scoop package repositories
-- **Security**: Zero known vulnerabilities in encryption implementation
-- **Usability**: <100ms response time for all credential operations
-- **Quality**: 90%+ test coverage with comprehensive security testing
+- **Adoption**: Target 1,000+ GitHub stars within 6 months (currently in development)
+- **Distribution**: Homebrew and Scoop manifests ready for submission to official repositories
+- **Security**: Zero known vulnerabilities in encryption implementation (AES-256-GCM with authentication)
+- **Usability**: Sub-100ms response time for credential operations (verified in testing)
+- **Quality**: Comprehensive test coverage with automated CI/CD testing
 
 ## Product Principles
 
@@ -60,17 +57,21 @@ Pass-CLI is a secure, cross-platform command-line password and API key manager d
 
 ## Monitoring & Visibility
 
-- **Interface Types**:
-  - **CLI Mode**: Structured command output for scripting and automation
-  - **TUI Dashboard**: Interactive multi-panel interface with real-time updates
-- **Dashboard Features**:
-  - **Multi-Panel Layout**: Sidebar (category tree), main content (list/detail), metadata panel (credential info), status bar (shortcuts and context)
-  - **Real-time Search**: Instant credential filtering with live results
-  - **Visual Categorization**: Tree-based category navigation with expand/collapse
-  - **Responsive Design**: Adaptive layout based on terminal size (breakpoints at 80, 120 columns)
-  - **Keyboard Navigation**: Full keyboard control with context-aware shortcuts
-- **Key Metrics Displayed**: Credential count, vault statistics, usage tracking, last updated timestamps
-- **Sharing Capabilities**: Export functionality for backup and migration
+- **CLI Output Modes**:
+  - **Normal Mode**: Formatted table display with credential details
+  - **Quiet Mode**: Password-only output for scripting (`--quiet`)
+  - **Field Mode**: Extract specific fields like username, URL (`--field`)
+  - **Masked Mode**: Display passwords as asterisks (`--masked`)
+- **Usage Tracking**:
+  - Automatic tracking of credential access by working directory
+  - Last used timestamps for all credentials
+  - Usage count statistics
+  - Unused credential detection (`--unused --days N`)
+- **Key Metrics**:
+  - Total credential count
+  - Credentials per category (in vault data structure)
+  - Last accessed timestamps
+  - Creation and modification dates
 
 ## Competitive Landscape
 
@@ -105,17 +106,21 @@ Pass-CLI is a secure, cross-platform command-line password and API key manager d
 - Not a pure password manager
 - Uses go-keyring library
 
-**Pass-CLI Positioning**: The only pure CLI password manager with native OS keychain integration, symmetric encryption (AES-256-GCM), automatic usage tracking, AND a full-featured interactive TUI dashboard for visual credential management - combining the scriptability of CLI tools with the usability of visual interfaces.
+**Pass-CLI Positioning**: A pure CLI password manager with native OS keychain integration, symmetric encryption (AES-256-GCM), and automatic usage tracking. Unique features include sub-100ms credential retrieval, automatic directory-based usage tracking without manual flags, and multiple output modes (quiet, field-specific, masked) optimized for shell scripting and CI/CD pipelines.
 
 ## Future Vision
 
 Pass-CLI aims to become the standard CLI credential manager for developers, setting the benchmark for security, usability, and integration capabilities in the developer tools ecosystem.
 
-### Potential Enhancements
+### Features in Development
+- **Interactive TUI Dashboard** (In Progress): Multi-panel terminal interface with sidebar navigation, metadata panel, and visual credential management. Core components implemented in `cmd/tui/` using tview framework, pending command registration and final integration.
+
+### Planned Enhancements
 - **JSON Output Format**: Add `--json` flag for structured output to enable parsing with jq and other tools
-- **Remote Access**: Secure vault synchronization across multiple development machines
-- **Usage Analytics**: Comprehensive usage stats and insights based on automatic tracking
-- **Collaboration**: Team-based credential sharing with granular access controls
-- **Plugin Ecosystem**: Integration with popular development tools and CI/CD platforms
+- **Export/Import**: Credential backup and migration functionality for vault portability
+- **Browser Extensions**: Integration with web browsers for auto-fill capabilities
+- **Remote Sync**: Secure vault synchronization across multiple development machines
+- **Team Collaboration**: Shared credential vaults with granular access controls
+- **Two-Factor Authentication**: TOTP support for credentials requiring 2FA
 - **Audit Logging**: Comprehensive access logs for security compliance
-- **Advanced Script Integration**: Enhanced shell completion and automation features
+- **Advanced Shell Completion**: Enhanced completion for bash, zsh, fish, and PowerShell
