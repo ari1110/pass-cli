@@ -126,7 +126,7 @@
 
 ## Phase 7: Integration
 
-- [ ] 15. Wire everything together and register tui command
+- [x] 15. Wire everything together and register tui command
   - Files: cmd/tui-tview/main.go (complete launchTUI), cmd/root.go (register command)
   - Complete launchTUI() function to instantiate and wire all components, then register new `tui` command in root.go
   - Purpose: Integrate all components and enable TUI launch via `pass-cli tui`
