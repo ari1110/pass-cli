@@ -76,6 +76,17 @@ func (s *AppState) GetSelectedCategory() string {
 	return s.selectedCategory
 }
 
+// GetFullCredential fetches the full credential including password from vault.
+// This is used when password access is needed (display, clipboard).
+// SECURITY: Only call when password is actually needed (on-demand fetching).
+func (s *AppState) GetFullCredential(service string) (*vault.Credential, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	// Fetch full credential with password (trackUsage=true for statistics)
+	return s.vault.GetCredential(service, true)
+}
+
 // LoadCredentials loads all credentials from the vault.
 // CRITICAL: Follows Lock→Mutate→Unlock→Notify pattern to prevent deadlocks.
 func (s *AppState) LoadCredentials() error {

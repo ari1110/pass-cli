@@ -44,7 +44,7 @@
   - _Requirements: 3.1, 3.2, 3.6_
   - _Prompt: Read the requirements and design for the spec tui-tview-implementation and implement this task: Role: Go developer implementing TUI table components | Task: Create components/table.go with CredentialTable struct embedding tview.Table, fields for appState, filteredCreds, selectedIndex. Implement: NewCredentialTable(appState) to create Table with fixed header and setup, Refresh() to get credentials, filter by selected category, clear table, populate rows (service, username, last used columns), restore selection, buildHeader() to create fixed header row with column titles, populateRows() to add credential rows with cell metadata, onSelect() handler calling appState.SetSelectedCredential(), filterByCategory() helper, applyStyles() for borders and colors. Follow cmd/tui-tview-skeleton/components/table.go.md | Restrictions: Only read from AppState, filter credentials by selected category (empty = show all), store credential reference in cell metadata for selection, use SetSelectedFunc not keyboard intercept, header row should be fixed (row 0), use styles temporarily or hardcode | Success: table.go compiles, displays credentials in columns, filters by category correctly, selection updates AppState, Refresh() rebuilds table, follows skeleton documentation_
 
-- [ ] 6. Create DetailView component for credential details
+- [x] 6. Create DetailView component for credential details
   - File: cmd/tui-tview/components/detail.go
   - Implement DetailView wrapping tview.TextView with credential formatting, password visibility toggle, and clipboard copy
   - Purpose: Display selected credential details with actions
