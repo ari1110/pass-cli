@@ -39,9 +39,9 @@ type ColorScheme struct {
 // DefaultTheme provides a Dracula-inspired color scheme.
 var DefaultTheme = ColorScheme{
 	// Backgrounds
-	Background:      tcell.NewRGBColor(40, 42, 54),   // #282a36
-	BackgroundLight: tcell.NewRGBColor(68, 71, 90),   // #44475a
-	BackgroundDark:  tcell.NewRGBColor(30, 32, 44),   // #1e202c
+	Background:      tcell.NewRGBColor(40, 42, 54), // #282a36
+	BackgroundLight: tcell.NewRGBColor(68, 71, 90), // #44475a
+	BackgroundDark:  tcell.NewRGBColor(30, 32, 44), // #1e202c
 
 	// Borders
 	BorderColor:    tcell.NewRGBColor(139, 233, 253), // #8be9fd (cyan)

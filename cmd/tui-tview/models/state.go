@@ -34,9 +34,9 @@ type AppState struct {
 	statusBar  *tview.TextView
 
 	// Notification callbacks
-	onCredentialsChanged func()       // Called when credentials are loaded/modified
-	onSelectionChanged   func()       // Called when selection changes
-	onError              func(error)  // Called when errors occur
+	onCredentialsChanged func()      // Called when credentials are loaded/modified
+	onSelectionChanged   func()      // Called when selection changes
+	onError              func(error) // Called when errors occur
 }
 
 // NewAppState creates a new AppState with the given vault service.
@@ -96,7 +96,7 @@ func (s *AppState) LoadCredentials() error {
 	creds, err := s.vault.ListCredentialsWithMetadata()
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to load credentials: %w", err)
-		s.mu.Unlock() // ✅ RELEASE LOCK FIRST
+		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
 		s.notifyError(wrappedErr) // ✅ THEN notify
 		return wrappedErr
 	}
@@ -105,7 +105,7 @@ func (s *AppState) LoadCredentials() error {
 	s.credentials = creds
 	s.updateCategories() // Internal helper, safe to call while locked
 
-	s.mu.Unlock() // ✅ RELEASE LOCK
+	s.mu.Unlock()                // ✅ RELEASE LOCK
 	s.notifyCredentialsChanged() // ✅ THEN notify
 
 	return nil
@@ -120,7 +120,7 @@ func (s *AppState) AddCredential(service, username, password string) error {
 	err := s.vault.AddCredential(service, username, password, "")
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to add credential: %w", err)
-		s.mu.Unlock() // ✅ RELEASE LOCK FIRST
+		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
 		s.notifyError(wrappedErr) // ✅ THEN notify
 		return wrappedErr
 	}
@@ -129,7 +129,7 @@ func (s *AppState) AddCredential(service, username, password string) error {
 	creds, err := s.vault.ListCredentialsWithMetadata()
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to reload credentials: %w", err)
-		s.mu.Unlock() // ✅ RELEASE LOCK FIRST
+		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
 		s.notifyError(wrappedErr) // ✅ THEN notify
 		return wrappedErr
 	}
@@ -137,7 +137,7 @@ func (s *AppState) AddCredential(service, username, password string) error {
 	s.credentials = creds
 	s.updateCategories() // Update categories while locked
 
-	s.mu.Unlock() // ✅ RELEASE LOCK
+	s.mu.Unlock()                // ✅ RELEASE LOCK
 	s.notifyCredentialsChanged() // ✅ THEN notify
 
 	return nil
@@ -152,7 +152,7 @@ func (s *AppState) UpdateCredential(service, username, password string) error {
 	err := s.vault.UpdateCredential(service, username, password, "")
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to update credential: %w", err)
-		s.mu.Unlock() // ✅ RELEASE LOCK FIRST
+		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
 		s.notifyError(wrappedErr) // ✅ THEN notify
 		return wrappedErr
 	}
@@ -161,7 +161,7 @@ func (s *AppState) UpdateCredential(service, username, password string) error {
 	creds, err := s.vault.ListCredentialsWithMetadata()
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to reload credentials: %w", err)
-		s.mu.Unlock() // ✅ RELEASE LOCK FIRST
+		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
 		s.notifyError(wrappedErr) // ✅ THEN notify
 		return wrappedErr
 	}
@@ -169,7 +169,7 @@ func (s *AppState) UpdateCredential(service, username, password string) error {
 	s.credentials = creds
 	s.updateCategories() // Update categories while locked
 
-	s.mu.Unlock() // ✅ RELEASE LOCK
+	s.mu.Unlock()                // ✅ RELEASE LOCK
 	s.notifyCredentialsChanged() // ✅ THEN notify
 
 	return nil
@@ -184,7 +184,7 @@ func (s *AppState) DeleteCredential(service string) error {
 	err := s.vault.DeleteCredential(service)
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to delete credential: %w", err)
-		s.mu.Unlock() // ✅ RELEASE LOCK FIRST
+		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
 		s.notifyError(wrappedErr) // ✅ THEN notify
 		return wrappedErr
 	}
@@ -193,7 +193,7 @@ func (s *AppState) DeleteCredential(service string) error {
 	creds, err := s.vault.ListCredentialsWithMetadata()
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to reload credentials: %w", err)
-		s.mu.Unlock() // ✅ RELEASE LOCK FIRST
+		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
 		s.notifyError(wrappedErr) // ✅ THEN notify
 		return wrappedErr
 	}
@@ -201,7 +201,7 @@ func (s *AppState) DeleteCredential(service string) error {
 	s.credentials = creds
 	s.updateCategories() // Update categories while locked
 
-	s.mu.Unlock() // ✅ RELEASE LOCK
+	s.mu.Unlock()                // ✅ RELEASE LOCK
 	s.notifyCredentialsChanged() // ✅ THEN notify
 
 	return nil

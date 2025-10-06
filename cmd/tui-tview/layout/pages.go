@@ -146,16 +146,16 @@ func (pm *PageManager) HasModals() bool {
 func (pm *PageManager) centerModal(modal tview.Primitive, width, height int) tview.Primitive {
 	// Create horizontal centering
 	hFlex := tview.NewFlex().
-		AddItem(nil, 0, 1, false).          // Left spacer (flex)
-		AddItem(modal, width, 0, true).     // Modal (fixed width)
-		AddItem(nil, 0, 1, false)           // Right spacer (flex)
+		AddItem(nil, 0, 1, false).      // Left spacer (flex)
+		AddItem(modal, width, 0, true). // Modal (fixed width)
+		AddItem(nil, 0, 1, false)       // Right spacer (flex)
 
 	// Create vertical + horizontal centering
 	vFlex := tview.NewFlex().
 		SetDirection(tview.FlexRow).
-		AddItem(nil, 0, 1, false).              // Top spacer
-		AddItem(hFlex, height, 0, true).        // Middle row
-		AddItem(nil, 0, 1, false)               // Bottom spacer
+		AddItem(nil, 0, 1, false).       // Top spacer
+		AddItem(hFlex, height, 0, true). // Middle row
+		AddItem(nil, 0, 1, false)        // Bottom spacer
 
 	return vFlex
 }
