@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/rivo/tview"
+	"pass-cli/cmd/tui-tview/styles"
 )
 
 // FocusableComponent represents components that can receive focus.
@@ -16,7 +17,8 @@ const (
 // NavigationState manages focus navigation between components.
 // Provides Tab cycling and focus management with proper order tracking.
 type NavigationState struct {
-	app *tview.Application
+	app      *tview.Application
+	appState *AppState
 
 	focusOrder   []tview.Primitive
 	currentIndex int
@@ -25,13 +27,28 @@ type NavigationState struct {
 }
 
 // NewNavigationState creates a new navigation state manager.
-// Initialize with empty focus order - components will be registered later.
-func NewNavigationState(app *tview.Application) *NavigationState {
-	return &NavigationState{
+// Builds initial focus order from AppState components.
+func NewNavigationState(app *tview.Application, appState *AppState) *NavigationState {
+	ns := &NavigationState{
 		app:          app,
-		focusOrder:   make([]tview.Primitive, 0),
+		appState:     appState,
+		focusOrder:   make([]tview.Primitive, 0, 3), // Pre-allocate for 3 components
 		currentIndex: 0,
 	}
+
+	// Build focus order from appState components
+	// Order: Sidebar -> Table -> Detail
+	if sidebar := appState.GetSidebar(); sidebar != nil {
+		ns.focusOrder = append(ns.focusOrder, sidebar)
+	}
+	if table := appState.GetTable(); table != nil {
+		ns.focusOrder = append(ns.focusOrder, table)
+	}
+	if detail := appState.GetDetailView(); detail != nil {
+		ns.focusOrder = append(ns.focusOrder, detail)
+	}
+
+	return ns
 }
 
 // SetFocusOrder sets the components that can receive focus in tab order.
@@ -88,6 +105,7 @@ func (ns *NavigationState) SetOnFocusChanged(callback func(FocusableComponent)) 
 }
 
 // setFocus is an internal helper that updates focus and triggers callbacks.
+// CRITICAL: Also updates border colors for visual feedback.
 func (ns *NavigationState) setFocus(index int) {
 	if index < 0 || index >= len(ns.focusOrder) {
 		return
@@ -96,7 +114,33 @@ func (ns *NavigationState) setFocus(index int) {
 	primitive := ns.focusOrder[index]
 	ns.app.SetFocus(primitive)
 
+	// Update border colors for all components
+	// Active component gets active border color, others get inactive
+	ns.updateBorderColors(index)
+
 	if ns.onFocusChanged != nil {
 		ns.onFocusChanged(FocusableComponent(index))
+	}
+}
+
+// updateBorderColors applies active/inactive border styling to components.
+// Active component gets highlighted border, others get dimmed border.
+func (ns *NavigationState) updateBorderColors(activeIndex int) {
+	// Update sidebar
+	if sidebar := ns.appState.GetSidebar(); sidebar != nil {
+		sidebarIndex := 0 // Sidebar is first in focus order
+		styles.ApplyBorderedStyle(sidebar, "Categories", activeIndex == sidebarIndex)
+	}
+
+	// Update table
+	if table := ns.appState.GetTable(); table != nil {
+		tableIndex := 1 // Table is second in focus order
+		styles.ApplyBorderedStyle(table, "Credentials", activeIndex == tableIndex)
+	}
+
+	// Update detail view
+	if detail := ns.appState.GetDetailView(); detail != nil {
+		detailIndex := 2 // Detail is third in focus order
+		styles.ApplyBorderedStyle(detail, "Details", activeIndex == detailIndex)
 	}
 }
