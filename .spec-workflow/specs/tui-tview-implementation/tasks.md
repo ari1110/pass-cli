@@ -62,7 +62,7 @@
 
 ## Phase 3: Forms
 
-- [ ] 8. Create Add and Edit credential forms
+- [x] 8. Create Add and Edit credential forms
   - File: cmd/tui-tview/components/forms.go
   - Implement AddForm and EditForm wrapping tview.Form with input fields, validation, and submit/cancel callbacks
   - Purpose: Provide modal forms for credential CRUD operations

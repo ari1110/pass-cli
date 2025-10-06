@@ -125,23 +125,23 @@ func ApplyBorderedStyle(p tview.Primitive, title string, active bool) {
 func ApplyTableStyle(table *tview.Table) {
 	theme := GetCurrentTheme()
 
-	table.SetBackgroundColor(theme.Background).
-		SetSelectedStyle(tcell.StyleDefault.
-			Background(theme.TableSelected).
-			Foreground(theme.TextPrimary).
-			Bold(true))
+	table.SetBackgroundColor(theme.Background)
+	table.SetSelectedStyle(tcell.StyleDefault.
+		Background(theme.TableSelected).
+		Foreground(theme.TextPrimary).
+		Bold(true))
 }
 
 // ApplyFormStyle applies consistent styling to form components.
 func ApplyFormStyle(form *tview.Form) {
 	theme := GetCurrentTheme()
 
-	form.SetBackgroundColor(theme.Background).
-		SetButtonBackgroundColor(theme.ButtonBackground).
-		SetButtonTextColor(theme.ButtonText).
-		SetLabelColor(theme.TextSecondary).
-		SetFieldBackgroundColor(theme.BackgroundLight).
-		SetFieldTextColor(theme.TextPrimary)
+	form.SetBackgroundColor(theme.Background)
+	form.SetButtonBackgroundColor(theme.ButtonBackground)
+	form.SetButtonTextColor(theme.ButtonText)
+	form.SetLabelColor(theme.TextSecondary)
+	form.SetFieldBackgroundColor(theme.BackgroundLight)
+	form.SetFieldTextColor(theme.TextPrimary)
 }
 
 // Lighten makes a color lighter by the given percentage.
