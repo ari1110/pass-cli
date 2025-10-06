@@ -2,7 +2,7 @@
 
 ## Phase 1: Core Infrastructure
 
-- [ ] 1. Create TUI entry point and vault unlocking logic
+- [x] 1. Create TUI entry point and vault unlocking logic
   - File: cmd/tui-tview/main.go
   - Implement main() function with vault service initialization, keychain unlock attempt, password prompt fallback, and TUI launch orchestration
   - Purpose: Provide entry point for TUI mode with secure vault unlocking
