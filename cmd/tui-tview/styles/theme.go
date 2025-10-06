@@ -83,6 +83,7 @@ func SetRoundedBorders() {
 }
 
 // ApplyBorderedStyle applies consistent border styling to a component.
+// Uses type switch to handle all tview primitive types.
 func ApplyBorderedStyle(p tview.Primitive, title string, active bool) {
 	theme := GetCurrentTheme()
 	borderColor := theme.BorderInactive
@@ -113,6 +114,27 @@ func ApplyBorderedStyle(p tview.Primitive, title string, active bool) {
 			SetBackgroundColor(theme.Background)
 
 	case *tview.TextView:
+		v.SetBorder(true).
+			SetTitle(" " + title + " ").
+			SetTitleAlign(tview.AlignLeft).
+			SetBorderColor(borderColor).
+			SetBackgroundColor(theme.Background)
+
+	case *tview.Form:
+		v.SetBorder(true).
+			SetTitle(" " + title + " ").
+			SetTitleAlign(tview.AlignLeft).
+			SetBorderColor(borderColor).
+			SetBackgroundColor(theme.Background)
+
+	case *tview.Modal:
+		v.SetBorder(true).
+			SetTitle(" " + title + " ").
+			SetTitleAlign(tview.AlignLeft).
+			SetBorderColor(borderColor).
+			SetBackgroundColor(theme.Background)
+
+	case *tview.List:
 		v.SetBorder(true).
 			SetTitle(" " + title + " ").
 			SetTitleAlign(tview.AlignLeft).
