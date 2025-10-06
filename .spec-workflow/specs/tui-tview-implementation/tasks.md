@@ -10,7 +10,7 @@
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
   - _Prompt: Implement the task for spec tui-tview-implementation: Role: Go developer implementing CLI applications with secure credential handling | Task: Create the TUI entry point in cmd/tui-tview/main.go with vault unlocking flow - attempt keychain unlock via VaultService.UnlockWithKeychain(), fall back to password prompt using howeyc/gopass for masked input (max 3 attempts), then call launchTUI() function that will be implemented in next tasks. Include main(), launchTUI(vaultService), and promptForPassword() functions following the structure in cmd/tui-tview-skeleton/main.go.md | Restrictions: Do not modify existing vault service code, handle all error cases gracefully with user-friendly messages, exit with appropriate codes (0 success, 1 failure), do not start TUI rendering yet (that's in next tasks) | Success: main.go compiles without errors, vault unlocking works via keychain and password fallback, error messages are clear, proper exit codes used, follows skeleton documentation_
 
-- [ ] 2. Implement tview.Application lifecycle and panic recovery
+- [x] 2. Implement tview.Application lifecycle and panic recovery
   - File: cmd/tui-tview/app.go
   - Create application configuration, panic recovery, terminal restoration, and graceful shutdown utilities
   - Purpose: Manage tview.Application lifecycle with error handling
