@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The tui-tview-implementation feature converts the comprehensive architectural documentation in `cmd/tui-tview-skeleton/` into a fully functional tview-based Terminal User Interface (TUI) for pass-cli. This implementation will replace the existing Bubble Tea TUI, providing a modern, widget-based interface for managing credentials with improved component reusability, cleaner state management, and prevention of mutex deadlocks that plagued previous attempts.
+The tui-tview-implementation feature converts the comprehensive architectural documentation in `cmd/tui-tview-skeleton/` into a fully functional tview-based Terminal User Interface (TUI) for pass-cli. This implementation creates a NEW tview-based TUI in the `cmd/tui-tview/` directory alongside the existing Bubble Tea implementation in `cmd/tui/`, providing a modern, widget-based interface for managing credentials with improved component reusability, cleaner state management, and prevention of mutex deadlocks that plagued previous attempts.
 
 The skeleton contains 14 detailed .md files documenting every aspect of the architecture: entry points, state management, UI components, layout system, event handling, and styling. This spec implements that complete design into production-ready Go code.
 
@@ -16,6 +16,17 @@ This feature directly supports pass-cli's product vision as outlined in product.
 4. **Features in Development**: Completes the "Interactive TUI Dashboard" feature explicitly listed as "In Progress" in product.md
 
 The TUI dashboard enhances pass-cli from a pure CLI tool to a comprehensive credential management system with both command-line and interactive modes.
+
+## Scope Boundary (CRITICAL)
+
+**This spec creates a NEW implementation in `cmd/tui-tview/` directory.**
+
+The existing `cmd/tui/` directory contains the legacy Bubble Tea implementation and **MUST NOT be modified, referenced, or analyzed** during implementation of this spec. Both implementations will coexist:
+
+- ✅ `cmd/tui/` - Existing Bubble Tea implementation (preserved, untouched)
+- ✅ `cmd/tui-tview/` - New tview implementation (this spec's focus)
+
+Removal or migration of the old Bubble Tea code is **explicitly out of scope** and will be handled in a separate future specification.
 
 ## Requirements
 

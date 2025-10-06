@@ -4,9 +4,25 @@
 
 The tui-tview-implementation converts comprehensive architectural documentation from `cmd/tui-tview-skeleton/` into a production-ready tview-based Terminal User Interface. The design follows a clean, modular architecture with strict separation between state management, UI components, layout logic, and event handling.
 
-This implementation creates a modern, widget-based TUI using rivo/tview framework, replacing the existing Bubble Tea implementation with a design that prevents mutex deadlocks, eliminates duplicate component instances, and provides responsive layout adaptation based on terminal size.
+This implementation creates a modern, widget-based TUI using rivo/tview framework in a NEW directory (`cmd/tui-tview/`) alongside the existing Bubble Tea implementation (`cmd/tui/`). The design prevents mutex deadlocks, eliminates duplicate component instances, and provides responsive layout adaptation based on terminal size.
 
 **Key Architecture Principle**: Single source of truth (AppState) → Components read from state → Layout composes components → Events modify state.
+
+## Scope Boundary (CRITICAL)
+
+**This spec builds a NEW implementation, not a modification of existing code.**
+
+**Directory boundaries:**
+- ✅ **Work in**: `cmd/tui-tview/` - New tview implementation (this spec)
+- ❌ **Do NOT touch**: `cmd/tui/` - Existing Bubble Tea implementation (preserved)
+- ✅ **Reference**: `cmd/tui-tview-skeleton/` - Architectural documentation
+
+**Integration boundaries:**
+- ✅ **Reuse**: `internal/vault`, `internal/keychain`, `internal/crypto` (existing services)
+- ✅ **Reuse**: External dependencies (tview, tcell, clipboard, etc.)
+- ❌ **Do NOT reference**: `cmd/tui/components/`, `cmd/tui/views/` (Bubble Tea code)
+
+The old Bubble Tea implementation remains functional and is NOT being migrated in this spec. Removal is a separate future task.
 
 ## Steering Document Alignment
 
