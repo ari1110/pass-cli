@@ -83,14 +83,15 @@ func (af *AddForm) buildFormFields() {
 	}
 
 	// Core credential fields
-	af.AddInputField("Service", "", 40, nil, nil)
-	af.AddInputField("Username", "", 40, nil, nil)
-	af.AddPasswordField("Password", "", 40, '*', nil)
+	// Use 0 width to make fields fill available space (prevents black rectangles)
+	af.AddInputField("Service", "", 0, nil, nil)
+	af.AddInputField("Username", "", 0, nil, nil)
+	af.AddPasswordField("Password", "", 0, '*', nil)
 
 	// Optional metadata fields - default to "Uncategorized"
 	af.AddDropDown("Category", categories, uncategorizedIndex, nil)
-	af.AddInputField("URL", "", 40, nil, nil)
-	af.AddTextArea("Notes", "", 40, 5, 0, nil)
+	af.AddInputField("URL", "", 0, nil, nil)
+	af.AddTextArea("Notes", "", 0, 5, 0, nil)
 
 	// Action buttons
 	af.AddButton("Add", af.onAddPressed)
@@ -245,17 +246,18 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 
 	// Pre-populate fields with existing credential data
 	// Service field is read-only (cannot be changed in edit mode)
-	ef.AddInputField("Service", ef.credential.Service, 40, nil, nil)
+	// Use 0 width to make fields fill available space (prevents black rectangles)
+	ef.AddInputField("Service", ef.credential.Service, 0, nil, nil)
 	serviceField := ef.GetFormItem(0).(*tview.InputField)
 	serviceField.SetDisabled(true) // Make read-only to prevent confusion
 
-	ef.AddInputField("Username", ef.credential.Username, 40, nil, nil)
+	ef.AddInputField("Username", ef.credential.Username, 0, nil, nil)
 
 	// Password field - defer fetching until user focuses field (lazy loading)
 	// This prevents blocking UI and avoids incrementing usage stats on form open
 	passwordField := tview.NewInputField().
 		SetLabel("Password").
-		SetFieldWidth(40).
+		SetFieldWidth(0).
 		SetMaskCharacter('*')
 
 	// Attach focus handler to fetch password lazily
@@ -267,8 +269,8 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 
 	// Optional metadata fields - pre-populated from credential
 	ef.AddDropDown("Category", categories, categoryIndex, nil)
-	ef.AddInputField("URL", ef.credential.URL, 40, nil, nil)
-	ef.AddTextArea("Notes", ef.credential.Notes, 40, 5, 0, nil)
+	ef.AddInputField("URL", ef.credential.URL, 0, nil, nil)
+	ef.AddTextArea("Notes", ef.credential.Notes, 0, 5, 0, nil)
 
 	// Action buttons
 	ef.AddButton("Save", ef.onSavePressed)

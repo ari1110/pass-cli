@@ -167,6 +167,13 @@ func ApplyFormStyle(form *tview.Form) {
 	form.SetButtonBackgroundColor(theme.ButtonBackground)
 	form.SetButtonTextColor(theme.ButtonText)
 	form.SetLabelColor(theme.TextPrimary) // Use primary text for labels (better contrast)
+
+	// Set field style using tcell.Style for complete background coverage
+	form.SetFieldStyle(tcell.StyleDefault.
+		Background(theme.BackgroundLight).
+		Foreground(theme.TextPrimary))
+
+	// Also set individual colors for compatibility
 	form.SetFieldBackgroundColor(theme.BackgroundLight)
 	form.SetFieldTextColor(theme.TextPrimary)
 }
