@@ -9,6 +9,15 @@ import (
 	"pass-cli/internal/vault"
 )
 
+// normalizeCategory converts the "Uncategorized" UI label to empty string for storage.
+// Prevents the UI label from leaking into credential data.
+func normalizeCategory(c string) string {
+	if c == "Uncategorized" {
+		return ""
+	}
+	return c
+}
+
 // AddForm provides a modal form for adding new credentials.
 // Embeds tview.Form and manages validation and submission.
 type AddForm struct {
@@ -27,6 +36,9 @@ type EditForm struct {
 
 	appState   *models.AppState
 	credential *vault.CredentialMetadata
+
+	originalPassword string // Track original password to detect changes
+	passwordFetched  bool   // Track if password has been fetched (lazy loading)
 
 	onSubmit func()
 	onCancel func()
@@ -85,6 +97,7 @@ func (af *AddForm) onAddPressed() {
 	// Extract category from dropdown (index 3)
 	categoryDropdown := af.GetFormItem(3).(*tview.DropDown)
 	_, category := categoryDropdown.GetCurrentOption()
+	category = normalizeCategory(category) // Convert "Uncategorized" to empty string
 
 	url := af.GetFormItem(4).(*tview.InputField).GetText()
 	notes := af.GetFormItem(5).(*tview.TextArea).GetText()
@@ -195,22 +208,62 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 	categoryIndex := ef.findCategoryIndex(categories)
 
 	// Pre-populate fields with existing credential data
+	// Service field is read-only (cannot be changed in edit mode)
 	ef.AddInputField("Service", ef.credential.Service, 40, nil, nil)
+	serviceField := ef.GetFormItem(0).(*tview.InputField)
+	serviceField.SetDisabled(true) // Make read-only to prevent confusion
+
 	ef.AddInputField("Username", ef.credential.Username, 40, nil, nil)
 
-	// Password field - need to fetch full credential to get password
-	// For now, leave empty (user can enter new password or keep existing)
-	ef.AddPasswordField("Password", "", 40, '*', nil)
+	// Password field - defer fetching until user focuses field (lazy loading)
+	// This prevents blocking UI and avoids incrementing usage stats on form open
+	passwordField := tview.NewInputField().
+		SetLabel("Password").
+		SetFieldWidth(40).
+		SetMaskCharacter('*')
 
-	// Optional metadata fields
-	// TODO: Pre-populate from credential once Category, URL, Notes are available
+	// Attach focus handler to fetch password lazily
+	passwordField.SetFocusFunc(func() {
+		ef.fetchPasswordIfNeeded(passwordField)
+	})
+
+	ef.AddFormItem(passwordField)
+
+	// Optional metadata fields - pre-populated from credential
 	ef.AddDropDown("Category", categories, categoryIndex, nil)
-	ef.AddInputField("URL", "", 50, nil, nil)
-	ef.AddTextArea("Notes", "", 50, 5, 0, nil)
+	ef.AddInputField("URL", ef.credential.URL, 50, nil, nil)
+	ef.AddTextArea("Notes", ef.credential.Notes, 50, 5, 0, nil)
 
 	// Action buttons
 	ef.AddButton("Save", ef.onSavePressed)
 	ef.AddButton("Cancel", ef.onCancelPressed)
+}
+
+// fetchPasswordIfNeeded lazily fetches the password when the field is focused.
+// Uses track=false to avoid incrementing usage statistics on form pre-population.
+// Caches result to avoid redundant fetches on repeated focus events.
+func (ef *EditForm) fetchPasswordIfNeeded(passwordField *tview.InputField) {
+	// Only fetch once
+	if ef.passwordFetched {
+		return
+	}
+
+	// Fetch credential without tracking (track=false)
+	cred, err := ef.appState.GetFullCredentialWithTracking(ef.credential.Service, false)
+	if err != nil {
+		// Surface error via AppState error handler without blocking UI
+		// Leave password field empty on error
+		ef.passwordFetched = true // Mark as attempted to avoid retry loops
+		return
+	}
+
+	// Set password field and cache original value
+	if cred != nil {
+		ef.originalPassword = cred.Password
+		passwordField.SetText(cred.Password)
+	}
+
+	ef.passwordFetched = true
 }
 
 // onSavePressed handles the Save button submission.
@@ -223,13 +276,17 @@ func (ef *EditForm) onSavePressed() {
 	}
 
 	// Extract field values
-	service := ef.GetFormItem(0).(*tview.InputField).GetText()
+	// Note: Use original credential.Service as identifier, not form field
+	// This prevents ErrCredentialNotFound if user tries to edit service name
+	// For service renaming, a dedicated rename flow should be implemented
+	service := ef.credential.Service
 	username := ef.GetFormItem(1).(*tview.InputField).GetText()
 	password := ef.GetFormItem(2).(*tview.InputField).GetText()
 
 	// Extract category from dropdown
 	categoryDropdown := ef.GetFormItem(3).(*tview.DropDown)
 	_, category := categoryDropdown.GetCurrentOption()
+	category = normalizeCategory(category) // Convert "Uncategorized" to empty string
 
 	url := ef.GetFormItem(4).(*tview.InputField).GetText()
 	notes := ef.GetFormItem(5).(*tview.TextArea).GetText()
@@ -241,9 +298,9 @@ func (ef *EditForm) onSavePressed() {
 		opts.Username = &username
 	}
 
-	// If password is empty, don't update it (nil pointer = don't change)
-	// If password is non-empty, update it
-	if password != "" {
+	// Only update password if user changed it (not empty AND different from original)
+	// This prevents unnecessary updates when user just views the form
+	if password != "" && password != ef.originalPassword {
 		opts.Password = &password
 	}
 
@@ -311,8 +368,22 @@ func (ef *EditForm) getCategories() []string {
 // findCategoryIndex finds the index of the credential's category in the dropdown.
 // Returns 0 if category not found.
 func (ef *EditForm) findCategoryIndex(categories []string) int {
-	// TODO: Once credential has Category field, match it here
-	// For now, return 0 (first category)
+	// If credential has empty category, prefer "Uncategorized" in dropdown
+	if ef.credential.Category == "" {
+		for i, c := range categories {
+			if c == "Uncategorized" {
+				return i
+			}
+		}
+		return 0
+	}
+	// Match credential's category against the categories list
+	for i, c := range categories {
+		if c == ef.credential.Category {
+			return i
+		}
+	}
+	// Return 0 (first category) if no match found
 	return 0
 }
 

@@ -104,11 +104,16 @@ func (s *AppState) GetSelectedCategory() string {
 // This is used when password access is needed (display, clipboard).
 // SECURITY: Only call when password is actually needed (on-demand fetching).
 func (s *AppState) GetFullCredential(service string) (*vault.Credential, error) {
+	return s.GetFullCredentialWithTracking(service, true)
+}
+
+// GetFullCredentialWithTracking retrieves a credential with optional usage tracking.
+// Set track=false to avoid incrementing usage statistics (e.g., for form pre-population).
+func (s *AppState) GetFullCredentialWithTracking(service string, track bool) (*vault.Credential, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	// Fetch full credential with password (trackUsage=true for statistics)
-	return s.vault.GetCredential(service, true)
+	return s.vault.GetCredential(service, track)
 }
 
 // LoadCredentials loads all credentials from the vault.
