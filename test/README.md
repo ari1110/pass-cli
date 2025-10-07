@@ -181,7 +181,7 @@ Keychain integration tests interact with real OS keychains:
 ## Test Utilities
 
 ### test-tui.bat
-Manual TUI testing script for interactive testing (Windows batch script).
+Manual TUI testing script for interactive testing (Windows batch script) - **LEGACY Bubble Tea TUI**
 
 **Location**: `test/test-tui.bat`
 
@@ -197,7 +197,42 @@ test\test-tui.bat
 # 4. Provide instructions to launch the TUI manually
 ```
 
-**Purpose**: Quickly set up a test environment for manual TUI testing and exploration.
+**Purpose**: Quickly set up a test environment for manual TUI testing and exploration (legacy Bubble Tea implementation).
+
+### setup-tview-test-data.bat / .sh
+**NEW**: Comprehensive test data setup for tview TUI implementation manual testing
+
+**Location**: `test/setup-tview-test-data.bat` (Windows), `test/setup-tview-test-data.sh` (Unix)
+
+**Usage** (run from project root):
+```bash
+# Windows
+test\setup-tview-test-data.bat
+
+# macOS/Linux (make executable first)
+chmod +x test/setup-tview-test-data.sh
+./test/setup-tview-test-data.sh
+
+# The script will:
+# 1. Build the pass-cli binary (if needed)
+# 2. Initialize test vault (test-vault-tview/vault.enc)
+# 3. Add 15 comprehensive test credentials across 8 categories
+# 4. Provide launch instructions
+```
+
+**Test Data Created**:
+- **Vault**: `test-vault-tview/vault.enc`
+- **Password**: `test123456`
+- **Credentials**: 15 credentials across Cloud, Databases, APIs, AI Services, Communication, Payment, Version Control, and Uncategorized categories
+- **Special Test Cases**: Long names, special characters, Unicode support testing
+
+**Purpose**: Create comprehensive test data for validating tview TUI implementation against all requirements (Task 17 of tui-tview-implementation spec).
+
+**Documentation**:
+- **Quick Start**: `docs/development/TVIEW_TESTING_QUICKSTART.md` - 5-minute setup guide
+- **Full Checklist**: `docs/development/TVIEW_MANUAL_TESTING_CHECKLIST.md` - Complete testing checklist
+- **Expected Results**: `docs/development/TVIEW_EXPECTED_RESULTS.md` - Detailed expected behavior
+- **Test Report Template**: `docs/development/TVIEW_TEST_REPORT_TEMPLATE.md` - Formal test report
 
 ## Test Data
 
