@@ -135,7 +135,7 @@ func (eh *EventHandler) handleNewCredential() {
 		eh.pageManager.CloseModal("add-form")
 	})
 
-	eh.pageManager.ShowModal("add-form", form, 60, 20)
+	eh.pageManager.ShowModal("add-form", form, layout.FormModalWidth, layout.FormModalHeight)
 }
 
 // handleEditCredential shows the edit credential form for the selected credential.
@@ -157,7 +157,7 @@ func (eh *EventHandler) handleEditCredential() {
 		eh.pageManager.CloseModal("edit-form")
 	})
 
-	eh.pageManager.ShowModal("edit-form", form, 60, 20)
+	eh.pageManager.ShowModal("edit-form", form, layout.FormModalWidth, layout.FormModalHeight)
 }
 
 // handleDeleteCredential shows a confirmation dialog before deleting the selected credential.
@@ -244,7 +244,7 @@ func (eh *EventHandler) handleShowHelp() {
 			eh.pageManager.CloseModal("help")
 		})
 
-	eh.pageManager.ShowModal("help", modal, 60, 25)
+	eh.pageManager.ShowModal("help", modal, layout.HelpModalWidth, layout.HelpModalHeight)
 }
 
 // handleTabFocus cycles focus to the next component in tab order.

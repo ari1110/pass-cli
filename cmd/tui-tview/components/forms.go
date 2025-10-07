@@ -71,8 +71,8 @@ func (af *AddForm) buildFormFields() {
 
 	// Optional metadata fields
 	af.AddDropDown("Category", categories, 0, nil)
-	af.AddInputField("URL", "", 50, nil, nil)
-	af.AddTextArea("Notes", "", 50, 5, 0, nil)
+	af.AddInputField("URL", "", 40, nil, nil)
+	af.AddTextArea("Notes", "", 40, 5, 0, nil)
 
 	// Action buttons
 	af.AddButton("Add", af.onAddPressed)
@@ -231,8 +231,8 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 
 	// Optional metadata fields - pre-populated from credential
 	ef.AddDropDown("Category", categories, categoryIndex, nil)
-	ef.AddInputField("URL", ef.credential.URL, 50, nil, nil)
-	ef.AddTextArea("Notes", ef.credential.Notes, 50, 5, 0, nil)
+	ef.AddInputField("URL", ef.credential.URL, 40, nil, nil)
+	ef.AddTextArea("Notes", ef.credential.Notes, 40, 5, 0, nil)
 
 	// Action buttons
 	ef.AddButton("Save", ef.onSavePressed)
