@@ -69,6 +69,16 @@ func (dv *DetailView) formatCredential(cred *vault.CredentialMetadata) string {
 	b.WriteString(fmt.Sprintf("[gray]Service:[-]    [white]%s[-]\n", cred.Service))
 	b.WriteString(fmt.Sprintf("[gray]Username:[-]   [white]%s[-]\n", cred.Username))
 
+	// Category (if present)
+	if cred.Category != "" {
+		b.WriteString(fmt.Sprintf("[gray]Category:[-]   [white]%s[-]\n", cred.Category))
+	}
+
+	// URL (if present)
+	if cred.URL != "" {
+		b.WriteString(fmt.Sprintf("[gray]URL:[-]        [white]%s[-]\n", cred.URL))
+	}
+
 	// Password field with masking
 	dv.formatPasswordField(&b, cred)
 

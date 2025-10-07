@@ -96,18 +96,18 @@ func (sb *StatusBar) showTemporaryMessage(message string, duration time.Duration
 func (sb *StatusBar) getShortcutsForContext(focus FocusContext) string {
 	switch focus {
 	case FocusSidebar:
-		return "[gray][Tab] Next  [↑↓] Navigate  [Enter] Select  [n] New  [?] Help  [q] Quit[-]"
+		return "[white][Tab][-] [gray]Next[-]  [white][↑↓][-] [gray]Navigate[-]  [white][Enter][-] [gray]Select[-]  [white][n][-] [gray]New[-]  [white][?][-] [gray]Help[-]  [white][q][-] [gray]Quit[-]"
 
 	case FocusTable:
-		return "[gray][n] New  [e] Edit  [d] Delete  [c] Copy  [?] Help  [q] Quit[-]"
+		return "[white][n][-] [gray]New[-]  [white][e][-] [gray]Edit[-]  [white][d][-] [gray]Delete[-]  [white][c][-] [gray]Copy[-]  [white][?][-] [gray]Help[-]  [white][q][-] [gray]Quit[-]"
 
 	case FocusDetail:
-		return "[gray][e] Edit  [d] Delete  [p] Toggle  [c] Copy  [?] Help  [q] Quit[-]"
+		return "[white][e][-] [gray]Edit[-]  [white][d][-] [gray]Delete[-]  [white][p][-] [gray]Toggle[-]  [white][c][-] [gray]Copy[-]  [white][?][-] [gray]Help[-]  [white][q][-] [gray]Quit[-]"
 
 	case FocusModal:
-		return "[gray][Tab] Next Field  [Enter] Submit  [Esc] Cancel[-]"
+		return "[white][Tab][-] [gray]Next Field[-]  [white][Enter][-] [gray]Submit[-]  [white][Esc][-] [gray]Cancel[-]"
 
 	default:
-		return "[gray][?] Help  [q] Quit[-]"
+		return "[white][?][-] [gray]Help[-]  [white][q][-] [gray]Quit[-]"
 	}
 }

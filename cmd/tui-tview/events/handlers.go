@@ -213,26 +213,28 @@ func (eh *EventHandler) handleCopyPassword() {
 
 // handleShowHelp displays a modal with keyboard shortcuts help.
 func (eh *EventHandler) handleShowHelp() {
-	helpText := `[yellow]Keyboard Shortcuts[-]
+	helpText := `[yellow]═══════════════════════════════════════════════════[-]
+[yellow]              Keyboard Shortcuts[-]
+[yellow]═══════════════════════════════════════════════════[-]
 
 [cyan]Navigation[-]
-  Tab          - Next component
-  Shift+Tab    - Previous component
-  ↑/↓          - Navigate lists
-  Enter        - Select / View details
+  [white]Tab[-]          [gray]Next component[-]
+  [white]Shift+Tab[-]    [gray]Previous component[-]
+  [white]↑/↓[-]          [gray]Navigate lists[-]
+  [white]Enter[-]        [gray]Select / View details[-]
 
 [cyan]Actions[-]
-  n            - New credential
-  e            - Edit credential
-  d            - Delete credential
-  p            - Toggle password visibility
-  c            - Copy password
+  [white]n[-]            [gray]New credential[-]
+  [white]e[-]            [gray]Edit credential[-]
+  [white]d[-]            [gray]Delete credential[-]
+  [white]p[-]            [gray]Toggle password visibility[-]
+  [white]c[-]            [gray]Copy password to clipboard[-]
 
 [cyan]General[-]
-  ?            - Show this help
-  q            - Quit
-  Esc          - Close modal / Go back
-  Ctrl+C       - Quit
+  [white]?[-]            [gray]Show this help[-]
+  [white]q[-]            [gray]Quit application[-]
+  [white]Esc[-]          [gray]Close modal / Go back[-]
+  [white]Ctrl+C[-]       [gray]Quit application[-]
 `
 
 	modal := tview.NewModal().
