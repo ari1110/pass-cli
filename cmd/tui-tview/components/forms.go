@@ -59,6 +59,7 @@ func NewAddForm(appState *models.AppState) *AddForm {
 
 	af.buildFormFields()
 	af.applyStyles()
+	af.setupKeyboardShortcuts()
 
 	return af
 }
@@ -177,6 +178,29 @@ func (af *AddForm) getCategories() []string {
 	return categories
 }
 
+// setupKeyboardShortcuts configures form-level keyboard shortcuts.
+// Adds Ctrl+S for quick-save and ensures Tab/Shift+Tab stay within form.
+func (af *AddForm) setupKeyboardShortcuts() {
+	af.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyCtrlS:
+			// Ctrl+S for quick-save
+			af.onAddPressed()
+			return nil
+
+		case tcell.KeyTab:
+			// Let form handle Tab internally (don't let it escape to app)
+			// Return event to allow tview's built-in form navigation
+			return event
+
+		case tcell.KeyBacktab: // Shift+Tab
+			// Let form handle Shift+Tab internally
+			return event
+		}
+		return event
+	})
+}
+
 // applyStyles applies theme colors and border styling to the form.
 func (af *AddForm) applyStyles() {
 	theme := styles.GetCurrentTheme()
@@ -235,6 +259,7 @@ func NewEditForm(appState *models.AppState, credential *vault.CredentialMetadata
 
 	ef.buildFormFieldsWithValues()
 	ef.applyStyles()
+	ef.setupKeyboardShortcuts()
 
 	return ef
 }
@@ -423,6 +448,29 @@ func (ef *EditForm) findCategoryIndex(categories []string) int {
 	}
 	// Return 0 (first category) if no match found
 	return 0
+}
+
+// setupKeyboardShortcuts configures form-level keyboard shortcuts.
+// Adds Ctrl+S for quick-save and ensures Tab/Shift+Tab stay within form.
+func (ef *EditForm) setupKeyboardShortcuts() {
+	ef.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyCtrlS:
+			// Ctrl+S for quick-save
+			ef.onSavePressed()
+			return nil
+
+		case tcell.KeyTab:
+			// Let form handle Tab internally (don't let it escape to app)
+			// Return event to allow tview's built-in form navigation
+			return event
+
+		case tcell.KeyBacktab: // Shift+Tab
+			// Let form handle Shift+Tab internally
+			return event
+		}
+		return event
+	})
 }
 
 // applyStyles applies theme colors and border styling to the form.
