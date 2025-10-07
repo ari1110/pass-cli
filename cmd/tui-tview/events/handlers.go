@@ -213,38 +213,128 @@ func (eh *EventHandler) handleCopyPassword() {
 
 // handleShowHelp displays a modal with keyboard shortcuts help.
 func (eh *EventHandler) handleShowHelp() {
-	helpText := `[yellow]═══════════════════════════════════════════════════[-]
-[yellow]              Keyboard Shortcuts[-]
-[yellow]═══════════════════════════════════════════════════[-]
+	// Create table for properly aligned shortcuts (scrollable with arrow keys)
+	table := tview.NewTable().
+		SetBorders(false).
+		SetSelectable(true, false).  // Rows selectable for scrolling, columns not
+		SetFixed(1, 0).              // Fix title row at top when scrolling
+		SetSelectedStyle(tcell.StyleDefault.
+			Background(tcell.ColorBlue).
+			Foreground(tcell.ColorWhite))  // Keep selection invisible (same colors)
 
-[cyan]Navigation[-]
-  [white]Tab[-]          [gray]Next component[-]
-  [white]Shift+Tab[-]    [gray]Previous component[-]
-  [white]↑/↓[-]          [gray]Navigate lists[-]
-  [white]Enter[-]        [gray]Select / View details[-]
+	row := 0
 
-[cyan]Actions[-]
-  [white]n[-]            [gray]New credential[-]
-  [white]e[-]            [gray]Edit credential[-]
-  [white]d[-]            [gray]Delete credential[-]
-  [white]p[-]            [gray]Toggle password visibility[-]
-  [white]c[-]            [gray]Copy password to clipboard[-]
+	// Title
+	titleCell := tview.NewTableCell("Keyboard Shortcuts").
+		SetTextColor(tcell.ColorWhite).
+		SetBackgroundColor(tcell.ColorBlue).
+		SetAlign(tview.AlignCenter).
+		SetExpansion(1).
+		SetAttributes(tcell.AttrBold)
+	table.SetCell(row, 0, titleCell)
+	table.SetCell(row, 1, tview.NewTableCell("").SetBackgroundColor(tcell.ColorBlue))
+	row++
 
-[cyan]General[-]
-  [white]?[-]            [gray]Show this help[-]
-  [white]q[-]            [gray]Quit application[-]
-  [white]Esc[-]          [gray]Close modal / Go back[-]
-  [white]Ctrl+C[-]       [gray]Quit application[-]
-`
+	// Separator
+	separatorCell := tview.NewTableCell("══════════════════").
+		SetTextColor(tcell.ColorWhite).
+		SetBackgroundColor(tcell.ColorBlue).
+		SetAlign(tview.AlignCenter).
+		SetExpansion(1)
+	table.SetCell(row, 0, separatorCell)
+	table.SetCell(row, 1, tview.NewTableCell("").SetBackgroundColor(tcell.ColorBlue))
+	row++
+	row++ // Skip blank line row (will just be empty space)
 
-	modal := tview.NewModal().
-		SetText(helpText).
-		AddButtons([]string{"Close"}).
-		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+	// Helper to add section header
+	addSection := func(title string) {
+		table.SetCell(row, 0, tview.NewTableCell(title).
+			SetTextColor(tcell.ColorYellow).
+			SetBackgroundColor(tcell.ColorBlue).
+			SetAttributes(tcell.AttrBold).
+			SetExpansion(1))
+		table.SetCell(row, 1, tview.NewTableCell("").
+			SetBackgroundColor(tcell.ColorBlue))
+		row++
+	}
+
+	// Helper to add shortcut row
+	addShortcut := func(key, description string) {
+		table.SetCell(row, 0, tview.NewTableCell("  "+key).
+			SetTextColor(tcell.ColorWhite).
+			SetBackgroundColor(tcell.ColorBlue).
+			SetAlign(tview.AlignLeft))
+		table.SetCell(row, 1, tview.NewTableCell(description).
+			SetTextColor(tcell.ColorWhite).
+			SetBackgroundColor(tcell.ColorBlue).
+			SetAlign(tview.AlignLeft))
+		row++
+	}
+
+	// Navigation section
+	addSection("Navigation")
+	addShortcut("Tab", "Next component")
+	addShortcut("Shift+Tab", "Previous component")
+	addShortcut("↑/↓", "Navigate lists")
+	addShortcut("Enter", "Select / View details")
+	row++ // Blank line (just skip row, don't add cells)
+
+	// Actions section
+	addSection("Actions")
+	addShortcut("n", "New credential")
+	addShortcut("e", "Edit credential")
+	addShortcut("d", "Delete credential")
+	addShortcut("p", "Toggle password visibility")
+	addShortcut("c", "Copy password to clipboard")
+	row++ // Blank line (just skip row, don't add cells)
+
+	// General section
+	addSection("General")
+	addShortcut("?", "Show this help")
+	addShortcut("q", "Quit application")
+	addShortcut("Esc", "Close modal / Go back")
+	addShortcut("Ctrl+C", "Quit application")
+
+	// Set table background color (after all cells are set)
+	table.SetBackgroundColor(tcell.ColorBlue)
+
+	// Create TextView for close button (no SetTextAlign - it clips text!)
+	closeButtonText := tview.NewTextView()
+	closeButtonText.SetText("     PgUp/PgDn or Mouse Wheel to scroll  •  Esc to close     ")
+	closeButtonText.SetTextColor(tcell.ColorWhite)
+	closeButtonText.SetBackgroundColor(tcell.ColorBlue)
+
+	// Make it close modal on Enter
+	closeButtonText.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyEnter {
 			eh.pageManager.CloseModal("help")
-		})
+			return nil
+		}
+		return event
+	})
 
-	eh.pageManager.ShowModal("help", modal, layout.HelpModalWidth, layout.HelpModalHeight)
+	// Add padding around table for better visual appearance
+	paddedTable := tview.NewFlex().
+		SetDirection(tview.FlexColumn).
+		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 2, 0, false).  // Left padding
+		AddItem(table, 0, 1, true).                                                // Table (flex width, focusable)
+		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 2, 0, false)   // Right padding
+
+	// Combine padded table and button in vertical layout
+	helpContent := tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 1, 0, false).  // Top padding
+		AddItem(paddedTable, 0, 1, true).                                          // Table (flex height, gets focus for scrolling)
+		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 1, 0, false).  // Spacer
+		AddItem(closeButtonText, 1, 0, false).                                     // Close text (fixed 1 height)
+		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 1, 0, false)   // Bottom padding
+
+	helpContent.SetBackgroundColor(tcell.ColorBlue).
+		SetBorder(true).
+		SetTitle(" Help ").
+		SetBorderColor(tcell.ColorWhite)
+
+	eh.pageManager.ShowModal("help", helpContent, layout.HelpModalWidth, layout.HelpModalHeight)
 }
 
 // handleTabFocus cycles focus to the next component in tab order.
