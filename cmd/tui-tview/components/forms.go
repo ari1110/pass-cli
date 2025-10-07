@@ -5,6 +5,7 @@ package components
 import (
 	"fmt"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"pass-cli/cmd/tui-tview/models"
 	"pass-cli/cmd/tui-tview/styles"
@@ -181,6 +182,24 @@ func (af *AddForm) applyStyles() {
 
 	// Apply form-level styling
 	styles.ApplyFormStyle(af.Form)
+
+	// Style individual input fields (indices 0-5)
+	// Use BackgroundLight for input fields - lighter than form Background for contrast
+	for i := 0; i < 6; i++ {
+		item := af.GetFormItem(i)
+		switch field := item.(type) {
+		case *tview.InputField:
+			field.SetFieldBackgroundColor(theme.BackgroundLight).
+				SetFieldTextColor(theme.TextPrimary)
+		case *tview.TextArea:
+			field.SetTextStyle(tcell.StyleDefault.
+				Background(theme.BackgroundLight).
+				Foreground(theme.TextPrimary))
+		case *tview.DropDown:
+			field.SetFieldBackgroundColor(theme.BackgroundLight).
+				SetFieldTextColor(theme.TextPrimary)
+		}
+	}
 
 	// Set border and title
 	af.SetBorder(true).
@@ -410,6 +429,24 @@ func (ef *EditForm) applyStyles() {
 
 	// Apply form-level styling
 	styles.ApplyFormStyle(ef.Form)
+
+	// Style individual input fields (indices 0-5)
+	// Use BackgroundLight for input fields - lighter than form Background for contrast
+	for i := 0; i < 6; i++ {
+		item := ef.GetFormItem(i)
+		switch field := item.(type) {
+		case *tview.InputField:
+			field.SetFieldBackgroundColor(theme.BackgroundLight).
+				SetFieldTextColor(theme.TextPrimary)
+		case *tview.TextArea:
+			field.SetTextStyle(tcell.StyleDefault.
+				Background(theme.BackgroundLight).
+				Foreground(theme.TextPrimary))
+		case *tview.DropDown:
+			field.SetFieldBackgroundColor(theme.BackgroundLight).
+				SetFieldTextColor(theme.TextPrimary)
+		}
+	}
 
 	// Set border and title
 	ef.SetBorder(true).

@@ -161,12 +161,12 @@ func ApplyTableStyle(table *tview.Table) {
 func ApplyFormStyle(form *tview.Form) {
 	theme := GetCurrentTheme()
 
-	// Use BackgroundLight for form container to match field backgrounds
-	// This creates seamless row fill without dark gaps around inputs
-	form.SetBackgroundColor(theme.BackgroundLight)
+	// Use Background (darker) for form container, BackgroundLight for fields
+	// This creates visible input boxes that stand out from the form background
+	form.SetBackgroundColor(theme.Background)
 	form.SetButtonBackgroundColor(theme.ButtonBackground)
 	form.SetButtonTextColor(theme.ButtonText)
-	form.SetLabelColor(theme.TextSecondary)
+	form.SetLabelColor(theme.TextPrimary) // Use primary text for labels (better contrast)
 	form.SetFieldBackgroundColor(theme.BackgroundLight)
 	form.SetFieldTextColor(theme.TextPrimary)
 }
