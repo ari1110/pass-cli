@@ -318,10 +318,55 @@ pass-cli tui --vault test-vault-tview/vault.enc
 
 **Test**: Select credential, press 'd'
 
-- [ ] **Result**: Confirmation dialog appears
-- [ ] **Confirmation Text**: Asks "Are you sure?"
-- [ ] **Yes/No Options**: Can confirm or cancel
+**Test Procedure**:
+
+**Part A: Modal Appearance**
+1. Launch TUI and select a test credential (e.g., "github.com")
+2. Press 'd' key
+3. Verify confirmation modal appears
+4. Check modal title is "Delete Credential"
+5. Check message format: "Delete credential '<service>'?\nThis action cannot be undone."
+6. Verify Yes/No buttons are present
+7. Test keyboard navigation between buttons (Tab key)
+
+**Part B: Confirmation Acceptance**
+1. Select credential and press 'd'
+2. Select "Yes" button and press Enter
+3. Verify credential is removed from table
+4. Verify sidebar category count decrements
+5. Check status bar for success message
+6. Verify modal closes automatically
+
+**Part C: Confirmation Cancellation**
+1. Select credential and press 'd'
+2. Select "No" button and press Enter
+3. Verify credential remains in table
+4. Verify no changes to vault
+5. Verify modal closes
+
+**Part D: Edge Cases**
+1. Press 'd' with no credential selected - Expected: Error message in status bar "no credential selected"
+2. Press 'd' then press Esc to cancel - Expected: Modal closes, no deletion
+
+**Results**:
+- [ ] **Modal Appears**: Yes / No
+- [ ] **Modal Title Correct**: ________________________ (expected: "Delete Credential")
+- [ ] **Message Format Correct**: ________________________ (expected: "Delete credential '<service>'?\nThis action cannot be undone.")
+- [ ] **Service Name Displayed**: ________________________
+- [ ] **Yes Button Works**: Yes / No
+- [ ] **No Button Works**: Yes / No
+- [ ] **Esc Cancels**: Yes / No
+- [ ] **Status Message Shown**: ________________________
+- [ ] **Credential Deleted on Yes**: Yes / No
+- [ ] **Credential Preserved on No**: Yes / No
+- [ ] **Error Handling (No Selection)**: Yes / No
+- [ ] **Error Message**: ________________________
+- [ ] **Tab Navigation Works**: Yes / No
+- [ ] **Mouse Click on Yes/No Works**: Yes / No (if mouse enabled)
+- [ ] **Rapid 'd' Presses**: Single modal appears / No crashes
 - [ ] **Status**: ✅ ❌ ⚠️
+
+**Code Reference**: Implementation in `cmd/tui-tview/events/handlers.go` lines 163-189 (`handleDeleteCredential()`)
 
 ### 5.5 - Focus Cycling (Tab)
 
@@ -350,9 +395,22 @@ pass-cli tui --vault test-vault-tview/vault.enc
 
 **Test**: Press '/' from table view
 
-- [ ] **Result**: Search input appears
-- [ ] **Can Type**: Search query accepted
-- [ ] **Filters Results**: Credential list filters as you type
+**Code Verification**: Based on code review of `cmd/tui-tview/events/handlers.go` (lines 71-111), search functionality is not implemented in the current version. The '/' key is not handled in the `handleGlobalKey()` switch statement. This is expected per the spec workflow.
+
+**Test Procedure**:
+1. Launch TUI with test vault
+2. Press '/' key from table view
+3. Document what happens (expected: nothing, or character ignored)
+4. Try pressing '/' from sidebar and detail view
+5. Document behavior in each context
+
+- [ ] **Code Inspection**: Verified no '/' handler in `handlers.go` lines 71-111
+- [ ] **Behavior Observed (Table View)**: ________________________
+- [ ] **Behavior Observed (Sidebar)**: ________________________
+- [ ] **Behavior Observed (Detail View)**: ________________________
+- [ ] **Search UI Appears**: Yes / No (expected: No)
+- [ ] **Key Ignored**: Yes / No (expected: Yes)
+- [ ] **Conclusion**: ✅ Feature not implemented (expected) | ❌ Unexpected behavior
 - [ ] **Status**: ✅ ❌ ⚠️ (Skip if search not implemented yet)
 
 ### 5.8 - Help Screen (?)
@@ -363,6 +421,102 @@ pass-cli tui --vault test-vault-tview/vault.enc
 - [ ] **Content**: Lists all keyboard shortcuts
 - [ ] **Dismissible**: Press Esc or 'q' to close
 - [ ] **Status**: ✅ ❌ ⚠️
+
+### 5.9 - Copy Password to Clipboard (c)
+
+**Test**: Press 'c' to copy password with feedback
+
+**Test Procedure**:
+
+**Part A: Basic Copy Operation**
+1. Launch TUI with test vault
+2. Select a credential in the table (e.g., "github.com")
+3. Ensure credential has a password set
+4. Press 'c' key
+5. Observe status bar at bottom of screen
+6. Expected: Green success message "Password copied to clipboard!"
+7. Message should display for 3 seconds then revert to shortcuts
+
+**Part B: Verify Clipboard Content**
+1. Open a text editor or terminal
+2. Paste clipboard content (Ctrl+V on Windows/Linux, Cmd+V on macOS)
+3. Verify pasted text matches the credential's password
+4. Check password is not corrupted or truncated
+
+**Part C: Test with No Selection**
+1. Deselect all credentials (if possible) or navigate to empty area
+2. Press 'c' key
+3. Expected: Red error message in status bar "no credential selected"
+4. Message should display for 5 seconds
+
+**Part D: Test Unicode Password**
+1. Add credential with Unicode password (e.g., "パスワード123")
+2. Select it and press 'c'
+3. Paste clipboard content
+4. Verify Unicode characters preserved correctly
+
+**Part E: Test from Different Contexts**
+1. Press 'c' when sidebar is focused
+2. Press 'c' when table is focused
+3. Press 'c' when detail view is focused
+4. Verify copy works from all contexts
+
+**Part F: Test Rapid Copy Operations**
+1. Select credential A, press 'c'
+2. Immediately select credential B, press 'c'
+3. Paste clipboard
+4. Verify clipboard contains credential B's password (most recent)
+
+**Results**:
+- [ ] **'c' Key Responds**: Yes / No
+- [ ] **Success Message Appears**: Yes / No
+- [ ] **Message Text**: ________________________ (expected: "Password copied to clipboard!")
+- [ ] **Message Color**: Green / Other: ________
+- [ ] **Message Duration**: ~3 seconds / Other: ________
+- [ ] **Message Reverts to Shortcuts**: Yes / No
+- [ ] **Clipboard Contains Password**: Yes / No
+- [ ] **Password Correct**: Yes / No
+- [ ] **Password Not Corrupted**: Yes / No
+- [ ] **Unicode Preserved**: Yes / No / N/A
+- [ ] **Error Handling (No Selection)**: Yes / No
+- [ ] **Error Message Text**: ________________________ (expected: "no credential selected")
+- [ ] **Error Message Color**: Red / Other: ________
+- [ ] **Error Message Duration**: ~5 seconds / Other: ________
+- [ ] **Works from Sidebar**: Yes / No
+- [ ] **Works from Table**: Yes / No
+- [ ] **Works from Detail View**: Yes / No
+- [ ] **Rapid Copy Works**: Yes / No
+- [ ] **Status**: ✅ ❌ ⚠️
+
+**Platform-Specific Results**:
+
+**Windows**:
+- [ ] Works in Windows Terminal: Yes / No
+- [ ] Works in PowerShell: Yes / No
+- [ ] Works in CMD: Yes / No
+- [ ] Ctrl+V paste works: Yes / No
+- [ ] Right-click paste works: Yes / No
+- [ ] Issues: ________________________
+
+**macOS** (if tested):
+- [ ] Works in iTerm2: Yes / No
+- [ ] Works in Terminal.app: Yes / No
+- [ ] Cmd+V paste works: Yes / No
+- [ ] Issues: ________________________
+
+**Linux** (if tested):
+- [ ] Desktop environment: ________________________
+- [ ] Clipboard mechanism: X11 / Wayland / Other: ________
+- [ ] Works in terminal (Ctrl+Shift+V): Yes / No
+- [ ] Works in GUI apps (Ctrl+V): Yes / No
+- [ ] Issues: ________________________
+
+**Code Implementation Notes**:
+- Handler: `cmd/tui-tview/events/handlers.go` lines 200-212 (`handleCopyPassword()`)
+- Clipboard library: `github.com/atotto/clipboard`
+- Success feedback: `statusBar.ShowSuccess()` displays green message for 3 seconds
+- Error feedback: `statusBar.ShowError()` displays red message for 5 seconds
+- Password retrieval: `detailView.CopyPasswordToClipboard()` in `cmd/tui-tview/components/detail.go` lines 167-188
 
 **Notes**: _______________________________________________________
 
@@ -815,6 +969,27 @@ _(Add more as needed)_
 ---
 
 ## Test Summary
+
+### Feature-Specific Results
+
+**Search Functionality (/)**:
+- [ ] Verified not implemented (expected)
+- [ ] Documented in checklist
+- [ ] Status: ✅ N/A (not implemented) | ❌ Unexpected behavior
+
+**Delete Confirmation (d)**:
+- [ ] Modal appears correctly
+- [ ] Yes/No buttons work
+- [ ] Credential deleted on confirmation
+- [ ] Credential preserved on cancellation
+- [ ] Status: ✅ Pass | ❌ Fail | ⚠️ Issues
+
+**Copy Password (c)**:
+- [ ] Password copied to clipboard
+- [ ] Success message displayed
+- [ ] Error handling works
+- [ ] Unicode passwords preserved
+- [ ] Status: ✅ Pass | ❌ Fail | ⚠️ Issues
 
 ### Overall Results
 
