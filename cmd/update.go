@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strings"
@@ -11,10 +12,15 @@ import (
 )
 
 var (
-	updateUsername string
-	updatePassword string
-	updateNotes    string
-	updateForce    bool
+	updateUsername     string
+	updatePassword     string
+	updateNotes        string
+	updateCategory     string
+	updateURL          string
+	updateForce        bool
+	clearCategory      bool
+	clearURL           bool
+	clearNotes         bool
 )
 
 var updateCmd = &cobra.Command{
@@ -22,8 +28,11 @@ var updateCmd = &cobra.Command{
 	Short: "Update an existing credential",
 	Long: `Update modifies an existing credential in your vault.
 
-You can selectively update individual fields (username, password, notes) without
+You can selectively update individual fields (username, password, category, url, notes) without
 affecting the others. Empty values mean "don't change".
+
+To explicitly clear optional fields (category, url, notes) to empty, use the --clear-* flags.
+These flags take precedence over corresponding value flags.
 
 By default, you'll see a usage warning if the credential has been accessed before,
 showing where and when it was last used. Use --force to skip the confirmation.`,
@@ -36,8 +45,23 @@ showing where and when it was last used. Use --force to skip the confirmation.`,
   # Update password only
   pass-cli update github --password newpass123
 
+  # Update category only
+  pass-cli update github --category "Work"
+
+  # Update URL only
+  pass-cli update github --url "https://github.com"
+
   # Update notes
   pass-cli update github --notes "Updated account"
+
+  # Clear category field
+  pass-cli update github --clear-category
+
+  # Clear URL field
+  pass-cli update github --clear-url
+
+  # Clear notes field
+  pass-cli update github --clear-notes
 
   # Update multiple fields
   pass-cli update github -u user -p pass --notes "New info"
@@ -53,6 +77,11 @@ func init() {
 	updateCmd.Flags().StringVarP(&updateUsername, "username", "u", "", "new username")
 	updateCmd.Flags().StringVarP(&updatePassword, "password", "p", "", "new password")
 	updateCmd.Flags().StringVar(&updateNotes, "notes", "", "new notes")
+	updateCmd.Flags().StringVar(&updateCategory, "category", "", "new category")
+	updateCmd.Flags().StringVar(&updateURL, "url", "", "new URL")
+	updateCmd.Flags().BoolVar(&clearCategory, "clear-category", false, "clear category field to empty")
+	updateCmd.Flags().BoolVar(&clearURL, "clear-url", false, "clear URL field to empty")
+	updateCmd.Flags().BoolVar(&clearNotes, "clear-notes", false, "clear notes field to empty")
 	updateCmd.Flags().BoolVar(&updateForce, "force", false, "skip confirmation prompt")
 }
 
@@ -88,14 +117,18 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 	}
 
 	// If no flags provided, prompt for what to update
-	if updateUsername == "" && updatePassword == "" && updateNotes == "" {
+	if updateUsername == "" && updatePassword == "" && updateNotes == "" && updateCategory == "" && updateURL == "" {
 		fmt.Println("What would you like to update? (leave empty to keep current value)")
 		fmt.Println()
 
+		reader := bufio.NewReader(os.Stdin)
+
 		// Prompt for username
 		fmt.Printf("Username [%s]: ", cred.Username)
-		var username string
-		_, _ = fmt.Scanln(&username)
+		username, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read username: %w", err)
+		}
 		updateUsername = strings.TrimSpace(username)
 
 		// Prompt for password
@@ -107,15 +140,34 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		fmt.Println()
 		updatePassword = password
 
+		// Prompt for category
+		fmt.Printf("Category [%s]: ", cred.Category)
+		category, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read category: %w", err)
+		}
+		updateCategory = strings.TrimSpace(category)
+
+		// Prompt for URL
+		fmt.Printf("URL [%s]: ", cred.URL)
+		url, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read URL: %w", err)
+		}
+		updateURL = strings.TrimSpace(url)
+
 		// Prompt for notes
 		fmt.Printf("Notes [%s]: ", cred.Notes)
-		var notes string
-		_, _ = fmt.Scanln(&notes)
+		notes, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read notes: %w", err)
+		}
 		updateNotes = strings.TrimSpace(notes)
 	}
 
 	// Check if anything is being updated
-	if updateUsername == "" && updatePassword == "" && updateNotes == "" {
+	if updateUsername == "" && updatePassword == "" && updateNotes == "" && updateCategory == "" && updateURL == "" &&
+		!clearCategory && !clearURL && !clearNotes {
 		fmt.Println("No changes specified.")
 		return nil
 	}
@@ -157,8 +209,29 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 	if updatePassword != "" {
 		opts.Password = &updatePassword
 	}
-	if updateNotes != "" {
+
+	// Handle notes: clear flag takes precedence
+	if clearNotes {
+		emptyNotes := ""
+		opts.Notes = &emptyNotes
+	} else if updateNotes != "" {
 		opts.Notes = &updateNotes
+	}
+
+	// Handle category: clear flag takes precedence
+	if clearCategory {
+		emptyCategory := ""
+		opts.Category = &emptyCategory
+	} else if updateCategory != "" {
+		opts.Category = &updateCategory
+	}
+
+	// Handle URL: clear flag takes precedence
+	if clearURL {
+		emptyURL := ""
+		opts.URL = &emptyURL
+	} else if updateURL != "" {
+		opts.URL = &updateURL
 	}
 
 	if err := vaultService.UpdateCredential(service, opts); err != nil {
@@ -175,7 +248,19 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 	if updatePassword != "" {
 		fmt.Printf("🔑 Password updated\n")
 	}
-	if updateNotes != "" {
+	if clearCategory {
+		fmt.Printf("🏷️  Category cleared\n")
+	} else if updateCategory != "" {
+		fmt.Printf("🏷️  New category: %s\n", updateCategory)
+	}
+	if clearURL {
+		fmt.Printf("🔗 URL cleared\n")
+	} else if updateURL != "" {
+		fmt.Printf("🔗 New URL: %s\n", updateURL)
+	}
+	if clearNotes {
+		fmt.Printf("📋 Notes cleared\n")
+	} else if updateNotes != "" {
 		fmt.Printf("📋 New notes: %s\n", updateNotes)
 	}
 
