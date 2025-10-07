@@ -81,11 +81,16 @@ func (af *AddForm) onAddPressed() {
 	service := af.GetFormItem(0).(*tview.InputField).GetText()
 	username := af.GetFormItem(1).(*tview.InputField).GetText()
 	password := af.GetFormItem(2).(*tview.InputField).GetText()
-	// Note: Category (index 3), URL (index 4), Notes (index 5) not yet supported by AppState
-	// TODO: Pass these fields once AppState.AddCredential() signature is extended
 
-	// Call AppState to add credential
-	err := af.appState.AddCredential(service, username, password)
+	// Extract category from dropdown (index 3)
+	categoryDropdown := af.GetFormItem(3).(*tview.DropDown)
+	_, category := categoryDropdown.GetCurrentOption()
+
+	url := af.GetFormItem(4).(*tview.InputField).GetText()
+	notes := af.GetFormItem(5).(*tview.TextArea).GetText()
+
+	// Call AppState to add credential with all 6 fields
+	err := af.appState.AddCredential(service, username, password, category, url, notes)
 	if err != nil {
 		// Error already handled by AppState onError callback
 		// Form stays open for correction
@@ -222,19 +227,37 @@ func (ef *EditForm) onSavePressed() {
 	username := ef.GetFormItem(1).(*tview.InputField).GetText()
 	password := ef.GetFormItem(2).(*tview.InputField).GetText()
 
-	// If password is empty, fetch current password (user didn't change it)
-	if password == "" {
-		// Fetch full credential to get existing password
-		fullCred, err := ef.appState.GetFullCredential(ef.credential.Service)
-		if err != nil {
-			// Error fetching credential - cannot proceed
-			return
-		}
-		password = fullCred.Password
+	// Extract category from dropdown
+	categoryDropdown := ef.GetFormItem(3).(*tview.DropDown)
+	_, category := categoryDropdown.GetCurrentOption()
+
+	url := ef.GetFormItem(4).(*tview.InputField).GetText()
+	notes := ef.GetFormItem(5).(*tview.TextArea).GetText()
+
+	// Build UpdateCredentialOpts with only non-empty fields
+	opts := models.UpdateCredentialOpts{}
+
+	if username != "" {
+		opts.Username = &username
 	}
 
-	// Call AppState to update credential
-	err := ef.appState.UpdateCredential(service, username, password)
+	// If password is empty, don't update it (nil pointer = don't change)
+	// If password is non-empty, update it
+	if password != "" {
+		opts.Password = &password
+	}
+
+	// Always set category (even if empty, to allow clearing)
+	opts.Category = &category
+
+	// Always set URL (even if empty, to allow clearing)
+	opts.URL = &url
+
+	// Always set notes (even if empty, to allow clearing)
+	opts.Notes = &notes
+
+	// Call AppState to update credential with options struct
+	err := ef.appState.UpdateCredential(service, opts)
 	if err != nil {
 		// Error already handled by AppState onError callback
 		// Form stays open for correction

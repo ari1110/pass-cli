@@ -120,11 +120,11 @@ func TestSidebarRefresh(t *testing.T) {
 	mockVault := NewMockVaultService()
 	state := models.NewAppState(mockVault)
 
-	// Setup mock credentials with different services (categories)
+	// Setup mock credentials with different categories
 	mockCreds := []vault.CredentialMetadata{
-		{Service: "AWS", Username: "admin", CreatedAt: time.Now()},
-		{Service: "GitHub", Username: "user", CreatedAt: time.Now()},
-		{Service: "Database", Username: "dbuser", CreatedAt: time.Now()},
+		{Service: "AWS", Username: "admin", Category: "AWS", CreatedAt: time.Now()},
+		{Service: "GitHub", Username: "user", Category: "GitHub", CreatedAt: time.Now()},
+		{Service: "Database", Username: "dbuser", Category: "Database", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
 	state.LoadCredentials()
@@ -211,8 +211,8 @@ func TestSidebarSelection_CategoryNode(t *testing.T) {
 
 	// Setup categories
 	mockCreds := []vault.CredentialMetadata{
-		{Service: "AWS", Username: "admin", CreatedAt: time.Now()},
-		{Service: "GitHub", Username: "user", CreatedAt: time.Now()},
+		{Service: "AWS", Username: "admin", Category: "AWS", CreatedAt: time.Now()},
+		{Service: "GitHub", Username: "user", Category: "GitHub", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
 	state.LoadCredentials()
@@ -250,7 +250,7 @@ func TestSidebarSelection_UpdatesAppState(t *testing.T) {
 
 	// Setup categories
 	mockCreds := []vault.CredentialMetadata{
-		{Service: "GitHub", Username: "user", CreatedAt: time.Now()},
+		{Service: "GitHub", Username: "user", Category: "GitHub", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
 	state.LoadCredentials()
@@ -307,8 +307,8 @@ func TestSidebarRefresh_ClearsOldCategories(t *testing.T) {
 
 	// Setup initial categories
 	mockCreds := []vault.CredentialMetadata{
-		{Service: "AWS", Username: "admin", CreatedAt: time.Now()},
-		{Service: "GitHub", Username: "user", CreatedAt: time.Now()},
+		{Service: "AWS", Username: "admin", Category: "AWS", CreatedAt: time.Now()},
+		{Service: "GitHub", Username: "user", Category: "GitHub", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
 	state.LoadCredentials()
@@ -321,7 +321,7 @@ func TestSidebarRefresh_ClearsOldCategories(t *testing.T) {
 
 	// Update to new categories (different set)
 	newCreds := []vault.CredentialMetadata{
-		{Service: "Database", Username: "dbuser", CreatedAt: time.Now()},
+		{Service: "Database", Username: "dbuser", Category: "Database", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(newCreds)
 	state.LoadCredentials()

@@ -212,10 +212,13 @@ func TestLoadCredentials(t *testing.T) {
 		t.Errorf("Expected 3 credentials, got %d", len(creds))
 	}
 
-	// Verify categories extracted
+	// Verify categories extracted (all credentials have empty category → "Uncategorized")
 	categories := state.GetCategories()
-	if len(categories) != 3 {
-		t.Errorf("Expected 3 categories, got %d", len(categories))
+	if len(categories) != 1 {
+		t.Errorf("Expected 1 category, got %d", len(categories))
+	}
+	if categories[0] != "Uncategorized" {
+		t.Errorf("Expected category 'Uncategorized', got '%s'", categories[0])
 	}
 }
 
@@ -257,8 +260,8 @@ func TestAddCredential(t *testing.T) {
 		callbackInvoked = true
 	})
 
-	// Add credential
-	err := state.AddCredential("AWS", "admin", "password123")
+	// Add credential with all fields
+	err := state.AddCredential("AWS", "admin", "password123", "Cloud", "https://aws.amazon.com", "Test notes")
 	if err != nil {
 		t.Fatalf("AddCredential failed: %v", err)
 	}
@@ -281,6 +284,15 @@ func TestAddCredential(t *testing.T) {
 	if creds[0].Service != "AWS" {
 		t.Errorf("Expected service 'AWS', got '%s'", creds[0].Service)
 	}
+	if creds[0].Category != "Cloud" {
+		t.Errorf("Expected category 'Cloud', got '%s'", creds[0].Category)
+	}
+	if creds[0].URL != "https://aws.amazon.com" {
+		t.Errorf("Expected URL 'https://aws.amazon.com', got '%s'", creds[0].URL)
+	}
+	if creds[0].Notes != "Test notes" {
+		t.Errorf("Expected notes 'Test notes', got '%s'", creds[0].Notes)
+	}
 }
 
 // TestUpdateCredential verifies updating a credential.
@@ -290,7 +302,7 @@ func TestUpdateCredential(t *testing.T) {
 
 	// Setup existing credential
 	mockCreds := []vault.CredentialMetadata{
-		{Service: "AWS", Username: "admin", CreatedAt: time.Now()},
+		{Service: "AWS", Username: "admin", Category: "Cloud", URL: "https://old-url.com", Notes: "Old notes", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
 	state.LoadCredentials()
@@ -301,8 +313,19 @@ func TestUpdateCredential(t *testing.T) {
 		callbackInvoked = true
 	})
 
-	// Update credential
-	err := state.UpdateCredential("AWS", "newuser", "newpass")
+	// Update credential with all fields using UpdateCredentialOpts
+	newuser := "newuser"
+	newpass := "newpass"
+	newCategory := "Updated Category"
+	newURL := "https://new-url.com"
+	newNotes := "Updated notes"
+	err := state.UpdateCredential("AWS", UpdateCredentialOpts{
+		Username: &newuser,
+		Password: &newpass,
+		Category: &newCategory,
+		URL:      &newURL,
+		Notes:    &newNotes,
+	})
 	if err != nil {
 		t.Fatalf("UpdateCredential failed: %v", err)
 	}
@@ -324,6 +347,58 @@ func TestUpdateCredential(t *testing.T) {
 	}
 	if creds[0].Username != "newuser" {
 		t.Errorf("Expected username 'newuser', got '%s'", creds[0].Username)
+	}
+	if creds[0].Category != "Updated Category" {
+		t.Errorf("Expected category 'Updated Category', got '%s'", creds[0].Category)
+	}
+	if creds[0].URL != "https://new-url.com" {
+		t.Errorf("Expected URL 'https://new-url.com', got '%s'", creds[0].URL)
+	}
+	if creds[0].Notes != "Updated notes" {
+		t.Errorf("Expected notes 'Updated notes', got '%s'", creds[0].Notes)
+	}
+}
+
+// TestUpdateCredential_ClearFields verifies clearing fields to empty strings.
+func TestUpdateCredential_ClearFields(t *testing.T) {
+	mockVault := NewMockVaultService()
+	state := NewAppState(mockVault)
+
+	// Setup existing credential with filled fields
+	mockCreds := []vault.CredentialMetadata{
+		{Service: "AWS", Username: "admin", Category: "Cloud", URL: "https://aws.amazon.com", Notes: "Important notes", CreatedAt: time.Now()},
+	}
+	mockVault.SetCredentials(mockCreds)
+	state.LoadCredentials()
+
+	// Clear category and notes by passing non-nil pointers to empty strings
+	emptyCategory := ""
+	emptyNotes := ""
+	err := state.UpdateCredential("AWS", UpdateCredentialOpts{
+		Category: &emptyCategory,
+		Notes:    &emptyNotes,
+	})
+	if err != nil {
+		t.Fatalf("UpdateCredential failed: %v", err)
+	}
+
+	// Verify fields were cleared
+	creds := state.GetCredentials()
+	if len(creds) != 1 {
+		t.Fatalf("Expected 1 credential, got %d", len(creds))
+	}
+	if creds[0].Category != "" {
+		t.Errorf("Expected empty category, got '%s'", creds[0].Category)
+	}
+	if creds[0].Notes != "" {
+		t.Errorf("Expected empty notes, got '%s'", creds[0].Notes)
+	}
+	// Verify other fields unchanged
+	if creds[0].Username != "admin" {
+		t.Errorf("Expected username 'admin', got '%s'", creds[0].Username)
+	}
+	if creds[0].URL != "https://aws.amazon.com" {
+		t.Errorf("Expected URL 'https://aws.amazon.com', got '%s'", creds[0].URL)
 	}
 }
 
@@ -448,7 +523,7 @@ func TestConcurrentAccess(t *testing.T) {
 		go func(n int) {
 			defer wg.Done()
 			service := "Service" + string(rune(n))
-			state.AddCredential(service, "user", "pass")
+			state.AddCredential(service, "user", "pass", "", "", "")
 		}(i)
 	}
 
@@ -583,5 +658,106 @@ func TestGetFullCredential(t *testing.T) {
 	// Verify vault method called
 	if mockVault.getCalled != 1 {
 		t.Errorf("Expected GetCredential called 1 time, got %d", mockVault.getCalled)
+	}
+}
+
+// TestGetCategories verifies category extraction from credentials.
+func TestGetCategories(t *testing.T) {
+	mockVault := NewMockVaultService()
+	state := NewAppState(mockVault)
+
+	// Setup mock data with various categories
+	mockCreds := []vault.CredentialMetadata{
+		{Service: "AWS", Username: "admin", Category: "Cloud", CreatedAt: time.Now()},
+		{Service: "GitHub", Username: "user", Category: "Development", CreatedAt: time.Now()},
+		{Service: "Azure", Username: "admin", Category: "Cloud", CreatedAt: time.Now()},
+		{Service: "LocalDB", Username: "root", Category: "", CreatedAt: time.Now()},
+	}
+	mockVault.SetCredentials(mockCreds)
+
+	// Load credentials (triggers updateCategories)
+	err := state.LoadCredentials()
+	if err != nil {
+		t.Fatalf("LoadCredentials failed: %v", err)
+	}
+
+	// Get categories
+	categories := state.GetCategories()
+
+	// Verify categories extracted correctly
+	expectedCategories := []string{"Cloud", "Development", "Uncategorized"}
+	if len(categories) != len(expectedCategories) {
+		t.Errorf("Expected %d categories, got %d", len(expectedCategories), len(categories))
+	}
+
+	// Verify specific categories exist
+	categoryMap := make(map[string]bool)
+	for _, cat := range categories {
+		categoryMap[cat] = true
+	}
+
+	for _, expected := range expectedCategories {
+		if !categoryMap[expected] {
+			t.Errorf("Expected category '%s' not found in %v", expected, categories)
+		}
+	}
+
+	// Verify "Uncategorized" appears for empty category credential
+	if !categoryMap["Uncategorized"] {
+		t.Error("Expected 'Uncategorized' category for credential with empty category")
+	}
+}
+
+// TestGetCategories_ReturnsACopy verifies GetCategories returns a copy, not internal slice.
+func TestGetCategories_ReturnsACopy(t *testing.T) {
+	mockVault := NewMockVaultService()
+	state := NewAppState(mockVault)
+
+	// Setup mock data
+	mockCreds := []vault.CredentialMetadata{
+		{Service: "AWS", Username: "admin", Category: "Cloud", CreatedAt: time.Now()},
+		{Service: "GitHub", Username: "user", Category: "Development", CreatedAt: time.Now()},
+	}
+	mockVault.SetCredentials(mockCreds)
+	state.LoadCredentials()
+
+	// Get categories
+	categories1 := state.GetCategories()
+	categories2 := state.GetCategories()
+
+	// Verify we got copies (different slice instances)
+	if len(categories1) != len(categories2) {
+		t.Errorf("Expected same length, got %d and %d", len(categories1), len(categories2))
+	}
+
+	// Modify the returned slice
+	if len(categories1) > 0 {
+		categories1[0] = "Modified"
+	}
+
+	// Get categories again and verify internal state wasn't mutated
+	categories3 := state.GetCategories()
+	if len(categories3) > 0 && categories3[0] == "Modified" {
+		t.Error("External modification affected internal state - GetCategories should return a copy")
+	}
+}
+
+// TestUpdateCategories_EmptyCredentials verifies updateCategories handles empty credential lists.
+func TestUpdateCategories_EmptyCredentials(t *testing.T) {
+	mockVault := NewMockVaultService()
+	state := NewAppState(mockVault)
+
+	// Load credentials with empty mock data
+	err := state.LoadCredentials()
+	if err != nil {
+		t.Fatalf("LoadCredentials failed: %v", err)
+	}
+
+	// Get categories
+	categories := state.GetCategories()
+
+	// Verify empty slice returned
+	if len(categories) != 0 {
+		t.Errorf("Expected empty categories slice, got %d categories", len(categories))
 	}
 }

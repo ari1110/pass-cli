@@ -20,6 +20,16 @@ type VaultService interface {
 	GetCredential(service string, trackUsage bool) (*vault.Credential, error)
 }
 
+// UpdateCredentialOpts mirrors vault.UpdateOpts for AppState layer.
+// Using pointer fields allows distinguishing "don't update" (nil) from "clear to empty" (non-nil empty string).
+type UpdateCredentialOpts struct {
+	Username *string
+	Password *string
+	Category *string
+	URL      *string
+	Notes    *string
+}
+
 // AppState holds all application state with thread-safe access.
 // This is the single source of truth for the entire TUI.
 type AppState struct {
@@ -69,7 +79,11 @@ func (s *AppState) GetCredentials() []vault.CredentialMetadata {
 func (s *AppState) GetCategories() []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return s.categories
+
+	// Return a copy to prevent external mutation
+	categories := make([]string, len(s.categories))
+	copy(categories, s.categories)
+	return categories
 }
 
 // GetSelectedCredential returns a copy of the selected credential (thread-safe read).
@@ -122,105 +136,104 @@ func (s *AppState) LoadCredentials() error {
 }
 
 // AddCredential adds a new credential to the vault.
-// CRITICAL: Follows Lock→Mutate→Unlock→Notify pattern.
-func (s *AppState) AddCredential(service, username, password string) error {
-	s.mu.Lock()
-
-	// Add credential to vault (category, url, notes are empty for now)
-	err := s.vault.AddCredential(service, username, password, "", "", "")
+// CRITICAL: Minimizes lock duration by releasing lock during vault I/O operations.
+func (s *AppState) AddCredential(service, username, password, category, url, notes string) error {
+	// Perform vault I/O without holding lock (vault has its own synchronization)
+	err := s.vault.AddCredential(service, username, password, category, url, notes)
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to add credential: %w", err)
-		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
-		s.notifyError(wrappedErr) // ✅ THEN notify
+		s.notifyError(wrappedErr)
 		return wrappedErr
 	}
 
-	// Reload credentials to update cache
+	// Reload credentials without holding lock
 	creds, err := s.vault.ListCredentialsWithMetadata()
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to reload credentials: %w", err)
-		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
-		s.notifyError(wrappedErr) // ✅ THEN notify
+		s.notifyError(wrappedErr)
 		return wrappedErr
 	}
 
+	// Only lock to update state
+	s.mu.Lock()
 	s.credentials = creds
 	s.updateCategories() // Update categories while locked
+	s.mu.Unlock()
 
-	s.mu.Unlock()                // ✅ RELEASE LOCK
-	s.notifyCredentialsChanged() // ✅ THEN notify
+	// Notify after releasing lock
+	s.notifyCredentialsChanged()
 
 	return nil
 }
 
 // UpdateCredential updates an existing credential in the vault.
-// CRITICAL: Follows Lock→Mutate→Unlock→Notify pattern.
-func (s *AppState) UpdateCredential(service, username, password string) error {
-	s.mu.Lock()
-
-	// Update credential in vault using UpdateOpts
-	opts := vault.UpdateOpts{}
-	if username != "" {
-		opts.Username = &username
+// CRITICAL: Minimizes lock duration by releasing lock during vault I/O operations.
+// Accepts UpdateCredentialOpts to allow clearing fields to empty strings (non-nil pointer to empty string).
+func (s *AppState) UpdateCredential(service string, opts UpdateCredentialOpts) error {
+	// Convert AppState UpdateCredentialOpts to vault.UpdateOpts
+	vaultOpts := vault.UpdateOpts{
+		Username: opts.Username,
+		Password: opts.Password,
+		Category: opts.Category,
+		URL:      opts.URL,
+		Notes:    opts.Notes,
 	}
-	if password != "" {
-		opts.Password = &password
-	}
 
-	err := s.vault.UpdateCredential(service, opts)
+	// Perform vault I/O without holding lock (vault has its own synchronization)
+	err := s.vault.UpdateCredential(service, vaultOpts)
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to update credential: %w", err)
-		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
-		s.notifyError(wrappedErr) // ✅ THEN notify
+		s.notifyError(wrappedErr)
 		return wrappedErr
 	}
 
-	// Reload credentials to update cache
+	// Reload credentials without holding lock
 	creds, err := s.vault.ListCredentialsWithMetadata()
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to reload credentials: %w", err)
-		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
-		s.notifyError(wrappedErr) // ✅ THEN notify
+		s.notifyError(wrappedErr)
 		return wrappedErr
 	}
 
+	// Only lock to update state
+	s.mu.Lock()
 	s.credentials = creds
 	s.updateCategories() // Update categories while locked
+	s.mu.Unlock()
 
-	s.mu.Unlock()                // ✅ RELEASE LOCK
-	s.notifyCredentialsChanged() // ✅ THEN notify
+	// Notify after releasing lock
+	s.notifyCredentialsChanged()
 
 	return nil
 }
 
 // DeleteCredential deletes a credential from the vault.
-// CRITICAL: Follows Lock→Mutate→Unlock→Notify pattern.
+// CRITICAL: Minimizes lock duration by releasing lock during vault I/O operations.
 func (s *AppState) DeleteCredential(service string) error {
-	s.mu.Lock()
-
-	// Delete credential from vault
+	// Perform vault I/O without holding lock (vault has its own synchronization)
 	err := s.vault.DeleteCredential(service)
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to delete credential: %w", err)
-		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
-		s.notifyError(wrappedErr) // ✅ THEN notify
+		s.notifyError(wrappedErr)
 		return wrappedErr
 	}
 
-	// Reload credentials to update cache
+	// Reload credentials without holding lock
 	creds, err := s.vault.ListCredentialsWithMetadata()
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to reload credentials: %w", err)
-		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
-		s.notifyError(wrappedErr) // ✅ THEN notify
+		s.notifyError(wrappedErr)
 		return wrappedErr
 	}
 
+	// Only lock to update state
+	s.mu.Lock()
 	s.credentials = creds
 	s.updateCategories() // Update categories while locked
+	s.mu.Unlock()
 
-	s.mu.Unlock()                // ✅ RELEASE LOCK
-	s.notifyCredentialsChanged() // ✅ THEN notify
+	// Notify after releasing lock
+	s.notifyCredentialsChanged()
 
 	return nil
 }
@@ -367,10 +380,13 @@ func (s *AppState) updateCategories() {
 	categoryMap := make(map[string]bool)
 
 	for _, cred := range s.credentials {
-		// Extract category from service name (before first /)
-		// For now, treat entire service as category
-		// TODO: Implement proper category extraction if needed
-		categoryMap[cred.Service] = true
+		// Extract category from credential's Category field
+		if cred.Category != "" {
+			categoryMap[cred.Category] = true
+		} else {
+			// Empty category becomes "Uncategorized"
+			categoryMap["Uncategorized"] = true
+		}
 	}
 
 	// Convert map to sorted slice
