@@ -803,9 +803,9 @@ func (m *Model) saveNewCredential() tea.Cmd {
 		}
 	}
 
-	// Add credential
+	// Add credential (category and URL are empty for now)
 	return func() tea.Msg {
-		if err := m.vaultService.AddCredential(service, username, password, notes); err != nil {
+		if err := m.vaultService.AddCredential(service, username, password, "", "", notes); err != nil {
 			return vaultUnlockErrorMsg{err: err}
 		}
 
@@ -829,9 +829,20 @@ func (m *Model) updateCredential() tea.Cmd {
 		return nil
 	}
 
-	// Update credential
+	// Update credential using UpdateOpts (only update provided fields)
 	return func() tea.Msg {
-		if err := m.vaultService.UpdateCredential(service, username, password, notes); err != nil {
+		opts := vault.UpdateOpts{}
+		if username != "" {
+			opts.Username = &username
+		}
+		if password != "" {
+			opts.Password = &password
+		}
+		if notes != "" {
+			opts.Notes = &notes
+		}
+
+		if err := m.vaultService.UpdateCredential(service, opts); err != nil {
 			return vaultUnlockErrorMsg{err: err}
 		}
 

@@ -53,7 +53,7 @@ func (m *MockVaultService) ListCredentialsWithMetadata() ([]vault.CredentialMeta
 }
 
 // AddCredential adds a mock credential.
-func (m *MockVaultService) AddCredential(service, username, password, category string) error {
+func (m *MockVaultService) AddCredential(service, username, password, category, url, notes string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -66,6 +66,9 @@ func (m *MockVaultService) AddCredential(service, username, password, category s
 	cred := vault.CredentialMetadata{
 		Service:      service,
 		Username:     username,
+		Category:     category,
+		URL:          url,
+		Notes:        notes,
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
 		LastAccessed: time.Time{},
@@ -75,7 +78,7 @@ func (m *MockVaultService) AddCredential(service, username, password, category s
 }
 
 // UpdateCredential updates a mock credential.
-func (m *MockVaultService) UpdateCredential(service, username, password, category string) error {
+func (m *MockVaultService) UpdateCredential(service string, opts vault.UpdateOpts) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -87,7 +90,18 @@ func (m *MockVaultService) UpdateCredential(service, username, password, categor
 	// Find and update credential
 	for i, cred := range m.credentials {
 		if cred.Service == service {
-			m.credentials[i].Username = username
+			if opts.Username != nil {
+				m.credentials[i].Username = *opts.Username
+			}
+			if opts.Category != nil {
+				m.credentials[i].Category = *opts.Category
+			}
+			if opts.URL != nil {
+				m.credentials[i].URL = *opts.URL
+			}
+			if opts.Notes != nil {
+				m.credentials[i].Notes = *opts.Notes
+			}
 			m.credentials[i].UpdatedAt = time.Now()
 			return nil
 		}

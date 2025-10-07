@@ -14,8 +14,8 @@ import (
 // This interface enables testing with mock implementations.
 type VaultService interface {
 	ListCredentialsWithMetadata() ([]vault.CredentialMetadata, error)
-	AddCredential(service, username, password, category string) error
-	UpdateCredential(service, username, password, category string) error
+	AddCredential(service, username, password, category, url, notes string) error
+	UpdateCredential(service string, opts vault.UpdateOpts) error
 	DeleteCredential(service string) error
 	GetCredential(service string, trackUsage bool) (*vault.Credential, error)
 }
@@ -126,8 +126,8 @@ func (s *AppState) LoadCredentials() error {
 func (s *AppState) AddCredential(service, username, password string) error {
 	s.mu.Lock()
 
-	// Add credential to vault
-	err := s.vault.AddCredential(service, username, password, "")
+	// Add credential to vault (category, url, notes are empty for now)
+	err := s.vault.AddCredential(service, username, password, "", "", "")
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to add credential: %w", err)
 		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST
@@ -158,8 +158,16 @@ func (s *AppState) AddCredential(service, username, password string) error {
 func (s *AppState) UpdateCredential(service, username, password string) error {
 	s.mu.Lock()
 
-	// Update credential in vault
-	err := s.vault.UpdateCredential(service, username, password, "")
+	// Update credential in vault using UpdateOpts
+	opts := vault.UpdateOpts{}
+	if username != "" {
+		opts.Username = &username
+	}
+	if password != "" {
+		opts.Password = &password
+	}
+
+	err := s.vault.UpdateCredential(service, opts)
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to update credential: %w", err)
 		s.mu.Unlock()             // ✅ RELEASE LOCK FIRST

@@ -149,8 +149,19 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// Perform update
-	if err := vaultService.UpdateCredential(service, updateUsername, updatePassword, updateNotes); err != nil {
+	// Perform update using UpdateOpts (only update non-empty fields)
+	opts := vault.UpdateOpts{}
+	if updateUsername != "" {
+		opts.Username = &updateUsername
+	}
+	if updatePassword != "" {
+		opts.Password = &updatePassword
+	}
+	if updateNotes != "" {
+		opts.Notes = &updateNotes
+	}
+
+	if err := vaultService.UpdateCredential(service, opts); err != nil {
 		return fmt.Errorf("failed to update credential: %w", err)
 	}
 

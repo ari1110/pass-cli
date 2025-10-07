@@ -102,8 +102,8 @@ func runAdd(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("password cannot be empty")
 	}
 
-	// Add credential to vault
-	if err := vaultService.AddCredential(service, addUsername, addPassword, addNotes); err != nil {
+	// Add credential to vault (category and URL are empty for now)
+	if err := vaultService.AddCredential(service, addUsername, addPassword, "", "", addNotes); err != nil {
 		return fmt.Errorf("failed to add credential: %w", err)
 	}
 

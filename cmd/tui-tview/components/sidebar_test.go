@@ -26,21 +26,33 @@ func (m *MockVaultService) ListCredentialsWithMetadata() ([]vault.CredentialMeta
 	return m.credentials, nil
 }
 
-func (m *MockVaultService) AddCredential(service, username, password, category string) error {
+func (m *MockVaultService) AddCredential(service, username, password, category, url, notes string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.credentials = append(m.credentials, vault.CredentialMetadata{
-		Service: service, Username: username, CreatedAt: time.Now(), UpdatedAt: time.Now(),
+		Service: service, Username: username, Category: category, URL: url, Notes: notes,
+		CreatedAt: time.Now(), UpdatedAt: time.Now(),
 	})
 	return nil
 }
 
-func (m *MockVaultService) UpdateCredential(service, username, password, category string) error {
+func (m *MockVaultService) UpdateCredential(service string, opts vault.UpdateOpts) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	for i, cred := range m.credentials {
 		if cred.Service == service {
-			m.credentials[i].Username = username
+			if opts.Username != nil {
+				m.credentials[i].Username = *opts.Username
+			}
+			if opts.Category != nil {
+				m.credentials[i].Category = *opts.Category
+			}
+			if opts.URL != nil {
+				m.credentials[i].URL = *opts.URL
+			}
+			if opts.Notes != nil {
+				m.credentials[i].Notes = *opts.Notes
+			}
 			return nil
 		}
 	}

@@ -38,6 +38,8 @@ type Credential struct {
 	Service     string                  `json:"service"`
 	Username    string                  `json:"username"`
 	Password    string                  `json:"password"`
+	Category    string                  `json:"category,omitempty"`
+	URL         string                  `json:"url,omitempty"`
 	Notes       string                  `json:"notes"`
 	CreatedAt   time.Time               `json:"created_at"`
 	UpdatedAt   time.Time               `json:"updated_at"`
@@ -214,7 +216,7 @@ func (v *VaultService) save() error {
 }
 
 // AddCredential adds a new credential to the vault
-func (v *VaultService) AddCredential(service, username, password, notes string) error {
+func (v *VaultService) AddCredential(service, username, password, category, url, notes string) error {
 	if !v.unlocked {
 		return ErrVaultLocked
 	}
@@ -238,6 +240,8 @@ func (v *VaultService) AddCredential(service, username, password, notes string) 
 		Service:      service,
 		Username:     username,
 		Password:     password,
+		Category:     category,
+		URL:          url,
 		Notes:        notes,
 		CreatedAt:    now,
 		UpdatedAt:    now,
@@ -347,10 +351,22 @@ func (v *VaultService) ListCredentials() ([]string, error) {
 	return services, nil
 }
 
+// UpdateOpts contains optional fields for updating a credential
+// Use pointers to distinguish between "don't change" (nil) and "set to empty/value" (non-nil)
+type UpdateOpts struct {
+	Username *string // nil = don't change, non-nil = set to value (even if empty)
+	Password *string
+	Category *string
+	URL      *string
+	Notes    *string
+}
+
 // CredentialMetadata contains non-sensitive credential information for listing
 type CredentialMetadata struct {
 	Service      string
 	Username     string
+	Category     string
+	URL          string
 	Notes        string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
@@ -370,6 +386,8 @@ func (v *VaultService) ListCredentialsWithMetadata() ([]CredentialMetadata, erro
 		meta := CredentialMetadata{
 			Service:   cred.Service,
 			Username:  cred.Username,
+			Category:  cred.Category,
+			URL:       cred.URL,
 			Notes:     cred.Notes,
 			CreatedAt: cred.CreatedAt,
 			UpdatedAt: cred.UpdatedAt,
@@ -398,8 +416,9 @@ func (v *VaultService) ListCredentialsWithMetadata() ([]CredentialMetadata, erro
 	return metadata, nil
 }
 
-// UpdateCredential updates an existing credential
-func (v *VaultService) UpdateCredential(service, username, password, notes string) error {
+// UpdateCredential updates an existing credential using optional fields
+// Use nil pointers to skip updating a field, non-nil to set (including to empty string)
+func (v *VaultService) UpdateCredential(service string, opts UpdateOpts) error {
 	if !v.unlocked {
 		return ErrVaultLocked
 	}
@@ -409,21 +428,50 @@ func (v *VaultService) UpdateCredential(service, username, password, notes strin
 		return fmt.Errorf("%w: %s", ErrCredentialNotFound, service)
 	}
 
-	// Update fields (empty strings mean "don't change")
-	if username != "" {
-		credential.Username = username
+	// Update fields only if pointer is non-nil
+	if opts.Username != nil {
+		credential.Username = *opts.Username
 	}
-	if password != "" {
-		credential.Password = password
+	if opts.Password != nil {
+		credential.Password = *opts.Password
 	}
-	if notes != "" {
-		credential.Notes = notes
+	if opts.Category != nil {
+		credential.Category = *opts.Category
+	}
+	if opts.URL != nil {
+		credential.URL = *opts.URL
+	}
+	if opts.Notes != nil {
+		credential.Notes = *opts.Notes
 	}
 
 	credential.UpdatedAt = time.Now()
 	v.vaultData.Credentials[service] = credential
 
 	return v.save()
+}
+
+// UpdateCredentialFields updates fields using the planned 6-parameter signature
+// Empty strings mean "no change" to align with original plan semantics.
+// Note: This wrapper cannot set a field to empty string. Use UpdateCredential with UpdateOpts for that.
+func (v *VaultService) UpdateCredentialFields(service, username, password, category, url, notes string) error {
+	opts := UpdateOpts{}
+	if username != "" {
+		opts.Username = &username
+	}
+	if password != "" {
+		opts.Password = &password
+	}
+	if category != "" {
+		opts.Category = &category
+	}
+	if url != "" {
+		opts.URL = &url
+	}
+	if notes != "" {
+		opts.Notes = &notes
+	}
+	return v.UpdateCredential(service, opts)
 }
 
 // DeleteCredential removes a credential from the vault
