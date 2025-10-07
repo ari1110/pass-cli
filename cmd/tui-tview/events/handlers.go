@@ -216,11 +216,11 @@ func (eh *EventHandler) handleShowHelp() {
 	// Create table for properly aligned shortcuts (scrollable with arrow keys)
 	table := tview.NewTable().
 		SetBorders(false).
-		SetSelectable(true, false).  // Rows selectable for scrolling, columns not
-		SetFixed(1, 0).              // Fix title row at top when scrolling
+		SetSelectable(true, false). // Rows selectable for scrolling, columns not
+		SetFixed(1, 0).             // Fix title row at top when scrolling
 		SetSelectedStyle(tcell.StyleDefault.
 			Background(tcell.ColorBlue).
-			Foreground(tcell.ColorWhite))  // Keep selection invisible (same colors)
+			Foreground(tcell.ColorWhite)) // Keep selection invisible (same colors)
 
 	row := 0
 
@@ -300,7 +300,7 @@ func (eh *EventHandler) handleShowHelp() {
 
 	// Create TextView for close button (no SetTextAlign - it clips text!)
 	closeButtonText := tview.NewTextView()
-	closeButtonText.SetText("     PgUp/PgDn or Mouse Wheel to scroll  •  Esc to close     ")
+	closeButtonText.SetText("	PgUp/PgDn or Mouse Wheel to scroll  •  Esc to close")
 	closeButtonText.SetTextColor(tcell.ColorWhite)
 	closeButtonText.SetBackgroundColor(tcell.ColorBlue)
 
@@ -316,18 +316,18 @@ func (eh *EventHandler) handleShowHelp() {
 	// Add padding around table for better visual appearance
 	paddedTable := tview.NewFlex().
 		SetDirection(tview.FlexColumn).
-		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 2, 0, false).  // Left padding
-		AddItem(table, 0, 1, true).                                                // Table (flex width, focusable)
-		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 2, 0, false)   // Right padding
+		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 2, 0, false). // Left padding
+		AddItem(table, 0, 1, true).                                               // Table (flex width, focusable)
+		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 2, 0, false)  // Right padding
 
 	// Combine padded table and button in vertical layout
 	helpContent := tview.NewFlex().
 		SetDirection(tview.FlexRow).
-		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 1, 0, false).  // Top padding
-		AddItem(paddedTable, 0, 1, true).                                          // Table (flex height, gets focus for scrolling)
-		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 1, 0, false).  // Spacer
-		AddItem(closeButtonText, 1, 0, false).                                     // Close text (fixed 1 height)
-		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 1, 0, false)   // Bottom padding
+		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 1, 0, false). // Top padding
+		AddItem(paddedTable, 0, 1, true).                                         // Table (flex height, gets focus for scrolling)
+		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 1, 0, false). // Spacer
+		AddItem(closeButtonText, 1, 0, false).                                    // Close text (fixed 1 height)
+		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorBlue), 1, 0, false)  // Bottom padding
 
 	helpContent.SetBackgroundColor(tcell.ColorBlue).
 		SetBorder(true).
