@@ -16,161 +16,161 @@ var (
 
 	// Text styles
 	TitleStyle = lipgloss.NewStyle().
-		Bold(true).
-		Foreground(PrimaryColor).
-		MarginBottom(1)
+			Bold(true).
+			Foreground(PrimaryColor).
+			MarginBottom(1)
 
 	SubtitleStyle = lipgloss.NewStyle().
-		Bold(true).
-		Foreground(SecondaryColor)
+			Bold(true).
+			Foreground(SecondaryColor)
 
 	LabelStyle = lipgloss.NewStyle().
-		Bold(true).
-		Foreground(SubtleColor)
+			Bold(true).
+			Foreground(SubtleColor)
 
 	ValueStyle = lipgloss.NewStyle().
-		Foreground(TextColor)
+			Foreground(TextColor)
 
 	FocusedLabelStyle = lipgloss.NewStyle().
-		Bold(true).
-		Foreground(FocusedColor)
+				Bold(true).
+				Foreground(FocusedColor)
 
 	SuccessStyle = lipgloss.NewStyle().
-		Foreground(SuccessColor).
-		Bold(true)
+			Foreground(SuccessColor).
+			Bold(true)
 
 	WarningStyle = lipgloss.NewStyle().
-		Foreground(WarningColor).
-		Bold(true)
+			Foreground(WarningColor).
+			Bold(true)
 
 	ErrorStyle = lipgloss.NewStyle().
-		Foreground(ErrorColor).
-		Bold(true)
+			Foreground(ErrorColor).
+			Bold(true)
 
 	SubtleStyle = lipgloss.NewStyle().
-		Foreground(SubtleColor)
+			Foreground(SubtleColor)
 
 	// Password and sensitive data styles
 	PasswordStyle = lipgloss.NewStyle().
-		Foreground(TextColor).
-		Background(BackgroundDark).
-		Padding(0, 1)
+			Foreground(TextColor).
+			Background(BackgroundDark).
+			Padding(0, 1)
 
 	// Selected/Focused item styles
 	SelectedStyle = lipgloss.NewStyle().
-		Foreground(TextColor).
-		Background(PrimaryColor).
-		Bold(true)
+			Foreground(TextColor).
+			Background(PrimaryColor).
+			Bold(true)
 
 	// Border styles
 	BorderStyle = lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(SubtleColor).
-		Padding(1, 2)
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(SubtleColor).
+			Padding(1, 2)
 
 	ModalBorderStyle = lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(PrimaryColor).
-		Padding(1, 2)
+				Border(lipgloss.RoundedBorder()).
+				BorderForeground(PrimaryColor).
+				Padding(1, 2)
 
 	WarningBorderStyle = lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(WarningColor).
-		Padding(1, 2)
+				Border(lipgloss.RoundedBorder()).
+				BorderForeground(WarningColor).
+				Padding(1, 2)
 
 	ErrorBorderStyle = lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(ErrorColor).
-		Padding(1, 2)
+				Border(lipgloss.RoundedBorder()).
+				BorderForeground(ErrorColor).
+				Padding(1, 2)
 
 	// Notification styles
 	NotificationStyle = lipgloss.NewStyle().
-		Foreground(SuccessColor).
-		Bold(true).
-		Padding(0, 1)
+				Foreground(SuccessColor).
+				Bold(true).
+				Padding(0, 1)
 
 	ErrorNotificationStyle = lipgloss.NewStyle().
-		Foreground(ErrorColor).
-		Bold(true).
-		Padding(0, 1)
+				Foreground(ErrorColor).
+				Bold(true).
+				Padding(0, 1)
 
 	// Status bar
 	StatusBarStyle = lipgloss.NewStyle().
-		Foreground(SubtleColor).
-		Padding(0, 1)
+			Foreground(SubtleColor).
+			Padding(0, 1)
 
 	// Help text styles
 	HelpStyle = lipgloss.NewStyle().
-		Foreground(SubtleColor)
+			Foreground(SubtleColor)
 
 	KeyStyle = lipgloss.NewStyle().
-		Foreground(WarningColor).
-		Bold(true)
+			Foreground(WarningColor).
+			Bold(true)
 
 	// Table/List styles
 	TableHeaderStyle = lipgloss.NewStyle().
-		Foreground(PrimaryColor).
-		Bold(true)
+				Foreground(PrimaryColor).
+				Bold(true)
 
 	TableRowStyle = lipgloss.NewStyle().
-		Foreground(TextColor)
+			Foreground(TextColor)
 
 	TableDividerStyle = lipgloss.NewStyle().
-		Foreground(SubtleColor)
+				Foreground(SubtleColor)
 
 	// Panel styles for dashboard
 	ActivePanelBorderStyle = lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(PrimaryColor). // Cyan border for active panel
-		Padding(0, 1)
+				Border(lipgloss.RoundedBorder()).
+				BorderForeground(PrimaryColor). // Cyan border for active panel
+				Padding(0, 1)
 
 	InactivePanelBorderStyle = lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(SubtleColor). // Gray border for inactive panel
-		Padding(0, 1)
+					Border(lipgloss.RoundedBorder()).
+					BorderForeground(SubtleColor). // Gray border for inactive panel
+					Padding(0, 1)
 
 	// Panel title styles
 	PanelTitleStyle = lipgloss.NewStyle().
-		Foreground(PrimaryColor).
-		Bold(true).
-		Padding(0, 1)
+			Foreground(PrimaryColor).
+			Bold(true).
+			Padding(0, 1)
 
 	InactivePanelTitleStyle = lipgloss.NewStyle().
-		Foreground(SubtleColor).
-		Bold(true).
-		Padding(0, 1)
+				Foreground(SubtleColor).
+				Bold(true).
+				Padding(0, 1)
 
 	// Breadcrumb style
 	BreadcrumbStyle = lipgloss.NewStyle().
-		Foreground(PrimaryColor).
-		Bold(true)
+			Foreground(PrimaryColor).
+			Bold(true)
 
 	BreadcrumbSeparatorStyle = lipgloss.NewStyle().
-		Foreground(SubtleColor)
+					Foreground(SubtleColor)
 )
 
 // CategoryIcons maps category types to their display icons
 var CategoryIcons = map[string]string{
-	"APIs & Services":       "🔑",
-	"Cloud Infrastructure":  "☁️",
-	"Databases":             "💾",
-	"Version Control":       "📦",
-	"Communication":         "📧",
-	"Payment Processing":    "💰",
-	"AI Services":           "🤖",
-	"Uncategorized":         "📁",
+	"APIs & Services":      "🔑",
+	"Cloud Infrastructure": "☁️",
+	"Databases":            "💾",
+	"Version Control":      "📦",
+	"Communication":        "📧",
+	"Payment Processing":   "💰",
+	"AI Services":          "🤖",
+	"Uncategorized":        "📁",
 }
 
 // CategoryIconsASCII provides ASCII fallback for terminals without emoji support
 var CategoryIconsASCII = map[string]string{
-	"APIs & Services":       "[API]",
-	"Cloud Infrastructure":  "[CLD]",
-	"Databases":             "[DB]",
-	"Version Control":       "[GIT]",
-	"Communication":         "[MSG]",
-	"Payment Processing":    "[PAY]",
-	"AI Services":           "[AI]",
-	"Uncategorized":         "[???]",
+	"APIs & Services":      "[API]",
+	"Cloud Infrastructure": "[CLD]",
+	"Databases":            "[DB]",
+	"Version Control":      "[GIT]",
+	"Communication":        "[MSG]",
+	"Payment Processing":   "[PAY]",
+	"AI Services":          "[AI]",
+	"Uncategorized":        "[???]",
 }
 
 // StatusIcons maps status types to their display icons

@@ -21,15 +21,15 @@ const (
 
 // AddFormView manages the add credential form
 type AddFormView struct {
-	serviceInput   textinput.Model
-	usernameInput  textinput.Model
-	passwordInput  textinput.Model
-	notesInput     textarea.Model
-	focusedField   FormField
-	errorMsg       string
-	notification   string
-	width          int
-	height         int
+	serviceInput  textinput.Model
+	usernameInput textinput.Model
+	passwordInput textinput.Model
+	notesInput    textarea.Model
+	focusedField  FormField
+	errorMsg      string
+	notification  string
+	width         int
+	height        int
 }
 
 // NewAddFormView creates a new add form
@@ -58,11 +58,11 @@ func NewAddFormView() *AddFormView {
 	notesInput.CharLimit = 500
 
 	return &AddFormView{
-		serviceInput:   serviceInput,
-		usernameInput:  usernameInput,
-		passwordInput:  passwordInput,
-		notesInput:     notesInput,
-		focusedField:   FieldService,
+		serviceInput:  serviceInput,
+		usernameInput: usernameInput,
+		passwordInput: passwordInput,
+		notesInput:    notesInput,
+		focusedField:  FieldService,
 	}
 }
 

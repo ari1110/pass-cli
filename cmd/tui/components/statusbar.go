@@ -135,7 +135,7 @@ func (s *StatusBar) Render() string {
 	if centerLen > remainingForCenter && remainingForCenter > 0 {
 		if remainingForCenter > 3 {
 			// Use lipgloss truncation for proper handling
-			truncatedCenter = lipgloss.NewStyle().MaxWidth(remainingForCenter - 3).Render(center) + "..."
+			truncatedCenter = lipgloss.NewStyle().MaxWidth(remainingForCenter-3).Render(center) + "..."
 		} else {
 			truncatedCenter = ""
 		}
@@ -203,7 +203,7 @@ func (s *StatusBar) truncateShortcuts(shortcuts string, maxWidth int) string {
 	if result == "" {
 		// If even one shortcut doesn't fit, just truncate hard
 		if maxWidth > 3 {
-			return lipgloss.NewStyle().MaxWidth(maxWidth - 3).Render(shortcuts) + "..."
+			return lipgloss.NewStyle().MaxWidth(maxWidth-3).Render(shortcuts) + "..."
 		}
 		return ""
 	}

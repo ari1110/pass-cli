@@ -6,8 +6,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"pass-cli/cmd/tui/components"
 	"pass-cli/cmd/tui/styles"
 	"pass-cli/cmd/tui/views"

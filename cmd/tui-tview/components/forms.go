@@ -1,3 +1,5 @@
+// Package components provides TUI form components for credential management.
+// All forms support the complete credential model: service, username, password, category, URL, and notes.
 package components
 
 import (
@@ -64,13 +66,28 @@ func NewAddForm(appState *models.AppState) *AddForm {
 func (af *AddForm) buildFormFields() {
 	categories := af.getCategories()
 
+	// Ensure "Uncategorized" is always present and find its index
+	uncategorizedIndex := -1
+	for i, cat := range categories {
+		if cat == "Uncategorized" {
+			uncategorizedIndex = i
+			break
+		}
+	}
+
+	// If "Uncategorized" is not present, prepend it to the list
+	if uncategorizedIndex == -1 {
+		categories = append([]string{"Uncategorized"}, categories...)
+		uncategorizedIndex = 0
+	}
+
 	// Core credential fields
 	af.AddInputField("Service", "", 40, nil, nil)
 	af.AddInputField("Username", "", 40, nil, nil)
 	af.AddPasswordField("Password", "", 40, '*', nil)
 
-	// Optional metadata fields
-	af.AddDropDown("Category", categories, 0, nil)
+	// Optional metadata fields - default to "Uncategorized"
+	af.AddDropDown("Category", categories, uncategorizedIndex, nil)
 	af.AddInputField("URL", "", 40, nil, nil)
 	af.AddTextArea("Notes", "", 40, 5, 0, nil)
 

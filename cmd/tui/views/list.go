@@ -33,12 +33,12 @@ func (i credentialItem) Description() string {
 
 // ListView manages the credential list view
 type ListView struct {
-	list        list.Model
-	searchInput textinput.Model
+	list          list.Model
+	searchInput   textinput.Model
 	searchFocused bool
-	allItems    []list.Item
-	width       int
-	height      int
+	allItems      []list.Item
+	width         int
+	height        int
 }
 
 // NewListView creates a new list view
@@ -55,9 +55,9 @@ func NewListView(credentials []vault.CredentialMetadata) *ListView {
 
 	l := list.New(items, delegate, 0, 0)
 	l.Title = "Credentials"
-	l.SetShowStatusBar(false) // Hide status bar to save space
+	l.SetShowStatusBar(false)    // Hide status bar to save space
 	l.SetFilteringEnabled(false) // We have our own search
-	l.SetShowHelp(false) // We show our own help
+	l.SetShowHelp(false)         // We show our own help
 	l.Styles.Title = lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("6")) // Cyan

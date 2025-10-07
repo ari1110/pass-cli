@@ -20,12 +20,12 @@ var (
 )
 
 const (
-	lowerChars   = "abcdefghijklmnopqrstuvwxyz"
-	upperChars   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	digitChars   = "0123456789"
-	symbolChars  = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-	minLength    = 8
-	maxLength    = 128
+	lowerChars    = "abcdefghijklmnopqrstuvwxyz"
+	upperChars    = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	digitChars    = "0123456789"
+	symbolChars   = "!@#$%^&*()_+-=[]{}|;:,.<>?"
+	minLength     = 8
+	maxLength     = 128
 	defaultLength = 20
 )
 

@@ -1,3 +1,6 @@
+// Package models provides application state management for the tview TUI.
+// AppState manages all credential data including full metadata (category, URL, notes)
+// and provides thread-safe access with proper locking patterns.
 package models
 
 import (

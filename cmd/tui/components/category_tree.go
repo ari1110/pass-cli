@@ -19,14 +19,14 @@ type Category struct {
 type CategoryType string
 
 const (
-	CategoryAPIs          CategoryType = "APIs & Services"
-	CategoryCloud         CategoryType = "Cloud Infrastructure"
-	CategoryDatabases     CategoryType = "Databases"
+	CategoryAPIs           CategoryType = "APIs & Services"
+	CategoryCloud          CategoryType = "Cloud Infrastructure"
+	CategoryDatabases      CategoryType = "Databases"
 	CategoryVersionControl CategoryType = "Version Control"
-	CategoryCommunication CategoryType = "Communication"
-	CategoryPayment       CategoryType = "Payment Processing"
-	CategoryAI            CategoryType = "AI Services"
-	CategoryUncategorized CategoryType = "Uncategorized"
+	CategoryCommunication  CategoryType = "Communication"
+	CategoryPayment        CategoryType = "Payment Processing"
+	CategoryAI             CategoryType = "AI Services"
+	CategoryUncategorized  CategoryType = "Uncategorized"
 )
 
 // categoryPatterns maps category types to service name patterns

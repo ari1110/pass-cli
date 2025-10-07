@@ -13,18 +13,18 @@ import (
 
 // EditFormView manages the edit credential form
 type EditFormView struct {
-	serviceInput      textinput.Model
-	usernameInput     textinput.Model
-	passwordInput     textinput.Model
-	notesInput        textarea.Model
-	focusedField      FormField
-	errorMsg          string
-	notification      string
-	width             int
-	height            int
+	serviceInput       textinput.Model
+	usernameInput      textinput.Model
+	passwordInput      textinput.Model
+	notesInput         textarea.Model
+	focusedField       FormField
+	errorMsg           string
+	notification       string
+	width              int
+	height             int
 	originalCredential *vault.Credential
-	hasUsageRecords   bool
-	usageCount        int
+	hasUsageRecords    bool
+	usageCount         int
 }
 
 // NewEditFormView creates a new edit form pre-filled with credential data

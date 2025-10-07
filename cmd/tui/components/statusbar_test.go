@@ -98,9 +98,9 @@ func TestStatusBarKeychainIndicator(t *testing.T) {
 
 func TestStatusBarCredentialCountPlural(t *testing.T) {
 	tests := []struct {
-		name          string
-		count         int
-		expectedText  string
+		name         string
+		count        int
+		expectedText string
 	}{
 		{
 			name:         "Zero credentials",

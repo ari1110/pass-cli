@@ -27,23 +27,23 @@ var (
 
 // UsageRecord tracks where and when a credential was accessed
 type UsageRecord struct {
-	Location  string    `json:"location"`   // Working directory where accessed
-	Timestamp time.Time `json:"timestamp"`  // When it was accessed
-	GitRepo   string    `json:"git_repo"`   // Git repository if available
-	Count     int       `json:"count"`      // Number of times accessed from this location
+	Location  string    `json:"location"`  // Working directory where accessed
+	Timestamp time.Time `json:"timestamp"` // When it was accessed
+	GitRepo   string    `json:"git_repo"`  // Git repository if available
+	Count     int       `json:"count"`     // Number of times accessed from this location
 }
 
 // Credential represents a stored credential with usage tracking
 type Credential struct {
-	Service     string                  `json:"service"`
-	Username    string                  `json:"username"`
-	Password    string                  `json:"password"`
-	Category    string                  `json:"category,omitempty"`
-	URL         string                  `json:"url,omitempty"`
-	Notes       string                  `json:"notes"`
-	CreatedAt   time.Time               `json:"created_at"`
-	UpdatedAt   time.Time               `json:"updated_at"`
-	UsageRecord map[string]UsageRecord  `json:"usage_records"` // Map of location -> UsageRecord
+	Service     string                 `json:"service"`
+	Username    string                 `json:"username"`
+	Password    string                 `json:"password"`
+	Category    string                 `json:"category,omitempty"`
+	URL         string                 `json:"url,omitempty"`
+	Notes       string                 `json:"notes"`
+	CreatedAt   time.Time              `json:"created_at"`
+	UpdatedAt   time.Time              `json:"updated_at"`
+	UsageRecord map[string]UsageRecord `json:"usage_records"` // Map of location -> UsageRecord
 }
 
 // VaultData is the decrypted vault structure
@@ -54,15 +54,15 @@ type VaultData struct {
 
 // VaultService manages credentials with encryption and keychain integration
 type VaultService struct {
-	vaultPath      string
-	cryptoService  *crypto.CryptoService
-	storageService *storage.StorageService
+	vaultPath       string
+	cryptoService   *crypto.CryptoService
+	storageService  *storage.StorageService
 	keychainService *keychain.KeychainService
 
 	// In-memory state
-	unlocked      bool
+	unlocked       bool
 	masterPassword string
-	vaultData     *VaultData
+	vaultData      *VaultData
 }
 
 // New creates a new VaultService
@@ -237,15 +237,15 @@ func (v *VaultService) AddCredential(service, username, password, category, url,
 	// Create credential
 	now := time.Now()
 	credential := Credential{
-		Service:      service,
-		Username:     username,
-		Password:     password,
-		Category:     category,
-		URL:          url,
-		Notes:        notes,
-		CreatedAt:    now,
-		UpdatedAt:    now,
-		UsageRecord:  make(map[string]UsageRecord),
+		Service:     service,
+		Username:    username,
+		Password:    password,
+		Category:    category,
+		URL:         url,
+		Notes:       notes,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+		UsageRecord: make(map[string]UsageRecord),
 	}
 
 	// Add to vault

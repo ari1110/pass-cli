@@ -11,10 +11,10 @@ import (
 
 func createTestCredential() *vault.Credential {
 	return &vault.Credential{
-		Service:  "github.com",
-		Username: "testuser",
-		Password: "testpassword123",
-		Notes:    "Test notes",
+		Service:   "github.com",
+		Username:  "testuser",
+		Password:  "testpassword123",
+		Notes:     "Test notes",
 		CreatedAt: time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC),
 		UpdatedAt: time.Date(2024, 1, 2, 12, 0, 0, 0, time.UTC),
 		UsageRecord: map[string]vault.UsageRecord{

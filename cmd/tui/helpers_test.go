@@ -24,7 +24,7 @@ func createTestModel(width, height int, sidebarVisible, metadataVisible bool) *M
 	}
 
 	// Initialize minimal components for rendering
-	m.statusBar = components.NewStatusBar(false, 0, "list") // keychainAvailable, credentialCount, currentView
+	m.statusBar = components.NewStatusBar(false, 0, "list")              // keychainAvailable, credentialCount, currentView
 	m.sidebar = components.NewSidebarPanel([]vault.CredentialMetadata{}) // empty credentials for testing
 	m.metadataPanel = components.NewMetadataPanel()
 	m.listView = nil // Will render empty content
@@ -92,10 +92,10 @@ func TestPanelVisibilityBorders(t *testing.T) {
 		metadataVisible bool
 		expectedBorders int // Number of vertical panel borders
 	}{
-		{"main only", false, false, 2},          // Main panel: left + right border
-		{"sidebar + main", true, false, 3},      // Sidebar right + Main left + Main right
-		{"main + metadata", false, true, 3},     // Main left + Main right + Metadata left
-		{"all panels", true, true, 4},           // Sidebar right + Main left + Main right + Metadata left
+		{"main only", false, false, 2},      // Main panel: left + right border
+		{"sidebar + main", true, false, 3},  // Sidebar right + Main left + Main right
+		{"main + metadata", false, true, 3}, // Main left + Main right + Metadata left
+		{"all panels", true, true, 4},       // Sidebar right + Main left + Main right + Metadata left
 	}
 
 	for _, tc := range testCases {

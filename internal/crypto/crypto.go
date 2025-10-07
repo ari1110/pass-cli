@@ -8,14 +8,14 @@ import (
 	"errors"
 	"fmt"
 
-	"golang.org/x/crypto/pbkdf2"
 	"crypto/sha256"
+	"golang.org/x/crypto/pbkdf2"
 )
 
 const (
-	KeyLength   = 32 // AES-256 key length
-	NonceLength = 12 // GCM nonce length
-	SaltLength  = 32 // PBKDF2 salt length
+	KeyLength   = 32     // AES-256 key length
+	NonceLength = 12     // GCM nonce length
+	SaltLength  = 32     // PBKDF2 salt length
 	Iterations  = 100000 // PBKDF2 iterations for key derivation
 )
 

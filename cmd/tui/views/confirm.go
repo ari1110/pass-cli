@@ -15,19 +15,19 @@ type ConfirmType int
 
 const (
 	ConfirmSimple ConfirmType = iota // Simple y/n confirmation
-	ConfirmTyped                      // Requires typing service name
-	ConfirmDelete                     // Delete confirmation with credential info
+	ConfirmTyped                     // Requires typing service name
+	ConfirmDelete                    // Delete confirmation with credential info
 )
 
 // ConfirmView displays a confirmation dialog
 type ConfirmView struct {
-	confirmType    ConfirmType
-	message        string
-	credential     *vault.Credential // For delete confirmations
-	textInput      textinput.Model   // For typed confirmations
-	errorMsg       string
-	width          int
-	height         int
+	confirmType ConfirmType
+	message     string
+	credential  *vault.Credential // For delete confirmations
+	textInput   textinput.Model   // For typed confirmations
+	errorMsg    string
+	width       int
+	height      int
 }
 
 // NewConfirmView creates a new simple confirmation dialog

@@ -48,7 +48,7 @@ func (h *HelpView) SetSize(width, height int) {
 		modalHeight = 10
 	}
 
-	h.viewport.Width = modalWidth - 4  // Account for padding
+	h.viewport.Width = modalWidth - 4 // Account for padding
 	h.viewport.Height = modalHeight - 4
 
 	// Update content

@@ -28,13 +28,13 @@ type ColorScheme struct {
 	Info    tcell.Color // Info messages (cyan)
 
 	// Component-specific
-	TableHeader           tcell.Color // Table header text
-	TableSelected         tcell.Color // Selected row highlight
+	TableHeader            tcell.Color // Table header text
+	TableSelected          tcell.Color // Selected row highlight
 	TableSelectedHighlight tcell.Color // Brighter selected row background
-	SidebarSelected       tcell.Color // Selected tree node
-	StatusBarBg           tcell.Color // Status bar background
-	ButtonBackground      tcell.Color // Button background
-	ButtonText            tcell.Color // Button text
+	SidebarSelected        tcell.Color // Selected tree node
+	StatusBarBg            tcell.Color // Status bar background
+	ButtonBackground       tcell.Color // Button background
+	ButtonText             tcell.Color // Button text
 }
 
 // DefaultTheme provides a Dracula-inspired color scheme.
@@ -60,13 +60,13 @@ var DefaultTheme = ColorScheme{
 	Info:    tcell.NewRGBColor(139, 233, 253), // #8be9fd (cyan)
 
 	// Components
-	TableHeader:           tcell.NewRGBColor(189, 147, 249), // #bd93f9 (purple)
-	TableSelected:         tcell.NewRGBColor(68, 71, 90),    // #44475a (lighter bg)
-	TableSelectedHighlight: tcell.NewRGBColor(98, 114, 164), // #6272a4 (brighter purple-gray)
-	SidebarSelected:       tcell.NewRGBColor(255, 121, 198), // #ff79c6 (pink)
-	StatusBarBg:           tcell.NewRGBColor(30, 32, 44),    // #1e202c (dark)
-	ButtonBackground:      tcell.NewRGBColor(68, 71, 90),    // #44475a
-	ButtonText:            tcell.NewRGBColor(248, 248, 242), // #f8f8f2
+	TableHeader:            tcell.NewRGBColor(189, 147, 249), // #bd93f9 (purple)
+	TableSelected:          tcell.NewRGBColor(68, 71, 90),    // #44475a (lighter bg)
+	TableSelectedHighlight: tcell.NewRGBColor(98, 114, 164),  // #6272a4 (brighter purple-gray)
+	SidebarSelected:        tcell.NewRGBColor(255, 121, 198), // #ff79c6 (pink)
+	StatusBarBg:            tcell.NewRGBColor(30, 32, 44),    // #1e202c (dark)
+	ButtonBackground:       tcell.NewRGBColor(68, 71, 90),    // #44475a
+	ButtonText:             tcell.NewRGBColor(248, 248, 242), // #f8f8f2
 }
 
 // GetCurrentTheme returns the currently active color scheme.

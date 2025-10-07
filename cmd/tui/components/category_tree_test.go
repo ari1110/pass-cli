@@ -87,7 +87,7 @@ func TestCategorizeCredentials_Git(t *testing.T) {
 
 func TestCategorizeCredentials_APIs(t *testing.T) {
 	credentials := []vault.CredentialMetadata{
-		{Service: "custom-api", Username: "key"}, // Changed to ensure it matches API pattern
+		{Service: "custom-api", Username: "key"},   // Changed to ensure it matches API pattern
 		{Service: "rest-service", Username: "sid"}, // Changed to match service/rest pattern
 		{Service: "oauth-provider", Username: "client"},
 	}

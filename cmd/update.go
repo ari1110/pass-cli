@@ -12,15 +12,15 @@ import (
 )
 
 var (
-	updateUsername     string
-	updatePassword     string
-	updateNotes        string
-	updateCategory     string
-	updateURL          string
-	updateForce        bool
-	clearCategory      bool
-	clearURL           bool
-	clearNotes         bool
+	updateUsername string
+	updatePassword string
+	updateNotes    string
+	updateCategory string
+	updateURL      string
+	updateForce    bool
+	clearCategory  bool
+	clearURL       bool
+	clearNotes     bool
 )
 
 var updateCmd = &cobra.Command{
@@ -116,8 +116,9 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to get credential: %w", err)
 	}
 
-	// If no flags provided, prompt for what to update
-	if updateUsername == "" && updatePassword == "" && updateNotes == "" && updateCategory == "" && updateURL == "" {
+	// If no flags provided (including clear flags), prompt for what to update
+	if updateUsername == "" && updatePassword == "" && updateNotes == "" && updateCategory == "" && updateURL == "" &&
+		!clearCategory && !clearURL && !clearNotes {
 		fmt.Println("What would you like to update? (leave empty to keep current value)")
 		fmt.Println()
 

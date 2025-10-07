@@ -163,20 +163,38 @@ func TestIntegration_TUIWithExistingVault(t *testing.T) {
 		os.RemoveAll(vaultDir)
 	})
 
-	// Add some test credentials
+	// Add some test credentials with all 6 fields
 	credentials := []struct {
 		service  string
 		username string
 		password string
+		category string
+		url      string
+		notes    string
 	}{
-		{"github.com", "tuiuser", "pass123"},
-		{"gitlab.com", "developer", "pass456"},
-		{"example.com", "admin", "pass789"},
+		{"github.com", "tuiuser", "pass123", "Version Control", "https://github.com", "Test GitHub account"},
+		{"gitlab.com", "developer", "pass456", "Version Control", "https://gitlab.com", "Test GitLab account"},
+		{"example.com", "admin", "pass789", "Databases", "https://example.com/admin", "Test database admin"},
 	}
 
 	for _, cred := range credentials {
-		addCmd := exec.Command(binaryPath, "--vault", vaultPath, "add", cred.service)
-		addCmd.Stdin = strings.NewReader(testPassword + "\n" + cred.username + "\n" + cred.password + "\n")
+		// Build command with all metadata fields
+		args := []string{"--vault", vaultPath, "add", cred.service, "-u", cred.username, "-p", cred.password}
+
+		if cred.category != "" {
+			args = append(args, "-c", cred.category)
+		}
+
+		if cred.url != "" {
+			args = append(args, "--url", cred.url)
+		}
+
+		if cred.notes != "" {
+			args = append(args, "--notes", cred.notes)
+		}
+
+		addCmd := exec.Command(binaryPath, args...)
+		addCmd.Stdin = strings.NewReader(testPassword + "\n")
 		if err := addCmd.Run(); err != nil {
 			t.Fatalf("Failed to add credential %s: %v", cred.service, err)
 		}
@@ -351,11 +369,22 @@ func TestIntegration_TUIComponentIntegration(t *testing.T) {
 		os.RemoveAll(vaultDir)
 	})
 
-	// Add credentials to test list view integration
+	// Add credentials to test list view integration with all 6 fields
 	for i := 1; i <= 5; i++ {
 		service := fmt.Sprintf("service%d.com", i)
-		addCmd := exec.Command(binaryPath, "--vault", vaultPath, "add", service)
-		addCmd.Stdin = strings.NewReader(testPassword + "\n" + fmt.Sprintf("user%d\n", i) + fmt.Sprintf("pass%d\n", i))
+		username := fmt.Sprintf("user%d", i)
+		password := fmt.Sprintf("pass%d", i)
+		category := fmt.Sprintf("Category%d", i)
+		url := fmt.Sprintf("https://service%d.com", i)
+		notes := fmt.Sprintf("Test notes for service%d", i)
+
+		addCmd := exec.Command(binaryPath, "--vault", vaultPath, "add", service,
+			"-u", username,
+			"-p", password,
+			"-c", category,
+			"--url", url,
+			"--notes", notes)
+		addCmd.Stdin = strings.NewReader(testPassword + "\n")
 		if err := addCmd.Run(); err != nil {
 			t.Fatalf("Failed to add credential: %v", err)
 		}
@@ -378,4 +407,451 @@ func TestIntegration_TUIComponentIntegration(t *testing.T) {
 	}
 
 	t.Log("TUI components integrated successfully - vault operations work correctly")
+}
+
+// TestIntegration_TUIFullFieldSupport verifies all 6 credential fields are properly handled
+func TestIntegration_TUIFullFieldSupport(t *testing.T) {
+	testPassword := "test-full-fields-123"
+	vaultDir := filepath.Join(testDir, "tui-full-fields-vault")
+	vaultPath := filepath.Join(vaultDir, "vault.enc")
+
+	// Initialize vault
+	initCmd := exec.Command(binaryPath, "--vault", vaultPath, "init")
+	initCmd.Stdin = strings.NewReader(testPassword + "\n" + testPassword + "\n" + "n\n")
+	if err := initCmd.Run(); err != nil {
+		t.Fatalf("Failed to initialize vault: %v", err)
+	}
+
+	t.Cleanup(func() {
+		os.RemoveAll(vaultDir)
+	})
+
+	// Add a credential with all 6 fields populated
+	service := "test-service.com"
+	username := "testuser"
+	password := "testpass123"
+	category := "Test Category"
+	url := "https://test-service.com/login"
+	notes := "Test notes for full field support"
+
+	addCmd := exec.Command(binaryPath, "--vault", vaultPath, "add", service,
+		"-u", username,
+		"-p", password,
+		"-c", category,
+		"--url", url,
+		"--notes", notes)
+	addCmd.Stdin = strings.NewReader(testPassword + "\n")
+
+	output, err := addCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("Failed to add credential with full fields: %v\nOutput: %s", err, output)
+	}
+
+	// Verify all fields are in the success message
+	outputStr := string(output)
+	if !strings.Contains(outputStr, service) {
+		t.Errorf("Success message missing service: %s", outputStr)
+	}
+	if !strings.Contains(outputStr, username) {
+		t.Errorf("Success message missing username: %s", outputStr)
+	}
+	if !strings.Contains(outputStr, category) {
+		t.Errorf("Success message missing category: %s", outputStr)
+	}
+	if !strings.Contains(outputStr, url) {
+		t.Errorf("Success message missing URL: %s", outputStr)
+	}
+	if !strings.Contains(outputStr, notes) {
+		t.Errorf("Success message missing notes: %s", outputStr)
+	}
+
+	// Retrieve the credential using get command
+	getCmd := exec.Command(binaryPath, "--vault", vaultPath, "get", service)
+	getCmd.Stdin = strings.NewReader(testPassword + "\n")
+	getOutput, err := getCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("Failed to retrieve credential: %v\nOutput: %s", err, getOutput)
+	}
+
+	getOutputStr := string(getOutput)
+
+	// Verify all fields are properly persisted
+	if !strings.Contains(getOutputStr, username) {
+		t.Errorf("Retrieved credential missing username: %s", getOutputStr)
+	}
+	if !strings.Contains(getOutputStr, category) {
+		t.Errorf("Retrieved credential missing category: %s", getOutputStr)
+	}
+	if !strings.Contains(getOutputStr, url) {
+		t.Errorf("Retrieved credential missing URL: %s", getOutputStr)
+	}
+	if !strings.Contains(getOutputStr, notes) {
+		t.Errorf("Retrieved credential missing notes: %s", getOutputStr)
+	}
+
+	t.Log("All 6 credential fields (service, username, password, category, url, notes) properly stored and retrieved")
+}
+
+// TestIntegration_TUIEmptyOptionalFields verifies backward compatibility with empty optional fields
+func TestIntegration_TUIEmptyOptionalFields(t *testing.T) {
+	testPassword := "test-empty-fields-456"
+	vaultDir := filepath.Join(testDir, "tui-empty-fields-vault")
+	vaultPath := filepath.Join(vaultDir, "vault.enc")
+
+	// Initialize vault
+	initCmd := exec.Command(binaryPath, "--vault", vaultPath, "init")
+	initCmd.Stdin = strings.NewReader(testPassword + "\n" + testPassword + "\n" + "n\n")
+	if err := initCmd.Run(); err != nil {
+		t.Fatalf("Failed to initialize vault: %v", err)
+	}
+
+	t.Cleanup(func() {
+		os.RemoveAll(vaultDir)
+	})
+
+	// Add credentials with empty optional fields (category, url, notes)
+	testCases := []struct {
+		name        string
+		service     string
+		username    string
+		password    string
+		includeFlag string
+		flagValue   string
+	}{
+		{"OnlyCategoryEmpty", "service1.com", "user1", "pass1", "--url", "https://service1.com"},
+		{"OnlyURLEmpty", "service2.com", "user2", "pass2", "-c", "TestCat"},
+		{"OnlyNotesEmpty", "service3.com", "user3", "pass3", "-c", "TestCat"},
+		{"AllOptionalEmpty", "service4.com", "user4", "pass4", "", ""},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			args := []string{"--vault", vaultPath, "add", tc.service, "-u", tc.username, "-p", tc.password}
+
+			if tc.includeFlag != "" {
+				args = append(args, tc.includeFlag, tc.flagValue)
+			}
+
+			addCmd := exec.Command(binaryPath, args...)
+			addCmd.Stdin = strings.NewReader(testPassword + "\n")
+
+			if err := addCmd.Run(); err != nil {
+				t.Fatalf("Failed to add credential %s with empty optional fields: %v", tc.service, err)
+			}
+
+			// Verify credential can be retrieved
+			getCmd := exec.Command(binaryPath, "--vault", vaultPath, "get", tc.service)
+			getCmd.Stdin = strings.NewReader(testPassword + "\n")
+			output, err := getCmd.CombinedOutput()
+			if err != nil {
+				t.Fatalf("Failed to retrieve credential %s: %v\nOutput: %s", tc.service, err, output)
+			}
+
+			outputStr := string(output)
+			if !strings.Contains(outputStr, tc.username) {
+				t.Errorf("Retrieved credential missing username: %s", outputStr)
+			}
+		})
+	}
+
+	t.Log("Empty optional fields handled gracefully - backward compatibility maintained")
+}
+
+// TestIntegration_TUIUpdateFields verifies updating all 6 credential fields via CLI
+func TestIntegration_TUIUpdateFields(t *testing.T) {
+	testPassword := "test-update-789"
+	vaultDir := filepath.Join(testDir, "tui-update-vault")
+	vaultPath := filepath.Join(vaultDir, "vault.enc")
+
+	// Initialize vault
+	initCmd := exec.Command(binaryPath, "--vault", vaultPath, "init")
+	initCmd.Stdin = strings.NewReader(testPassword + "\n" + testPassword + "\n" + "n\n")
+	if err := initCmd.Run(); err != nil {
+		t.Fatalf("Failed to initialize vault: %v", err)
+	}
+
+	t.Cleanup(func() {
+		os.RemoveAll(vaultDir)
+	})
+
+	// Add initial credential with all fields
+	service := "update-test.com"
+	addCmd := exec.Command(binaryPath, "--vault", vaultPath, "add", service,
+		"-u", "originaluser",
+		"-p", "originalpass",
+		"-c", "Original Category",
+		"--url", "https://original.com",
+		"--notes", "Original notes")
+	addCmd.Stdin = strings.NewReader(testPassword + "\n")
+	if err := addCmd.Run(); err != nil {
+		t.Fatalf("Failed to add initial credential: %v", err)
+	}
+
+	t.Run("UpdateUsername", func(t *testing.T) {
+		updateCmd := exec.Command(binaryPath, "--vault", vaultPath, "update", service,
+			"-u", "newuser",
+			"--force")
+		updateCmd.Stdin = strings.NewReader(testPassword + "\n")
+		if err := updateCmd.Run(); err != nil {
+			t.Fatalf("Failed to update username: %v", err)
+		}
+
+		// Verify update
+		getCmd := exec.Command(binaryPath, "--vault", vaultPath, "get", service, "--no-clipboard")
+		getCmd.Stdin = strings.NewReader(testPassword + "\n")
+		output, _ := getCmd.CombinedOutput()
+		if !strings.Contains(string(output), "newuser") {
+			t.Errorf("Updated username not found in output: %s", output)
+		}
+	})
+
+	t.Run("UpdatePassword", func(t *testing.T) {
+		updateCmd := exec.Command(binaryPath, "--vault", vaultPath, "update", service,
+			"-p", "newpass123",
+			"--force")
+		updateCmd.Stdin = strings.NewReader(testPassword + "\n")
+		if err := updateCmd.Run(); err != nil {
+			t.Fatalf("Failed to update password: %v", err)
+		}
+
+		// Verify password was updated
+		getCmd := exec.Command(binaryPath, "--vault", vaultPath, "get", service, "--no-clipboard")
+		getCmd.Stdin = strings.NewReader(testPassword + "\n")
+		output, _ := getCmd.CombinedOutput()
+		if !strings.Contains(string(output), "newpass123") {
+			t.Errorf("Updated password not found in output: %s", output)
+		}
+	})
+
+	t.Run("UpdateCategory", func(t *testing.T) {
+		updateCmd := exec.Command(binaryPath, "--vault", vaultPath, "update", service,
+			"--category", "New Category",
+			"--force")
+		updateCmd.Stdin = strings.NewReader(testPassword + "\n")
+		if err := updateCmd.Run(); err != nil {
+			t.Fatalf("Failed to update category: %v", err)
+		}
+
+		// Verify category was updated
+		getCmd := exec.Command(binaryPath, "--vault", vaultPath, "get", service, "--no-clipboard")
+		getCmd.Stdin = strings.NewReader(testPassword + "\n")
+		output, _ := getCmd.CombinedOutput()
+		if !strings.Contains(string(output), "New Category") {
+			t.Errorf("Updated category not found in output: %s", output)
+		}
+	})
+
+	t.Run("UpdateURL", func(t *testing.T) {
+		updateCmd := exec.Command(binaryPath, "--vault", vaultPath, "update", service,
+			"--url", "https://new-url.com",
+			"--force")
+		updateCmd.Stdin = strings.NewReader(testPassword + "\n")
+		if err := updateCmd.Run(); err != nil {
+			t.Fatalf("Failed to update URL: %v", err)
+		}
+
+		// Verify URL was updated
+		getCmd := exec.Command(binaryPath, "--vault", vaultPath, "get", service, "--no-clipboard")
+		getCmd.Stdin = strings.NewReader(testPassword + "\n")
+		output, _ := getCmd.CombinedOutput()
+		if !strings.Contains(string(output), "https://new-url.com") {
+			t.Errorf("Updated URL not found in output: %s", output)
+		}
+	})
+
+	t.Run("UpdateNotes", func(t *testing.T) {
+		updateCmd := exec.Command(binaryPath, "--vault", vaultPath, "update", service,
+			"--notes", "Updated notes content",
+			"--force")
+		updateCmd.Stdin = strings.NewReader(testPassword + "\n")
+		if err := updateCmd.Run(); err != nil {
+			t.Fatalf("Failed to update notes: %v", err)
+		}
+
+		// Verify notes were updated
+		getCmd := exec.Command(binaryPath, "--vault", vaultPath, "get", service, "--no-clipboard")
+		getCmd.Stdin = strings.NewReader(testPassword + "\n")
+		output, _ := getCmd.CombinedOutput()
+		if !strings.Contains(string(output), "Updated notes content") {
+			t.Errorf("Updated notes not found in output: %s", output)
+		}
+	})
+
+	t.Run("UpdateMultipleFields", func(t *testing.T) {
+		updateCmd := exec.Command(binaryPath, "--vault", vaultPath, "update", service,
+			"-u", "finaluser",
+			"--category", "Final Category",
+			"--url", "https://final.com",
+			"--notes", "Final notes",
+			"--force")
+		updateCmd.Stdin = strings.NewReader(testPassword + "\n")
+		if err := updateCmd.Run(); err != nil {
+			t.Fatalf("Failed to update multiple fields: %v", err)
+		}
+
+		// Verify all fields were updated
+		getCmd := exec.Command(binaryPath, "--vault", vaultPath, "get", service, "--no-clipboard")
+		getCmd.Stdin = strings.NewReader(testPassword + "\n")
+		output, _ := getCmd.CombinedOutput()
+		outputStr := string(output)
+
+		if !strings.Contains(outputStr, "finaluser") {
+			t.Errorf("Final username not found: %s", outputStr)
+		}
+		if !strings.Contains(outputStr, "Final Category") {
+			t.Errorf("Final category not found: %s", outputStr)
+		}
+		if !strings.Contains(outputStr, "https://final.com") {
+			t.Errorf("Final URL not found: %s", outputStr)
+		}
+		if !strings.Contains(outputStr, "Final notes") {
+			t.Errorf("Final notes not found: %s", outputStr)
+		}
+	})
+
+	t.Run("ClearOptionalFields", func(t *testing.T) {
+		// Clear category, URL, and notes
+		updateCmd := exec.Command(binaryPath, "--vault", vaultPath, "update", service,
+			"--clear-category",
+			"--clear-url",
+			"--clear-notes",
+			"--force")
+		updateCmd.Stdin = strings.NewReader(testPassword + "\n")
+		if err := updateCmd.Run(); err != nil {
+			t.Fatalf("Failed to clear optional fields: %v", err)
+		}
+
+		// Verify fields were cleared (should not appear in output)
+		getCmd := exec.Command(binaryPath, "--vault", vaultPath, "get", service, "--no-clipboard")
+		getCmd.Stdin = strings.NewReader(testPassword + "\n")
+		output, _ := getCmd.CombinedOutput()
+		outputStr := string(output)
+
+		// These lines should not appear when fields are empty
+		if strings.Contains(outputStr, "Category:") {
+			t.Errorf("Category should be cleared but found in output: %s", outputStr)
+		}
+		if strings.Contains(outputStr, "URL:") {
+			t.Errorf("URL should be cleared but found in output: %s", outputStr)
+		}
+		if strings.Contains(outputStr, "Notes:") {
+			t.Errorf("Notes should be cleared but found in output: %s", outputStr)
+		}
+	})
+
+	t.Log("All update operations (username, password, category, URL, notes) work correctly")
+}
+
+// TestIntegration_TUIDeleteCredential verifies deleting credentials and list/get consistency
+func TestIntegration_TUIDeleteCredential(t *testing.T) {
+	testPassword := "test-delete-abc"
+	vaultDir := filepath.Join(testDir, "tui-delete-vault")
+	vaultPath := filepath.Join(vaultDir, "vault.enc")
+
+	// Initialize vault
+	initCmd := exec.Command(binaryPath, "--vault", vaultPath, "init")
+	initCmd.Stdin = strings.NewReader(testPassword + "\n" + testPassword + "\n" + "n\n")
+	if err := initCmd.Run(); err != nil {
+		t.Fatalf("Failed to initialize vault: %v", err)
+	}
+
+	t.Cleanup(func() {
+		os.RemoveAll(vaultDir)
+	})
+
+	// Add multiple credentials with full metadata
+	credentials := []struct {
+		service  string
+		username string
+		password string
+		category string
+		url      string
+		notes    string
+	}{
+		{"delete-test1.com", "user1", "pass1", "Test Cat 1", "https://test1.com", "Notes 1"},
+		{"delete-test2.com", "user2", "pass2", "Test Cat 2", "https://test2.com", "Notes 2"},
+		{"delete-test3.com", "user3", "pass3", "Test Cat 3", "https://test3.com", "Notes 3"},
+	}
+
+	for _, cred := range credentials {
+		addCmd := exec.Command(binaryPath, "--vault", vaultPath, "add", cred.service,
+			"-u", cred.username,
+			"-p", cred.password,
+			"-c", cred.category,
+			"--url", cred.url,
+			"--notes", cred.notes)
+		addCmd.Stdin = strings.NewReader(testPassword + "\n")
+		if err := addCmd.Run(); err != nil {
+			t.Fatalf("Failed to add credential %s: %v", cred.service, err)
+		}
+	}
+
+	// Verify all credentials exist
+	listCmd := exec.Command(binaryPath, "--vault", vaultPath, "list")
+	listCmd.Stdin = strings.NewReader(testPassword + "\n")
+	listOutput, _ := listCmd.CombinedOutput()
+	listStr := string(listOutput)
+
+	for _, cred := range credentials {
+		if !strings.Contains(listStr, cred.service) {
+			t.Errorf("Expected %s in list before delete: %s", cred.service, listStr)
+		}
+	}
+
+	// Delete the second credential
+	deleteService := "delete-test2.com"
+	deleteCmd := exec.Command(binaryPath, "--vault", vaultPath, "delete", deleteService, "--force")
+	deleteCmd.Stdin = strings.NewReader(testPassword + "\n")
+	if err := deleteCmd.Run(); err != nil {
+		t.Fatalf("Failed to delete credential: %v", err)
+	}
+
+	// Verify deleted credential is not in list
+	listCmd = exec.Command(binaryPath, "--vault", vaultPath, "list")
+	listCmd.Stdin = strings.NewReader(testPassword + "\n")
+	listOutput, _ = listCmd.CombinedOutput()
+	listStr = string(listOutput)
+
+	if strings.Contains(listStr, deleteService) {
+		t.Errorf("Deleted credential %s should not appear in list: %s", deleteService, listStr)
+	}
+
+	// Verify other credentials still exist
+	if !strings.Contains(listStr, "delete-test1.com") {
+		t.Errorf("Credential delete-test1.com should still exist: %s", listStr)
+	}
+	if !strings.Contains(listStr, "delete-test3.com") {
+		t.Errorf("Credential delete-test3.com should still exist: %s", listStr)
+	}
+
+	// Verify get fails for deleted credential
+	getCmd := exec.Command(binaryPath, "--vault", vaultPath, "get", deleteService)
+	getCmd.Stdin = strings.NewReader(testPassword + "\n")
+	err := getCmd.Run()
+	if err == nil {
+		t.Error("Expected error when getting deleted credential, but got success")
+	}
+
+	// Verify remaining credentials still have all their metadata
+	for _, cred := range []string{"delete-test1.com", "delete-test3.com"} {
+		getCmd := exec.Command(binaryPath, "--vault", vaultPath, "get", cred, "--no-clipboard")
+		getCmd.Stdin = strings.NewReader(testPassword + "\n")
+		output, err := getCmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("Failed to get remaining credential %s: %v", cred, err)
+		}
+
+		outputStr := string(output)
+		if !strings.Contains(outputStr, "Test Cat") {
+			t.Errorf("Category missing for %s: %s", cred, outputStr)
+		}
+		if !strings.Contains(outputStr, "https://") {
+			t.Errorf("URL missing for %s: %s", cred, outputStr)
+		}
+		if !strings.Contains(outputStr, "Notes") {
+			t.Errorf("Notes missing for %s: %s", cred, outputStr)
+		}
+	}
+
+	t.Log("Delete operation works correctly, list and get commands show consistent state")
 }
