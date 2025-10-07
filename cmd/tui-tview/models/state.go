@@ -100,6 +100,20 @@ func (s *AppState) GetSelectedCategory() string {
 	return s.selectedCategory
 }
 
+// FindCredentialByService searches for a credential by service name (thread-safe read).
+// Returns the credential metadata and true if found, nil and false otherwise.
+func (s *AppState) FindCredentialByService(service string) (*vault.CredentialMetadata, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	for i := range s.credentials {
+		if s.credentials[i].Service == service {
+			return &s.credentials[i], true
+		}
+	}
+	return nil, false
+}
+
 // GetFullCredential fetches the full credential including password from vault.
 // This is used when password access is needed (display, clipboard).
 // SECURITY: Only call when password is actually needed (on-demand fetching).

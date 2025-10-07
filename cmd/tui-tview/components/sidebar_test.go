@@ -148,6 +148,49 @@ func TestSidebarRefresh(t *testing.T) {
 		}
 	}
 
+	// Verify credential nodes under each category
+	// AWS category (index 0)
+	awsChildren := children[0].GetChildren()
+	if len(awsChildren) != 1 {
+		t.Errorf("Expected 1 credential under AWS category, got %d", len(awsChildren))
+	}
+	if len(awsChildren) > 0 {
+		if awsChildren[0].GetText() != "AWS" {
+			t.Errorf("Expected credential service name 'AWS', got '%s'", awsChildren[0].GetText())
+		}
+		// Verify credential node reference (should be NodeReference with Kind="credential")
+		if ref := awsChildren[0].GetReference(); ref != nil {
+			if nodeRef, ok := ref.(NodeReference); ok {
+				if nodeRef.Kind != "credential" {
+					t.Errorf("Expected node kind 'credential', got '%s'", nodeRef.Kind)
+				}
+				if nodeRef.Value != "AWS" {
+					t.Errorf("Expected credential reference service 'AWS', got '%s'", nodeRef.Value)
+				}
+			} else {
+				t.Error("Expected credential node reference to be NodeReference")
+			}
+		}
+	}
+
+	// Database category (index 1)
+	dbChildren := children[1].GetChildren()
+	if len(dbChildren) != 1 {
+		t.Errorf("Expected 1 credential under Database category, got %d", len(dbChildren))
+	}
+	if len(dbChildren) > 0 && dbChildren[0].GetText() != "Database" {
+		t.Errorf("Expected credential service name 'Database', got '%s'", dbChildren[0].GetText())
+	}
+
+	// GitHub category (index 2)
+	ghChildren := children[2].GetChildren()
+	if len(ghChildren) != 1 {
+		t.Errorf("Expected 1 credential under GitHub category, got %d", len(ghChildren))
+	}
+	if len(ghChildren) > 0 && ghChildren[0].GetText() != "GitHub" {
+		t.Errorf("Expected credential service name 'GitHub', got '%s'", ghChildren[0].GetText())
+	}
+
 	// Verify root still expanded after refresh
 	if !sidebar.rootNode.IsExpanded() {
 		t.Error("Root node should remain expanded after refresh")
@@ -237,6 +280,48 @@ func TestSidebarSelection_CategoryNode(t *testing.T) {
 	}
 }
 
+// TestSidebarSelection_CredentialNode verifies credential node selection behavior.
+func TestSidebarSelection_CredentialNode(t *testing.T) {
+	mockVault := NewMockVaultService()
+	state := models.NewAppState(mockVault)
+
+	// Setup credentials with categories
+	mockCreds := []vault.CredentialMetadata{
+		{Service: "AWS", Username: "admin", Category: "AWS", CreatedAt: time.Now()},
+		{Service: "GitHub", Username: "user", Category: "GitHub", CreatedAt: time.Now()},
+	}
+	mockVault.SetCredentials(mockCreds)
+	state.LoadCredentials()
+
+	sidebar := NewSidebar(state)
+
+	// Get first category node (AWS)
+	categoryNodes := sidebar.rootNode.GetChildren()
+	if len(categoryNodes) == 0 {
+		t.Fatal("Expected category nodes, got none")
+	}
+
+	// Get first credential node under AWS category
+	credNodes := categoryNodes[0].GetChildren()
+	if len(credNodes) == 0 {
+		t.Fatal("Expected credential nodes under AWS category, got none")
+	}
+
+	credNode := credNodes[0] // AWS credential
+
+	// Select credential node
+	sidebar.onSelect(credNode)
+
+	// Verify selected credential updated in state
+	selectedCred := state.GetSelectedCredential()
+	if selectedCred == nil {
+		t.Fatal("Expected selected credential, got nil")
+	}
+	if selectedCred.Service != "AWS" {
+		t.Errorf("Expected selected credential service 'AWS', got '%s'", selectedCred.Service)
+	}
+}
+
 // TestSidebarSelection_UpdatesAppState verifies AppState is updated on selection.
 func TestSidebarSelection_UpdatesAppState(t *testing.T) {
 	mockVault := NewMockVaultService()
@@ -315,8 +400,17 @@ func TestSidebarRefresh_ClearsOldCategories(t *testing.T) {
 	sidebar.Refresh()
 
 	// Verify 2 categories
-	if len(sidebar.rootNode.GetChildren()) != 2 {
-		t.Errorf("Expected 2 categories initially, got %d", len(sidebar.rootNode.GetChildren()))
+	initialChildren := sidebar.rootNode.GetChildren()
+	if len(initialChildren) != 2 {
+		t.Errorf("Expected 2 categories initially, got %d", len(initialChildren))
+	}
+
+	// Verify initial credential children exist
+	if len(initialChildren) > 0 {
+		awsCredNodes := initialChildren[0].GetChildren()
+		if len(awsCredNodes) != 1 {
+			t.Errorf("Expected 1 credential under AWS initially, got %d", len(awsCredNodes))
+		}
 	}
 
 	// Update to new categories (different set)
@@ -334,5 +428,147 @@ func TestSidebarRefresh_ClearsOldCategories(t *testing.T) {
 	}
 	if children[0].GetText() != "Database" {
 		t.Errorf("Expected category 'Database', got '%s'", children[0].GetText())
+	}
+
+	// Verify new category has correct credential children
+	dbCredNodes := children[0].GetChildren()
+	if len(dbCredNodes) != 1 {
+		t.Errorf("Expected 1 credential under Database, got %d", len(dbCredNodes))
+	}
+	if len(dbCredNodes) > 0 && dbCredNodes[0].GetText() != "Database" {
+		t.Errorf("Expected credential service 'Database', got '%s'", dbCredNodes[0].GetText())
+	}
+
+	// Verify old credentials (AWS, GitHub) are not present
+	for _, categoryNode := range children {
+		credNodes := categoryNode.GetChildren()
+		for _, credNode := range credNodes {
+			service := credNode.GetText()
+			if service == "AWS" || service == "GitHub" {
+				t.Errorf("Old credential '%s' should have been cleared", service)
+			}
+		}
+	}
+}
+
+// TestSidebarRefresh_UncategorizedCredentials verifies credentials with empty Category appear under Uncategorized.
+func TestSidebarRefresh_UncategorizedCredentials(t *testing.T) {
+	mockVault := NewMockVaultService()
+	state := models.NewAppState(mockVault)
+
+	// Setup credentials with empty Category field
+	mockCreds := []vault.CredentialMetadata{
+		{Service: "Service1", Username: "user1", Category: "", CreatedAt: time.Now()},
+		{Service: "Service2", Username: "user2", Category: "", CreatedAt: time.Now()},
+	}
+	mockVault.SetCredentials(mockCreds)
+	state.LoadCredentials()
+
+	sidebar := NewSidebar(state)
+	sidebar.Refresh()
+
+	// Verify Uncategorized category exists
+	children := sidebar.rootNode.GetChildren()
+	if len(children) != 1 {
+		t.Errorf("Expected 1 category (Uncategorized), got %d", len(children))
+	}
+
+	if children[0].GetText() != "Uncategorized" {
+		t.Errorf("Expected category 'Uncategorized', got '%s'", children[0].GetText())
+	}
+
+	// Verify credentials under Uncategorized
+	uncategorizedNode := children[0]
+	credNodes := uncategorizedNode.GetChildren()
+	if len(credNodes) != 2 {
+		t.Errorf("Expected 2 credentials under Uncategorized, got %d", len(credNodes))
+	}
+
+	// Verify credential node references are valid (should be NodeReference with Kind="credential")
+	for _, credNode := range credNodes {
+		ref := credNode.GetReference()
+		if ref == nil {
+			t.Error("Expected credential node to have reference")
+			continue
+		}
+		if nodeRef, ok := ref.(NodeReference); !ok {
+			t.Error("Expected credential node reference to be NodeReference")
+		} else {
+			if nodeRef.Kind != "credential" {
+				t.Errorf("Expected node kind 'credential', got '%s'", nodeRef.Kind)
+			}
+			if nodeRef.Value != credNode.GetText() {
+				t.Errorf("Expected reference value to match node text '%s', got '%s'", credNode.GetText(), nodeRef.Value)
+			}
+		}
+	}
+}
+
+// TestSidebarRefresh_MixedCategoriesAndUncategorized verifies mixed credentials (some with categories, some without).
+func TestSidebarRefresh_MixedCategoriesAndUncategorized(t *testing.T) {
+	mockVault := NewMockVaultService()
+	state := models.NewAppState(mockVault)
+
+	// Setup mixed credentials
+	mockCreds := []vault.CredentialMetadata{
+		{Service: "AWS", Username: "admin", Category: "AWS", CreatedAt: time.Now()},
+		{Service: "Service1", Username: "user1", Category: "", CreatedAt: time.Now()},
+		{Service: "GitHub", Username: "user", Category: "GitHub", CreatedAt: time.Now()},
+		{Service: "Service2", Username: "user2", Category: "", CreatedAt: time.Now()},
+	}
+	mockVault.SetCredentials(mockCreds)
+	state.LoadCredentials()
+
+	sidebar := NewSidebar(state)
+	sidebar.Refresh()
+
+	// Verify tree structure: AWS, GitHub, Uncategorized (sorted)
+	children := sidebar.rootNode.GetChildren()
+	if len(children) != 3 {
+		t.Errorf("Expected 3 categories, got %d", len(children))
+	}
+
+	expectedCategories := []string{"AWS", "GitHub", "Uncategorized"}
+	for i, child := range children {
+		if child.GetText() != expectedCategories[i] {
+			t.Errorf("Expected category '%s' at index %d, got '%s'", expectedCategories[i], i, child.GetText())
+		}
+	}
+
+	// Verify AWS has 1 credential
+	awsCredNodes := children[0].GetChildren()
+	if len(awsCredNodes) != 1 {
+		t.Errorf("Expected 1 credential under AWS, got %d", len(awsCredNodes))
+	}
+
+	// Verify GitHub has 1 credential
+	ghCredNodes := children[1].GetChildren()
+	if len(ghCredNodes) != 1 {
+		t.Errorf("Expected 1 credential under GitHub, got %d", len(ghCredNodes))
+	}
+
+	// Verify Uncategorized has 2 credentials
+	uncategorizedCredNodes := children[2].GetChildren()
+	if len(uncategorizedCredNodes) != 2 {
+		t.Errorf("Expected 2 credentials under Uncategorized, got %d", len(uncategorizedCredNodes))
+	}
+
+	// Verify total credential count matches
+	totalCredNodes := len(awsCredNodes) + len(ghCredNodes) + len(uncategorizedCredNodes)
+	if totalCredNodes != 4 {
+		t.Errorf("Expected 4 total credentials across all categories, got %d", totalCredNodes)
+	}
+
+	// Verify no credential appears in multiple categories
+	seenServices := make(map[string]bool)
+	for _, categoryNode := range children {
+		credNodes := categoryNode.GetChildren()
+		for _, credNode := range credNodes {
+			service := credNode.GetText()
+			if seenServices[service] {
+				t.Errorf("Credential '%s' appears in multiple categories", service)
+			}
+			seenServices[service] = true
+		}
 	}
 }
