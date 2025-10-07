@@ -43,6 +43,9 @@ func NewDetailView(appState *models.AppState) *DetailView {
 // Refresh rebuilds the detail view from the currently selected credential.
 // Displays formatted credential information or empty state if no selection.
 func (dv *DetailView) Refresh() {
+	// Debug: Uncomment to trace selection changes
+	// fmt.Printf("[DetailView] Refresh called, selected: %v\n", dv.appState.GetSelectedCredential())
+
 	cred := dv.appState.GetSelectedCredential()
 
 	if cred == nil {

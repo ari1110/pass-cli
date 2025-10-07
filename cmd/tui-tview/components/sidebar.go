@@ -50,7 +50,14 @@ func NewSidebar(appState *models.AppState) *Sidebar {
 	// Apply styling
 	sidebar.applyStyles()
 
-	// Setup selection handler
+	// Setup selection handlers
+	// SetChangedFunc handles arrow key navigation
+	sidebar.SetChangedFunc(func(node *tview.TreeNode) {
+		if node != nil {
+			sidebar.onSelect(node)
+		}
+	})
+	// SetSelectedFunc handles Enter/Space/Click activation
 	sidebar.SetSelectedFunc(sidebar.onSelect)
 
 	// Initial tree build
@@ -126,8 +133,8 @@ func (s *Sidebar) Refresh() {
 func (s *Sidebar) onSelect(node *tview.TreeNode) {
 	if node == s.rootNode {
 		// Root selected - show all credentials and clear detail view
-		s.appState.SetSelectedCategory("")
-		s.appState.SetSelectedCredential(nil)
+		// Use SetSelection for atomic update with single notification
+		s.appState.SetSelection("", nil)
 		return
 	}
 
@@ -135,8 +142,8 @@ func (s *Sidebar) onSelect(node *tview.TreeNode) {
 	ref := node.GetReference()
 	if ref == nil {
 		// Safety fallback - treat as root
-		s.appState.SetSelectedCategory("")
-		s.appState.SetSelectedCredential(nil)
+		// Use SetSelection for atomic update with single notification
+		s.appState.SetSelection("", nil)
 		return
 	}
 
@@ -145,8 +152,8 @@ func (s *Sidebar) onSelect(node *tview.TreeNode) {
 		switch nodeRef.Kind {
 		case "category":
 			// Category node - filter by category and clear credential selection
-			s.appState.SetSelectedCategory(nodeRef.Value)
-			s.appState.SetSelectedCredential(nil)
+			// Use SetSelection for atomic update with single notification
+			s.appState.SetSelection(nodeRef.Value, nil)
 
 		case "credential":
 			// Credential node - lookup credential by service and select it
@@ -157,8 +164,8 @@ func (s *Sidebar) onSelect(node *tview.TreeNode) {
 
 		default:
 			// Unknown kind - treat as root
-			s.appState.SetSelectedCategory("")
-			s.appState.SetSelectedCredential(nil)
+			// Use SetSelection for atomic update with single notification
+			s.appState.SetSelection("", nil)
 		}
 	}
 }

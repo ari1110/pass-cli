@@ -42,8 +42,11 @@ func NewCredentialTable(appState *models.AppState) *CredentialTable {
 	// Build header
 	ct.buildHeader()
 
-	// Setup selection handler
-	ct.SetSelectedFunc(ct.onSelect)
+	// Setup selection handlers
+	// SetSelectionChangedFunc handles arrow key navigation
+	ct.SetSelectionChangedFunc(func(row, col int) { ct.applySelection(row) })
+	// SetSelectedFunc handles Enter key activation
+	ct.SetSelectedFunc(func(row, col int) { ct.applySelection(row) })
 
 	// Initial population
 	ct.Refresh()
@@ -130,19 +133,25 @@ func (ct *CredentialTable) populateRows(credentials []vault.CredentialMetadata) 
 	}
 }
 
-// onSelect handles row selection by updating AppState with selected credential.
-// Called when user presses Enter on a table row.
-func (ct *CredentialTable) onSelect(row, column int) {
+// applySelection applies selection for a given row by updating AppState.
+// Used by both arrow key navigation and Enter key activation handlers.
+// Sources credentials via FindCredentialByService to ensure consistency and avoid stale pointers.
+func (ct *CredentialTable) applySelection(row int) {
 	if row == 0 {
 		return // Header row, ignore
 	}
 
-	// Get credential from cell reference
+	// Get credential from cell reference to extract service name
 	cell := ct.GetCell(row, 0)
 	if cell != nil {
 		if cred, ok := cell.GetReference().(vault.CredentialMetadata); ok {
 			ct.selectedIndex = row - 1 // Store index without header offset
-			ct.appState.SetSelectedCredential(&cred)
+
+			// Source credential via FindCredentialByService for consistency
+			// This ensures we get a fresh pointer from AppState, avoiding stale references
+			if credMeta, found := ct.appState.FindCredentialByService(cred.Service); found {
+				ct.appState.SetSelectedCredential(credMeta)
+			}
 		}
 	}
 }

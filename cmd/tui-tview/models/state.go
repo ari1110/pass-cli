@@ -269,12 +269,41 @@ func (s *AppState) SetSelectedCategory(category string) {
 
 // SetSelectedCredential updates the selected credential.
 // CRITICAL: Follows Lock→Mutate→Unlock→Notify pattern.
+// Short-circuits if the selection hasn't actually changed (same service).
 func (s *AppState) SetSelectedCredential(credential *vault.CredentialMetadata) {
 	s.mu.Lock()
+	// Debug: Uncomment to trace selection changes
+	// fmt.Printf("[AppState] SetSelectedCredential called: %v\n", credential)
+
+	// Short-circuit: Skip notification if selection hasn't changed
+	// Compare by service name since that's the unique identifier
+	if s.selectedCredential != nil && credential != nil && s.selectedCredential.Service == credential.Service {
+		s.mu.Unlock()
+		return // Same credential already selected, no notification needed
+	}
+
+	// Also short-circuit if both are nil
+	if s.selectedCredential == nil && credential == nil {
+		s.mu.Unlock()
+		return
+	}
+
 	s.selectedCredential = credential
 	s.mu.Unlock() // ✅ RELEASE LOCK
 
-	s.notifySelectionChanged() // ✅ THEN notify
+	s.notifySelectionChanged() // ✅ THEN notify (only when selection actually changed)
+}
+
+// SetSelection atomically updates both category and credential selection.
+// This optimized method issues a single notification instead of two separate ones.
+// CRITICAL: Follows Lock→Mutate→Unlock→Notify pattern.
+func (s *AppState) SetSelection(category string, credential *vault.CredentialMetadata) {
+	s.mu.Lock()
+	s.selectedCategory = category
+	s.selectedCredential = credential
+	s.mu.Unlock() // ✅ RELEASE LOCK
+
+	s.notifySelectionChanged() // ✅ THEN notify (single notification)
 }
 
 // SetSidebar stores the sidebar component reference.
@@ -374,6 +403,9 @@ func (s *AppState) notifySelectionChanged() {
 	s.mu.RLock()
 	callback := s.onSelectionChanged
 	s.mu.RUnlock()
+
+	// Debug: Uncomment to trace callback invocation
+	// fmt.Printf("[AppState] notifySelectionChanged: callback=%v\n", callback != nil)
 
 	if callback != nil {
 		callback()

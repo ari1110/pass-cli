@@ -161,6 +161,9 @@ func TestCredentialTableSelection(t *testing.T) {
 
 	table := NewCredentialTable(state)
 
+	// Clear auto-selection from Refresh() to test fresh selection
+	state.SetSelectedCredential(nil)
+
 	// Track selection changes
 	selectionChanged := false
 	state.SetOnSelectionChanged(func() {
@@ -168,7 +171,7 @@ func TestCredentialTableSelection(t *testing.T) {
 	})
 
 	// Simulate selecting row 1 (first credential after header)
-	table.onSelect(1, 0)
+	table.applySelection(1)
 
 	// Verify callback invoked
 	if !selectionChanged {
@@ -182,6 +185,62 @@ func TestCredentialTableSelection(t *testing.T) {
 	}
 	if selected.Service != "AWS" {
 		t.Errorf("Expected selected service 'AWS', got '%s'", selected.Service)
+	}
+}
+
+// TestCredentialTableSelection_ShortCircuit verifies that reselecting the same credential doesn't trigger callback.
+func TestCredentialTableSelection_ShortCircuit(t *testing.T) {
+	mockVault := NewMockVaultService()
+	state := models.NewAppState(mockVault)
+
+	// Setup credentials
+	mockCreds := []vault.CredentialMetadata{
+		{Service: "AWS", Username: "admin", CreatedAt: time.Now()},
+		{Service: "GitHub", Username: "user", CreatedAt: time.Now()},
+	}
+	mockVault.SetCredentials(mockCreds)
+	state.LoadCredentials()
+
+	table := NewCredentialTable(state)
+
+	// First selection (AWS auto-selected during Refresh)
+	firstSelected := state.GetSelectedCredential()
+	if firstSelected == nil || firstSelected.Service != "AWS" {
+		t.Fatal("Expected AWS to be auto-selected")
+	}
+
+	// Track selection changes AFTER initial selection
+	callbackCount := 0
+	state.SetOnSelectionChanged(func() {
+		callbackCount++
+	})
+
+	// Reselect same credential (row 1 = AWS)
+	table.applySelection(1)
+
+	// Verify callback NOT invoked (short-circuit)
+	if callbackCount != 0 {
+		t.Errorf("Expected callback NOT to be invoked for same selection, but was called %d times", callbackCount)
+	}
+
+	// Verify selection unchanged
+	selected := state.GetSelectedCredential()
+	if selected == nil || selected.Service != "AWS" {
+		t.Error("Expected AWS to remain selected")
+	}
+
+	// Now select a DIFFERENT credential (row 2 = GitHub)
+	table.applySelection(2)
+
+	// Verify callback WAS invoked (different selection)
+	if callbackCount != 1 {
+		t.Errorf("Expected callback to be invoked once for different selection, but was called %d times", callbackCount)
+	}
+
+	// Verify new selection
+	selected = state.GetSelectedCredential()
+	if selected == nil || selected.Service != "GitHub" {
+		t.Error("Expected GitHub to be selected")
 	}
 }
 
@@ -199,13 +258,23 @@ func TestCredentialTableSelection_HeaderRow(t *testing.T) {
 
 	table := NewCredentialTable(state)
 
-	// Try selecting header row (row 0)
-	table.onSelect(0, 0)
+	// Clear any auto-selection from Refresh() (which now triggers applySelection)
+	state.SetSelectedCredential(nil)
 
-	// Verify no credential selected (should be nil)
+	// Try selecting header row (row 0) via applySelection
+	table.applySelection(0)
+
+	// Verify no credential selected (should still be nil)
 	selected := state.GetSelectedCredential()
 	if selected != nil {
 		t.Error("Header row selection should not set selected credential")
+	}
+
+	// Also verify calling applySelection multiple times on header has no effect
+	table.applySelection(0)
+	selected = state.GetSelectedCredential()
+	if selected != nil {
+		t.Error("Multiple header row selections should not set selected credential")
 	}
 }
 
