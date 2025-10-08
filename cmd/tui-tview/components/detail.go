@@ -115,9 +115,6 @@ func (dv *DetailView) formatCredential(cred *vault.CredentialMetadata) string {
 		b.WriteString(fmt.Sprintf("[gray]Locations:[-]  [white]%d unique locations[-]\n", len(cred.Locations)))
 	}
 
-	// Keyboard shortcuts hint
-	b.WriteString("\n[gray][e] Edit  [d] Delete  [p] Show/Hide  [c] Copy  [Esc] Back[-]")
-
 	return b.String()
 }
 
