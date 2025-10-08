@@ -32,6 +32,9 @@ type LayoutManager struct {
 	// Current layout mode
 	currentMode LayoutMode
 
+	// Manual visibility overrides (nil = auto/responsive, true = force show, false = force hide)
+	detailPanelOverride *bool
+
 	// Layout primitives
 	mainLayout *tview.Flex // Root layout (vertical: contentRow + statusBar)
 	contentRow *tview.Flex // Main content area (horizontal: sidebar + table + detail)
@@ -122,6 +125,7 @@ func (lm *LayoutManager) HandleResize(width, height int) {
 //   - Small: Table only (full width)
 //   - Medium: Sidebar (20 cols) + Table (flex)
 //   - Large: Sidebar (20 cols) + Table (flex) + Detail (40 cols)
+// Manual overrides (detailPanelOverride) take precedence over responsive breakpoints.
 func (lm *LayoutManager) rebuildLayout() {
 	// Skip rebuild if layout hasn't been initialized yet
 	if lm.contentRow == nil {
@@ -131,8 +135,22 @@ func (lm *LayoutManager) rebuildLayout() {
 	// Clear existing content
 	lm.contentRow.Clear()
 
-	// Build layout based on current mode
-	switch lm.currentMode {
+	// Determine effective mode (considering manual overrides)
+	effectiveMode := lm.currentMode
+
+	// Apply detail panel override if set
+	if lm.detailPanelOverride != nil {
+		if *lm.detailPanelOverride {
+			// Force detail panel on (upgrade to Large mode)
+			effectiveMode = LayoutLarge
+		} else if lm.currentMode == LayoutLarge {
+			// Force detail panel off (downgrade to Medium)
+			effectiveMode = LayoutMedium
+		}
+	}
+
+	// Build layout based on effective mode
+	switch effectiveMode {
 	case LayoutSmall:
 		// Table only (full width)
 		// size=0, proportion=1, focus=true means flex width, takes all space, can receive focus
@@ -183,4 +201,34 @@ func (lm *LayoutManager) GetCurrentMode() LayoutMode {
 func (lm *LayoutManager) SetBreakpoints(medium, large int) {
 	lm.mediumBreakpoint = medium
 	lm.largeBreakpoint = large
+}
+
+// ToggleDetailPanel manually shows/hides the detail panel, cycling through three states:
+//   - Auto (nil): Detail panel follows responsive breakpoints (default)
+//   - ForceHide (false): Detail panel hidden even at large terminal widths
+//   - ForceShow (true): Detail panel visible regardless of terminal width
+// Returns a message describing the new state for status bar display.
+func (lm *LayoutManager) ToggleDetailPanel() string {
+	var message string
+
+	if lm.detailPanelOverride == nil {
+		// Auto -> ForceHide
+		forceHide := false
+		lm.detailPanelOverride = &forceHide
+		message = "Detail panel: Hidden"
+	} else if !*lm.detailPanelOverride {
+		// ForceHide -> ForceShow
+		forceShow := true
+		lm.detailPanelOverride = &forceShow
+		message = "Detail panel: Visible"
+	} else {
+		// ForceShow -> Auto
+		lm.detailPanelOverride = nil
+		message = "Detail panel: Auto (responsive)"
+	}
+
+	// Rebuild layout with new override
+	lm.rebuildLayout()
+
+	return message
 }

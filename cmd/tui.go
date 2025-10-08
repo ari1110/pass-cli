@@ -148,7 +148,7 @@ func launchTUI(vaultService *vault.VaultService) error {
 	pageManager := layout.NewPageManager(app)
 
 	// Create EventHandler and setup shortcuts
-	eventHandler := events.NewEventHandler(app, appState, nav, pageManager, statusBar, detailView)
+	eventHandler := events.NewEventHandler(app, appState, nav, pageManager, statusBar, detailView, layoutMgr)
 	eventHandler.SetupGlobalShortcuts()
 
 	// Set root primitive (use pages for modal support over main layout)

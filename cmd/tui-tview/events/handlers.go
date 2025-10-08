@@ -19,7 +19,8 @@ type EventHandler struct {
 	nav         *models.NavigationState
 	pageManager *layout.PageManager
 	statusBar   *components.StatusBar
-	detailView  *components.DetailView // Direct reference for password operations
+	detailView  *components.DetailView  // Direct reference for password operations
+	layoutMgr   *layout.LayoutManager   // Reference for layout manipulation
 }
 
 // NewEventHandler creates a new event handler with all required dependencies.
@@ -30,6 +31,7 @@ func NewEventHandler(
 	pageManager *layout.PageManager,
 	statusBar *components.StatusBar,
 	detailView *components.DetailView,
+	layoutMgr *layout.LayoutManager,
 ) *EventHandler {
 	return &EventHandler{
 		app:         app,
@@ -38,6 +40,7 @@ func NewEventHandler(
 		pageManager: pageManager,
 		statusBar:   statusBar,
 		detailView:  detailView,
+		layoutMgr:   layoutMgr,
 	}
 }
 
@@ -90,6 +93,9 @@ func (eh *EventHandler) handleGlobalKey(event *tcell.EventKey) *tcell.EventKey {
 			return nil
 		case 'c':
 			eh.handleCopyPassword()
+			return nil
+		case 'i':
+			eh.handleToggleDetailPanel()
 			return nil
 		case '?':
 			eh.handleShowHelp()
@@ -213,6 +219,18 @@ func (eh *EventHandler) handleCopyPassword() {
 	}
 }
 
+// handleToggleDetailPanel toggles the detail panel visibility through three states.
+// Cycles: Auto (responsive) -> Hide -> Show -> Auto
+// Displays status bar message showing the new state.
+func (eh *EventHandler) handleToggleDetailPanel() {
+	if eh.layoutMgr == nil {
+		return
+	}
+
+	message := eh.layoutMgr.ToggleDetailPanel()
+	eh.statusBar.ShowInfo(message)
+}
+
 // handleShowHelp displays a modal with keyboard shortcuts help.
 func (eh *EventHandler) handleShowHelp() {
 	// Create table for properly aligned shortcuts (scrollable with arrow keys)
@@ -288,6 +306,7 @@ func (eh *EventHandler) handleShowHelp() {
 	addShortcut("d", "Delete credential")
 	addShortcut("p", "Toggle password visibility")
 	addShortcut("c", "Copy password to clipboard")
+	addShortcut("i", "Toggle detail panel")
 	row++ // Blank line (just skip row, don't add cells)
 
 	// General section

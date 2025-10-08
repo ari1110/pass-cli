@@ -75,6 +75,12 @@ func (sb *StatusBar) ShowSuccess(message string) {
 	sb.showTemporaryMessage(formatted, 3*time.Second)
 }
 
+// ShowInfo displays a temporary info message (cyan text, 3 seconds).
+func (sb *StatusBar) ShowInfo(message string) {
+	formatted := fmt.Sprintf("[cyan]%s[-]", message)
+	sb.showTemporaryMessage(formatted, 3*time.Second)
+}
+
 // ShowError displays a temporary error message (red text, 5 seconds).
 func (sb *StatusBar) ShowError(err error) {
 	formatted := fmt.Sprintf("[red]Error: %s[-]", err.Error())
@@ -101,18 +107,18 @@ func (sb *StatusBar) showTemporaryMessage(message string, duration time.Duration
 func (sb *StatusBar) getShortcutsForContext(focus FocusContext) string {
 	switch focus {
 	case FocusSidebar:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]Enter[-]:Select  [yellow]n[-]:New  [yellow]?[-]:Help  [yellow]q[-]:Quit"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]Enter[-]:Select  [yellow]n[-]:New  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
 
 	case FocusTable:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]n[-]:New  [yellow]e[-]:Edit  [yellow]d[-]:Del  [yellow]c[-]:Copy  [yellow]?[-]:Help  [yellow]q[-]:Quit"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]n[-]:New  [yellow]e[-]:Edit  [yellow]d[-]:Del  [yellow]c[-]:Copy  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
 
 	case FocusDetail:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]e[-]:Edit  [yellow]d[-]:Del  [yellow]p[-]:Toggle  [yellow]c[-]:Copy  [yellow]?[-]:Help  [yellow]q[-]:Quit"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]e[-]:Edit  [yellow]d[-]:Del  [yellow]p[-]:Toggle  [yellow]c[-]:Copy  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
 
 	case FocusModal:
 		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Field  [yellow]Enter[-]:Submit  [yellow]Esc[-]:Cancel"
 
 	default:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]?[-]:Help  [yellow]q[-]:Quit"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
 	}
 }
