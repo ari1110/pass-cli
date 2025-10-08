@@ -49,14 +49,14 @@ func (eh *EventHandler) SetupGlobalShortcuts() {
 		focused := eh.app.GetFocus()
 		if focused != nil {
 			switch focused.(type) {
-			case *tview.Form, *tview.InputField, *tview.TextArea, *tview.DropDown:
-				// ✅ Let input components handle their own keys
+			case *tview.Form, *tview.InputField, *tview.TextArea, *tview.DropDown, *tview.TextView, *tview.Button:
+				// ✅ Let form components handle their own keys (including navigation)
 				// Only intercept Ctrl+C for quit
 				if event.Key() == tcell.KeyCtrlC {
 					eh.handleQuit()
 					return nil
 				}
-				return event // ✅ Pass all other keys to input component
+				return event // ✅ Pass all other keys to form component
 			}
 		}
 

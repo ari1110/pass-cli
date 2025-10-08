@@ -97,6 +97,9 @@ func (af *AddForm) buildFormFields() {
 	// Action buttons
 	af.AddButton("Add", af.onAddPressed)
 	af.AddButton("Cancel", af.onCancelPressed)
+
+	// Add keyboard hints at the bottom
+	af.addKeyboardHints()
 }
 
 // onAddPressed handles the Add button submission.
@@ -176,6 +179,22 @@ func (af *AddForm) getCategories() []string {
 		return []string{"Uncategorized"}
 	}
 	return categories
+}
+
+// addKeyboardHints adds a read-only TextView displaying keyboard shortcuts.
+// Helps users discover available commands without needing external documentation.
+func (af *AddForm) addKeyboardHints() {
+	theme := styles.GetCurrentTheme()
+
+	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Add  •  Esc: Cancel"
+
+	hints := tview.NewTextView()
+	hints.SetText(hintsText)
+	hints.SetTextAlign(tview.AlignCenter)
+	hints.SetTextColor(theme.TextSecondary) // Muted color for hints
+	hints.SetBackgroundColor(theme.Background)
+
+	af.AddFormItem(hints)
 }
 
 // setupKeyboardShortcuts configures form-level keyboard shortcuts.
@@ -300,6 +319,9 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 	// Action buttons
 	ef.AddButton("Save", ef.onSavePressed)
 	ef.AddButton("Cancel", ef.onCancelPressed)
+
+	// Add keyboard hints at the bottom
+	ef.addKeyboardHints()
 }
 
 // fetchPasswordIfNeeded lazily fetches the password when the field is focused.
@@ -448,6 +470,22 @@ func (ef *EditForm) findCategoryIndex(categories []string) int {
 	}
 	// Return 0 (first category) if no match found
 	return 0
+}
+
+// addKeyboardHints adds a read-only TextView displaying keyboard shortcuts.
+// Helps users discover available commands without needing external documentation.
+func (ef *EditForm) addKeyboardHints() {
+	theme := styles.GetCurrentTheme()
+
+	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Save  •  Esc: Cancel"
+
+	hints := tview.NewTextView()
+	hints.SetText(hintsText)
+	hints.SetTextAlign(tview.AlignCenter)
+	hints.SetTextColor(theme.TextSecondary) // Muted color for hints
+	hints.SetBackgroundColor(theme.Background)
+
+	ef.AddFormItem(hints)
 }
 
 // setupKeyboardShortcuts configures form-level keyboard shortcuts.

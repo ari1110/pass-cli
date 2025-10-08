@@ -8,7 +8,7 @@ import (
 // Modal dimension constants to ensure consistent sizing across all modals.
 const (
 	FormModalWidth  = 60 // Standard width for credential forms (add, edit)
-	FormModalHeight = 25 // Standard height for 6-field forms + buttons (increased from 20)
+	FormModalHeight = 27 // Standard height for 6-field forms + buttons + keyboard hints
 
 	ConfirmDialogWidth  = 60 // Width for confirmation dialogs
 	ConfirmDialogHeight = 10 // Height for yes/no confirmation dialogs
