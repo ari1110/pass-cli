@@ -76,10 +76,10 @@ func (ns *NavigationState) CycleFocusReverse() {
 		return
 	}
 
-	ns.currentIndex--
-	if ns.currentIndex < 0 {
-		ns.currentIndex = len(ns.focusOrder) - 1
-	}
+	// Calculate previous index (wrap around to end if at beginning)
+	ns.currentIndex = (ns.currentIndex - 1 + len(ns.focusOrder)) % len(ns.focusOrder)
+
+	// Use setFocus to update focus AND trigger callbacks
 	ns.setFocus(ns.currentIndex)
 }
 

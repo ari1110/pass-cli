@@ -28,13 +28,14 @@ const (
 type StatusBar struct {
 	*tview.TextView
 
+	app          *tview.Application // For forcing redraws
 	appState     *models.AppState
 	currentFocus FocusContext
 	messageTimer *time.Timer
 }
 
 // NewStatusBar creates and initializes a new status bar.
-func NewStatusBar(appState *models.AppState) *StatusBar {
+func NewStatusBar(app *tview.Application, appState *models.AppState) *StatusBar {
 	theme := styles.GetCurrentTheme()
 
 	textView := tview.NewTextView().
@@ -47,12 +48,14 @@ func NewStatusBar(appState *models.AppState) *StatusBar {
 
 	sb := &StatusBar{
 		TextView:     textView,
+		app:          app,
 		appState:     appState,
 		currentFocus: FocusSidebar, // Default focus
 	}
 
-	// Set initial shortcuts display
-	sb.UpdateForContext(FocusSidebar)
+	// Set initial shortcuts display (direct SetText, no queue - app not running yet)
+	shortcuts := sb.getShortcutsForContext(FocusSidebar)
+	sb.SetText(shortcuts)
 
 	return sb
 }
@@ -61,6 +64,8 @@ func NewStatusBar(appState *models.AppState) *StatusBar {
 func (sb *StatusBar) UpdateForContext(focus FocusContext) {
 	sb.currentFocus = focus
 	shortcuts := sb.getShortcutsForContext(focus)
+
+	// Direct SetText is sufficient - tview redraws automatically on next frame
 	sb.SetText(shortcuts)
 }
 
@@ -96,18 +101,18 @@ func (sb *StatusBar) showTemporaryMessage(message string, duration time.Duration
 func (sb *StatusBar) getShortcutsForContext(focus FocusContext) string {
 	switch focus {
 	case FocusSidebar:
-		return "[white][Tab][-] [gray]Next[-]  [white][↑↓][-] [gray]Navigate[-]  [white][Enter][-] [gray]Select[-]  [white][n][-] [gray]New[-]  [white][?][-] [gray]Help[-]  [white][q][-] [gray]Quit[-]"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]Enter[-]:Select  [yellow]n[-]:New  [yellow]?[-]:Help  [yellow]q[-]:Quit"
 
 	case FocusTable:
-		return "[white][n][-] [gray]New[-]  [white][e][-] [gray]Edit[-]  [white][d][-] [gray]Delete[-]  [white][c][-] [gray]Copy[-]  [white][?][-] [gray]Help[-]  [white][q][-] [gray]Quit[-]"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]n[-]:New  [yellow]e[-]:Edit  [yellow]d[-]:Del  [yellow]c[-]:Copy  [yellow]?[-]:Help  [yellow]q[-]:Quit"
 
 	case FocusDetail:
-		return "[white][e][-] [gray]Edit[-]  [white][d][-] [gray]Delete[-]  [white][p][-] [gray]Toggle[-]  [white][c][-] [gray]Copy[-]  [white][?][-] [gray]Help[-]  [white][q][-] [gray]Quit[-]"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]e[-]:Edit  [yellow]d[-]:Del  [yellow]p[-]:Toggle  [yellow]c[-]:Copy  [yellow]?[-]:Help  [yellow]q[-]:Quit"
 
 	case FocusModal:
-		return "[white][Tab][-] [gray]Next Field[-]  [white][Enter][-] [gray]Submit[-]  [white][Esc][-] [gray]Cancel[-]"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Field  [yellow]Enter[-]:Submit  [yellow]Esc[-]:Cancel"
 
 	default:
-		return "[white][?][-] [gray]Help[-]  [white][q][-] [gray]Quit[-]"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]?[-]:Help  [yellow]q[-]:Quit"
 	}
 }

@@ -106,7 +106,7 @@ func launchTUI(vaultService *vault.VaultService) error {
 	sidebar := components.NewSidebar(appState)
 	table := components.NewCredentialTable(appState)
 	detailView := components.NewDetailView(appState)
-	statusBar := components.NewStatusBar(appState)
+	statusBar := components.NewStatusBar(app, appState)
 
 	// Store components in AppState
 	appState.SetSidebar(sidebar.TreeView)
@@ -134,6 +134,11 @@ func launchTUI(vaultService *vault.VaultService) error {
 
 	// Create NavigationState
 	nav := models.NewNavigationState(app, appState)
+
+	// Register focus change callback to update statusbar
+	nav.SetOnFocusChanged(func(focus models.FocusableComponent) {
+		events.OnFocusChanged(focus, statusBar)
+	})
 
 	// Create LayoutManager and build layout
 	layoutMgr := layout.NewLayoutManager(app, appState)

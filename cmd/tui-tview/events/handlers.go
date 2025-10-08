@@ -49,8 +49,8 @@ func (eh *EventHandler) SetupGlobalShortcuts() {
 		focused := eh.app.GetFocus()
 		if focused != nil {
 			switch focused.(type) {
-			case *tview.Form, *tview.InputField, *tview.TextArea, *tview.DropDown, *tview.TextView, *tview.Button:
-				// ✅ Let form components handle their own keys (including navigation)
+			case *tview.Form, *tview.InputField, *tview.TextArea, *tview.DropDown, *tview.Button:
+				// ✅ Let form/input components handle their own keys (including Tab navigation)
 				// Only intercept Ctrl+C for quit
 				if event.Key() == tcell.KeyCtrlC {
 					eh.handleQuit()
@@ -58,6 +58,8 @@ func (eh *EventHandler) SetupGlobalShortcuts() {
 				}
 				return event // ✅ Pass all other keys to form component
 			}
+			// Note: TextView, Table, TreeView are NOT in the list above
+			// They are read-only/navigation components that should allow global shortcuts
 		}
 
 		// Handle global shortcuts for non-input components
