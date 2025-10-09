@@ -33,7 +33,15 @@ func main() {
 	}
 
 	if shouldUseTUI {
-		if err := tui.Run(); err != nil {
+		// Extract vault path from args if provided
+		vaultPath := ""
+		for i := 1; i < len(os.Args); i++ {
+			if os.Args[i] == "--vault" && i+1 < len(os.Args) {
+				vaultPath = os.Args[i+1]
+				break
+			}
+		}
+		if err := tui.Run(vaultPath); err != nil {
 			fmt.Fprintln(os.Stderr, "Error:", err)
 			os.Exit(1)
 		}

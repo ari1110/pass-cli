@@ -125,6 +125,7 @@ func (lm *LayoutManager) HandleResize(width, height int) {
 //   - Small: Table only (full width)
 //   - Medium: Sidebar (20 cols) + Table (flex)
 //   - Large: Sidebar (20 cols) + Table (flex) + Detail (40 cols)
+//
 // Manual overrides (detailPanelOverride) take precedence over responsive breakpoints.
 func (lm *LayoutManager) rebuildLayout() {
 	// Skip rebuild if layout hasn't been initialized yet
@@ -207,6 +208,7 @@ func (lm *LayoutManager) SetBreakpoints(medium, large int) {
 //   - Auto (nil): Detail panel follows responsive breakpoints (default)
 //   - ForceHide (false): Detail panel hidden even at large terminal widths
 //   - ForceShow (true): Detail panel visible regardless of terminal width
+//
 // Returns a message describing the new state for status bar display.
 func (lm *LayoutManager) ToggleDetailPanel() string {
 	var message string

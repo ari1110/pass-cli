@@ -1,228 +1,208 @@
 package styles
 
-import "github.com/charmbracelet/lipgloss"
-
-var (
-	// Colors - Using ANSI colors for broad terminal compatibility
-	PrimaryColor   = lipgloss.Color("6")   // Cyan (Go brand color)
-	SecondaryColor = lipgloss.Color("4")   // Blue
-	SuccessColor   = lipgloss.Color("2")   // Green
-	WarningColor   = lipgloss.Color("3")   // Yellow/Orange
-	ErrorColor     = lipgloss.Color("1")   // Red
-	SubtleColor    = lipgloss.Color("240") // Gray (256-color, degrades to white/default)
-	TextColor      = lipgloss.Color("15")  // White
-	BackgroundDark = lipgloss.Color("235") // Dark gray
-	FocusedColor   = lipgloss.Color("6")   // Cyan for focused elements
-
-	// Text styles
-	TitleStyle = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(PrimaryColor).
-			MarginBottom(1)
-
-	SubtitleStyle = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(SecondaryColor)
-
-	LabelStyle = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(SubtleColor)
-
-	ValueStyle = lipgloss.NewStyle().
-			Foreground(TextColor)
-
-	FocusedLabelStyle = lipgloss.NewStyle().
-				Bold(true).
-				Foreground(FocusedColor)
-
-	SuccessStyle = lipgloss.NewStyle().
-			Foreground(SuccessColor).
-			Bold(true)
-
-	WarningStyle = lipgloss.NewStyle().
-			Foreground(WarningColor).
-			Bold(true)
-
-	ErrorStyle = lipgloss.NewStyle().
-			Foreground(ErrorColor).
-			Bold(true)
-
-	SubtleStyle = lipgloss.NewStyle().
-			Foreground(SubtleColor)
-
-	// Password and sensitive data styles
-	PasswordStyle = lipgloss.NewStyle().
-			Foreground(TextColor).
-			Background(BackgroundDark).
-			Padding(0, 1)
-
-	// Selected/Focused item styles
-	SelectedStyle = lipgloss.NewStyle().
-			Foreground(TextColor).
-			Background(PrimaryColor).
-			Bold(true)
-
-	// Border styles
-	BorderStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(SubtleColor).
-			Padding(1, 2)
-
-	ModalBorderStyle = lipgloss.NewStyle().
-				Border(lipgloss.RoundedBorder()).
-				BorderForeground(PrimaryColor).
-				Padding(1, 2)
-
-	WarningBorderStyle = lipgloss.NewStyle().
-				Border(lipgloss.RoundedBorder()).
-				BorderForeground(WarningColor).
-				Padding(1, 2)
-
-	ErrorBorderStyle = lipgloss.NewStyle().
-				Border(lipgloss.RoundedBorder()).
-				BorderForeground(ErrorColor).
-				Padding(1, 2)
-
-	// Notification styles
-	NotificationStyle = lipgloss.NewStyle().
-				Foreground(SuccessColor).
-				Bold(true).
-				Padding(0, 1)
-
-	ErrorNotificationStyle = lipgloss.NewStyle().
-				Foreground(ErrorColor).
-				Bold(true).
-				Padding(0, 1)
-
-	// Status bar
-	StatusBarStyle = lipgloss.NewStyle().
-			Foreground(SubtleColor).
-			Padding(0, 1)
-
-	// Help text styles
-	HelpStyle = lipgloss.NewStyle().
-			Foreground(SubtleColor)
-
-	KeyStyle = lipgloss.NewStyle().
-			Foreground(WarningColor).
-			Bold(true)
-
-	// Table/List styles
-	TableHeaderStyle = lipgloss.NewStyle().
-				Foreground(PrimaryColor).
-				Bold(true)
-
-	TableRowStyle = lipgloss.NewStyle().
-			Foreground(TextColor)
-
-	TableDividerStyle = lipgloss.NewStyle().
-				Foreground(SubtleColor)
-
-	// Panel styles for dashboard
-	ActivePanelBorderStyle = lipgloss.NewStyle().
-				Border(lipgloss.RoundedBorder()).
-				BorderForeground(PrimaryColor). // Cyan border for active panel
-				Padding(0, 1)
-
-	InactivePanelBorderStyle = lipgloss.NewStyle().
-					Border(lipgloss.RoundedBorder()).
-					BorderForeground(SubtleColor). // Gray border for inactive panel
-					Padding(0, 1)
-
-	// Panel title styles
-	PanelTitleStyle = lipgloss.NewStyle().
-			Foreground(PrimaryColor).
-			Bold(true).
-			Padding(0, 1)
-
-	InactivePanelTitleStyle = lipgloss.NewStyle().
-				Foreground(SubtleColor).
-				Bold(true).
-				Padding(0, 1)
-
-	// Breadcrumb style
-	BreadcrumbStyle = lipgloss.NewStyle().
-			Foreground(PrimaryColor).
-			Bold(true)
-
-	BreadcrumbSeparatorStyle = lipgloss.NewStyle().
-					Foreground(SubtleColor)
+import (
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
 )
 
-// CategoryIcons maps category types to their display icons
-var CategoryIcons = map[string]string{
-	"APIs & Services":      "🔑",
-	"Cloud Infrastructure": "☁️",
-	"Databases":            "💾",
-	"Version Control":      "📦",
-	"Communication":        "📧",
-	"Payment Processing":   "💰",
-	"AI Services":          "🤖",
-	"Uncategorized":        "📁",
+// ColorScheme defines the color palette for the TUI.
+type ColorScheme struct {
+	// Background colors
+	Background      tcell.Color // Main background (dark)
+	BackgroundLight tcell.Color // Slightly lighter background
+	BackgroundDark  tcell.Color // Darker background (for contrast)
+
+	// Border colors
+	BorderColor    tcell.Color // Default border color (cyan)
+	BorderInactive tcell.Color // Inactive/unfocused borders (gray)
+
+	// Text colors
+	TextPrimary   tcell.Color // Main text (white)
+	TextSecondary tcell.Color // Secondary text (gray)
+	TextAccent    tcell.Color // Accent text (cyan/yellow)
+
+	// Status colors
+	Success tcell.Color // Success messages (green)
+	Error   tcell.Color // Error messages (red)
+	Warning tcell.Color // Warning messages (yellow)
+	Info    tcell.Color // Info messages (cyan)
+
+	// Component-specific
+	TableHeader            tcell.Color // Table header text
+	TableSelected          tcell.Color // Selected row highlight
+	TableSelectedHighlight tcell.Color // Brighter selected row background
+	SidebarSelected        tcell.Color // Selected tree node
+	StatusBarBg            tcell.Color // Status bar background
+	ButtonBackground       tcell.Color // Button background
+	ButtonText             tcell.Color // Button text
 }
 
-// CategoryIconsASCII provides ASCII fallback for terminals without emoji support
-var CategoryIconsASCII = map[string]string{
-	"APIs & Services":      "[API]",
-	"Cloud Infrastructure": "[CLD]",
-	"Databases":            "[DB]",
-	"Version Control":      "[GIT]",
-	"Communication":        "[MSG]",
-	"Payment Processing":   "[PAY]",
-	"AI Services":          "[AI]",
-	"Uncategorized":        "[???]",
+// DefaultTheme provides a Dracula-inspired color scheme.
+var DefaultTheme = ColorScheme{
+	// Backgrounds
+	Background:      tcell.NewRGBColor(40, 42, 54), // #282a36
+	BackgroundLight: tcell.NewRGBColor(68, 71, 90), // #44475a
+	BackgroundDark:  tcell.NewRGBColor(30, 32, 44), // #1e202c
+
+	// Borders
+	BorderColor:    tcell.NewRGBColor(139, 233, 253), // #8be9fd (cyan)
+	BorderInactive: tcell.NewRGBColor(98, 114, 164),  // #6272a4 (gray)
+
+	// Text
+	TextPrimary:   tcell.NewRGBColor(248, 248, 242), // #f8f8f2 (white)
+	TextSecondary: tcell.NewRGBColor(98, 114, 164),  // #6272a4 (gray)
+	TextAccent:    tcell.NewRGBColor(241, 250, 140), // #f1fa8c (yellow)
+
+	// Status
+	Success: tcell.NewRGBColor(80, 250, 123),  // #50fa7b (green)
+	Error:   tcell.NewRGBColor(255, 85, 85),   // #ff5555 (red)
+	Warning: tcell.NewRGBColor(241, 250, 140), // #f1fa8c (yellow)
+	Info:    tcell.NewRGBColor(139, 233, 253), // #8be9fd (cyan)
+
+	// Components
+	TableHeader:            tcell.NewRGBColor(189, 147, 249), // #bd93f9 (purple)
+	TableSelected:          tcell.NewRGBColor(68, 71, 90),    // #44475a (lighter bg)
+	TableSelectedHighlight: tcell.NewRGBColor(98, 114, 164),  // #6272a4 (brighter purple-gray)
+	SidebarSelected:        tcell.NewRGBColor(255, 121, 198), // #ff79c6 (pink)
+	StatusBarBg:            tcell.NewRGBColor(30, 32, 44),    // #1e202c (dark)
+	ButtonBackground:       tcell.NewRGBColor(68, 71, 90),    // #44475a
+	ButtonText:             tcell.NewRGBColor(248, 248, 242), // #f8f8f2
 }
 
-// StatusIcons maps status types to their display icons
-var StatusIcons = map[string]string{
-	"pending":   "⏳",
-	"running":   "⏳",
-	"success":   "✓",
-	"failed":    "✗",
-	"collapsed": "▶",
-	"expanded":  "▼",
+// GetCurrentTheme returns the currently active color scheme.
+func GetCurrentTheme() ColorScheme {
+	return DefaultTheme
 }
 
-// StatusIconsASCII provides ASCII fallback for status icons
-var StatusIconsASCII = map[string]string{
-	"pending":   "[.]",
-	"running":   "[.]",
-	"success":   "[+]",
-	"failed":    "[X]",
-	"collapsed": "[>]",
-	"expanded":  "[v]",
+// SetRoundedBorders configures tview to use rounded border characters.
+func SetRoundedBorders() {
+	tview.Borders.Horizontal = '─'
+	tview.Borders.Vertical = '│'
+	tview.Borders.TopLeft = '╭'
+	tview.Borders.TopRight = '╮'
+	tview.Borders.BottomLeft = '╰'
+	tview.Borders.BottomRight = '╯'
 }
 
-// SupportsUnicode checks if the terminal supports Unicode icons
-// This is a simple heuristic - you can enhance it based on TERM environment variable
-var SupportsUnicode = true // Default to true, can be overridden based on terminal detection
-
-// GetCategoryIcon returns the appropriate category icon based on Unicode support
-func GetCategoryIcon(category string) string {
-	if SupportsUnicode {
-		if icon, ok := CategoryIcons[category]; ok {
-			return icon
-		}
-		return CategoryIcons["Uncategorized"]
+// ApplyBorderedStyle applies consistent border styling to a component.
+// Uses type switch to handle all tview primitive types.
+func ApplyBorderedStyle(p tview.Primitive, title string, active bool) {
+	theme := GetCurrentTheme()
+	borderColor := theme.BorderInactive
+	if active {
+		borderColor = theme.BorderColor
 	}
 
-	if icon, ok := CategoryIconsASCII[category]; ok {
-		return icon
+	switch v := p.(type) {
+	case *tview.Box:
+		v.SetBorder(true).
+			SetTitle(" " + title + " ").
+			SetTitleAlign(tview.AlignLeft).
+			SetBorderColor(borderColor).
+			SetBackgroundColor(theme.Background)
+
+	case *tview.Table:
+		v.SetBorder(true).
+			SetTitle(" " + title + " ").
+			SetTitleAlign(tview.AlignLeft).
+			SetBorderColor(borderColor).
+			SetBackgroundColor(theme.Background)
+
+	case *tview.TreeView:
+		v.SetBorder(true).
+			SetTitle(" " + title + " ").
+			SetTitleAlign(tview.AlignLeft).
+			SetBorderColor(borderColor).
+			SetBackgroundColor(theme.Background)
+
+	case *tview.TextView:
+		v.SetBorder(true).
+			SetTitle(" " + title + " ").
+			SetTitleAlign(tview.AlignLeft).
+			SetBorderColor(borderColor).
+			SetBackgroundColor(theme.Background)
+
+	case *tview.Form:
+		v.SetBorder(true).
+			SetTitle(" " + title + " ").
+			SetTitleAlign(tview.AlignLeft).
+			SetBorderColor(borderColor).
+			SetBackgroundColor(theme.Background)
+
+	case *tview.Modal:
+		v.SetBorder(true).
+			SetTitle(" " + title + " ").
+			SetTitleAlign(tview.AlignLeft).
+			SetBorderColor(borderColor).
+			SetBackgroundColor(theme.Background)
+
+	case *tview.List:
+		v.SetBorder(true).
+			SetTitle(" " + title + " ").
+			SetTitleAlign(tview.AlignLeft).
+			SetBorderColor(borderColor).
+			SetBackgroundColor(theme.Background)
 	}
-	return CategoryIconsASCII["Uncategorized"]
 }
 
-// GetStatusIcon returns the appropriate status icon based on Unicode support
-func GetStatusIcon(status string) string {
-	if SupportsUnicode {
-		if icon, ok := StatusIcons[status]; ok {
-			return icon
-		}
-		return ""
-	}
+// ApplyTableStyle applies consistent styling to table components.
+func ApplyTableStyle(table *tview.Table) {
+	theme := GetCurrentTheme()
 
-	if icon, ok := StatusIconsASCII[status]; ok {
-		return icon
+	table.SetBackgroundColor(theme.Background)
+	table.SetSelectedStyle(tcell.StyleDefault.
+		Background(theme.TableSelectedHighlight).
+		Foreground(theme.TextPrimary).
+		Bold(true).
+		Underline(true))
+}
+
+// ApplyFormStyle applies consistent styling to form components.
+func ApplyFormStyle(form *tview.Form) {
+	theme := GetCurrentTheme()
+
+	// Use Background (darker) for form container, BackgroundLight for fields
+	// This creates visible input boxes that stand out from the form background
+	form.SetBackgroundColor(theme.Background)
+	form.SetButtonBackgroundColor(theme.ButtonBackground)
+	form.SetButtonTextColor(theme.ButtonText)
+	form.SetLabelColor(theme.TextPrimary) // Use primary text for labels (better contrast)
+
+	// Set field style using tcell.Style for complete background coverage
+	form.SetFieldStyle(tcell.StyleDefault.
+		Background(theme.BackgroundLight).
+		Foreground(theme.TextPrimary))
+
+	// Also set individual colors for compatibility
+	form.SetFieldBackgroundColor(theme.BackgroundLight)
+	form.SetFieldTextColor(theme.TextPrimary)
+}
+
+// Lighten makes a color lighter by the given percentage.
+func Lighten(color tcell.Color, amount float64) tcell.Color {
+	r, g, b := color.RGB()
+	r = clampUint8(float64(r) * (1.0 + amount))
+	g = clampUint8(float64(g) * (1.0 + amount))
+	b = clampUint8(float64(b) * (1.0 + amount))
+	return tcell.NewRGBColor(int32(r), int32(g), int32(b))
+}
+
+// Darken makes a color darker by the given percentage.
+func Darken(color tcell.Color, amount float64) tcell.Color {
+	r, g, b := color.RGB()
+	r = clampUint8(float64(r) * (1.0 - amount))
+	g = clampUint8(float64(g) * (1.0 - amount))
+	b = clampUint8(float64(b) * (1.0 - amount))
+	return tcell.NewRGBColor(int32(r), int32(g), int32(b))
+}
+
+// clampUint8 clamps a float64 value to the uint8 range [0, 255].
+func clampUint8(v float64) int32 {
+	if v > 255 {
+		return 255
 	}
-	return ""
+	if v < 0 {
+		return 0
+	}
+	return int32(v)
 }
