@@ -28,7 +28,7 @@ By default, the password is copied to the clipboard and credential details
 are displayed. Use flags to customize the output:
 
   --quiet      Output only the requested value (for scripts)
-  --field      Extract a specific field (username, password, notes, service)
+  --field      Extract a specific field (username, password, category, url, notes, service)
   --no-clipboard  Skip copying to clipboard
   --masked     Display password as asterisks (default shows full password)
 
@@ -55,7 +55,7 @@ your current working directory.`,
 func init() {
 	rootCmd.AddCommand(getCmd)
 	getCmd.Flags().BoolVarP(&getQuiet, "quiet", "q", false, "output only the requested value (script-friendly)")
-	getCmd.Flags().StringVarP(&getField, "field", "f", "password", "field to extract (username, password, notes, service)")
+	getCmd.Flags().StringVarP(&getField, "field", "f", "password", "field to extract (username, password, category, url, notes, service)")
 	getCmd.Flags().BoolVar(&getNoClipboard, "no-clipboard", false, "do not copy to clipboard")
 	getCmd.Flags().BoolVar(&getMasked, "masked", false, "display password as asterisks")
 }
@@ -110,12 +110,16 @@ func outputQuietMode(cred *vault.Credential) error {
 		value = cred.Username
 	case "password", "pass", "p":
 		value = cred.Password
+	case "category", "cat", "c":
+		value = cred.Category
+	case "url":
+		value = cred.URL
 	case "notes", "note", "n":
 		value = cred.Notes
 	case "service", "s":
 		value = cred.Service
 	default:
-		return fmt.Errorf("invalid field: %s (valid: username, password, notes, service)", getField)
+		return fmt.Errorf("invalid field: %s (valid: username, password, category, url, notes, service)", getField)
 	}
 
 	fmt.Println(value)
@@ -135,6 +139,14 @@ func outputNormalMode(cred *vault.Credential) error {
 		fmt.Printf("🔑 Password: %s\n", strings.Repeat("*", len(cred.Password)))
 	} else {
 		fmt.Printf("🔑 Password: %s\n", cred.Password)
+	}
+
+	if cred.Category != "" {
+		fmt.Printf("🏷️  Category: %s\n", cred.Category)
+	}
+
+	if cred.URL != "" {
+		fmt.Printf("🔗 URL: %s\n", cred.URL)
 	}
 
 	if cred.Notes != "" {

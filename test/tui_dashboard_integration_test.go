@@ -57,7 +57,7 @@ func TestIntegration_DashboardInitialization(t *testing.T) {
 	}
 
 	for _, tc := range testCreds {
-		if err := v.AddCredential(tc.service, tc.username, "testpass123", ""); err != nil {
+		if err := v.AddCredential(tc.service, tc.username, "testpass123", "", "", ""); err != nil {
 			t.Fatalf("Failed to add credential %s: %v", tc.service, err)
 		}
 	}

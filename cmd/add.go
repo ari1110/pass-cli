@@ -13,6 +13,8 @@ import (
 var (
 	addUsername string
 	addPassword string
+	addCategory string
+	addURL      string
 	addNotes    string
 )
 
@@ -25,6 +27,9 @@ You will be prompted for the username and password. The password input will be
 hidden for security. If you want to provide these values via flags, use:
   --username (-u) for the username
   --password (-p) for the password (not recommended for security)
+  --category (-c) for organizing credentials (e.g., 'Cloud', 'Databases')
+  --url for the service URL (e.g., login page URL)
+  --notes for additional information
 
 The service name should be descriptive and unique (e.g., "github", "aws-prod", "db-staging").`,
 	Example: `  # Add a credential with prompts
@@ -33,11 +38,14 @@ The service name should be descriptive and unique (e.g., "github", "aws-prod", "
   # Add with username flag
   pass-cli add github --username user@example.com
 
+  # Add with category and URL
+  pass-cli add github -u user@example.com -c "Version Control" --url "https://github.com"
+
   # Add with notes
   pass-cli add github --notes "My GitHub account"
 
-  # Add with all flags (password in flag not recommended)
-  pass-cli add github -u user@example.com -p secret123 --notes "Work account"`,
+  # Add with all metadata fields
+  pass-cli add github -u user@example.com -c "Version Control" --url "https://github.com" --notes "Work account"`,
 	Args: cobra.ExactArgs(1),
 	RunE: runAdd,
 }
@@ -46,6 +54,8 @@ func init() {
 	rootCmd.AddCommand(addCmd)
 	addCmd.Flags().StringVarP(&addUsername, "username", "u", "", "username for the credential")
 	addCmd.Flags().StringVarP(&addPassword, "password", "p", "", "password for the credential (not recommended, use prompt instead)")
+	addCmd.Flags().StringVarP(&addCategory, "category", "c", "", "category for organizing credentials (e.g., 'Cloud', 'Databases')")
+	addCmd.Flags().StringVar(&addURL, "url", "", "URL associated with the credential (e.g., login page)")
 	addCmd.Flags().StringVar(&addNotes, "notes", "", "optional notes about the credential")
 }
 
@@ -102,8 +112,8 @@ func runAdd(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("password cannot be empty")
 	}
 
-	// Add credential to vault
-	if err := vaultService.AddCredential(service, addUsername, addPassword, addNotes); err != nil {
+	// Add credential to vault with all metadata fields
+	if err := vaultService.AddCredential(service, addUsername, addPassword, addCategory, addURL, addNotes); err != nil {
 		return fmt.Errorf("failed to add credential: %w", err)
 	}
 
@@ -112,6 +122,12 @@ func runAdd(cmd *cobra.Command, args []string) error {
 	fmt.Printf("📝 Service: %s\n", service)
 	if addUsername != "" {
 		fmt.Printf("👤 Username: %s\n", addUsername)
+	}
+	if addCategory != "" {
+		fmt.Printf("🏷️  Category: %s\n", addCategory)
+	}
+	if addURL != "" {
+		fmt.Printf("🔗 URL: %s\n", addURL)
 	}
 	if addNotes != "" {
 		fmt.Printf("📋 Notes: %s\n", addNotes)

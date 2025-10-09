@@ -1,355 +1,177 @@
 package components
 
 import (
-	"fmt"
-	"strings"
+	"sort"
 
+	"github.com/rivo/tview"
+	"pass-cli/cmd/tui/models"
 	"pass-cli/cmd/tui/styles"
 	"pass-cli/internal/vault"
-
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
-// SidebarPanel represents the left sidebar with category navigation
-type SidebarPanel struct {
-	categories       []Category
-	selectedCategory int
-	selectedCred     int // Index within the selected category's credentials
-	stats            Stats
-	viewport         viewport.Model
-	width            int
-	height           int
-	focused          bool
+// NodeReference identifies the type and value of a tree node.
+// Used to distinguish categories from credentials without relying on tree position.
+type NodeReference struct {
+	Kind  string // "category" or "credential"
+	Value string // Category name or service name
 }
 
-// Stats represents vault statistics
-type Stats struct {
-	Total  int
-	Used   int
-	Recent int
+// Sidebar wraps tview.TreeView to display credential categories.
+// Provides category navigation with "All Credentials" root and category children.
+type Sidebar struct {
+	*tview.TreeView
+
+	appState *models.AppState
+	rootNode *tview.TreeNode
 }
 
-// NewSidebarPanel creates a new sidebar panel
-func NewSidebarPanel(credentials []vault.CredentialMetadata) *SidebarPanel {
-	vp := viewport.New(20, 10)
-	categories := CategorizeCredentials(credentials)
+// NewSidebar creates and configures a new Sidebar component.
+// Creates TreeView with root "All Credentials" node and builds initial tree.
+func NewSidebar(appState *models.AppState) *Sidebar {
+	theme := styles.GetCurrentTheme()
 
-	// Auto-expand first category if it has items
-	if len(categories) > 0 && categories[0].Count > 0 {
-		categories[0].Expanded = true
+	// Create root node
+	root := tview.NewTreeNode("All Credentials").
+		SetColor(theme.BorderColor). // Cyan accent color
+		SetSelectable(true).
+		SetExpanded(true)
+
+	// Create tree view
+	tree := tview.NewTreeView().
+		SetRoot(root).
+		SetCurrentNode(root)
+
+	sidebar := &Sidebar{
+		TreeView: tree,
+		appState: appState,
+		rootNode: root,
 	}
 
-	stats := Stats{
-		Total:  len(credentials),
-		Used:   countUsedCredentials(credentials),
-		Recent: countRecentCredentials(credentials),
-	}
+	// Apply styling
+	sidebar.applyStyles()
 
-	return &SidebarPanel{
-		categories:       categories,
-		selectedCategory: 0,
-		selectedCred:     -1, // -1 means category header is selected
-		stats:            stats,
-		viewport:         vp,
-		focused:          false,
-	}
-}
-
-// SetSize updates the panel dimensions
-func (s *SidebarPanel) SetSize(width, height int) {
-	s.width = width
-	s.height = height
-
-	// Reserve space for title (1), stats (4), quick actions (4), borders/padding (2)
-	contentHeight := height - 11
-	if contentHeight < 5 {
-		contentHeight = 5
-	}
-
-	s.viewport.Width = width - 2 // Account for padding
-	s.viewport.Height = contentHeight
-}
-
-// SetFocus sets the focus state of the panel
-func (s *SidebarPanel) SetFocus(focused bool) {
-	s.focused = focused
-}
-
-// Update handles tea messages
-func (s *SidebarPanel) Update(msg tea.Msg) (*SidebarPanel, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		if !s.focused {
-			return s, nil
+	// Setup selection handlers
+	// SetChangedFunc handles arrow key navigation
+	sidebar.SetChangedFunc(func(node *tview.TreeNode) {
+		if node != nil {
+			sidebar.onSelect(node)
 		}
+	})
+	// SetSelectedFunc handles Enter/Space/Click activation
+	sidebar.SetSelectedFunc(sidebar.onSelect)
 
-		switch msg.String() {
-		case "j", "down":
-			s.moveDown()
-		case "k", "up":
-			s.moveUp()
-		case "enter", "l", "right":
-			// Toggle expansion or select credential
-			if s.selectedCred == -1 {
-				// On category header, toggle expansion
-				if s.selectedCategory >= 0 && s.selectedCategory < len(s.categories) {
-					s.categories[s.selectedCategory].Expanded = !s.categories[s.selectedCategory].Expanded
-				}
-			}
-		case "h", "left":
-			// Collapse current category
-			if s.selectedCategory >= 0 && s.selectedCategory < len(s.categories) {
-				s.categories[s.selectedCategory].Expanded = false
-				s.selectedCred = -1 // Go back to header
-			}
-		}
-	}
+	// Initial tree build
+	sidebar.Refresh()
 
-	s.updateViewportContent()
-	return s, nil
+	return sidebar
 }
 
-// moveDown moves selection down
-func (s *SidebarPanel) moveDown() {
-	if len(s.categories) == 0 {
-		return
-	}
+// Refresh rebuilds the category tree from current AppState.
+// Clears existing children and builds category-grouped tree with credential nodes.
+func (s *Sidebar) Refresh() {
+	theme := styles.GetCurrentTheme()
 
-	currentCat := &s.categories[s.selectedCategory]
+	// Get credentials from state (single snapshot for consistency)
+	credentials := s.appState.GetCredentials()
 
-	if s.selectedCred == -1 {
-		// On category header
-		if currentCat.Expanded && currentCat.Count > 0 {
-			// Move to first credential
-			s.selectedCred = 0
-		} else {
-			// Move to next category
-			if s.selectedCategory < len(s.categories)-1 {
-				s.selectedCategory++
-				s.selectedCred = -1
-			}
-		}
-	} else {
-		// On credential
-		if s.selectedCred < currentCat.Count-1 {
-			// Move to next credential
-			s.selectedCred++
-		} else {
-			// Move to next category
-			if s.selectedCategory < len(s.categories)-1 {
-				s.selectedCategory++
-				s.selectedCred = -1
-			}
-		}
-	}
-}
+	// Clear existing children
+	s.rootNode.ClearChildren()
 
-// moveUp moves selection up
-func (s *SidebarPanel) moveUp() {
-	if len(s.categories) == 0 {
-		return
-	}
-
-	if s.selectedCred == -1 {
-		// On category header, move to previous category
-		if s.selectedCategory > 0 {
-			s.selectedCategory--
-			// If previous category is expanded, select last credential
-			prevCat := &s.categories[s.selectedCategory]
-			if prevCat.Expanded && prevCat.Count > 0 {
-				s.selectedCred = prevCat.Count - 1
-			}
-		}
-	} else {
-		// On credential
-		if s.selectedCred > 0 {
-			// Move to previous credential
-			s.selectedCred--
-		} else {
-			// Move to category header
-			s.selectedCred = -1
-		}
-	}
-}
-
-// GetSelectedCredential returns the currently selected credential, or nil if on header
-func (s *SidebarPanel) GetSelectedCredential() *vault.CredentialMetadata {
-	if s.selectedCred == -1 || s.selectedCategory >= len(s.categories) {
-		return nil
-	}
-
-	cat := s.categories[s.selectedCategory]
-	if s.selectedCred >= 0 && s.selectedCred < len(cat.Credentials) {
-		return &cat.Credentials[s.selectedCred]
-	}
-
-	return nil
-}
-
-// GetSelectedCategory returns the currently selected category name
-func (s *SidebarPanel) GetSelectedCategory() string {
-	if s.selectedCategory >= 0 && s.selectedCategory < len(s.categories) {
-		return s.categories[s.selectedCategory].Name
-	}
-	return ""
-}
-
-// UpdateCredentials updates the sidebar with new credentials
-func (s *SidebarPanel) UpdateCredentials(credentials []vault.CredentialMetadata) {
-	s.categories = CategorizeCredentials(credentials)
-
-	// Auto-expand first category if it has items
-	if len(s.categories) > 0 && s.categories[0].Count > 0 {
-		s.categories[0].Expanded = true
-	}
-
-	s.stats = Stats{
-		Total:  len(credentials),
-		Used:   countUsedCredentials(credentials),
-		Recent: countRecentCredentials(credentials),
-	}
-
-	// Reset selection if out of bounds
-	if s.selectedCategory >= len(s.categories) {
-		s.selectedCategory = 0
-		s.selectedCred = -1
-	}
-
-	s.updateViewportContent()
-}
-
-// updateViewportContent refreshes the viewport with current category tree
-func (s *SidebarPanel) updateViewportContent() {
-	content := s.renderCategoryTree()
-	s.viewport.SetContent(content)
-}
-
-// renderCategoryTree renders the category tree as a string
-func (s *SidebarPanel) renderCategoryTree() string {
-	if len(s.categories) == 0 {
-		return styles.SubtleStyle.Render("No credentials yet")
-	}
-
-	var lines []string
-
-	for catIdx, cat := range s.categories {
-		// Render category header
-		expandIcon := styles.GetStatusIcon("collapsed")
-		if cat.Expanded {
-			expandIcon = styles.GetStatusIcon("expanded")
-		}
-
-		categoryLine := fmt.Sprintf("%s %s %s (%d)",
-			expandIcon,
-			cat.Icon,
-			cat.Name,
-			cat.Count,
-		)
-
-		// Highlight if selected
-		if catIdx == s.selectedCategory && s.selectedCred == -1 {
-			if s.focused {
-				categoryLine = styles.SelectedStyle.Render(categoryLine)
-			} else {
-				categoryLine = styles.FocusedLabelStyle.Render(categoryLine)
-			}
-		} else {
-			categoryLine = styles.ValueStyle.Render(categoryLine)
-		}
-
-		lines = append(lines, categoryLine)
-
-		// Render credentials if expanded
-		if cat.Expanded {
-			for credIdx, cred := range cat.Credentials {
-				credLine := fmt.Sprintf("  • %s", cred.Service)
-				if len(cred.Username) > 0 {
-					credLine += fmt.Sprintf(" (%s)", truncate(cred.Username, 15))
-				}
-
-				// Highlight if selected
-				if catIdx == s.selectedCategory && credIdx == s.selectedCred {
-					if s.focused {
-						credLine = styles.SelectedStyle.Render(credLine)
-					} else {
-						credLine = styles.FocusedLabelStyle.Render(credLine)
-					}
-				} else {
-					credLine = styles.SubtleStyle.Render(credLine)
-				}
-
-				lines = append(lines, credLine)
-			}
-		}
-	}
-
-	return strings.Join(lines, "\n")
-}
-
-// View renders the sidebar panel
-func (s *SidebarPanel) View() string {
-	titleStyle := styles.InactivePanelTitleStyle
-	if s.focused {
-		titleStyle = styles.PanelTitleStyle
-	}
-
-	title := titleStyle.Render("📋 Categories")
-
-	// Stats section
-	statsLines := []string{
-		"",
-		styles.LabelStyle.Render("Vault Statistics:"),
-		fmt.Sprintf("  Total: %d", s.stats.Total),
-		fmt.Sprintf("  Used: %d", s.stats.Used),
-		fmt.Sprintf("  Recent: %d", s.stats.Recent),
-	}
-
-	// Quick actions
-	actionLines := []string{
-		"",
-		styles.LabelStyle.Render("Quick Actions:"),
-		styles.SubtleStyle.Render("  [a] Add"),
-		styles.SubtleStyle.Render("  [:] Command"),
-		styles.SubtleStyle.Render("  [?] Help"),
-	}
-
-	// Combine all sections
-	content := lipgloss.JoinVertical(
-		lipgloss.Left,
-		title,
-		"",
-		s.viewport.View(),
-		strings.Join(statsLines, "\n"),
-		strings.Join(actionLines, "\n"),
-	)
-
-	return content
-}
-
-// Helper functions
-
-func countUsedCredentials(credentials []vault.CredentialMetadata) int {
-	count := 0
+	// Pre-group credentials by category for O(N+C) performance instead of O(C×N)
+	groups := make(map[string][]vault.CredentialMetadata)
 	for _, cred := range credentials {
-		if cred.UsageCount > 0 {
-			count++
+		category := cred.Category
+		if category == "" {
+			category = "Uncategorized"
+		}
+		groups[category] = append(groups[category], cred)
+	}
+
+	// Build category list from groups (avoids snapshot mismatch with credentials)
+	categories := make([]string, 0, len(groups))
+	for category := range groups {
+		categories = append(categories, category)
+	}
+	sort.Strings(categories) // Sort categories alphabetically
+
+	// Build category nodes with credential children
+	for _, category := range categories {
+		// Create category node with NodeReference
+		categoryNode := tview.NewTreeNode(category).
+			SetSelectable(true).
+			SetColor(theme.TextPrimary). // White text
+			SetReference(NodeReference{Kind: "category", Value: category}).
+			SetExpanded(false) // Collapsed by default
+
+		// Sort credentials within category for deterministic ordering
+		credList := groups[category]
+		sort.Slice(credList, func(i, j int) bool {
+			return credList[i].Service < credList[j].Service
+		})
+
+		// Add credential nodes from sorted list
+		for _, cred := range credList {
+			// Create credential node with NodeReference
+			credNode := tview.NewTreeNode(cred.Service).
+				SetSelectable(true).
+				SetColor(theme.TextSecondary). // Gray text to distinguish from category
+				SetReference(NodeReference{Kind: "credential", Value: cred.Service})
+
+			categoryNode.AddChild(credNode)
+		}
+
+		// Add category node to root
+		s.rootNode.AddChild(categoryNode)
+	}
+
+	// Ensure root is expanded
+	s.rootNode.SetExpanded(true)
+}
+
+// onSelect handles node selection by updating AppState.
+// Root node shows all, category nodes filter by category, credential nodes select specific credential.
+func (s *Sidebar) onSelect(node *tview.TreeNode) {
+	if node == s.rootNode {
+		// Root selected - show all credentials and clear detail view
+		// Use SetSelection for atomic update with single notification
+		s.appState.SetSelection("", nil)
+		return
+	}
+
+	// Get node reference to determine type
+	ref := node.GetReference()
+	if ref == nil {
+		// Safety fallback - treat as root
+		// Use SetSelection for atomic update with single notification
+		s.appState.SetSelection("", nil)
+		return
+	}
+
+	// Type assert to NodeReference and switch on Kind
+	if nodeRef, ok := ref.(NodeReference); ok {
+		switch nodeRef.Kind {
+		case "category":
+			// Category node - filter by category and clear credential selection
+			// Use SetSelection for atomic update with single notification
+			s.appState.SetSelection(nodeRef.Value, nil)
+
+		case "credential":
+			// Credential node - lookup credential by service and select it
+			if credMeta, found := s.appState.FindCredentialByService(nodeRef.Value); found {
+				// Select specific credential (fresh lookup avoids stale pointers)
+				s.appState.SetSelectedCredential(credMeta)
+			}
+
+		default:
+			// Unknown kind - treat as root
+			// Use SetSelection for atomic update with single notification
+			s.appState.SetSelection("", nil)
 		}
 	}
-	return count
 }
 
-func countRecentCredentials(credentials []vault.CredentialMetadata) int {
-	// Consider credentials accessed in last 7 days as recent
-	// For now, return count of credentials with non-zero usage
-	// This can be enhanced with actual time-based filtering
-	return countUsedCredentials(credentials)
-}
-
-func truncate(s string, maxLen int) string {
-	if len(s) <= maxLen {
-		return s
-	}
-	return s[:maxLen-3] + "..."
+// applyStyles applies borders, colors, and title to the sidebar.
+// Uses rounded borders with cyan accent color and dark background.
+func (s *Sidebar) applyStyles() {
+	styles.ApplyBorderedStyle(s.TreeView, "Categories", true)
 }
