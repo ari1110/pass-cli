@@ -8,11 +8,11 @@ import (
 	"github.com/rivo/tview"
 	"github.com/spf13/cobra"
 
-	"pass-cli/cmd/tui-tview/components"
-	"pass-cli/cmd/tui-tview/events"
-	"pass-cli/cmd/tui-tview/layout"
-	"pass-cli/cmd/tui-tview/models"
-	"pass-cli/cmd/tui-tview/styles"
+	"pass-cli/cmd/tui/components"
+	"pass-cli/cmd/tui/events"
+	"pass-cli/cmd/tui/layout"
+	"pass-cli/cmd/tui/models"
+	"pass-cli/cmd/tui/styles"
 	"pass-cli/internal/vault"
 )
 

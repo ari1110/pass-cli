@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"pass-cli/cmd/tui-tview/models"
+	"pass-cli/cmd/tui/models"
 	"pass-cli/internal/vault"
 )
 

@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/rivo/tview"
-	"pass-cli/cmd/tui-tview/styles"
+	"pass-cli/cmd/tui/styles"
 )
 
 // FocusableComponent represents components that can receive focus.

@@ -7,8 +7,8 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"pass-cli/cmd/tui-tview/models"
-	"pass-cli/cmd/tui-tview/styles"
+	"pass-cli/cmd/tui/models"
+	"pass-cli/cmd/tui/styles"
 	"pass-cli/internal/vault"
 )
 

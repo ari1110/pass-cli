@@ -4,7 +4,7 @@ package layout
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"pass-cli/cmd/tui-tview/models"
+	"pass-cli/cmd/tui/models"
 )
 
 // LayoutMode represents the current layout configuration based on terminal width.

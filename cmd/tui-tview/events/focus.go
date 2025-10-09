@@ -3,9 +3,9 @@ package events
 import (
 	"fmt"
 
-	"pass-cli/cmd/tui-tview/components"
-	"pass-cli/cmd/tui-tview/layout"
-	"pass-cli/cmd/tui-tview/models"
+	"pass-cli/cmd/tui/components"
+	"pass-cli/cmd/tui/layout"
+	"pass-cli/cmd/tui/models"
 )
 
 // IsComponentVisible checks if a component is visible in the current layout mode.
