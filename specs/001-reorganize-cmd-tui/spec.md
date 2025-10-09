@@ -87,7 +87,7 @@ Developer needs to integrate TUI launch into main.go so that running `pass-cli` 
 - **FR-003**: All import paths MUST be updated from `pass-cli/cmd/tui-tview/*` to `pass-cli/cmd/tui/*`
 - **FR-004**: Directory MUST be renamed from `cmd/tui-tview/` to `cmd/tui/` using `git mv` to preserve history
 - **FR-005**: Root `main.go` MUST import and call `tui.Run()` for default TUI launch behavior
-- **FR-006**: Each migration step MUST finish with documented verification: run `go build ./...`, execute a TUI smoke test, and log results before continuing
+- **FR-006**: Each migration step MUST finish with documented verification: run `go fmt ./...`, `go vet ./...`, `go test ./...`, execute a TUI smoke test, and log results before continuing
 - **FR-007**: Migration MUST preserve current TUI behavior with no visual or functional regressions, as evidenced by the regression checklist outcomes
 - **FR-008**: Migration MUST NOT introduce new bugs or regressions in CLI command behavior (non-TUI execution paths)
 

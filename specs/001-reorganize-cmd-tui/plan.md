@@ -273,6 +273,7 @@ func LaunchTUI(vaultService *vault.VaultService) error {
 - Update all other `.go` files in `cmd/tui-tview/` to use `package tui`
 
 **Verification**:
+- ✅ Tooling: `go fmt ./...`, `go vet ./...`, `go test ./...`
 - ✅ Compiles: `go build ./...`
 - ✅ TUI runs: Execute binary directly (still has func main for testing)
 - ✅ Visual check: TUI renders with no black screen
@@ -312,6 +313,7 @@ rg "cmd/tui-tview" --type go
 ```
 
 **Verification**:
+- ✅ Tooling: `go fmt ./...`, `go vet ./...`, `go test ./...`
 - ✅ Compiles: `go build ./...`
 - ✅ No import errors
 - ✅ TUI runs and renders correctly
@@ -343,6 +345,7 @@ cmd/
 - Verify git tracked the rename
 
 **Verification**:
+- ✅ Tooling: `go fmt ./...`, `go vet ./...`, `go test ./...`
 - ✅ Git history preserved: `git log --follow cmd/tui/main.go`
 - ✅ Compiles: `go build ./...`
 - ✅ TUI runs and renders correctly
@@ -412,6 +415,7 @@ func main() {
 - Keep CLI routing for subcommands
 
 **Verification**:
+- ✅ Tooling: `go fmt ./...`, `go vet ./...`, `go test ./...`
 - ✅ Compiles: `go build ./...`
 - ✅ TUI launches: `./pass-cli.exe` (no args)
 - ✅ CLI works: `./pass-cli.exe list`

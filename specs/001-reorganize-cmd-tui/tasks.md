@@ -46,12 +46,12 @@
 - [ ] T006 [P] [US1] Update package declaration in `cmd/tui-tview/app.go`: Change `package main` to `package tui`
 - [ ] T007 [P] [US1] Update package declaration in all other `cmd/tui-tview/*.go` files: Change `package main` to `package tui` (check each file in root of tui-tview directory)
 - [ ] T008 [US1] Rename `func main()` to `func Run(vaultPath string) error` in `cmd/tui-tview/main.go`: Replace entire main() function with Run() that accepts vaultPath parameter, handles empty vaultPath by calling getDefaultVaultPath(), and returns errors instead of calling os.Exit()
-- [ ] T009 [US1] [Verification] Verify compilation: Run `go build ./...`, confirm no errors, and log results for FR-006
+- [ ] T009 [US1] [Verification] Run `go fmt ./...`, `go vet ./...`, `go test ./...`, then `go build ./...`; confirm all checks pass and log results for FR-006
 - [ ] T010 [US1] Create temporary test wrapper in `cmd/tui-tview/main.go`: Add `func main() { if err := Run(""); err != nil { fmt.Fprintf(os.Stderr, "Error: %v\n", err); os.Exit(1) } }` for testing
 - [ ] T011 [US1] Build standalone TUI binary: `go build -o pass-cli-step1.exe cmd/tui-tview/`
 - [ ] T012 [US1] Test TUI rendering: Run `./pass-cli-step1.exe --vault test-vault/vault.enc`, confirm TUI renders completely (no black screen), navigate sidebar/table/forms to verify features work, press `q` to exit, and capture notes in migration log
 - [ ] T013 [US1] Remove temporary test wrapper from `cmd/tui-tview/main.go`: Delete the `func main()` added in T010
-- [ ] T014 [US1] Commit package rename: `git add cmd/tui-tview/ && git commit -m "refactor: Change TUI package from main to tui
+- [ ] T014 [US1] Commit package rename: After confirming T009–T012 results, capture tooling output in migration log, then `git add cmd/tui-tview/ && git commit -m "refactor: Change TUI package from main to tui
 
 - Update package declaration in all TUI files
 - Rename main() to Run(vaultPath string) error
@@ -79,8 +79,8 @@ Co-Authored-By: Claude <noreply@anthropic.com>"`
 - [ ] T015 [US2] Find all files with old import paths: Run `rg "cmd/tui-tview" --type go -l` to identify files needing updates
 - [ ] T016 [US2] Automated import path replacement (Windows PowerShell): Run `Get-ChildItem -Recurse -Filter *.go | ForEach-Object { (Get-Content $_.FullName) -replace 'cmd/tui-tview', 'cmd/tui' | Set-Content $_.FullName }` from repository root
 - [ ] T017 [US2] Verify no missed occurrences: Run `rg "tui-tview" --type go` and confirm no results (all replaced)
-- [ ] T018 [US2] [Verification] Verify compilation: Run `go build ./...`, confirm no import errors, and record verification outcome
-- [ ] T019 [US2] Commit import updates: `git add . && git commit -m "refactor: Update import paths from cmd/tui-tview to cmd/tui
+- [ ] T018 [US2] [Verification] Run `go fmt ./...`, `go vet ./...`, `go test ./...`, then `go build ./...`; confirm no import errors and record verification outcome
+- [ ] T019 [US2] Commit import updates: After confirming T015–T018 results and logging tooling output, run `git add . && git commit -m "refactor: Update import paths from cmd/tui-tview to cmd/tui
 
 - Replace all occurrences of pass-cli/cmd/tui-tview with pass-cli/cmd/tui
 - Verified no missed occurrences
@@ -107,8 +107,8 @@ Co-Authored-By: Claude <noreply@anthropic.com>"`
 - [ ] T020 [US3] Move directory with git: Run `git mv cmd/tui-tview cmd/tui` to rename directory while preserving history
 - [ ] T021 [US3] Verify git tracked the rename: Run `git status` and confirm output shows `renamed: cmd/tui-tview/ -> cmd/tui/`
 - [ ] T022 [US3] Verify git history preservation: Run `git log --follow --oneline cmd/tui/main.go | head -5` and confirm commit history from before the move is visible
-- [ ] T023 [US3] [Verification] Verify compilation: Run `go build ./...`, confirm build succeeds with new directory structure, and note outcome in log
-- [ ] T024 [US3] Commit directory move: `git commit -m "refactor: Move directory from cmd/tui-tview to cmd/tui
+- [ ] T023 [US3] [Verification] Run `go fmt ./...`, `go vet ./...`, `go test ./...`, then `go build ./...`; confirm build succeeds with new directory structure, and note outcome in log
+- [ ] T024 [US3] Commit directory move: After confirming T020–T023 results and logging tooling output, run `git commit -m "refactor: Move directory from cmd/tui-tview to cmd/tui
 
 - Use git mv to preserve file history
 - Verified git tracks rename correctly
@@ -134,12 +134,12 @@ Co-Authored-By: Claude <noreply@anthropic.com>"`
 
 - [ ] T025 [US4] Read current main.go: Run `cat main.go` to review current structure (should only call cmd.Execute())
 - [ ] T026 [US4] Update main.go with TUI routing: Replace entire main.go content with new version that includes: imports for "fmt", "os", "pass-cli/cmd", and "pass-cli/cmd/tui"; argument parsing logic to detect subcommands/flags; TUI routing when no subcommand provided; CLI routing for subcommands (reference plan.md "Step 4: Main Entry Point Integration" section for exact code)
-- [ ] T027 [US4] [Verification] Verify compilation: Run `go build -o pass-cli.exe .`, confirm build succeeds, and record the check in migration log
+- [ ] T027 [US4] [Verification] Run `go fmt ./...`, `go vet ./...`, `go test ./...`, then `go build -o pass-cli.exe .`; confirm build succeeds, and record the check in migration log
 - [ ] T028 [US4] Test TUI launch (no arguments): Use stopwatch or PowerShell `Measure-Command { ./pass-cli.exe --vault test-vault/vault.enc }`, confirm TUI renders completely (no black screen), document launch duration for SC-006, test navigation/forms/features, press `q` to exit
 - [ ] T029 [P] [US4] Test CLI list command: Run `./pass-cli.exe list --vault test-vault/vault.enc` and confirm credential list displays (not TUI)
 - [ ] T030 [P] [US4] Test CLI help flag: Run `./pass-cli.exe --help` and confirm help text displays (not TUI)
 - [ ] T031 [P] [US4] Test CLI version flag: Run `./pass-cli.exe --version` and confirm version displays (not TUI)
-- [ ] T032 [US4] Commit main integration: `git add main.go && git commit -m "feat: Integrate TUI launch into main.go entry point
+- [ ] T032 [US4] Commit main integration: After confirming T025–T031 results and logging tooling output, run `git add main.go && git commit -m "feat: Integrate TUI launch into main.go entry point
 
 - Add default TUI routing when no subcommand provided
 - Parse --vault flag for TUI mode
