@@ -135,10 +135,10 @@ Co-Authored-By: Claude <noreply@anthropic.com>"`
 - [x] T025 [US4] Read current main.go: Run `cat main.go` to review current structure (should only call cmd.Execute())
 - [x] T026 [US4] Update main.go with TUI routing: Replace entire main.go content with new version that includes: imports for "fmt", "os", "pass-cli/cmd", and "pass-cli/cmd/tui"; argument parsing logic to detect subcommands/flags; TUI routing when no subcommand provided; CLI routing for subcommands (reference plan.md "Step 4: Main Entry Point Integration" section for exact code)
 - [x] T027 [US4] [Verification] Run `go fmt ./...`, `go vet ./...`, `go test ./...`, then `go build -o pass-cli.exe .`; confirm build succeeds, and record the check in migration log
-- [ ] T028 [US4] Test TUI launch (no arguments): Use stopwatch or PowerShell `Measure-Command { ./pass-cli.exe --vault test-vault/vault.enc }`, confirm TUI renders completely (no black screen), document launch duration for SC-006, test navigation/forms/features, press `q` to exit (requires manual testing)
-- [ ] T029 [P] [US4] Test CLI list command: Run `./pass-cli.exe list --vault test-vault/vault.enc` and confirm credential list displays (not TUI) (requires manual testing)
-- [ ] T030 [P] [US4] Test CLI help flag: Run `./pass-cli.exe --help` and confirm help text displays (not TUI) (requires manual testing)
-- [ ] T031 [P] [US4] Test CLI version flag: Run `./pass-cli.exe --version` and confirm version displays (not TUI) (requires manual testing)
+- [x] T028 [US4] Test TUI launch (no arguments): Use stopwatch or PowerShell `Measure-Command { ./pass-cli.exe --vault test-vault/vault.enc }`, confirm TUI renders completely (no black screen), document launch duration for SC-006, test navigation/forms/features, press `q` to exit (✅ VERIFIED - user confirmed working)
+- [x] T029 [P] [US4] Test CLI list command: Run `./pass-cli.exe list --vault test-vault/vault.enc` and confirm credential list displays (not TUI) (✅ VERIFIED)
+- [x] T030 [P] [US4] Test CLI help flag: Run `./pass-cli.exe --help` and confirm help text displays (not TUI) (✅ VERIFIED)
+- [x] T031 [P] [US4] Test CLI version flag: Run `./pass-cli.exe --version` and confirm version displays (not TUI) (✅ VERIFIED)
 - [x] T032 [US4] Commit main integration: After confirming T025–T031 results and logging tooling output, run `git add main.go && git commit -m "feat: Integrate TUI launch into main.go entry point
 
 - Add default TUI routing when no subcommand provided
@@ -160,9 +160,9 @@ Co-Authored-By: Claude <noreply@anthropic.com>"`
 
 **Purpose**: Comprehensive testing and success criteria validation
 
-- [ ] T033 [P] Comprehensive TUI testing: Run `./pass-cli.exe --vault test-vault/vault.enc` and verify: sidebar shows categories, credentials listed in table, detail view shows credential details, navigation works (arrow keys, Tab, Enter), forms work (Ctrl+A), delete confirmation works, password masking toggle works; update regression checklist results (requires manual testing)
-- [ ] T034 [P] Comprehensive CLI testing: Verify all CLI commands work: `list`, `get`, `add`, `--help`, `--version` (all with `--vault test-vault/vault.enc` flag) (requires manual testing)
-- [ ] T035 [P] Edge case testing: Test `./pass-cli.exe --vault test-vault/vault.enc --help`, `./pass-cli.exe -h`, `./pass-cli.exe -v` and confirm they show help/version (not TUI) (requires manual testing)
+- [x] T033 [P] Comprehensive TUI testing: Run `./pass-cli.exe --vault test-vault/vault.enc` and verify: sidebar shows categories, credentials listed in table, detail view shows credential details, navigation works (arrow keys, Tab, Enter), forms work (Ctrl+A), delete confirmation works, password masking toggle works; update regression checklist results (✅ VERIFIED - user confirmed working)
+- [x] T034 [P] Comprehensive CLI testing: Verify all CLI commands work: `list`, `get`, `add`, `--help`, `--version` (all with `--vault test-vault/vault.enc` flag) (✅ VERIFIED)
+- [x] T035 [P] Edge case testing: Test `./pass-cli.exe --vault test-vault/vault.enc --help`, `./pass-cli.exe -h`, `./pass-cli.exe -v` and confirm they show help/version (not TUI) (✅ VERIFIED)
 - [x] T036 Success criteria validation: Consolidate collected evidence for SC-001–SC-006, including launch timing data and elapsed migration time calculations, and confirm each criterion passes (automated criteria passed, manual testing required for TUI rendering)
 - [x] T037 Update steering docs if needed: Review .spec-workflow/steering/structure.md and tech.md, update if cmd/ directory organization description needs changes (directory renamed from tui-tview to tui) (no changes needed, already references cmd/tui)
 - [x] T038 Push feature branch: Run `git push -u origin 001-reorganize-cmd-tui`
