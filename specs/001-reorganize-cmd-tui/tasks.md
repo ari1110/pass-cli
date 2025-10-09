@@ -24,6 +24,7 @@
 
 **Purpose**: Establish working baseline from pre-reorg-tui branch
 
+- [ ] T000 Start migration timer: Record current timestamp (e.g., in `notes/migration-log.md`) to track total elapsed time for SC-004
 - [ ] T001 Checkout pre-reorg-tui branch: `git checkout pre-reorg-tui && git pull origin pre-reorg-tui`
 - [ ] T002 Verify baseline TUI works: Build with `go build -o pass-cli-baseline.exe .` and run `./pass-cli-baseline.exe --vault test-vault/vault.enc` (password: `test123`), confirm TUI renders with no black screen, press `q` to exit
 - [ ] T003 Create feature branch: `git checkout -b 001-reorganize-cmd-tui`
@@ -45,10 +46,10 @@
 - [ ] T006 [P] [US1] Update package declaration in `cmd/tui-tview/app.go`: Change `package main` to `package tui`
 - [ ] T007 [P] [US1] Update package declaration in all other `cmd/tui-tview/*.go` files: Change `package main` to `package tui` (check each file in root of tui-tview directory)
 - [ ] T008 [US1] Rename `func main()` to `func Run(vaultPath string) error` in `cmd/tui-tview/main.go`: Replace entire main() function with Run() that accepts vaultPath parameter, handles empty vaultPath by calling getDefaultVaultPath(), and returns errors instead of calling os.Exit()
-- [ ] T009 [US1] [Verification] Verify compilation: Run `go build ./...` and confirm no errors
+- [ ] T009 [US1] [Verification] Verify compilation: Run `go build ./...`, confirm no errors, and log results for FR-006
 - [ ] T010 [US1] Create temporary test wrapper in `cmd/tui-tview/main.go`: Add `func main() { if err := Run(""); err != nil { fmt.Fprintf(os.Stderr, "Error: %v\n", err); os.Exit(1) } }` for testing
 - [ ] T011 [US1] Build standalone TUI binary: `go build -o pass-cli-step1.exe cmd/tui-tview/`
-- [ ] T012 [US1] Test TUI rendering: Run `./pass-cli-step1.exe --vault test-vault/vault.enc`, confirm TUI renders completely (no black screen), navigate sidebar/table/forms to verify features work, press `q` to exit
+- [ ] T012 [US1] Test TUI rendering: Run `./pass-cli-step1.exe --vault test-vault/vault.enc`, confirm TUI renders completely (no black screen), navigate sidebar/table/forms to verify features work, press `q` to exit, and capture notes in migration log
 - [ ] T013 [US1] Remove temporary test wrapper from `cmd/tui-tview/main.go`: Delete the `func main()` added in T010
 - [ ] T014 [US1] Commit package rename: `git add cmd/tui-tview/ && git commit -m "refactor: Change TUI package from main to tui
 
@@ -78,7 +79,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"`
 - [ ] T015 [US2] Find all files with old import paths: Run `rg "cmd/tui-tview" --type go -l` to identify files needing updates
 - [ ] T016 [US2] Automated import path replacement (Windows PowerShell): Run `Get-ChildItem -Recurse -Filter *.go | ForEach-Object { (Get-Content $_.FullName) -replace 'cmd/tui-tview', 'cmd/tui' | Set-Content $_.FullName }` from repository root
 - [ ] T017 [US2] Verify no missed occurrences: Run `rg "tui-tview" --type go` and confirm no results (all replaced)
-- [ ] T018 [US2] [Verification] Verify compilation: Run `go build ./...` and confirm no import errors
+- [ ] T018 [US2] [Verification] Verify compilation: Run `go build ./...`, confirm no import errors, and record verification outcome
 - [ ] T019 [US2] Commit import updates: `git add . && git commit -m "refactor: Update import paths from cmd/tui-tview to cmd/tui
 
 - Replace all occurrences of pass-cli/cmd/tui-tview with pass-cli/cmd/tui
@@ -106,7 +107,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"`
 - [ ] T020 [US3] Move directory with git: Run `git mv cmd/tui-tview cmd/tui` to rename directory while preserving history
 - [ ] T021 [US3] Verify git tracked the rename: Run `git status` and confirm output shows `renamed: cmd/tui-tview/ -> cmd/tui/`
 - [ ] T022 [US3] Verify git history preservation: Run `git log --follow --oneline cmd/tui/main.go | head -5` and confirm commit history from before the move is visible
-- [ ] T023 [US3] [Verification] Verify compilation: Run `go build ./...` and confirm build succeeds with new directory structure
+- [ ] T023 [US3] [Verification] Verify compilation: Run `go build ./...`, confirm build succeeds with new directory structure, and note outcome in log
 - [ ] T024 [US3] Commit directory move: `git commit -m "refactor: Move directory from cmd/tui-tview to cmd/tui
 
 - Use git mv to preserve file history
@@ -133,8 +134,8 @@ Co-Authored-By: Claude <noreply@anthropic.com>"`
 
 - [ ] T025 [US4] Read current main.go: Run `cat main.go` to review current structure (should only call cmd.Execute())
 - [ ] T026 [US4] Update main.go with TUI routing: Replace entire main.go content with new version that includes: imports for "fmt", "os", "pass-cli/cmd", and "pass-cli/cmd/tui"; argument parsing logic to detect subcommands/flags; TUI routing when no subcommand provided; CLI routing for subcommands (reference plan.md "Step 4: Main Entry Point Integration" section for exact code)
-- [ ] T027 [US4] [Verification] Verify compilation: Run `go build -o pass-cli.exe .` and confirm build succeeds
-- [ ] T028 [US4] Test TUI launch (no arguments): Run `./pass-cli.exe --vault test-vault/vault.enc`, confirm TUI renders completely (no black screen), test navigation/forms/features, press `q` to exit
+- [ ] T027 [US4] [Verification] Verify compilation: Run `go build -o pass-cli.exe .`, confirm build succeeds, and record the check in migration log
+- [ ] T028 [US4] Test TUI launch (no arguments): Use stopwatch or PowerShell `Measure-Command { ./pass-cli.exe --vault test-vault/vault.enc }`, confirm TUI renders completely (no black screen), document launch duration for SC-006, test navigation/forms/features, press `q` to exit
 - [ ] T029 [P] [US4] Test CLI list command: Run `./pass-cli.exe list --vault test-vault/vault.enc` and confirm credential list displays (not TUI)
 - [ ] T030 [P] [US4] Test CLI help flag: Run `./pass-cli.exe --help` and confirm help text displays (not TUI)
 - [ ] T031 [P] [US4] Test CLI version flag: Run `./pass-cli.exe --version` and confirm version displays (not TUI)
@@ -159,12 +160,13 @@ Co-Authored-By: Claude <noreply@anthropic.com>"`
 
 **Purpose**: Comprehensive testing and success criteria validation
 
-- [ ] T033 [P] Comprehensive TUI testing: Run `./pass-cli.exe --vault test-vault/vault.enc` and verify: sidebar shows categories, credentials listed in table, detail view shows credential details, navigation works (arrow keys, Tab, Enter), forms work (Ctrl+A), delete confirmation works, password masking toggle works
+- [ ] T033 [P] Comprehensive TUI testing: Run `./pass-cli.exe --vault test-vault/vault.enc` and verify: sidebar shows categories, credentials listed in table, detail view shows credential details, navigation works (arrow keys, Tab, Enter), forms work (Ctrl+A), delete confirmation works, password masking toggle works; update regression checklist results
 - [ ] T034 [P] Comprehensive CLI testing: Verify all CLI commands work: `list`, `get`, `add`, `--help`, `--version` (all with `--vault test-vault/vault.enc` flag)
 - [ ] T035 [P] Edge case testing: Test `./pass-cli.exe --vault test-vault/vault.enc --help`, `./pass-cli.exe -h`, `./pass-cli.exe -v` and confirm they show help/version (not TUI)
-- [ ] T036 Success criteria validation: Verify all 6 success criteria from spec.md: SC-001 (no black screen), SC-002 (features identical), SC-003 (compiles after each step), SC-004 (under 2 hours), SC-005 (zero errors), SC-006 (launches <3 seconds)
+- [ ] T036 Success criteria validation: Consolidate collected evidence for SC-001–SC-006, including launch timing data and elapsed migration time calculations, and confirm each criterion passes
 - [ ] T037 Update steering docs if needed: Review .spec-workflow/steering/structure.md and tech.md, update if cmd/ directory organization description needs changes (directory renamed from tui-tview to tui)
 - [ ] T038 Push feature branch: Run `git push -u origin 001-reorganize-cmd-tui`
+- [ ] T039 Stop migration timer: Record completion timestamp, calculate total elapsed time, and ensure it remains under two hours for SC-004
 
 **Checkpoint**: ✅ All testing complete, success criteria met, ready for PR
 

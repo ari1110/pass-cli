@@ -36,15 +36,15 @@ This plan details the systematic migration of the TUI package from `cmd/tui-tvie
 
 | Principle | Status | Notes |
 |-----------|--------|-------|
-| **I. Security First** | ✅ Compliant | No cryptographic or security changes; preserving existing security properties |
-| **II. Spec-Driven Development** | ✅ Compliant | Following spec-workflow: spec.md → plan.md → tasks.md → implementation |
-| **III. Testing Discipline** | ✅ Compliant | Manual verification at each step; no new features requiring new tests |
-| **IV. Layered Architecture** | ✅ Compliant | Preserving TUI layer boundaries; no cross-layer violations |
-| **V. Code Quality Standards** | ✅ Compliant | No code changes beyond mechanical refactoring (package names, imports, paths) |
-| **VI. Cross-Platform Compatibility** | ✅ Compliant | No platform-specific changes; existing cross-platform support unchanged |
-| **VII. Offline-First & Privacy** | ✅ Compliant | No network or privacy changes |
+| **I. Security First** | ✅ Compliant | No cryptographic changes; migration keeps existing vault, crypto, and keychain flows intact. |
+| **II. Spec-Driven Development** | ✅ Compliant | Following spec-workflow sequence (spec → plan → tasks → implementation) with documented approvals. |
+| **III. Testing Discipline** | ✅ Compliant | Tasks enforce build/test verification at each step; regression checklist maintained per constitution. |
+| **IV. Layered Architecture** | ✅ Compliant | Migration preserves TUI layer boundaries and service interactions; no cross-layer violations introduced. |
+| **V. Code Quality Standards** | ✅ Compliant | Pure refactor with formatting and lint tooling unchanged; commits planned after each verified step. |
+| **VI. Cross-Platform Compatibility** | ✅ Compliant | No platform-specific logic added; build remains CGO-disabled and cross-platform. |
+| **VII. Offline-First & Privacy** | ✅ Compliant | No network behavior introduced; TUI functionality remains offline-first. |
 
-**Justification**: This is a pure refactoring task with no functional changes, new features, or security implications. All constitution principles remain satisfied.
+**Justification**: The restored constitution (version 1.1.0) documents these principles explicitly, and the migration plan adheres to each by maintaining existing security posture, sequential verification, and architectural boundaries throughout the refactor.
 
 ## Project Structure
 
@@ -54,7 +54,7 @@ This plan details the systematic migration of the TUI package from `cmd/tui-tvie
 specs/001-reorganize-cmd-tui/
 ├── spec.md              # Feature specification
 ├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (migration strategy research)
+├── research.md          # Planned Phase 0 output (migration strategy research — to be created)
 ├── quickstart.md        # Phase 1 output (step-by-step migration guide)
 ├── checklists/
 │   └── requirements.md  # Spec quality validation

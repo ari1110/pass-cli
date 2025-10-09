@@ -87,11 +87,9 @@ Developer needs to integrate TUI launch into main.go so that running `pass-cli` 
 - **FR-003**: All import paths MUST be updated from `pass-cli/cmd/tui-tview/*` to `pass-cli/cmd/tui/*`
 - **FR-004**: Directory MUST be renamed from `cmd/tui-tview/` to `cmd/tui/` using `git mv` to preserve history
 - **FR-005**: Root `main.go` MUST import and call `tui.Run()` for default TUI launch behavior
-- **FR-006**: Migration MUST be performed in atomic steps with verification between each step
-- **FR-007**: TUI rendering and functionality MUST remain identical after migration (no visual or behavioral changes)
-- **FR-008**: Each migration step MUST result in compilable code before proceeding to next step
-- **FR-009**: Verification testing MUST be performed after each step (compile, run, visual inspection)
-- **FR-010**: Migration MUST NOT introduce new bugs or break existing TUI features
+- **FR-006**: Each migration step MUST finish with documented verification: run `go build ./...`, execute a TUI smoke test, and log results before continuing
+- **FR-007**: Migration MUST preserve current TUI behavior with no visual or functional regressions, as evidenced by the regression checklist outcomes
+- **FR-008**: Migration MUST NOT introduce new bugs or regressions in CLI command behavior (non-TUI execution paths)
 
 ### Key Entities *(include if feature involves data)*
 
@@ -107,9 +105,9 @@ Developer needs to integrate TUI launch into main.go so that running `pass-cli` 
 - **SC-001**: TUI renders completely with no black screen or visual corruption after full migration
 - **SC-002**: All existing TUI features (navigation, forms, detail view, sidebar) function identically to pre-migration state
 - **SC-003**: Project compiles successfully with `go build ./...` after each individual migration step
-- **SC-004**: Complete migration can be performed and verified in under 2 hours of development time
+- **SC-004**: Complete migration can be performed and verified in under 2 hours of development time, captured via logged start/end timestamps
 - **SC-005**: Zero new compiler errors or warnings introduced by reorganization
-- **SC-006**: TUI launches in under 3 seconds when running `./pass-cli.exe` with no arguments (same as before migration)
+- **SC-006**: TUI launches in under 3 seconds when running `./pass-cli.exe` with no arguments, measured via stopwatch or `Measure-Command`
 
 ## Assumptions
 
