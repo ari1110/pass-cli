@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/atotto/clipboard"
-	"github.com/rivo/tview"
 	"pass-cli/cmd/tui/models"
 	"pass-cli/cmd/tui/styles"
 	"pass-cli/internal/vault"
+
+	"github.com/atotto/clipboard"
+	"github.com/rivo/tview"
 )
 
 // DetailView displays full credential information with password masking and copy support.
@@ -64,12 +65,12 @@ func (dv *DetailView) formatCredential(cred *vault.CredentialMetadata) string {
 	var b strings.Builder
 
 	// Header with service name
-	b.WriteString("[cyan]═══════════════════════════════════[-]\n")
-	b.WriteString(fmt.Sprintf("          [yellow]%s[-]\n", cred.Service))
-	b.WriteString("[cyan]═══════════════════════════════════[-]\n\n")
+	b.WriteString("[yellow]═══════════════════════════════════[-]\n")
+	b.WriteString(fmt.Sprintf("[gray]Service (UID):[yellow]%s[-]\n", cred.Service))
+	b.WriteString("[yellow]═══════════════════════════════════[-]\n\n")
 
 	// Main credential fields
-	b.WriteString(fmt.Sprintf("[gray]Service:[-]    [white]%s[-]\n", cred.Service))
+	// b.WriteString(fmt.Sprintf("[gray]Service (UID):[-] [white]%s[-]\n", cred.Service))d
 	b.WriteString(fmt.Sprintf("[gray]Username:[-]   [white]%s[-]\n", cred.Username))
 
 	// Category (if present)
@@ -94,9 +95,9 @@ func (dv *DetailView) formatCredential(cred *vault.CredentialMetadata) string {
 	}
 
 	// Metadata section
-	b.WriteString("\n[cyan]═══════════════════════════════════[-]\n")
-	b.WriteString("[gray]Metadata[-]\n")
-	b.WriteString("[cyan]═══════════════════════════════════[-]\n\n")
+	b.WriteString("\n[yellow]═══════════════════════════════════[-]\n")
+	b.WriteString("            [yellow]Metadata[-]\n")
+	b.WriteString("[yellow]═══════════════════════════════════[-]\n\n")
 
 	b.WriteString(fmt.Sprintf("[gray]Created:[-]     [white]%s[-]\n", cred.CreatedAt.Format("2006-01-02 03:04 PM")))
 	b.WriteString(fmt.Sprintf("[gray]Modified:[-]    [white]%s[-]\n", cred.UpdatedAt.Format("2006-01-02 03:04 PM")))
