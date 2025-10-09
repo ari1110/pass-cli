@@ -15,11 +15,11 @@
 **Commit frequently and often** when working through spec tasks:
 
 **When to commit**:
-- ✅ After completing each task (mark as `[x]`)
+- ✅ After completing each task
 - ✅ After completing each phase of a spec
 - ✅ After any significant milestone or working state
 - ✅ Before switching to a different task
-- ✅ When you update steering docs (tech.md, structure.md, product.md)
+- ✅ When you update relevant spec documentation
 
 **Commit message format**:
 ```
@@ -61,11 +61,11 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 **NEVER**:
 - ❌ Claim a task is complete when it's only partially done
-- ❌ Mark a task as `[x]` if tests are failing
+- ❌ Mark a task as completed if tests are failing
 - ❌ Skip steps in a task to save time
 - ❌ Take shortcuts that deviate from the spec
 - ❌ Implement differently than the spec describes
-- ❌ Ignore acceptance criteria in requirements
+- ❌ Ignore acceptance criteria in spec
 - ❌ Hide errors or issues you encounter
 
 **ALWAYS**:
@@ -109,7 +109,7 @@ If you think the spec is wrong, unclear, or could be improved:
 1. Re-read the task field
 2. Check the spec-docs for existing code to reference
 3. Read the relevant spec-docs to understand acceptance criteria
-4. Search codebase for similar patterns (use Grep, Glob)
+4. Search codebase for similar patterns (use Grep, Glob, Search, or MCP-server tools if relevant)
 
 **When discovering incomplete work**:
 1. **STOP immediately** - Don't continue building on broken foundation
