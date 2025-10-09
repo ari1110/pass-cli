@@ -58,7 +58,7 @@ func NewCredentialTable(appState *models.AppState) *CredentialTable {
 // Header row is not selectable and uses accent color.
 func (ct *CredentialTable) buildHeader() {
 	theme := styles.GetCurrentTheme()
-	headers := []string{"Service", "Username", "Last Used"}
+	headers := []string{"Service (UID)", "Username", "Last Used"}
 
 	for col, header := range headers {
 		cell := tview.NewTableCell(header).

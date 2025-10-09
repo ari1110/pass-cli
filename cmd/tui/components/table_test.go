@@ -26,8 +26,8 @@ func TestNewCredentialTable(t *testing.T) {
 
 	// Verify header cells
 	serviceHeader := table.GetCell(0, 0)
-	if serviceHeader == nil || serviceHeader.Text != "Service" {
-		t.Error("Expected 'Service' header in column 0")
+	if serviceHeader == nil || serviceHeader.Text != "Service (UID)" {
+		t.Error("Expected 'Service (UID)' header in column 0")
 	}
 
 	usernameHeader := table.GetCell(0, 1)

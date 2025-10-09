@@ -4,6 +4,7 @@ package components
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -85,12 +86,35 @@ func (af *AddForm) buildFormFields() {
 
 	// Core credential fields
 	// Use 0 width to make fields fill available space (prevents black rectangles)
-	af.AddInputField("Service", "", 0, nil, nil)
+	af.AddInputField("Service (UID)", "", 0, nil, nil)
 	af.AddInputField("Username", "", 0, nil, nil)
 	af.AddPasswordField("Password", "", 0, '*', nil)
 
 	// Optional metadata fields - default to "Uncategorized"
-	af.AddDropDown("Category", categories, uncategorizedIndex, nil)
+
+	// Original dropdown approach (commented out for autocomplete field)
+	// af.AddDropDown("Category", categories, uncategorizedIndex, nil)
+
+	// New autocomplete input field for Category
+	categoryField := tview.NewInputField().
+      SetLabel("Category").
+      SetFieldWidth(0)
+
+  categoryField.SetAutocompleteFunc(func(currentText string) []string {
+      if currentText == "" {
+          return categories
+      }
+      var matches []string
+      lowerText := strings.ToLower(currentText)
+      for _, cat := range categories {
+          if strings.HasPrefix(strings.ToLower(cat), lowerText) {
+              matches = append(matches, cat)
+          }
+      }
+      return matches
+  })
+
+  af.AddFormItem(categoryField)
 	af.AddInputField("URL", "", 0, nil, nil)
 	af.AddTextArea("Notes", "", 0, 5, 0, nil)
 
@@ -117,10 +141,14 @@ func (af *AddForm) onAddPressed() {
 	username := af.GetFormItem(1).(*tview.InputField).GetText()
 	password := af.GetFormItem(2).(*tview.InputField).GetText()
 
-	// Extract category from dropdown (index 3)
-	categoryDropdown := af.GetFormItem(3).(*tview.DropDown)
-	_, category := categoryDropdown.GetCurrentOption()
-	category = normalizeCategory(category) // Convert "Uncategorized" to empty string
+	// Extract category from input field (index 3)
+  category := af.GetFormItem(3).(*tview.InputField).GetText()
+  category = normalizeCategory(category) // Convert "Uncategorized" to empty string
+	
+	//Original dropdown approach (commented out for autocomplete field) 
+	// categoryDropdown := af.GetFormItem(3).(*tview.DropDown)
+	// _, category := categoryDropdown.GetCurrentOption()
+	// category = normalizeCategory(category) // Convert "Uncategorized" to empty string
 
 	url := af.GetFormItem(4).(*tview.InputField).GetText()
 	notes := af.GetFormItem(5).(*tview.TextArea).GetText()
@@ -286,12 +314,11 @@ func NewEditForm(appState *models.AppState, credential *vault.CredentialMetadata
 // buildFormFieldsWithValues constructs form fields pre-populated with credential data.
 func (ef *EditForm) buildFormFieldsWithValues() {
 	categories := ef.getCategories()
-	categoryIndex := ef.findCategoryIndex(categories)
 
 	// Pre-populate fields with existing credential data
 	// Service field is read-only (cannot be changed in edit mode)
 	// Use 0 width to make fields fill available space (prevents black rectangles)
-	ef.AddInputField("Service", ef.credential.Service, 0, nil, nil)
+	ef.AddInputField("Service (UID)", ef.credential.Service, 0, nil, nil)
 	serviceField := ef.GetFormItem(0).(*tview.InputField)
 	serviceField.SetDisabled(true) // Make read-only to prevent confusion
 
@@ -312,7 +339,36 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 	ef.AddFormItem(passwordField)
 
 	// Optional metadata fields - pre-populated from credential
-	ef.AddDropDown("Category", categories, categoryIndex, nil)
+	// ef.AddDropDown("Category", categories, categoryIndex, nil)
+
+	// Replace DropDown with InputField + autocomplete
+	// Pre-populate with existing category (or "Uncategorized" if empty)
+	initialCategory := ef.credential.Category
+	if initialCategory == "" {
+		initialCategory = "Uncategorized"
+	}
+
+	categoryField := tview.NewInputField().
+		SetLabel("Category").
+		SetFieldWidth(0).
+		SetText(initialCategory)
+
+	categoryField.SetAutocompleteFunc(func(currentText string) []string {
+		if currentText == "" {
+			return categories
+		}
+		var matches []string
+		lowerText := strings.ToLower(currentText)
+		for _, cat := range categories {
+			if strings.HasPrefix(strings.ToLower(cat), lowerText) {
+				matches = append(matches, cat)
+			}
+		}
+		return matches
+	})
+
+	ef.AddFormItem(categoryField)
+
 	ef.AddInputField("URL", ef.credential.URL, 0, nil, nil)
 	ef.AddTextArea("Notes", ef.credential.Notes, 0, 5, 0, nil)
 
@@ -368,9 +424,8 @@ func (ef *EditForm) onSavePressed() {
 	username := ef.GetFormItem(1).(*tview.InputField).GetText()
 	password := ef.GetFormItem(2).(*tview.InputField).GetText()
 
-	// Extract category from dropdown
-	categoryDropdown := ef.GetFormItem(3).(*tview.DropDown)
-	_, category := categoryDropdown.GetCurrentOption()
+	// Extract category from input field (index 3)
+	category := ef.GetFormItem(3).(*tview.InputField).GetText()
 	category = normalizeCategory(category) // Convert "Uncategorized" to empty string
 
 	url := ef.GetFormItem(4).(*tview.InputField).GetText()
