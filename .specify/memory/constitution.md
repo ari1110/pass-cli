@@ -2,14 +2,22 @@
 
 <!--
 Sync Impact Report:
-Version Change: Initial constitution (no previous version) → 1.0.0
-Modified Principles: N/A (initial creation)
-Added Sections: All sections (Security First, Spec-Driven Development, Testing Discipline, Layered Architecture, Code Quality Standards, Development Workflow, Governance)
-Removed Sections: N/A
+Version Change: 1.0.0 → 1.1.0
+Modified Principles:
+  - IV. Layered Architecture: Clarified TUI framework migration state (Bubbletea → tview in progress)
+  - III. Testing Discipline: Replaced Make-centric tooling with direct Go commands (aligned with actual workflow)
+  - V. Code Quality Standards: Updated build toolchain section to reflect direct Go usage, de-emphasized Make
+Expanded Sections:
+  - Technical Context: Added Go version (1.25.1), GoReleaser, removed Make dependency requirement
+  - Development Workflow: Updated Quality Assurance section with actual go commands used in specs
+  - Commit Standards: Added 'perf:' type for performance improvements
+Added Sections: None
+Removed Sections: None
 Templates Requiring Updates:
-  ✅ plan-template.md - Constitution Check section aligns with principles
-  ✅ spec-template.md - Requirements structure supports security and testing principles
-  ✅ tasks-template.md - Task organization supports layered architecture and test-first approach
+  ✅ plan-template.md - Technical Context section already flexible enough
+  ✅ spec-template.md - No changes required (requirements structure remains valid)
+  ✅ tasks-template.md - No changes required (task organization remains valid)
+  ✅ CLAUDE.md - Validated alignment with workflow and commit standards
 Follow-up TODOs: None - all placeholders resolved
 -->
 
@@ -79,14 +87,32 @@ All production code MUST have corresponding tests. Tests MUST be written before 
 - Tests MUST clean up resources (temp files, test vaults)
 - Tests MUST not expose sensitive data (use fixtures, not real credentials)
 
-**Pre-Commit Testing**:
-- `go fmt ./...` - Format code
-- `go vet ./...` - Static analysis
-- `golangci-lint run` - Comprehensive linting
-- `gosec ./...` - Security scanning
-- `go test ./...` - Run all tests
+**Coverage Tooling**:
+- MUST use `go test -coverprofile=coverage.out` for coverage reports
+- MUST generate HTML reports with `go tool cover -html=coverage.out`
+- SHOULD maintain coverage.out and coverage.html in .gitignore
 
-**Rationale**: Comprehensive testing prevents regressions, validates security properties, documents expected behavior, and enables confident refactoring. Test-driven development catches design issues early.
+**Pre-Commit Testing** (run before committing):
+```bash
+go fmt ./...              # Format code
+go vet ./...              # Static analysis
+golangci-lint run         # Comprehensive linting (if available)
+gosec ./...               # Security scanning (if available)
+go test ./...             # Run all tests
+go test -race -short ./...  # Race detection (optional)
+```
+
+**Integration Testing**:
+```bash
+go test -v -tags=integration -timeout 5m ./test  # Full integration suite
+```
+
+**Security & Vulnerability Checks**:
+```bash
+govulncheck ./...         # Dependency vulnerability scanning (if available)
+```
+
+**Rationale**: Comprehensive testing prevents regressions, validates security properties, documents expected behavior, and enables confident refactoring. Test-driven development catches design issues early. Direct Go commands provide maximum portability without build tool dependencies.
 
 ---
 
@@ -96,7 +122,11 @@ Pass-CLI follows strict layered architecture. Layers MUST only depend on layers 
 
 **Architecture Layers** (top to bottom):
 1. **CLI Layer** (`cmd/`) - Command interface, flags, help text, output formatting
-2. **TUI Layer** (`cmd/tui/`) - Interactive terminal UI (tview-based dashboard)
+2. **TUI Layer** (`cmd/tui/`) - Interactive terminal UI
+   - **Migration Status**: Transitioning from Bubbletea to tview framework
+   - **Current State**: `cmd/tui-tview/` contains tview implementation (being reorganized to `cmd/tui/`)
+   - **Target State**: `cmd/tui/` will be the canonical tview-based TUI
+   - **IMPORTANT**: During migration, maintain working state at each step with verification checkpoints
 3. **Service Layer** (`internal/vault/`) - Business logic, credential management, usage tracking
 4. **Storage Layer** (`internal/storage/`) - Encrypted file operations, atomic writes, backups
 5. **Crypto Layer** (`internal/crypto/`) - AES-256-GCM encryption, key derivation, random generation
@@ -114,13 +144,13 @@ Pass-CLI follows strict layered architecture. Layers MUST only depend on layers 
 - Internal packages (`internal/`) are implementation details, NOT public API
 - Core crypto/vault logic is cross-platform, keychain layer handles OS differences
 
-**Rationale**: Layered architecture enforces separation of concerns, enables independent testing, prevents circular dependencies, and allows layer-specific optimizations without affecting other layers.
+**Rationale**: Layered architecture enforces separation of concerns, enables independent testing, prevents circular dependencies, and allows layer-specific optimizations without affecting other layers. Framework migration strategy preserves stability while enabling modernization through atomic, verifiable steps.
 
 ---
 
 ### V. Code Quality Standards
 
-All code MUST meet quality standards before merging. Quality gates are enforced in CI/CD and pre-commit.
+All code MUST meet quality standards before merging. Quality gates are enforced in CI/CD and pre-commit checks.
 
 **Code Style**:
 - MUST follow Go idioms and conventions (effective Go principles)
@@ -140,15 +170,32 @@ All code MUST meet quality standards before merging. Quality gates are enforced 
 - MUST minimize external dependencies (lean binary principle)
 - MUST use only well-maintained, security-audited libraries
 - MUST pin dependency versions in go.mod for reproducible builds
-- MUST run `govulncheck` to scan for vulnerable dependencies
+- MUST run `govulncheck` to scan for vulnerable dependencies (if available)
+- MUST run `go mod tidy` and `go mod verify` regularly
+
+**Build Toolchain**:
+- MUST use Go 1.25.1 or later (as specified in go.mod)
+- MUST use GoReleaser for multi-platform release builds (`.goreleaser.yml`)
+- MUST build with `CGO_ENABLED=0` for static binaries (no C dependencies)
+- MUST use `-trimpath` and `-mod=readonly` flags for reproducible builds
+- SHOULD use Makefile for convenience targets (optional, not required)
+  - Project provides Makefile with helpful targets, but direct Go commands are primary
+
+**Release Process**:
+- MUST validate release configuration with `goreleaser check` before tagging
+- MUST test release process with `goreleaser release --snapshot --clean --skip=publish`
+- MUST generate checksums for all release artifacts (SHA256)
+- MUST create universal binaries for macOS (combines amd64 + arm64)
+- MUST update Homebrew tap and Scoop bucket automatically via GoReleaser
 
 **Documentation**:
 - MUST document complex algorithms (especially cryptographic operations)
 - MUST explain security decisions in comments
 - MUST update README.md when adding user-facing features
 - MUST update steering docs (tech.md, structure.md) when changing architecture
+- MUST maintain CHANGELOG.md with conventional commit format
 
-**Rationale**: Code quality standards ensure maintainability, readability, and long-term project health. Consistent style reduces cognitive load. Comprehensive documentation enables collaboration and auditing.
+**Rationale**: Code quality standards ensure maintainability, readability, and long-term project health. Consistent style reduces cognitive load. Comprehensive documentation enables collaboration and auditing. Direct Go commands provide maximum portability; Makefile provides convenience but is not a hard dependency.
 
 ---
 
@@ -213,17 +260,31 @@ Pass-CLI MUST operate completely offline with no cloud dependencies or network c
 - Update task checkboxes: [ ] → [-] → [x]
 - Commit frequently (after each task, after each phase, before context switches)
 - Test before marking complete
+- For refactoring specs: verify at each atomic step (compile, run, manual testing)
 
 **3. Quality Assurance**:
-- Run all pre-commit checks (fmt, vet, lint, security scan, tests)
+- **Format code**: `go fmt ./...`
+- **Static analysis**: `go vet ./...`
+- **Linting** (if available): `golangci-lint run`
+- **Security scan** (if available): `gosec ./...`
+- **Run tests**: `go test ./...`
+- **Race detection** (optional): `go test -race -short ./...`
+- **Vulnerability check** (if available): `govulncheck ./...`
 - Verify security properties (encryption, file permissions, memory clearing)
 - Test cross-platform behavior (CI matrix runs automatically)
 
-**4. Documentation**:
+**4. Pre-Release Validation**:
+- Run comprehensive test suite: `go test -v ./...`
+- Run integration tests: `go test -v -tags=integration -timeout 5m ./test`
+- Validate GoReleaser config: `goreleaser check`
+- Test release build: `goreleaser release --snapshot --clean --skip=publish`
+- Verify checksums and universal binaries
+
+**5. Documentation**:
 - Update README.md for user-facing changes
 - Update steering docs (tech.md, structure.md) for architecture changes
 - Add inline documentation for complex logic
-- Update CHANGELOG.md
+- Update CHANGELOG.md with conventional commit format
 
 ---
 
@@ -234,6 +295,7 @@ Pass-CLI MUST operate completely offline with no cloud dependencies or network c
 - Commit after completing each spec phase
 - Commit before switching tasks or contexts
 - Commit when updating steering docs
+- For atomic refactoring: commit after each verified step (e.g., package rename, import updates, directory move)
 
 **Commit Message Format**:
 ```
@@ -241,7 +303,7 @@ Pass-CLI MUST operate completely offline with no cloud dependencies or network c
 
 <body explaining changes>
 
-<optional phase reference>
+<optional phase reference or step number>
 
 🤖 Generated with Claude Code
 
@@ -252,12 +314,29 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - `feat:` - New feature or enhancement
 - `fix:` - Bug fix
 - `refactor:` - Code restructuring without behavior change
+- `perf:` - Performance improvements
 - `test:` - Adding or updating tests
 - `docs:` - Documentation updates
 - `chore:` - Maintenance tasks (dependencies, build config)
 - `security:` - Security improvements or fixes
 
-**Rationale**: Frequent commits create audit trails, enable rollback to working states, and demonstrate systematic progress. Conventional commit format enables automated changelog generation and semantic versioning.
+**Examples**:
+```
+refactor: Change TUI package from main to tui
+
+- Update package declaration in all TUI files
+- Rename main() to Run(vaultPath string) error
+- Add vaultPath parameter handling
+- Keep LaunchTUI() unchanged
+
+Step 1 of 4 for cmd/tui reorganization.
+
+🤖 Generated with Claude Code
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+**Rationale**: Frequent commits create audit trails, enable rollback to working states, and demonstrate systematic progress. Conventional commit format enables automated changelog generation and semantic versioning. Atomic refactoring commits enable precise rollback and debugging.
 
 ---
 
@@ -302,4 +381,4 @@ For day-to-day development guidance, consult `CLAUDE.md` (Claude operational gui
 
 ---
 
-**Version**: 1.0.0 | **Ratified**: 2025-10-07 | **Last Amended**: 2025-10-07
+**Version**: 1.1.0 | **Ratified**: 2025-10-07 | **Last Amended**: 2025-10-09
