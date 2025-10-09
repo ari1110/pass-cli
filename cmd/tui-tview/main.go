@@ -1,4 +1,4 @@
-package main
+package tui
 
 import (
 	"fmt"
@@ -16,15 +16,18 @@ import (
 
 const maxPasswordAttempts = 3
 
-func main() {
-	// 1. Get default vault path
-	vaultPath := getDefaultVaultPath()
+// Run starts the TUI application (exported for main.go to call)
+// If vaultPath is empty, uses the default vault location
+func Run(vaultPath string) error {
+	// 1. Get vault path (use provided path or default)
+	if vaultPath == "" {
+		vaultPath = getDefaultVaultPath()
+	}
 
 	// 2. Initialize vault service
 	vaultService, err := vault.New(vaultPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: Failed to initialize vault service: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("failed to initialize vault service: %w", err)
 	}
 
 	// 3. Try keychain unlock
@@ -38,8 +41,7 @@ func main() {
 		for attempt := 1; attempt <= maxPasswordAttempts; attempt++ {
 			password, err := promptForPassword()
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: Failed to read password: %v\n", err)
-				os.Exit(1)
+				return fmt.Errorf("failed to read password: %w", err)
 			}
 
 			// Try to unlock with provided password
@@ -58,16 +60,16 @@ func main() {
 
 		// Check if unlock was successful
 		if !unlocked {
-			fmt.Fprintf(os.Stderr, "Error: Failed to unlock vault after %d attempts.\n", maxPasswordAttempts)
-			os.Exit(1)
+			return fmt.Errorf("failed to unlock vault after %d attempts", maxPasswordAttempts)
 		}
 	}
 
 	// 5. Launch TUI
 	if err := launchTUI(vaultService); err != nil {
-		fmt.Fprintf(os.Stderr, "TUI error: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("TUI error: %w", err)
 	}
+
+	return nil
 }
 
 // getDefaultVaultPath returns the default vault file path

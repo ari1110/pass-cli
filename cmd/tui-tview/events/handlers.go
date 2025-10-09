@@ -19,8 +19,8 @@ type EventHandler struct {
 	nav         *models.NavigationState
 	pageManager *layout.PageManager
 	statusBar   *components.StatusBar
-	detailView  *components.DetailView  // Direct reference for password operations
-	layoutMgr   *layout.LayoutManager   // Reference for layout manipulation
+	detailView  *components.DetailView // Direct reference for password operations
+	layoutMgr   *layout.LayoutManager  // Reference for layout manipulation
 }
 
 // NewEventHandler creates a new event handler with all required dependencies.
