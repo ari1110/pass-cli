@@ -165,7 +165,7 @@ func (ct *CredentialTable) filterByCategory(creds []vault.CredentialMetadata, ca
 
 	filtered := make([]vault.CredentialMetadata, 0)
 	for _, cred := range creds {
-		if cred.Service == category {
+		if cred.Category == category {
 			filtered = append(filtered, cred)
 		}
 	}

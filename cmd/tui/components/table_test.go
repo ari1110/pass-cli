@@ -88,33 +88,38 @@ func TestCredentialTableRefresh_CategoryFilter(t *testing.T) {
 	mockVault := NewMockVaultService()
 	state := models.NewAppState(mockVault)
 
-	// Setup multiple credentials
+	// Setup multiple credentials with Category field
 	mockCreds := []vault.CredentialMetadata{
-		{Service: "AWS", Username: "admin", CreatedAt: time.Now()},
-		{Service: "GitHub", Username: "user", CreatedAt: time.Now()},
-		{Service: "AWS", Username: "backup", CreatedAt: time.Now()},
+		{Service: "aws-prod", Username: "admin", Category: "Work", CreatedAt: time.Now()},
+		{Service: "github-personal", Username: "user", Category: "Personal", CreatedAt: time.Now()},
+		{Service: "aws-dev", Username: "backup", Category: "Work", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
 	state.LoadCredentials()
 
 	table := NewCredentialTable(state)
 
-	// Set category filter
-	state.SetSelectedCategory("AWS")
+	// Set category filter to "Work"
+	state.SetSelectedCategory("Work")
 
 	// Refresh with filter
 	table.Refresh()
 
-	// Verify only AWS credentials shown (header + 2 AWS credentials, GitHub filtered out)
+	// Verify only Work credentials shown (header + 2 Work credentials, Personal filtered out)
 	if table.GetRowCount() != 3 {
-		t.Errorf("Expected 3 rows (1 header + 2 AWS), got %d", table.GetRowCount())
+		t.Errorf("Expected 3 rows (1 header + 2 Work), got %d", table.GetRowCount())
 	}
 
-	// Verify both rows are AWS
+	// Verify both rows are Work category
 	row1Service := table.GetCell(1, 0)
 	row2Service := table.GetCell(2, 0)
-	if row1Service.Text != "AWS" || row2Service.Text != "AWS" {
-		t.Error("Expected only AWS credentials in filtered view")
+	if row1Service == nil || row2Service == nil {
+		t.Fatal("Expected 2 credential rows")
+	}
+	// Both should be Work category credentials (aws-prod and aws-dev)
+	if (row1Service.Text != "aws-prod" && row1Service.Text != "aws-dev") ||
+		(row2Service.Text != "aws-prod" && row2Service.Text != "aws-dev") {
+		t.Errorf("Expected only Work category credentials, got '%s' and '%s'", row1Service.Text, row2Service.Text)
 	}
 }
 
@@ -327,29 +332,32 @@ func TestCredentialTableFilter_ByCategory(t *testing.T) {
 
 	table := NewCredentialTable(state)
 
-	// Test data
+	// Test data with Category field properly set
 	allCreds := []vault.CredentialMetadata{
-		{Service: "AWS", Username: "admin"},
-		{Service: "GitHub", Username: "user"},
-		{Service: "AWS", Username: "backup"},
-		{Service: "Database", Username: "dbuser"},
+		{Service: "aws-prod", Username: "admin", Category: "Work"},
+		{Service: "github-personal", Username: "user", Category: "Personal"},
+		{Service: "aws-dev", Username: "backup", Category: "Work"},
+		{Service: "database", Username: "dbuser", Category: "Development"},
 	}
 
-	// Test filter for "AWS"
-	filtered := table.filterByCategory(allCreds, "AWS")
+	// Test filter for "Work" category (should return 2 credentials)
+	filtered := table.filterByCategory(allCreds, "Work")
 	if len(filtered) != 2 {
-		t.Errorf("Expected 2 AWS credentials, got %d", len(filtered))
+		t.Errorf("Expected 2 Work credentials, got %d", len(filtered))
 	}
 	for _, cred := range filtered {
-		if cred.Service != "AWS" {
-			t.Errorf("Expected only AWS credentials, got '%s'", cred.Service)
+		if cred.Category != "Work" {
+			t.Errorf("Expected only Work category credentials, got Category='%s' Service='%s'", cred.Category, cred.Service)
 		}
 	}
 
-	// Test filter for "GitHub"
-	filtered = table.filterByCategory(allCreds, "GitHub")
+	// Test filter for "Personal" category (should return 1 credential)
+	filtered = table.filterByCategory(allCreds, "Personal")
 	if len(filtered) != 1 {
-		t.Errorf("Expected 1 GitHub credential, got %d", len(filtered))
+		t.Errorf("Expected 1 Personal credential, got %d", len(filtered))
+	}
+	if filtered[0].Category != "Personal" {
+		t.Errorf("Expected Personal category, got '%s'", filtered[0].Category)
 	}
 
 	// Test empty filter (show all)
