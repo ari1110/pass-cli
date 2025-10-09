@@ -47,3 +47,6 @@ Thumbs.db
 .serena/
 .mcp.json
 .spec-workflow/approvals/
+.github/prompts/
+.specify/
+.spec-workflow/
