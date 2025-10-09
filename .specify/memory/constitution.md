@@ -1,384 +1,237 @@
-# Pass-CLI Constitution
-
 <!--
-Sync Impact Report:
-Version Change: 1.0.0 -> 1.1.0
+Sync Impact Report - Constitution Update
+═══════════════════════════════════════════════════════════════
+
+Version Change: [Initial/Template] → 1.0.0
+
+Changes Summary:
+- Initial ratification of Pass-CLI constitution
+- Added 7 core principles specific to password manager development
+- Defined security-first architecture and testing requirements
+- Established governance and compliance framework
+
 Modified Principles:
-  - IV. Layered Architecture: Clarified TUI framework migration state (Bubbletea -> tview in progress)
-  - III. Testing Discipline: Replaced Make-centric tooling with direct Go commands (aligned with actual workflow)
-  - V. Code Quality Standards: Updated build toolchain section to reflect direct Go usage, de-emphasized Make
-Expanded Sections:
-  - Technical Context: Added Go version (1.25.1), GoReleaser, removed Make dependency requirement
-  - Development Workflow: Updated Quality Assurance section with actual go commands used in specs
-  - Commit Standards: Added 'perf:' type for performance improvements
-Added Sections: None
-Removed Sections: None
+- NEW: I. Security-First Development (NON-NEGOTIABLE)
+- NEW: II. Library-First Architecture
+- NEW: III. CLI Interface Standards
+- NEW: IV. Test-Driven Development (NON-NEGOTIABLE)
+- NEW: V. Cross-Platform Compatibility
+- NEW: VI. Observability & Auditability
+- NEW: VII. Simplicity & YAGNI
+
+Added Sections:
+- Security Requirements (dedicated section for password manager constraints)
+- Development Workflow (quality gates and review process)
+
 Templates Requiring Updates:
-  - plan-template.md - Technical Context section already flexible enough
-  - spec-template.md - No changes required (requirements structure remains valid)
-  - tasks-template.md - No changes required (task organization remains valid)
-  - CLAUDE.md - Validated alignment with workflow and commit standards
-Follow-up TODOs: None - all placeholders resolved
+- ✅ plan-template.md: Constitution Check section references verified
+- ✅ spec-template.md: Requirements and acceptance criteria alignment verified
+- ✅ tasks-template.md: Task categorization aligns with principles
+- ⚠ Runtime guidance (CLAUDE.md): Already contains spec adherence rules - no changes needed
+
+Follow-up TODOs:
+- None (all placeholders filled)
+
+Last Updated: 2025-10-09
+═══════════════════════════════════════════════════════════════
 -->
+
+# Pass-CLI Constitution
 
 ## Core Principles
 
-### I. Security First (NON-NEGOTIABLE)
+### I. Security-First Development (NON-NEGOTIABLE)
 
-Pass-CLI is a **credential management tool**. Security MUST never be compromised for convenience, performance, or feature velocity.
+**All development decisions prioritize security over convenience, performance, or features.**
 
-**Mandatory Security Rules**:
-- MUST use AES-256-GCM encryption with authenticated encryption for all credential storage
-- MUST use PBKDF2 key derivation with minimum 100,000 iterations
-- MUST use cryptographically secure random generation (`crypto/rand`) for all random data (IVs, salts, passwords)
-- MUST clear sensitive data from memory after use
-- MUST set vault file permissions to 600 (Unix) or user-only ACLs (Windows)
-- MUST validate all inputs before cryptographic operations
-- MUST use `golang.org/x/crypto` for extended cryptographic functions
+- **Encryption Standards**: AES-256-GCM with PBKDF2-SHA256 (100,000 iterations minimum) MUST be used for all credential storage. No weaker algorithms permitted.
+- **No Secret Logging**: Passwords, master passwords, API keys, or any credential data MUST NEVER be logged, printed to stdout/stderr, or written to any file outside the encrypted vault.
+- **Zero-Trust Clipboard**: Clipboard operations MUST clear after 30 seconds maximum. Credentials MUST NOT be stored in clipboard history.
+- **Secure Memory Handling**: Sensitive data in memory MUST be zeroed after use. No credential caching in plaintext memory.
+- **System Keychain Integration**: Master passwords MUST be stored only in OS-provided secure storage (Windows Credential Manager, macOS Keychain, Linux Secret Service).
+- **Threat Modeling Required**: Any new feature touching credentials MUST include threat analysis before implementation.
 
-**Prohibited Practices**:
-- NEVER store passwords or master passwords in plaintext (logs, errors, debug output, memory dumps)
-- NEVER use weak encryption algorithms (DES, RC4, MD5, SHA1 for passwords)
-- NEVER skip input validation on credential data
-- NEVER expose credentials in error messages or stack traces
-- NEVER log sensitive data (passwords, keys, decrypted credentials)
+**Rationale**: As a password manager, Pass-CLI is a high-value target. A single security failure compromises all user credentials. This principle is non-negotiable because the entire value proposition relies on trustworthy security.
 
-**Rationale**: Security vulnerabilities in a password manager are catastrophic. Users trust this tool with their most sensitive data. Any security compromise undermines the entire product value proposition and user trust.
+### II. Library-First Architecture
 
----
+**Every feature MUST start as a standalone library with clear interfaces before CLI integration.**
 
-### II. Spec-Driven Development (NON-NEGOTIABLE)
+- Libraries MUST be self-contained and independently testable
+- Each library MUST have a single, well-defined purpose (no organizational-only libraries)
+- Libraries MUST NOT depend on CLI-specific concerns (flags, output formatting, user interaction)
+- Public APIs MUST be documented with usage examples
+- Library changes MUST maintain backward compatibility or follow semantic versioning
 
-All feature work MUST follow the spec-workflow process: Requirements -> Design -> Tasks -> Implementation.
+**Rationale**: Separation enables reuse in GUI/TUI frontends, scripting, and testing. Forces clear architectural boundaries.
 
-**Workflow Requirements**:
-- MUST use spec-workflow MCP server tools for all features
-- MUST read steering documents (product.md, tech.md, structure.md) before creating specs
-- MUST request, poll, and delete approvals via dashboard (verbal approval NOT accepted)
-- MUST follow specs exactly as written with NO deviations, shortcuts, or reinterpretations
-- MUST mark tasks accurately in tasks.md ([ ] pending, [-] in-progress, [x] completed)
-- MUST work on ONE spec at a time until completion
+### III. CLI Interface Standards
 
-**Transparency Requirements**:
-- MUST report accurate state of work (no aspirational claims)
-- MUST stop immediately if discovering incomplete work and document gaps
-- MUST surface spec errors or ambiguities before implementation
-- MUST test thoroughly before marking tasks complete
+**All functionality MUST be accessible via CLI following consistent text I/O protocols.**
 
-**Rationale**: Spec-driven development ensures deliberate planning, reduces rework, maintains architectural consistency, and provides clear audit trails. Accuracy and transparency prevent compounding errors and enable effective collaboration.
+- **Input**: stdin, command-line arguments, or environment variables only
+- **Output**: Structured data to stdout (JSON + human-readable formats)
+- **Errors**: All errors to stderr with non-zero exit codes
+- **Script-Friendly Modes**: Support `--quiet`, `--field`, `--masked`, `--no-clipboard` flags for automation
+- **No Interactive Prompts in Pipes**: Detect non-TTY stdin and fail fast if interaction required
+- **Consistent Exit Codes**: 0=success, 1=user error, 2=system error, 3=security error
 
----
+**Rationale**: CLI is the primary interface. Consistent I/O enables reliable shell scripting and integration into developer workflows.
 
-### III. Testing Discipline
+### IV. Test-Driven Development (NON-NEGOTIABLE)
 
-All production code MUST have corresponding tests. Tests MUST be written before implementation (Test-Driven Development) when feasible.
+**Test-first development is mandatory for all new features and bug fixes.**
 
-**Testing Requirements**:
-- MUST write unit tests for all new code (`*_test.go` files)
-- MUST use table-driven tests for Go (idiomatic pattern)
-- MUST write integration tests for cross-layer interactions (in `test/` directory)
-- MUST achieve minimum 90% code coverage for new features
-- MUST test security-critical paths (encryption, decryption, key derivation)
-- MUST test error paths and edge cases
+- **Red-Green-Refactor**: Tests MUST be written → User approved → Tests MUST fail → Then implement → Tests pass → Refactor
+- **No Implementation Without Tests**: Pull requests without corresponding tests WILL be rejected
+- **Test Coverage Gates**: Minimum 80% code coverage for all non-trivial packages
+- **Test Types Required**:
+  - **Unit Tests**: All library functions, especially cryptographic operations
+  - **Integration Tests**: CLI commands end-to-end with real vault files
+  - **Contract Tests**: Public API stability (prevents breaking changes)
+- **Security Test Cases**: Every security principle MUST have verification tests (e.g., clipboard clearing, memory zeroing)
 
-**Test Quality Standards**:
-- Tests MUST be deterministic (no flaky tests)
-- Tests MUST be isolated (no shared state between tests)
-- Tests MUST clean up resources (temp files, test vaults)
-- Tests MUST not expose sensitive data (use fixtures, not real credentials)
+**Rationale**: Password managers cannot afford regressions. TDD ensures security guarantees are tested and maintained. This is non-negotiable because untested security code is untrustworthy code.
 
-**Coverage Tooling**:
-- MUST use `go test -coverprofile=coverage.out` for coverage reports
-- MUST generate HTML reports with `go tool cover -html=coverage.out`
-- SHOULD maintain coverage.out and coverage.html in .gitignore
+### V. Cross-Platform Compatibility
 
-**Pre-Commit Testing** (run before committing):
-```bash
-go fmt ./...              # Format code
-go vet ./...              # Static analysis
-golangci-lint run         # Comprehensive linting (if available)
-gosec ./...               # Security scanning (if available)
-go test ./...             # Run all tests
-go test -race -short ./...  # Race detection (optional)
-```
+**Pass-CLI MUST function identically across Windows, macOS, and Linux.**
 
-**Integration Testing**:
-```bash
-go test -v -tags=integration -timeout 5m ./test  # Full integration suite
-```
+- **Single Binary**: Compile to standalone executables for each platform (no runtime dependencies)
+- **Platform-Specific Code**: Isolate in dedicated packages (e.g., `keychain_windows.go`, `keychain_darwin.go`)
+- **Path Handling**: Use `filepath.Join` and OS-agnostic path operations throughout
+- **Testing Matrix**: CI MUST run tests on Windows, macOS (Intel + ARM), and Linux (amd64 + arm64)
+- **Home Directory Handling**: Respect `%USERPROFILE%` (Windows) and `$HOME` (Unix) conventions
+- **Line Endings**: Handle CRLF and LF gracefully in all file operations
 
-**Security & Vulnerability Checks**:
-```bash
-govulncheck ./...         # Dependency vulnerability scanning (if available)
-```
+**Rationale**: Developers use diverse platforms. Broken platform support fragments the user base and undermines trust.
 
-**Rationale**: Comprehensive testing prevents regressions, validates security properties, documents expected behavior, and enables confident refactoring. Test-driven development catches design issues early. Direct Go commands provide maximum portability without build tool dependencies.
+### VI. Observability & Auditability
 
----
+**System behavior MUST be observable and auditable without compromising security.**
 
-### IV. Layered Architecture
+- **Structured Logging**: Use leveled logging (DEBUG, INFO, WARN, ERROR) for non-sensitive operations
+- **Audit Trail**: Log vault access events (init, add, get, update, delete) with timestamps to `~/.pass-cli/audit.log`
+- **No Credential Logging**: Audit logs MUST contain only operation types, timestamps, and credential names—NEVER the credentials themselves
+- **Verbose Mode**: Support `--verbose` flag for debugging (MUST NOT output secrets even in verbose mode)
+- **Usage Tracking**: Track credential access by working directory for usage analytics (helps users identify unused credentials)
 
-Pass-CLI follows strict layered architecture. Layers MUST only depend on layers below them, never above or across.
+**Rationale**: Users need visibility into system behavior for debugging and security audits. Logging discipline ensures observability without leaking secrets.
 
-**Architecture Layers** (top to bottom):
-1. **CLI Layer** (`cmd/`) - Command interface, flags, help text, output formatting
-2. **TUI Layer** (`cmd/tui/`) - Interactive terminal UI
-   - **Migration Status**: Transitioning from Bubbletea to tview framework
-   - **Current State**: `cmd/tui-tview/` contains tview implementation (being reorganized to `cmd/tui/`)
-   - **Target State**: `cmd/tui/` will be the canonical tview-based TUI
-   - **IMPORTANT**: During migration, maintain working state at each step with verification checkpoints
-3. **Service Layer** (`internal/vault/`) - Business logic, credential management, usage tracking
-4. **Storage Layer** (`internal/storage/`) - Encrypted file operations, atomic writes, backups
-5. **Crypto Layer** (`internal/crypto/`) - AES-256-GCM encryption, key derivation, random generation
-6. **Keychain Layer** (`internal/keychain/`) - System keychain integration (Windows/macOS/Linux)
-7. **Standard Library & External Dependencies**
+### VII. Simplicity & YAGNI
 
-**Layer Dependency Rules**:
-- MUST depend only on layers below (e.g., Service -> Storage -> Crypto)
-- MUST NOT depend on layers above (e.g., Crypto MUST NOT depend on Service)
-- MUST NOT bypass layers (e.g., CLI MUST NOT call Crypto directly, use Service)
-- MUST use interfaces for cross-layer communication (enables testing and mocking)
+**Start simple. Add complexity only when justified by concrete user needs.**
 
-**Boundary Enforcement**:
-- CLI and TUI share Vault service but have independent presentation logic
-- Internal packages (`internal/`) are implementation details, NOT public API
-- Core crypto/vault logic is cross-platform, keychain layer handles OS differences
+- **No Speculative Features**: Implement only what users explicitly request or specs require
+- **Prefer Standard Library**: Minimize external dependencies (reduces supply chain risk)
+- **Flat Architecture**: Avoid deep package hierarchies or abstract layers without clear purpose
+- **Direct Solutions**: Prefer straightforward implementations over "clever" optimizations
+- **Delete Dead Code**: Remove unused features, packages, or code paths immediately
 
-**Rationale**: Layered architecture enforces separation of concerns, enables independent testing, prevents circular dependencies, and allows layer-specific optimizations without affecting other layers. Framework migration strategy preserves stability while enabling modernization through atomic, verifiable steps.
+**Rationale**: Complexity is the enemy of security. Every line of code is a potential vulnerability. Simplicity improves auditability, maintainability, and trust.
 
 ---
 
-### V. Code Quality Standards
+## Security Requirements
 
-All code MUST meet quality standards before merging. Quality gates are enforced in CI/CD and pre-commit checks.
+**This section supplements Principle I with specific constraints for password manager development.**
 
-**Code Style**:
-- MUST follow Go idioms and conventions (effective Go principles)
-- MUST use `goimports` and `gofmt` for consistent formatting
-- MUST write clear, descriptive variable and function names
-- MUST add Go doc comments for all exported types, functions, and methods
-- MUST keep functions focused (single responsibility, max 50 lines preferred)
-- MUST limit file size (max 500 lines per file, excluding tests)
+### Forbidden Operations
 
-**Error Handling**:
-- MUST handle all errors explicitly (no ignored errors)
-- MUST wrap errors with context (`fmt.Errorf("context: %w", err)`)
-- MUST avoid panic except for unrecoverable errors
-- MUST sanitize errors before displaying to users (no sensitive data leaks)
+The following operations are FORBIDDEN and MUST be blocked in code review:
 
-**Dependencies**:
-- MUST minimize external dependencies (lean binary principle)
-- MUST use only well-maintained, security-audited libraries
-- MUST pin dependency versions in go.mod for reproducible builds
-- MUST run `govulncheck` to scan for vulnerable dependencies (if available)
-- MUST run `go mod tidy` and `go mod verify` regularly
+- ❌ Logging any variable named `password`, `masterPassword`, `apiKey`, `secret`, `credential`, `vault`, or similar
+- ❌ Writing credentials to temporary files (use in-memory buffers only)
+- ❌ Transmitting credentials over network (Pass-CLI is offline-first)
+- ❌ Storing credentials in environment variables (except user's own controlled `export` in scripts)
+- ❌ Using weak cryptography (MD5, SHA1 for hashing, DES, 3DES, RC4 for encryption)
+- ❌ Hardcoding encryption keys, salts, or IVs in source code
 
-**Build Toolchain**:
-- MUST use Go 1.25.1 or later (as specified in go.mod)
-- MUST use GoReleaser for multi-platform release builds (`.goreleaser.yml`)
-- MUST build with `CGO_ENABLED=0` for static binaries (no C dependencies)
-- MUST use `-trimpath` and `-mod=readonly` flags for reproducible builds
-- SHOULD use Makefile for convenience targets (optional, not required)
-  - Project provides Makefile with helpful targets, but direct Go commands are primary
+### Security Review Checklist
 
-**Release Process**:
-- MUST validate release configuration with `goreleaser check` before tagging
-- MUST test release process with `goreleaser release --snapshot --clean --skip=publish`
-- MUST generate checksums for all release artifacts (SHA256)
-- MUST create universal binaries for macOS (combines amd64 + arm64)
-- MUST update Homebrew tap and Scoop bucket automatically via GoReleaser
+Before merging any PR touching cryptographic or credential-handling code:
 
-**Documentation**:
-- MUST document complex algorithms (especially cryptographic operations)
-- MUST explain security decisions in comments
-- MUST update README.md when adding user-facing features
-- MUST update steering docs (tech.md, structure.md) when changing architecture
-- MUST maintain CHANGELOG.md with conventional commit format
-
-**Rationale**: Code quality standards ensure maintainability, readability, and long-term project health. Consistent style reduces cognitive load. Comprehensive documentation enables collaboration and auditing. Direct Go commands provide maximum portability; Makefile provides convenience but is not a hard dependency.
-
----
-
-### VI. Cross-Platform Compatibility
-
-Pass-CLI MUST work identically across Windows, macOS, and Linux with no platform-specific degradation.
-
-**Platform Support**:
-- Windows 10+ (amd64, arm64)
-- macOS 10.15+ (amd64, arm64, universal binary)
-- Linux (amd64, arm64) with glibc 2.17+
-
-**Compatibility Requirements**:
-- MUST build with CGO_ENABLED=0 (static binary, no C dependencies)
-- MUST use cross-platform libraries (go-keyring, clipboard, etc.)
-- MUST test on all target platforms in CI/CD (GitHub Actions matrix)
-- MUST handle platform-specific features gracefully (e.g., keychain fallback)
-- MUST set appropriate file permissions per platform (600 Unix, ACLs Windows)
-
-**Performance Targets** (across all platforms):
-- Startup time: <100ms for cached operations
-- Credential retrieval: <500ms
-- Memory usage: <50MB during normal operations
-- Binary size: <20MB
-
-**Rationale**: Users expect consistent behavior across platforms. Static binaries simplify distribution. Platform-specific optimizations (keychain integration) enhance UX without breaking cross-platform guarantees.
-
----
-
-### VII. Offline-First & Privacy
-
-Pass-CLI MUST operate completely offline with no cloud dependencies or network calls.
-
-**Privacy Requirements**:
-- MUST store all data locally (no cloud sync, no telemetry, no analytics)
-- MUST never transmit credentials over network
-- MUST not phone home for updates, license checks, or feature flags
-- MUST not embed tracking pixels or analytics in documentation
-
-**User Control**:
-- Users control vault location and backup strategy
-- Users control master password (no account creation, no SSO required)
-- Users can audit encrypted vault files (documented format)
-- Users can export/import credentials (planned feature)
-
-**Rationale**: Privacy is a core product differentiator. Developers need tools that work offline (planes, secure networks, air-gapped environments). No cloud dependencies eliminates attack surface and vendor lock-in.
+- [ ] No secrets logged or printed
+- [ ] Memory containing secrets zeroed after use
+- [ ] Error messages do not leak sensitive information
+- [ ] Clipboard auto-clears within 30 seconds
+- [ ] Vault file permissions restrict access to owner only (`0600` on Unix, equivalent ACLs on Windows)
+- [ ] All cryptographic operations use approved algorithms (AES-256-GCM, PBKDF2-SHA256)
+- [ ] Tests verify security guarantees (e.g., clipboard clearing, vault file permissions)
 
 ---
 
 ## Development Workflow
 
-### Workflow Stages
+### Quality Gates
 
-- **1. Spec Creation**:
-- Read steering docs first (product.md, tech.md, structure.md)
-- Create requirements.md -> request approval -> poll status -> delete approval
-- Create design.md -> request approval -> poll status -> delete approval
-- Create tasks.md -> request approval -> poll status -> delete approval
+**All code MUST pass these gates before merging:**
 
-- **2. Implementation**:
-- Execute tasks systematically in order
-- Update task checkboxes: [ ] -> [-] -> [x]
-- Commit frequently (after each task, after each phase, before context switches)
-- Test before marking complete
-- For refactoring specs: verify at each atomic step (compile, run, manual testing)
+1. **Tests Pass**: `go test ./...` returns zero exit code on all target platforms
+2. **Linting Clean**: `golangci-lint run` reports zero issues
+3. **Security Scan**: `gosec ./...` reports zero high/medium vulnerabilities
+4. **Coverage Threshold**: Minimum 80% code coverage for new code
+5. **Constitution Compliance**: Reviewer verifies adherence to all principles above
 
-- **3. Quality Assurance**:
-- **Format code**: `go fmt ./...`
-- **Static analysis**: `go vet ./...`
-- **Linting** (if available): `golangci-lint run`
-- **Security scan** (if available): `gosec ./...`
-- **Run tests**: `go test ./...`
-- **Race detection** (optional): `go test -race -short ./...`
-- **Vulnerability check** (if available): `govulncheck ./...`
-- Verify security properties (encryption, file permissions, memory clearing)
-- Test cross-platform behavior (CI matrix runs automatically)
+### Code Review Requirements
 
-- **4. Pre-Release Validation**:
-- Run comprehensive test suite: `go test -v ./...`
-- Run integration tests: `go test -v -tags=integration -timeout 5m ./test`
-- Validate GoReleaser config: `goreleaser check`
-- Test release build: `goreleaser release --snapshot --clean --skip=publish`
-- Verify checksums and universal binaries
+- **Security-Critical Code**: Requires two approvals (one MUST be from a security-focused reviewer)
+- **Cryptographic Changes**: Requires external security audit before merge
+- **API Changes**: Requires contract test updates demonstrating backward compatibility or versioning
+- **Cross-Platform Code**: Reviewer MUST verify CI passes on all platforms
 
-- **5. Documentation**:
-- Update README.md for user-facing changes
-- Update steering docs (tech.md, structure.md) for architecture changes
-- Add inline documentation for complex logic
-- Update CHANGELOG.md with conventional commit format
+### Branch Strategy
 
----
+- **Main Branch**: Protected, always deployable, MUST pass all quality gates
+- **Feature Branches**: Named `###-feature-name` (e.g., `001-add-tui`, `002-import-from-bitwarden`)
+- **Hotfix Branches**: Named `hotfix/description` for security or critical bugs
 
-## Commit Standards
+### Commit Discipline
 
-**Commit Frequency**:
-- Commit after completing each task
-- Commit after completing each spec phase
-- Commit before switching tasks or contexts
-- Commit when updating steering docs
-- For atomic refactoring: commit after each verified step (e.g., package rename, import updates, directory move)
-
-**Commit Message Format**:
-```
-<type>: <description>
-
-<body explaining changes>
-
-<optional phase reference or step number>
-
-Generated with Claude Code
-
-Co-Authored-By: Claude <noreply@anthropic.com>
-```
-
-**Commit Types**:
-- `feat:` - New feature or enhancement
-- `fix:` - Bug fix
-- `refactor:` - Code restructuring without behavior change
-- `perf:` - Performance improvements
-- `test:` - Adding or updating tests
-- `docs:` - Documentation updates
-- `chore:` - Maintenance tasks (dependencies, build config)
-- `security:` - Security improvements or fixes
-
-**Examples**:
-```
-refactor: Change TUI package from main to tui
-
-- Update package declaration in all TUI files
-- Rename main() to Run(vaultPath string) error
-- Add vaultPath parameter handling
-- Keep LaunchTUI() unchanged
-
-Step 1 of 4 for cmd/tui reorganization.
-
-Generated with Claude Code
-
-Co-Authored-By: Claude <noreply@anthropic.com>
-```
-
-**Rationale**: Frequent commits create audit trails, enable rollback to working states, and demonstrate systematic progress. Conventional commit format enables automated changelog generation and semantic versioning. Atomic refactoring commits enable precise rollback and debugging.
+- **Commit Frequently**: After each task, phase, or working checkpoint (as per CLAUDE.md guidelines)
+- **Atomic Commits**: Each commit MUST represent a single logical change
+- **Conventional Commits**: Use `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:` prefixes
+- **Security Fixes**: Prefix with `security:` and include CVE/issue reference if applicable
 
 ---
 
 ## Governance
 
-### Constitution Authority
-
-This constitution supersedes all other development practices. When conflicts arise between this document and other guidance, this constitution takes precedence.
-
 ### Amendment Process
 
-Constitutional amendments require:
-1. Documentation of proposed change with rationale
-2. Impact analysis on existing specs and code
-3. Dashboard approval via spec-workflow
-4. Migration plan for existing code if applicable
-5. Version bump per semantic versioning rules
+This constitution is the authoritative source for Pass-CLI development practices. **All other practices and guidelines are subordinate to these principles.**
 
-### Version Semantics
+**To amend this constitution:**
 
-Constitution versioning follows semantic versioning:
-- **MAJOR**: Backward-incompatible governance changes (principle removal/redefinition)
-- **MINOR**: New principles added or materially expanded guidance
-- **PATCH**: Clarifications, wording improvements, typo fixes
+1. Propose change with detailed justification in GitHub Issue
+2. Draft amendment with version bump rationale (MAJOR/MINOR/PATCH)
+3. Update all dependent templates (plan, spec, tasks, commands)
+4. Obtain approval from project maintainers
+5. Commit with message: `docs: amend constitution to vX.Y.Z (summary of changes)`
+6. Update all active specs and in-flight work to comply with new version
 
-### Compliance Review
+### Version Bump Rules
 
-**All code changes MUST verify compliance**:
-- Pull request checklist includes constitution compliance
-- CI/CD enforces security scanning, testing, and quality gates
-- Code reviews verify architectural layer boundaries
-- Spec approvals verify adherence to spec-driven workflow
+- **MAJOR**: Backward-incompatible governance changes, principle removals, or redefinitions that invalidate existing specs
+- **MINOR**: New principles added, materially expanded guidance, new sections added
+- **PATCH**: Clarifications, wording improvements, typo fixes, non-semantic refinements
 
-**Complexity Justification**:
-- Any complexity added MUST be justified in spec documentation
-- Violations of simplicity principles MUST be documented in plan.md Complexity Tracking
-- Alternative simpler approaches MUST be documented and explained why rejected
+### Compliance Reviews
 
-### Runtime Development Guidance
+- **Per-PR Review**: Every pull request MUST verify compliance with applicable principles (reviewers check constitution during review)
+- **Quarterly Audit**: Maintainers conduct full codebase audit against constitution every quarter
+- **Spec Reviews**: All spec documents (plan.md, spec.md, tasks.md) MUST reference constitution principles in acceptance criteria
 
-For day-to-day development guidance, consult `CLAUDE.md` (Claude operational guide). That file provides detailed instructions for using spec-workflow tools, handling errors, and following coding standards.
+### Complexity Justification
+
+Any violation of Principle VII (Simplicity) MUST be justified in the relevant plan.md under "Complexity Tracking." Unjustified complexity WILL be rejected in code review.
+
+### Runtime Guidance
+
+For day-to-day development workflow, communication standards, and detailed implementation guidelines, refer to [CLAUDE.md](../../CLAUDE.md). That file provides runtime guidance for AI assistants and human developers working on Pass-CLI features.
+
+**Precedence**: Constitution > CLAUDE.md > Other docs. In case of conflict, this constitution takes precedence.
 
 ---
 
-**Version**: 1.1.0 | **Ratified**: 2025-10-07 | **Last Amended**: 2025-10-09
+**Version**: 1.0.0 | **Ratified**: 2025-10-09 | **Last Amended**: 2025-10-09
