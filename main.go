@@ -3,51 +3,46 @@ package main
 import (
 	"fmt"
 	"os"
+
 	"pass-cli/cmd"
 	"pass-cli/cmd/tui"
 )
 
 func main() {
-	// Launch TUI mode if no command is specified (only flags or nothing)
-	// Commands: init, add, get, list, update, delete, generate, version
+	// Default to TUI if no subcommand provided
 	shouldUseTUI := true
+	vaultPath := ""
 
+	// Parse args to detect subcommands or flags
 	for i := 1; i < len(os.Args); i++ {
 		arg := os.Args[i]
 
-		// Special flags that should use CLI mode, not TUI
-		if arg == "--help" || arg == "-h" || arg == "--version" {
+		// Check for help or version flags
+		if arg == "--help" || arg == "-h" || arg == "--version" || arg == "-v" {
 			shouldUseTUI = false
 			break
 		}
 
-		// If argument doesn't start with - or --, it's a command
+		// Check for subcommands (any non-flag argument)
 		if arg != "" && arg[0] != '-' {
 			shouldUseTUI = false
 			break
 		}
-		// Skip the value for flags like --vault <path>
+
+		// Extract vault path if provided
 		if arg == "--vault" && i+1 < len(os.Args) {
-			i++ // Skip next argument (the vault path)
+			vaultPath = os.Args[i+1]
+			i++ // Skip next arg (vault path value)
 		}
 	}
 
+	// Route to TUI or CLI
 	if shouldUseTUI {
-		// Extract vault path from args if provided
-		vaultPath := ""
-		for i := 1; i < len(os.Args); i++ {
-			if os.Args[i] == "--vault" && i+1 < len(os.Args) {
-				vaultPath = os.Args[i+1]
-				break
-			}
-		}
 		if err := tui.Run(vaultPath); err != nil {
-			fmt.Fprintln(os.Stderr, "Error:", err)
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
-		return
+	} else {
+		cmd.Execute()
 	}
-
-	// Otherwise, execute CLI mode
-	cmd.Execute()
 }
