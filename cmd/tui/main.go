@@ -137,7 +137,8 @@ func LaunchTUI(vaultService *vault.VaultService) error {
 	})
 
 	appState.SetOnSelectionChanged(func() {
-		// Refresh detail view when selection changes
+		// Refresh table to apply category filter and detail view for selection
+		table.Refresh()
 		detailView.Refresh()
 	})
 
