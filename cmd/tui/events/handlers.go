@@ -97,6 +97,9 @@ func (eh *EventHandler) handleGlobalKey(event *tcell.EventKey) *tcell.EventKey {
 		case 'i':
 			eh.handleToggleDetailPanel()
 			return nil
+		case 's':
+			eh.handleToggleSidebar()
+			return nil
 		case '?':
 			eh.handleShowHelp()
 			return nil
@@ -231,6 +234,18 @@ func (eh *EventHandler) handleToggleDetailPanel() {
 	eh.statusBar.ShowInfo(message)
 }
 
+// handleToggleSidebar toggles the sidebar visibility through three states.
+// Cycles: Auto (responsive) -> Hide -> Show -> Auto
+// Displays status bar message showing the new state.
+func (eh *EventHandler) handleToggleSidebar() {
+	if eh.layoutMgr == nil {
+		return
+	}
+
+	message := eh.layoutMgr.ToggleSidebar()
+	eh.statusBar.ShowInfo(message)
+}
+
 // handleShowHelp displays a modal with keyboard shortcuts help.
 func (eh *EventHandler) handleShowHelp() {
 	// Create table for properly aligned shortcuts (scrollable with arrow keys)
@@ -307,6 +322,7 @@ func (eh *EventHandler) handleShowHelp() {
 	addShortcut("p", "Toggle password visibility")
 	addShortcut("c", "Copy password to clipboard")
 	addShortcut("i", "Toggle detail panel")
+	addShortcut("s", "Toggle sidebar")
 	row++ // Blank line (just skip row, don't add cells)
 
 	// General section

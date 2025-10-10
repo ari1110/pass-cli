@@ -34,6 +34,7 @@ type LayoutManager struct {
 
 	// Manual visibility overrides (nil = auto/responsive, true = force show, false = force hide)
 	detailPanelOverride *bool
+	sidebarOverride     *bool
 
 	// Layout primitives
 	mainLayout *tview.Flex // Root layout (vertical: contentRow + statusBar)
@@ -150,30 +151,46 @@ func (lm *LayoutManager) rebuildLayout() {
 		}
 	}
 
-	// Build layout based on effective mode
+	// Determine sidebar visibility
+	showSidebar := lm.shouldShowSidebar()
+
+	// Build layout based on effective mode and sidebar visibility
 	switch effectiveMode {
 	case LayoutSmall:
-		// Table only (full width)
-		// size=0, proportion=1, focus=true means flex width, takes all space, can receive focus
-		lm.contentRow.AddItem(lm.table, 0, 1, true)
+		if showSidebar {
+			// Sidebar + Table (forced by override in small mode)
+			lm.contentRow.
+				AddItem(lm.sidebar, 20, 0, false).
+				AddItem(lm.table, 0, 1, true)
+		} else {
+			// Table only (full width)
+			lm.contentRow.AddItem(lm.table, 0, 1, true)
+		}
 
 	case LayoutMedium:
-		// Sidebar + Table
-		// Sidebar: size=20, proportion=0, focus=false means fixed 20 cols, no flex, no focus
-		// Table: size=0, proportion=1, focus=true means flex width, takes remaining space, can receive focus
-		lm.contentRow.
-			AddItem(lm.sidebar, 20, 0, false).
-			AddItem(lm.table, 0, 1, true)
+		if showSidebar {
+			// Sidebar + Table
+			lm.contentRow.
+				AddItem(lm.sidebar, 20, 0, false).
+				AddItem(lm.table, 0, 1, true)
+		} else {
+			// Table only (sidebar hidden by override)
+			lm.contentRow.AddItem(lm.table, 0, 1, true)
+		}
 
 	case LayoutLarge:
-		// Sidebar + Table + Detail
-		// Sidebar: fixed 20 cols
-		// Table: flex width (takes remaining space between sidebar and detail)
-		// Detail: fixed 40 cols
-		lm.contentRow.
-			AddItem(lm.sidebar, 20, 0, false).
-			AddItem(lm.table, 0, 1, true).
-			AddItem(lm.detailView, 40, 0, false)
+		if showSidebar {
+			// Sidebar + Table + Detail
+			lm.contentRow.
+				AddItem(lm.sidebar, 20, 0, false).
+				AddItem(lm.table, 0, 1, true).
+				AddItem(lm.detailView, 40, 0, false)
+		} else {
+			// Table + Detail (sidebar hidden by override)
+			lm.contentRow.
+				AddItem(lm.table, 0, 1, true).
+				AddItem(lm.detailView, 40, 0, false)
+		}
 	}
 }
 
@@ -233,4 +250,60 @@ func (lm *LayoutManager) ToggleDetailPanel() string {
 	lm.rebuildLayout()
 
 	return message
+}
+
+// shouldShowSidebar determines if the sidebar should be visible based on override and responsive logic.
+// Manual override takes precedence over responsive breakpoints.
+func (lm *LayoutManager) shouldShowSidebar() bool {
+	if lm.sidebarOverride != nil {
+		return *lm.sidebarOverride // Manual override takes precedence
+	}
+	// Fallback to responsive logic: show sidebar if width >= medium breakpoint
+	return lm.width >= lm.mediumBreakpoint
+}
+
+// ToggleSidebar manually shows/hides the sidebar, cycling through three states:
+//   - Auto (nil): Sidebar follows responsive breakpoints (default)
+//   - ForceHide (false): Sidebar hidden regardless of terminal width
+//   - ForceShow (true): Sidebar visible regardless of terminal width
+//
+// Returns a message describing the new state for status bar display.
+func (lm *LayoutManager) ToggleSidebar() string {
+	var message string
+
+	if lm.sidebarOverride == nil {
+		// Auto -> ForceHide
+		forceHide := false
+		lm.sidebarOverride = &forceHide
+		message = "Sidebar: Hidden"
+	} else if !*lm.sidebarOverride {
+		// ForceHide -> ForceShow
+		forceShow := true
+		lm.sidebarOverride = &forceShow
+		message = "Sidebar: Visible"
+	} else {
+		// ForceShow -> Auto
+		lm.sidebarOverride = nil
+		message = "Sidebar: Auto (responsive)"
+	}
+
+	// Rebuild layout with new override
+	lm.rebuildLayout()
+
+	return message
+}
+
+// GetSidebarOverride returns the current sidebar override state for testing.
+func (lm *LayoutManager) GetSidebarOverride() *bool {
+	return lm.sidebarOverride
+}
+
+// SetSidebarOverride sets the sidebar override state for testing.
+func (lm *LayoutManager) SetSidebarOverride(override *bool) {
+	lm.sidebarOverride = override
+}
+
+// ShouldShowSidebar exposes the sidebar visibility logic for testing.
+func (lm *LayoutManager) ShouldShowSidebar() bool {
+	return lm.shouldShowSidebar()
 }
