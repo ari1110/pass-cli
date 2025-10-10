@@ -45,6 +45,7 @@ type EditForm struct {
 
 	originalPassword string // Track original password to detect changes
 	passwordFetched  bool   // Track if password has been fetched (lazy loading)
+	passwordVisible  bool   // Track password visibility state for toggle
 
 	onSubmit func()
 	onCancel func()
@@ -555,7 +556,7 @@ func (ef *EditForm) findCategoryIndex(categories []string) int {
 func (ef *EditForm) addKeyboardHints() {
 	theme := styles.GetCurrentTheme()
 
-	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Save  •  Esc: Cancel"
+	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Save  •  Ctrl+H: Toggle password  •  Esc: Cancel"
 
 	hints := tview.NewTextView()
 	hints.SetText(hintsText)
@@ -574,6 +575,11 @@ func (ef *EditForm) setupKeyboardShortcuts() {
 		case tcell.KeyCtrlS:
 			// Ctrl+S for quick-save
 			ef.onSavePressed()
+			return nil
+
+		case tcell.KeyCtrlH:
+			// Ctrl+H for password visibility toggle
+			ef.togglePasswordVisibility()
 			return nil
 
 		case tcell.KeyTab:
@@ -622,6 +628,22 @@ func (ef *EditForm) applyStyles() {
 
 	// Button alignment
 	ef.SetButtonsAlign(tview.AlignRight)
+}
+
+// togglePasswordVisibility switches between masked and plaintext password display.
+// Updates both the mask character and the field label to indicate current state.
+func (ef *EditForm) togglePasswordVisibility() {
+	ef.passwordVisible = !ef.passwordVisible
+
+	passwordField := ef.GetFormItem(2).(*tview.InputField)
+
+	if ef.passwordVisible {
+		passwordField.SetMaskCharacter(0) // 0 = plaintext (tview convention)
+		passwordField.SetLabel("Password [VISIBLE]")
+	} else {
+		passwordField.SetMaskCharacter('*')
+		passwordField.SetLabel("Password")
+	}
 }
 
 // SetOnSubmit registers a callback to be invoked after successful update.
