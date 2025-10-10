@@ -155,7 +155,7 @@
 - [ ] T030 [US3] Document unicode/emoji handling limitation in research.md
   - Note: Unicode display correctness is terminal-dependent (per tview documentation)
   - Note: Wide characters (CJK, emoji) mask as single '*' per rune (tview behavior)
-  - No automated test needed - this is not our code's responsibility
+  - This is a documentation task, not a test task (terminal rendering is outside our control)
 - [ ] T030a [US3] Add edge case test: TestCopyPasteWithVisiblePassword in tests/integration/tui_password_toggle_test.go
   - Type password "SecurePass123", toggle visible
   - Select all text (Ctrl+A if supported), copy (Ctrl+C)

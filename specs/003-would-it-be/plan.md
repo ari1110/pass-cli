@@ -5,7 +5,7 @@
 
 ## Summary
 
-Add password visibility toggle functionality to add and edit forms in the TUI, allowing users to verify password entries before saving. Users can toggle visibility via Ctrl+H keyboard shortcut or clickable UI control. Password fields default to masked state and reset to masked when navigating away.
+Add password visibility toggle functionality to add and edit forms in the TUI, allowing users to verify password entries before saving. Users can toggle visibility via Ctrl+H keyboard shortcut. Password fields default to masked state and reset to masked when navigating away.
 
 ## Technical Context
 
