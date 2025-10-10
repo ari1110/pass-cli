@@ -25,9 +25,9 @@
 
 **⚠️ NOTE**: Since this is an enhancement to existing forms, there is no foundational blocking work. All user stories can proceed independently after understanding the codebase structure.
 
-- [ ] T001 Review existing AddForm and EditForm implementation in cmd/tui/components/forms.go (lines 27-613)
-- [ ] T002 Review existing Ctrl+S keyboard shortcut pattern in setupKeyboardShortcuts() methods
-- [ ] T003 Review existing password field creation at line 91 (AddForm) and lines 329-339 (EditForm)
+- [X] T001 Review existing AddForm and EditForm implementation in cmd/tui/components/forms.go (lines 27-613)
+- [X] T002 Review existing Ctrl+S keyboard shortcut pattern in setupKeyboardShortcuts() methods
+- [X] T003 Review existing password field creation at line 91 (AddForm) and lines 329-339 (EditForm)
 
 **Checkpoint**: Codebase structure understood - user story implementation can now begin
 
@@ -43,35 +43,35 @@
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T004 [P] [US1] Unit test: TestAddFormPasswordVisibilityToggle in tests/unit/tui_forms_test.go
+- [X] T004 [P] [US1] Unit test: TestAddFormPasswordVisibilityToggle in tests/unit/tui_forms_test.go
   - Test initial state (masked with '*')
   - Test toggle to visible (mask character = 0)
   - Test toggle back to masked (mask character = '*')
   - Test label changes ("Password" → "Password [VISIBLE]" → "Password")
-- [ ] T005 [P] [US1] Unit test: TestAddFormCtrlHShortcut in tests/unit/tui_forms_test.go
+- [X] T005 [P] [US1] Unit test: TestAddFormCtrlHShortcut in tests/unit/tui_forms_test.go
   - Test Ctrl+H key event triggers toggle
   - Test event consumed (returns nil)
   - Test other keys not affected
-- [ ] T006 [P] [US1] Integration test: TestAddFormCursorPreservation in tests/integration/tui_password_toggle_test.go
+- [X] T006 [P] [US1] Integration test: TestAddFormCursorPreservation in tests/integration/tui_password_toggle_test.go
   - Type "test", move cursor to position 2, press Ctrl+H
   - Verify cursor still at position 2 after toggle
   - Type more characters, verify correct insertion point
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Add `passwordVisible bool` field to AddForm struct in cmd/tui/components/forms.go (after line 33)
-- [ ] T008 [US1] Implement `togglePasswordVisibility()` method for AddForm in cmd/tui/components/forms.go (after applyStyles(), ~line 284)
+- [X] T007 [US1] Add `passwordVisible bool` field to AddForm struct in cmd/tui/components/forms.go (after line 33)
+- [X] T008 [US1] Implement `togglePasswordVisibility()` method for AddForm in cmd/tui/components/forms.go (after applyStyles(), ~line 284)
   - Toggle passwordVisible flag
   - Get password field via GetFormItem(2)
   - SetMaskCharacter(0) when visible, SetMaskCharacter('*') when masked
   - Update label to "Password [VISIBLE]" or "Password"
-- [ ] T009 [US1] Add Ctrl+H case to AddForm.setupKeyboardShortcuts() in cmd/tui/components/forms.go (line ~235)
+- [X] T009 [US1] Add Ctrl+H case to AddForm.setupKeyboardShortcuts() in cmd/tui/components/forms.go (line ~235)
   - Add `case tcell.KeyCtrlH: af.togglePasswordVisibility(); return nil`
-- [ ] T010 [US1] Update AddForm.addKeyboardHints() text in cmd/tui/components/forms.go (line ~217)
+- [X] T010 [US1] Update AddForm.addKeyboardHints() text in cmd/tui/components/forms.go (line ~217)
   - Change to: "Tab: Next field • Shift+Tab: Previous • Ctrl+S: Add • Ctrl+H: Toggle password • Esc: Cancel"
-- [ ] T011 [US1] Run tests: `go test ./tests/unit/tui_forms_test.go -run TestAddForm -v`
-- [ ] T012 [US1] Run integration tests: `go test ./tests/integration/tui_password_toggle_test.go -run TestAddForm -v`
-- [ ] T013 [US1] Manual testing: Build TUI, open add form, verify Ctrl+H toggles visibility correctly
+- [X] T011 [US1] Run tests: `go test ./tests/unit/tui_forms_test.go -run TestAddForm -v`
+- [X] T012 [US1] Run integration tests: `go test ./tests/integration/tui_password_toggle_test.go -run TestAddForm -v`
+- [X] T013 [US1] Manual testing: Build TUI, open add form, verify Ctrl+H toggles visibility correctly
   - Verify label text changes match existing pattern (compare with detail panel 'p' toggle at cmd/tui/events/handlers.go:91)
 
 **Checkpoint**: User Story 1 complete - add form has working password visibility toggle
@@ -88,34 +88,34 @@
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T014 [P] [US2] Unit test: TestEditFormPasswordVisibilityToggle in tests/unit/tui_forms_test.go
+- [X] T014 [P] [US2] Unit test: TestEditFormPasswordVisibilityToggle in tests/unit/tui_forms_test.go
   - Test initial state (masked with '*')
   - Test toggle to visible (mask character = 0)
   - Test toggle back to masked (mask character = '*')
   - Test label changes ("Password" → "Password [VISIBLE]" → "Password")
-- [ ] T015 [P] [US2] Unit test: TestEditFormCtrlHShortcut in tests/unit/tui_forms_test.go
+- [X] T015 [P] [US2] Unit test: TestEditFormCtrlHShortcut in tests/unit/tui_forms_test.go
   - Test Ctrl+H key event triggers toggle
   - Test event consumed (returns nil)
-- [ ] T016 [P] [US2] Integration test: TestEditFormCursorPreservation in tests/integration/tui_password_toggle_test.go
+- [X] T016 [P] [US2] Integration test: TestEditFormCursorPreservation in tests/integration/tui_password_toggle_test.go
   - Load credential, edit password to "newpass", move cursor, press Ctrl+H
   - Verify cursor position preserved after toggle
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Add `passwordVisible bool` field to EditForm struct in cmd/tui/components/forms.go (after line 48)
-- [ ] T018 [US2] Implement `togglePasswordVisibility()` method for EditForm in cmd/tui/components/forms.go (after applyStyles(), ~line 602)
+- [X] T017 [US2] Add `passwordVisible bool` field to EditForm struct in cmd/tui/components/forms.go (after line 48)
+- [X] T018 [US2] Implement `togglePasswordVisibility()` method for EditForm in cmd/tui/components/forms.go (after applyStyles(), ~line 602)
   - Identical logic to AddForm toggle method
   - Toggle passwordVisible flag
   - Get password field via GetFormItem(2)
   - SetMaskCharacter(0) when visible, SetMaskCharacter('*') when masked
   - Update label to "Password [VISIBLE]" or "Password"
-- [ ] T019 [US2] Add Ctrl+H case to EditForm.setupKeyboardShortcuts() in cmd/tui/components/forms.go (line ~551)
+- [X] T019 [US2] Add Ctrl+H case to EditForm.setupKeyboardShortcuts() in cmd/tui/components/forms.go (line ~551)
   - Add `case tcell.KeyCtrlH: ef.togglePasswordVisibility(); return nil`
-- [ ] T020 [US2] Update EditForm.addKeyboardHints() text in cmd/tui/components/forms.go (line ~535)
+- [X] T020 [US2] Update EditForm.addKeyboardHints() text in cmd/tui/components/forms.go (line ~535)
   - Change to: "Tab: Next field • Shift+Tab: Previous • Ctrl+S: Save • Ctrl+H: Toggle password • Esc: Cancel"
-- [ ] T021 [US2] Run tests: `go test ./tests/unit/tui_forms_test.go -run TestEditForm -v`
-- [ ] T022 [US2] Run integration tests: `go test ./tests/integration/tui_password_toggle_test.go -run TestEditForm -v`
-- [ ] T023 [US2] Manual testing: Build TUI, edit credential, verify Ctrl+H toggles visibility correctly
+- [X] T021 [US2] Run tests: `go test ./tests/unit/tui_forms_test.go -run TestEditForm -v`
+- [X] T022 [US2] Run integration tests: `go test ./tests/integration/tui_password_toggle_test.go -run TestEditForm -v`
+- [X] T023 [US2] Manual testing: Build TUI, edit credential, verify Ctrl+H toggles visibility correctly
   - Verify label text changes match existing pattern (compare with detail panel 'p' toggle)
 
 **Checkpoint**: User Story 2 complete - edit form has working password visibility toggle
