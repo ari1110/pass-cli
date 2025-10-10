@@ -188,14 +188,14 @@
 
 **Purpose**: Final validation and documentation
 
-- [ ] T034 [P] Run full test suite with coverage: `go test ./... -cover`
-- [ ] T035 [P] Verify >80% code coverage for modified files (constitution requirement)
-- [ ] T036 [P] Run golangci-lint on forms.go: `golangci-lint run cmd/tui/components/forms.go`
-- [ ] T037 [P] Run security scan: `gosec ./cmd/tui/components/...`
-- [ ] T038 Build final binary: `go build -o pass-cli.exe`
-- [ ] T039 Manual end-to-end test following quickstart.md validation checklist
-- [ ] T040 Update specs/003-would-it-be/tasks.md to mark all tasks complete
-- [ ] T041 [P] Code review: Verify constitution compliance (no secret logging, security-first, TDD followed)
+- [X] T034 [P] Run full test suite with coverage: `go test ./... -cover`
+- [X] T035 [P] Verify >80% code coverage for modified files (constitution requirement)
+- [X] T036 [P] Run golangci-lint on forms.go: `golangci-lint run cmd/tui/components/forms.go`
+- [X] T037 [P] Run security scan: `gosec ./cmd/tui/components/...`
+- [X] T038 Build final binary: `go build -o pass-cli.exe`
+- [X] T039 Manual end-to-end test following quickstart.md validation checklist
+- [X] T040 Update specs/003-would-it-be/tasks.md to mark all tasks complete
+- [X] T041 [P] Code review: Verify constitution compliance (no secret logging, security-first, TDD followed)
 
 ---
 
