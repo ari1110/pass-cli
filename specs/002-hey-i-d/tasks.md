@@ -128,25 +128,25 @@ description: "Task list for Enhanced UI Controls and Usage Visibility"
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T038 [P] [US3] Write test for sortUsageLocations() ordering by timestamp descending in `test/tui/detail_test.go`
-- [ ] T039 [P] [US3] Write test for formatTimestamp() hybrid logic (<7 days relative, ≥7 days absolute) in `test/tui/detail_test.go`
-- [ ] T040 [P] [US3] Write test for formatTimestamp() relative formats (minutes/hours/days ago) in `test/tui/detail_test.go`
-- [ ] T041 [P] [US3] Write test for formatUsageLocations() with zero usage records (empty state) in `test/tui/detail_test.go`
-- [ ] T042 [P] [US3] Write test for formatUsageLocations() with multiple locations and GitRepo display in `test/tui/detail_test.go`
-- [ ] T043 [P] [US3] Write test for long path truncation with ellipsis in `test/tui/detail_test.go`
+- [X] T038 [P] [US3] Write test for sortUsageLocations() ordering by timestamp descending in `test/tui/detail_test.go`
+- [X] T039 [P] [US3] Write test for formatTimestamp() hybrid logic (<7 days relative, ≥7 days absolute) in `test/tui/detail_test.go`
+- [X] T040 [P] [US3] Write test for formatTimestamp() relative formats (minutes/hours/days ago) in `test/tui/detail_test.go`
+- [X] T041 [P] [US3] Write test for formatUsageLocations() with zero usage records (empty state) in `test/tui/detail_test.go`
+- [X] T042 [P] [US3] Write test for formatUsageLocations() with multiple locations and GitRepo display in `test/tui/detail_test.go`
+- [X] T043 [P] [US3] Write test for long path truncation with ellipsis in `test/tui/detail_test.go`
 
 ### Implementation for User Story 3
 
-- [ ] T044 [P] [US3] Implement `sortUsageLocations(records map[string]vault.UsageRecord) []vault.UsageRecord` helper in `cmd/tui/components/detail.go`
-- [ ] T045 [P] [US3] Implement `formatTimestamp(t time.Time) string` helper in `cmd/tui/components/detail.go` (hybrid format)
-- [ ] T046 [US3] Implement `formatUsageLocations(cred *vault.Credential) string` method in `cmd/tui/components/detail.go` (handle missing file paths gracefully - display path even if file no longer exists)
-- [ ] T047 [US3] Integrate `formatUsageLocations()` output into detail panel rendering in `cmd/tui/components/detail.go`
-- [ ] T048 [US3] Add "Usage Locations:" section header to detail view in `cmd/tui/components/detail.go`
-- [ ] T049 [US3] Handle empty state display ("No usage recorded") when len(UsageRecord) == 0 in `cmd/tui/components/detail.go`
-- [ ] T050 [US3] Add GitRepo display when available (format: "/path/to/file (repo-name)") in `cmd/tui/components/detail.go`
-- [ ] T051 [US3] Add line number display when available (format: "/path/to/file:42") in `cmd/tui/components/detail.go`
-- [ ] T052 [US3] Implement long path truncation with ellipsis to fit terminal width in `cmd/tui/components/detail.go`
-- [ ] T053 [US3] Verify all tests pass with `go test ./test/tui -run TestDetail` and coverage ≥80%
+- [X] T044 [P] [US3] Implement `sortUsageLocations(records map[string]vault.UsageRecord) []vault.UsageRecord` helper in `cmd/tui/components/detail.go`
+- [X] T045 [P] [US3] Implement `formatTimestamp(t time.Time) string` helper in `cmd/tui/components/detail.go` (hybrid format)
+- [X] T046 [US3] Implement `formatUsageLocations(cred *vault.Credential) string` method in `cmd/tui/components/detail.go` (handle missing file paths gracefully - display path even if file no longer exists)
+- [X] T047 [US3] Integrate `formatUsageLocations()` output into detail panel rendering in `cmd/tui/components/detail.go`
+- [X] T048 [US3] Add "Usage Locations:" section header to detail view in `cmd/tui/components/detail.go`
+- [X] T049 [US3] Handle empty state display ("No usage recorded") when len(UsageRecord) == 0 in `cmd/tui/components/detail.go`
+- [X] T050 [US3] Add GitRepo display when available (format: "/path/to/file (repo-name)") in `cmd/tui/components/detail.go`
+- [X] T051 [US3] Add line number display when available (format: "/path/to/file:42") in `cmd/tui/components/detail.go`
+- [X] T052 [US3] Implement long path truncation with ellipsis to fit terminal width in `cmd/tui/components/detail.go`
+- [X] T053 [US3] Verify all tests pass with `go test ./test/tui -run TestDetail` and coverage ≥80%
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -156,9 +156,9 @@ description: "Task list for Enhanced UI Controls and Usage Visibility"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T054 [P] Run full test suite across all packages: `go test ./...`
-- [ ] T055 [P] Verify coverage ≥80% for all new code: `go test -cover ./test/tui/`
-- [ ] T056 [P] Run `golangci-lint run` and fix any linting issues
+- [X] T054 [P] Run full test suite across all packages: `go test ./...`
+- [X] T055 [P] Verify coverage ≥80% for all new code: `go test -cover ./test/tui/`
+- [X] T056 [P] Run `golangci-lint run` and fix any linting issues
 - [ ] T057 [P] Test TUI on narrow terminal (80 columns) for responsive behavior
 - [ ] T058 [P] Test TUI on Windows/macOS/Linux for cross-platform compatibility
 - [ ] T059 [P] Manual smoke test: Sidebar toggle (`s` key) → Search (`/` key) → View usage locations

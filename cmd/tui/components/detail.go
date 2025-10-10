@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"pass-cli/cmd/tui/models"
 	"pass-cli/cmd/tui/styles"
@@ -116,6 +117,15 @@ func (dv *DetailView) formatCredential(cred *vault.CredentialMetadata) string {
 		b.WriteString(fmt.Sprintf("[gray]Locations:[-]  [white]%d unique locations[-]\n", len(cred.Locations)))
 	}
 
+	// T047: Integrate usage locations display into detail panel
+	// Fetch full credential to get UsageRecord data
+	fullCred, err := dv.appState.GetFullCredential(cred.Service)
+	if err == nil && fullCred != nil {
+		// Append usage locations section
+		usageSection := FormatUsageLocations(fullCred)
+		b.WriteString(usageSection)
+	}
+
 	return b.String()
 }
 
@@ -137,7 +147,7 @@ func (dv *DetailView) formatPasswordField(b *strings.Builder, cred *vault.Creden
 		}
 	}
 
-	b.WriteString(fmt.Sprintf("[gray]Password:[-]   [white]%s[-]%s\n", password, hint))
+	fmt.Fprintf(b, "[gray]Password:[-]   [white]%s[-]%s\n", password, hint)
 }
 
 // showEmptyState displays a message when no credential is selected.
@@ -189,4 +199,143 @@ func (dv *DetailView) CopyPasswordToClipboard() error {
 // Uses theme system for consistent styling.
 func (dv *DetailView) applyStyles() {
 	styles.ApplyBorderedStyle(dv.TextView, "Details", true)
+}
+
+// ========================================
+// Usage Location Display (User Story 3)
+// ========================================
+
+// SortUsageLocations converts a map of usage records to a sorted slice.
+// Returns records sorted by timestamp in descending order (most recent first).
+// T044: Helper function for sorting usage locations by timestamp
+func SortUsageLocations(records map[string]vault.UsageRecord) []vault.UsageRecord {
+	// Convert map to slice
+	locations := make([]vault.UsageRecord, 0, len(records))
+	for _, record := range records {
+		locations = append(locations, record)
+	}
+
+	// Sort by timestamp descending (most recent first)
+	// Using a simple bubble sort for small datasets (typical <10 locations)
+	// Could optimize with sort.Slice if needed for larger datasets
+	for i := 0; i < len(locations)-1; i++ {
+		for j := i + 1; j < len(locations); j++ {
+			if locations[i].Timestamp.Before(locations[j].Timestamp) {
+				locations[i], locations[j] = locations[j], locations[i]
+			}
+		}
+	}
+
+	return locations
+}
+
+// FormatTimestamp formats a timestamp with hybrid logic for usage locations.
+// Returns relative format (<7 days) or absolute date format (≥7 days).
+// T045: Helper function implementing hybrid timestamp formatting
+//
+// Format rules:
+//   - Age < 1 hour   → "X minutes ago"
+//   - Age < 24 hours → "X hours ago"
+//   - Age < 7 days   → "X days ago"
+//   - Age >= 7 days  → "YYYY-MM-DD" (absolute date)
+func FormatTimestamp(t time.Time) string {
+	age := time.Since(t)
+
+	// Hybrid threshold: 7 days
+	sevenDays := 7 * 24 * time.Hour
+
+	if age < sevenDays {
+		// Relative format for recent activity
+		if age < time.Hour {
+			minutes := int(age.Minutes())
+			return fmt.Sprintf("%d minutes ago", minutes)
+		} else if age < 24*time.Hour {
+			hours := int(age.Hours())
+			if hours == 1 {
+				return "1 hour ago"
+			}
+			return fmt.Sprintf("%d hours ago", hours)
+		} else {
+			days := int(age.Hours() / 24)
+			if days == 1 {
+				return "1 day ago"
+			}
+			return fmt.Sprintf("%d days ago", days)
+		}
+	}
+
+	// Absolute format for older activity
+	return t.Format("2006-01-02") // YYYY-MM-DD
+}
+
+// FormatUsageLocations formats usage location data for display in detail panel.
+// Returns formatted string with usage locations, timestamps, git repos, and counts.
+// T046: Main formatting function for usage locations display
+//
+// Handles:
+//   - Empty state (no usage records)
+//   - Multiple locations sorted by recency
+//   - GitRepo display when available
+//   - Line numbers when available (format: path:lineNumber)
+//   - Long path truncation (T052)
+//   - Missing file paths (displays path even if file no longer exists)
+func FormatUsageLocations(cred *vault.Credential) string {
+	var b strings.Builder
+
+	// Usage Locations section header (T048)
+	b.WriteString("\n[yellow]═══════════════════════════════════[-]\n")
+	b.WriteString("        [yellow]Usage Locations[-]\n")
+	b.WriteString("[yellow]═══════════════════════════════════[-]\n\n")
+
+	// Handle empty state (T049)
+	if len(cred.UsageRecord) == 0 {
+		b.WriteString("[gray]No usage recorded[-]\n")
+		return b.String()
+	}
+
+	// Sort locations by timestamp (most recent first) - T044
+	sortedLocations := SortUsageLocations(cred.UsageRecord)
+
+	// Terminal width for path truncation (T052)
+	// Conservative estimate: 80 columns minus padding
+	maxPathLength := 60
+
+	// Format each location
+	for _, record := range sortedLocations {
+		// Format path with line number if available (T051)
+		path := record.Location
+		if record.LineNumber > 0 {
+			path = fmt.Sprintf("%s:%d", record.Location, record.LineNumber)
+		}
+
+		// Truncate long paths with ellipsis (T052)
+		if len(path) > maxPathLength {
+			// Truncate in middle with ellipsis
+			half := (maxPathLength - 3) / 2
+			path = path[:half] + "..." + path[len(path)-half:]
+		}
+
+		// Format timestamp using hybrid logic (T045)
+		timestamp := FormatTimestamp(record.Timestamp)
+
+		// Build location line
+		b.WriteString(fmt.Sprintf("  [white]%s[-]", path))
+
+		// Add git repo if available (T050)
+		if record.GitRepo != "" {
+			b.WriteString(fmt.Sprintf(" [gray](%s)[-]", record.GitRepo))
+		}
+
+		// Add timestamp and access count
+		b.WriteString(fmt.Sprintf(" [gray]-[-] [white]%s[-]", timestamp))
+
+		// Format access count
+		countText := "1 time"
+		if record.Count > 1 {
+			countText = fmt.Sprintf("%d times", record.Count)
+		}
+		b.WriteString(fmt.Sprintf(" [gray]- accessed[-] [white]%s[-]\n", countText))
+	}
+
+	return b.String()
 }
