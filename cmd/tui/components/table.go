@@ -71,12 +71,16 @@ func (ct *CredentialTable) buildHeader() {
 }
 
 // Refresh rebuilds the table from filtered credentials.
-// Gets credentials from AppState, filters by selected category, and repopulates rows.
+// Gets credentials from AppState, filters by selected category and search query, and repopulates rows.
 func (ct *CredentialTable) Refresh() {
 	// Get credentials and filter by category (thread-safe read)
 	allCreds := ct.appState.GetCredentials()
 	category := ct.appState.GetSelectedCategory()
-	ct.filteredCreds = ct.filterByCategory(allCreds, category)
+	categoryFiltered := ct.filterByCategory(allCreds, category)
+
+	// Apply search filter on top of category filter
+	searchState := ct.appState.GetSearchState()
+	ct.filteredCreds = ct.filterBySearch(categoryFiltered, searchState)
 
 	// Clear table (keep header at row 0)
 	for row := ct.GetRowCount() - 1; row > 0; row-- {
@@ -166,6 +170,22 @@ func (ct *CredentialTable) filterByCategory(creds []vault.CredentialMetadata, ca
 	filtered := make([]vault.CredentialMetadata, 0)
 	for _, cred := range creds {
 		if cred.Category == category {
+			filtered = append(filtered, cred)
+		}
+	}
+	return filtered
+}
+
+// filterBySearch filters credentials by search query.
+// Returns all credentials if search is inactive or query is empty.
+func (ct *CredentialTable) filterBySearch(creds []vault.CredentialMetadata, searchState *models.SearchState) []vault.CredentialMetadata {
+	if searchState == nil || !searchState.Active || searchState.Query == "" {
+		return creds // No search filter
+	}
+
+	filtered := make([]vault.CredentialMetadata, 0)
+	for _, cred := range creds {
+		if searchState.MatchesCredential(&cred) {
 			filtered = append(filtered, cred)
 		}
 	}

@@ -56,10 +56,22 @@ type AppState struct {
 	detailView *tview.TextView
 	statusBar  *tview.TextView
 
+	// Search state
+	searchState *SearchState
+
 	// Notification callbacks
 	onCredentialsChanged func()      // Called when credentials are loaded/modified
 	onSelectionChanged   func()      // Called when selection changes
 	onError              func(error) // Called when errors occur
+}
+
+// NewSearchState creates a new SearchState instance
+func NewSearchState() *SearchState {
+	return &SearchState{
+		Active:     false,
+		Query:      "",
+		InputField: nil,
+	}
 }
 
 // NewAppState creates a new AppState with the given vault service.
@@ -68,6 +80,7 @@ func NewAppState(vaultService VaultService) *AppState {
 		vault:       vaultService,
 		credentials: make([]vault.CredentialMetadata, 0),
 		categories:  make([]string, 0),
+		searchState: NewSearchState(),
 	}
 }
 
@@ -363,6 +376,20 @@ func (s *AppState) GetStatusBar() *tview.TextView {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.statusBar
+}
+
+// SetSearchState stores the search state reference.
+func (s *AppState) SetSearchState(searchState *SearchState) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.searchState = searchState
+}
+
+// GetSearchState retrieves the search state reference.
+func (s *AppState) GetSearchState() *SearchState {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.searchState
 }
 
 // SetOnCredentialsChanged registers a callback for credential changes.

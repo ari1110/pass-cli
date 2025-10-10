@@ -3,7 +3,7 @@ package tui_test
 import (
 	"testing"
 
-	"pass-cli/cmd/tui/components"
+	"pass-cli/cmd/tui/models"
 	"pass-cli/internal/vault"
 )
 
@@ -67,7 +67,7 @@ func TestMatchesCredential_SubstringMatching(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ss := &components.SearchState{
+			ss := &models.SearchState{
 				Active: true,
 				Query:  tt.query,
 			}
@@ -123,7 +123,7 @@ func TestMatchesCredential_CaseInsensitive(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ss := &components.SearchState{
+			ss := &models.SearchState{
 				Active: true,
 				Query:  tt.query,
 			}
@@ -166,7 +166,7 @@ func TestMatchesCredential_MultipleFields(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ss := &components.SearchState{
+			ss := &models.SearchState{
 				Active: true,
 				Query:  tt.query,
 			}
@@ -196,7 +196,7 @@ func TestMatchesCredential_EmptyQuery(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ss := &components.SearchState{
+			ss := &models.SearchState{
 				Active: tt.active,
 				Query:  tt.query,
 			}
@@ -217,7 +217,7 @@ func TestMatchesCredential_ZeroMatches(t *testing.T) {
 		CreateTestCredentialMetadata("AWS", "admin", "cloud", "https://aws.com"),
 	}
 
-	ss := &components.SearchState{
+	ss := &models.SearchState{
 		Active: true,
 		Query:  "docker",
 	}
@@ -236,7 +236,7 @@ func TestMatchesCredential_ZeroMatches(t *testing.T) {
 
 // TestSearchState_ActivateDeactivate verifies state transitions
 func TestSearchState_ActivateDeactivate(t *testing.T) {
-	ss := &components.SearchState{
+	ss := &models.SearchState{
 		Active: false,
 		Query:  "",
 	}
@@ -276,7 +276,7 @@ func TestSearchState_ActivateDeactivate(t *testing.T) {
 
 // TestSearchState_NewCredentialAppearsInResults verifies newly added credentials match active search
 func TestSearchState_NewCredentialAppearsInResults(t *testing.T) {
-	ss := &components.SearchState{
+	ss := &models.SearchState{
 		Active: true,
 		Query:  "github",
 	}

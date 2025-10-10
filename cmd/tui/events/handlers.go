@@ -103,6 +103,9 @@ func (eh *EventHandler) handleGlobalKey(event *tcell.EventKey) *tcell.EventKey {
 		case '?':
 			eh.handleShowHelp()
 			return nil
+		case '/':
+			eh.handleSearchActivate()
+			return nil
 		}
 
 	case tcell.KeyTab:
@@ -112,6 +115,14 @@ func (eh *EventHandler) handleGlobalKey(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyBacktab: // Shift+Tab
 		eh.handleShiftTabFocus()
 		return nil
+
+	case tcell.KeyEscape:
+		// Check if search is active, deactivate if so
+		searchState := eh.appState.GetSearchState()
+		if searchState != nil && searchState.Active {
+			eh.handleSearchDeactivate()
+			return nil
+		}
 
 	case tcell.KeyCtrlC:
 		eh.handleQuit()
@@ -382,4 +393,28 @@ func (eh *EventHandler) handleTabFocus() {
 // handleShiftTabFocus cycles focus to the previous component in reverse tab order.
 func (eh *EventHandler) handleShiftTabFocus() {
 	eh.nav.CycleFocusReverse()
+}
+
+// handleSearchActivate activates search mode.
+func (eh *EventHandler) handleSearchActivate() {
+	searchState := eh.appState.GetSearchState()
+	if searchState == nil {
+		return
+	}
+
+	searchState.Activate()
+	eh.statusBar.ShowInfo("Search mode activated. Type to filter, Esc to exit.")
+	eh.app.Draw()
+}
+
+// handleSearchDeactivate deactivates search mode and clears the filter.
+func (eh *EventHandler) handleSearchDeactivate() {
+	searchState := eh.appState.GetSearchState()
+	if searchState == nil {
+		return
+	}
+
+	searchState.Deactivate()
+	eh.statusBar.ShowInfo("Search cleared")
+	eh.app.Draw()
 }

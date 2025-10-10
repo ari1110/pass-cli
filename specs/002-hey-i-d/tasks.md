@@ -100,19 +100,19 @@ description: "Task list for Enhanced UI Controls and Usage Visibility"
 
 ### Implementation for User Story 2
 
-- [ ] T026 [P] [US2] Create SearchState struct in `cmd/tui/components/search.go` with Active, Query, InputField fields
-- [ ] T027 [US2] Implement `MatchesCredential(cred *vault.CredentialMetadata) bool` in `cmd/tui/components/search.go` (substring matching, case-insensitive)
-- [ ] T028 [US2] Implement `Activate()` method in `cmd/tui/components/search.go` (creates InputField, sets Active=true)
-- [ ] T029 [US2] Implement `Deactivate()` method in `cmd/tui/components/search.go` (clears query, destroys InputField, sets Active=false)
-- [ ] T030 [US2] Add SearchState instance to app state in `cmd/tui/models/app_state.go`
-- [ ] T031 [US2] Add keyboard handler for search activation (key `/`) in `cmd/tui/events/handlers.go` calling `Activate()`
-- [ ] T032 [US2] Add keyboard handler for search deactivation (Escape key) in `cmd/tui/events/handlers.go` calling `Deactivate()`
-- [ ] T033 [US2] Integrate search filter into credential table refresh logic (apply `MatchesCredential()` to filter credentials)
-- [ ] T033a [US2] Maintain current table selection in filtered results if credential matches query, otherwise select first result (implements FR-018)
+- [X] T026 [P] [US2] Create SearchState struct in `cmd/tui/components/search.go` with Active, Query, InputField fields
+- [X] T027 [US2] Implement `MatchesCredential(cred *vault.CredentialMetadata) bool` in `cmd/tui/components/search.go` (substring matching, case-insensitive)
+- [X] T028 [US2] Implement `Activate()` method in `cmd/tui/components/search.go` (creates InputField, sets Active=true)
+- [X] T029 [US2] Implement `Deactivate()` method in `cmd/tui/components/search.go` (clears query, destroys InputField, sets Active=false)
+- [X] T030 [US2] Add SearchState instance to app state in `cmd/tui/models/app_state.go`
+- [X] T031 [US2] Add keyboard handler for search activation (key `/`) in `cmd/tui/events/handlers.go` calling `Activate()`
+- [X] T032 [US2] Add keyboard handler for search deactivation (Escape key) in `cmd/tui/events/handlers.go` calling `Deactivate()`
+- [X] T033 [US2] Integrate search filter into credential table refresh logic (apply `MatchesCredential()` to filter credentials)
+- [X] T033a [US2] Maintain current table selection in filtered results if credential matches query, otherwise select first result (implements FR-018)
 - [ ] T034 [US2] Add inline InputField rendering in table header area when SearchState.Active=true
 - [ ] T035 [US2] Setup InputField.SetChangedFunc() callback for real-time filtering on each keystroke
-- [ ] T036 [US2] Handle empty vault state gracefully in search logic
-- [ ] T037 [US2] Verify all tests pass with `go test ./test/tui -run TestSearch` and coverage ≥80%
+- [X] T036 [US2] Handle empty vault state gracefully in search logic
+- [X] T037 [US2] Verify all tests pass with `go test ./test/tui -run TestSearch` and coverage ≥80%
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
