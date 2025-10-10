@@ -29,6 +29,8 @@ type AddForm struct {
 
 	appState *models.AppState
 
+	passwordVisible bool // Track password visibility state for toggle
+
 	onSubmit func()
 	onCancel func()
 }
@@ -214,7 +216,7 @@ func (af *AddForm) getCategories() []string {
 func (af *AddForm) addKeyboardHints() {
 	theme := styles.GetCurrentTheme()
 
-	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Add  •  Esc: Cancel"
+	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Add  •  Ctrl+H: Toggle password  •  Esc: Cancel"
 
 	hints := tview.NewTextView()
 	hints.SetText(hintsText)
@@ -233,6 +235,11 @@ func (af *AddForm) setupKeyboardShortcuts() {
 		case tcell.KeyCtrlS:
 			// Ctrl+S for quick-save
 			af.onAddPressed()
+			return nil
+
+		case tcell.KeyCtrlH:
+			// Ctrl+H for password visibility toggle
+			af.togglePasswordVisibility()
 			return nil
 
 		case tcell.KeyTab:
@@ -281,6 +288,22 @@ func (af *AddForm) applyStyles() {
 
 	// Button alignment
 	af.SetButtonsAlign(tview.AlignRight)
+}
+
+// togglePasswordVisibility switches between masked and plaintext password display.
+// Updates both the mask character and the field label to indicate current state.
+func (af *AddForm) togglePasswordVisibility() {
+	af.passwordVisible = !af.passwordVisible
+
+	passwordField := af.GetFormItem(2).(*tview.InputField)
+
+	if af.passwordVisible {
+		passwordField.SetMaskCharacter(0) // 0 = plaintext (tview convention)
+		passwordField.SetLabel("Password [VISIBLE]")
+	} else {
+		passwordField.SetMaskCharacter('*')
+		passwordField.SetLabel("Password")
+	}
 }
 
 // SetOnSubmit registers a callback to be invoked after successful add.
