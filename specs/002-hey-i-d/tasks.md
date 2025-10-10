@@ -28,10 +28,10 @@ description: "Task list for Enhanced UI Controls and Usage Visibility"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Verify Go 1.25.1 environment and dependencies (tview v0.42.0, tcell v2.9.0)
-- [ ] T002 Create feature branch `002-hey-i-d` if not already created
-- [ ] T003 [P] Review existing LayoutManager structure in `cmd/tui/layout/manager.go` for toggle pattern
-- [ ] T004 [P] Review existing detail panel implementation in `cmd/tui/components/detail.go`
+- [X] T001 Verify Go 1.25.1 environment and dependencies (tview v0.42.0, tcell v2.9.0)
+- [X] T002 Create feature branch `002-hey-i-d` if not already created
+- [X] T003 [P] Review existing LayoutManager structure in `cmd/tui/layout/manager.go` for toggle pattern
+- [X] T004 [P] Review existing detail panel implementation in `cmd/tui/components/detail.go`
 
 ---
 
@@ -41,10 +41,10 @@ description: "Task list for Enhanced UI Controls and Usage Visibility"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Analyze UsageRecord structure in `internal/vault/vault.go` to confirm available fields (Location, Timestamp, GitRepo, Count)
-- [ ] T006 Create test helper utilities in `test/tui/helpers_test.go` for mocking LayoutManager and tview components
-- [ ] T007 Setup table-driven test framework patterns in `test/tui/` following existing test conventions
-- [ ] T007a Add `LineNumber int` field to UsageRecord struct in `internal/vault/vault.go` with JSON tag `json:"line_number,omitempty"` (required for FR-013)
+- [X] T005 Analyze UsageRecord structure in `internal/vault/vault.go` to confirm available fields (Location, Timestamp, GitRepo, Count)
+- [X] T006 Create test helper utilities in `test/tui/helpers_test.go` for mocking LayoutManager and tview components
+- [X] T007 Setup table-driven test framework patterns in `test/tui/` following existing test conventions
+- [X] T007a Add `LineNumber int` field to UsageRecord struct in `internal/vault/vault.go` with JSON tag `json:"line_number,omitempty"` (required for FR-013)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,21 +60,21 @@ description: "Task list for Enhanced UI Controls and Usage Visibility"
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T008 [P] [US1] Write test for sidebar toggle state cycling (nil → false → true → nil) in `test/tui/layout_test.go`
-- [ ] T009 [P] [US1] Write test for sidebar manual override persisting across terminal resize in `test/tui/layout_test.go`
-- [ ] T010 [P] [US1] Write test for shouldShowSidebar() logic with override precedence in `test/tui/layout_test.go`
-- [ ] T011 [P] [US1] Write test for sidebar toggle status bar messages in `test/tui/layout_test.go`
-- [ ] T011a [P] [US1] Write test for sidebar toggle while table is focused and sidebar has active selection in `test/tui/layout_test.go`
+- [X] T008 [P] [US1] Write test for sidebar toggle state cycling (nil → false → true → nil) in `test/tui/layout_test.go`
+- [X] T009 [P] [US1] Write test for sidebar manual override persisting across terminal resize in `test/tui/layout_test.go`
+- [X] T010 [P] [US1] Write test for shouldShowSidebar() logic with override precedence in `test/tui/layout_test.go`
+- [X] T011 [P] [US1] Write test for sidebar toggle status bar messages in `test/tui/layout_test.go`
+- [X] T011a [P] [US1] Write test for sidebar toggle while table is focused and sidebar has active selection in `test/tui/layout_test.go`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Add `sidebarOverride *bool` field to LayoutManager struct in `cmd/tui/layout/manager.go`
-- [ ] T013 [US1] Implement `ToggleSidebar() string` method in `cmd/tui/layout/manager.go` (cycles nil → false → true → nil, returns status message)
-- [ ] T014 [US1] Implement `shouldShowSidebar() bool` method in `cmd/tui/layout/manager.go` (checks override, falls back to responsive breakpoints)
-- [ ] T015 [US1] Update `updateLayout()` method in `cmd/tui/layout/manager.go` to use `shouldShowSidebar()` for sidebar visibility
-- [ ] T016 [US1] Add keyboard handler for sidebar toggle (key `s`) in `cmd/tui/events/handlers.go` calling `ToggleSidebar()`
-- [ ] T017 [US1] Update status bar to display toggle confirmation message in `cmd/tui/events/handlers.go`
-- [ ] T018 [US1] Verify all tests pass with `go test ./test/tui -run TestSidebar` and coverage ≥80%
+- [X] T012 [US1] Add `sidebarOverride *bool` field to LayoutManager struct in `cmd/tui/layout/manager.go`
+- [X] T013 [US1] Implement `ToggleSidebar() string` method in `cmd/tui/layout/manager.go` (cycles nil → false → true → nil, returns status message)
+- [X] T014 [US1] Implement `shouldShowSidebar() bool` method in `cmd/tui/layout/manager.go` (checks override, falls back to responsive breakpoints)
+- [X] T015 [US1] Update `updateLayout()` method in `cmd/tui/layout/manager.go` to use `shouldShowSidebar()` for sidebar visibility
+- [X] T016 [US1] Add keyboard handler for sidebar toggle (key `s`) in `cmd/tui/events/handlers.go` calling `ToggleSidebar()`
+- [X] T017 [US1] Update status bar to display toggle confirmation message in `cmd/tui/events/handlers.go`
+- [X] T018 [US1] Verify all tests pass with `go test ./test/tui -run TestSidebar` and coverage ≥80%
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
