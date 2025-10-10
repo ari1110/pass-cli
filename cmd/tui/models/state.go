@@ -442,6 +442,12 @@ func (s *AppState) notifySelectionChanged() {
 	}
 }
 
+// TriggerRefresh manually triggers the selection changed callback to refresh UI components.
+// Used by search filtering to update the table display without changing selection state.
+func (s *AppState) TriggerRefresh() {
+	s.notifySelectionChanged()
+}
+
 // notifyError invokes the error callback.
 // CRITICAL: Must be called AFTER releasing locks to prevent deadlocks.
 func (s *AppState) notifyError(err error) {

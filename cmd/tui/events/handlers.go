@@ -332,15 +332,20 @@ func (eh *EventHandler) handleShowHelp() {
 	addShortcut("d", "Delete credential")
 	addShortcut("p", "Toggle password visibility")
 	addShortcut("c", "Copy password to clipboard")
+	row++ // Blank line (just skip row, don't add cells)
+
+	// View section
+	addSection("View")
 	addShortcut("i", "Toggle detail panel")
 	addShortcut("s", "Toggle sidebar")
+	addShortcut("/", "Search / Filter credentials")
 	row++ // Blank line (just skip row, don't add cells)
 
 	// General section
 	addSection("General")
 	addShortcut("?", "Show this help")
 	addShortcut("q", "Quit application")
-	addShortcut("Esc", "Close modal / Go back")
+	addShortcut("Esc", "Close modal / Cancel search")
 	addShortcut("Ctrl+C", "Quit application")
 
 	// Set table background color (after all cells are set)
@@ -405,22 +410,13 @@ func (eh *EventHandler) handleSearchActivate() {
 	// Activate search (creates InputField)
 	searchState.Activate()
 
-	// Get table reference for refreshing
-	table := eh.appState.GetTable()
-
 	// Setup real-time filtering callback (T035)
 	searchState.InputField.SetChangedFunc(func(text string) {
 		// Update query in real-time
 		searchState.Query = text
-		
-		// Trigger table refresh to apply filter
-		if table != nil {
-			eh.app.QueueUpdateDraw(func() {
-				// Get CredentialTable wrapper to call Refresh
-				// We need to refresh the filtered credentials
-				eh.appState.SetSelectedCategory(eh.appState.GetSelectedCategory()) // Trigger refresh via callback
-			})
-		}
+
+		// Trigger selection changed callback to refresh table
+		eh.appState.TriggerRefresh()
 	})
 
 	// Setup done function to handle Escape and Enter
@@ -437,7 +433,6 @@ func (eh *EventHandler) handleSearchActivate() {
 	eh.app.SetFocus(searchState.InputField)
 
 	eh.statusBar.ShowInfo("Search mode activated. Type to filter, Esc to exit.")
-	eh.app.Draw()
 }
 
 // handleSearchDeactivate deactivates search mode and clears the filter.
@@ -454,7 +449,7 @@ func (eh *EventHandler) handleSearchDeactivate() {
 	eh.layoutMgr.RebuildLayout()
 
 	// Trigger table refresh to clear filter
-	eh.appState.SetSelectedCategory(eh.appState.GetSelectedCategory()) // Trigger refresh via callback
+	eh.appState.TriggerRefresh()
 
 	// Return focus to table
 	table := eh.appState.GetTable()
@@ -463,5 +458,4 @@ func (eh *EventHandler) handleSearchDeactivate() {
 	}
 
 	eh.statusBar.ShowInfo("Search cleared")
-	eh.app.Draw()
 }
