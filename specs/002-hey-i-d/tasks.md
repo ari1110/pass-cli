@@ -166,8 +166,8 @@ description: "Task list for Enhanced UI Controls and Usage Visibility"
 - [ ] T060b [P] Edge case test: Search with special characters and regex metacharacters (e.g., ".", "*", "[", "]", "\\")
 - [ ] T060c [P] Edge case test: Extremely long path truncation (200+ character paths in usage locations)
 - [ ] T060d [P] Edge case test: Usage location display when file path no longer exists on disk
-- [ ] T061 Code cleanup and refactoring for readability
-- [ ] T062 Update quickstart.md with any implementation learnings or gotchas discovered
+- [X] T061 Code cleanup and refactoring for readability
+- [X] T062 Update quickstart.md with any implementation learnings or gotchas discovered
 - [ ] T063 Performance validation: Search filtering <100ms for 1000 credentials, detail rendering <200ms
 
 ---

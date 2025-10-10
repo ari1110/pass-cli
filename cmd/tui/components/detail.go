@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -11,6 +12,17 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/rivo/tview"
+)
+
+const (
+	// UI separator for detail panel sections
+	detailSeparator = "[yellow]═══════════════════════════════════[-]\n"
+
+	// Maximum path length before truncation in usage locations
+	maxPathDisplayLength = 60
+
+	// Hybrid timestamp threshold: switch from relative to absolute format
+	timestampHybridThreshold = 7 * 24 * time.Hour
 )
 
 // DetailView displays full credential information with password masking and copy support.
@@ -66,12 +78,12 @@ func (dv *DetailView) formatCredential(cred *vault.CredentialMetadata) string {
 	var b strings.Builder
 
 	// Header with service name
-	b.WriteString("[yellow]═══════════════════════════════════[-]\n")
+	b.WriteString(detailSeparator)
 	b.WriteString(fmt.Sprintf("[gray]Service (UID):[yellow]%s[-]\n", cred.Service))
-	b.WriteString("[yellow]═══════════════════════════════════[-]\n\n")
+	b.WriteString(detailSeparator)
+	b.WriteString("\n")
 
 	// Main credential fields
-	// b.WriteString(fmt.Sprintf("[gray]Service (UID):[-] [white]%s[-]\n", cred.Service))d
 	b.WriteString(fmt.Sprintf("[gray]Username:[-]   [white]%s[-]\n", cred.Username))
 
 	// Category (if present)
@@ -96,9 +108,11 @@ func (dv *DetailView) formatCredential(cred *vault.CredentialMetadata) string {
 	}
 
 	// Metadata section
-	b.WriteString("\n[yellow]═══════════════════════════════════[-]\n")
+	b.WriteString("\n")
+	b.WriteString(detailSeparator)
 	b.WriteString("            [yellow]Metadata[-]\n")
-	b.WriteString("[yellow]═══════════════════════════════════[-]\n\n")
+	b.WriteString(detailSeparator)
+	b.WriteString("\n")
 
 	b.WriteString(fmt.Sprintf("[gray]Created:[-]     [white]%s[-]\n", cred.CreatedAt.Format("2006-01-02 03:04 PM")))
 	b.WriteString(fmt.Sprintf("[gray]Modified:[-]    [white]%s[-]\n", cred.UpdatedAt.Format("2006-01-02 03:04 PM")))
@@ -216,15 +230,9 @@ func SortUsageLocations(records map[string]vault.UsageRecord) []vault.UsageRecor
 	}
 
 	// Sort by timestamp descending (most recent first)
-	// Using a simple bubble sort for small datasets (typical <10 locations)
-	// Could optimize with sort.Slice if needed for larger datasets
-	for i := 0; i < len(locations)-1; i++ {
-		for j := i + 1; j < len(locations); j++ {
-			if locations[i].Timestamp.Before(locations[j].Timestamp) {
-				locations[i], locations[j] = locations[j], locations[i]
-			}
-		}
-	}
+	sort.Slice(locations, func(i, j int) bool {
+		return locations[i].Timestamp.After(locations[j].Timestamp)
+	})
 
 	return locations
 }
@@ -241,10 +249,7 @@ func SortUsageLocations(records map[string]vault.UsageRecord) []vault.UsageRecor
 func FormatTimestamp(t time.Time) string {
 	age := time.Since(t)
 
-	// Hybrid threshold: 7 days
-	sevenDays := 7 * 24 * time.Hour
-
-	if age < sevenDays {
+	if age < timestampHybridThreshold {
 		// Relative format for recent activity
 		if age < time.Hour {
 			minutes := int(age.Minutes())
@@ -283,9 +288,11 @@ func FormatUsageLocations(cred *vault.Credential) string {
 	var b strings.Builder
 
 	// Usage Locations section header (T048)
-	b.WriteString("\n[yellow]═══════════════════════════════════[-]\n")
+	b.WriteString("\n")
+	b.WriteString(detailSeparator)
 	b.WriteString("        [yellow]Usage Locations[-]\n")
-	b.WriteString("[yellow]═══════════════════════════════════[-]\n\n")
+	b.WriteString(detailSeparator)
+	b.WriteString("\n")
 
 	// Handle empty state (T049)
 	if len(cred.UsageRecord) == 0 {
@@ -296,10 +303,6 @@ func FormatUsageLocations(cred *vault.Credential) string {
 	// Sort locations by timestamp (most recent first) - T044
 	sortedLocations := SortUsageLocations(cred.UsageRecord)
 
-	// Terminal width for path truncation (T052)
-	// Conservative estimate: 80 columns minus padding
-	maxPathLength := 60
-
 	// Format each location
 	for _, record := range sortedLocations {
 		// Format path with line number if available (T051)
@@ -309,9 +312,9 @@ func FormatUsageLocations(cred *vault.Credential) string {
 		}
 
 		// Truncate long paths with ellipsis (T052)
-		if len(path) > maxPathLength {
+		if len(path) > maxPathDisplayLength {
 			// Truncate in middle with ellipsis
-			half := (maxPathLength - 3) / 2
+			half := (maxPathDisplayLength - 3) / 2
 			path = path[:half] + "..." + path[len(path)-half:]
 		}
 
