@@ -410,6 +410,28 @@ func (eh *EventHandler) handleSearchActivate() {
 	// Activate search (creates InputField)
 	searchState.Activate()
 
+	// Get table reference for arrow key forwarding
+	table := eh.appState.GetTable()
+
+	// Setup input capture to forward navigation keys to table
+	searchState.InputField.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyUp, tcell.KeyDown, tcell.KeyEnter:
+			// Forward navigation keys to table
+			if table != nil {
+				// Simulate key press on table
+				table.InputHandler()(event, nil)
+				return nil // Consume event
+			}
+		case tcell.KeyEscape:
+			// Handle escape to exit search
+			eh.handleSearchDeactivate()
+			return nil
+		}
+		// Let all other keys (typing) pass through to InputField
+		return event
+	})
+
 	// Setup real-time filtering callback (T035)
 	searchState.InputField.SetChangedFunc(func(text string) {
 		// Update query in real-time
@@ -419,7 +441,7 @@ func (eh *EventHandler) handleSearchActivate() {
 		eh.appState.TriggerRefresh()
 	})
 
-	// Setup done function to handle Escape and Enter
+	// Setup done function to handle Escape (redundant but safe)
 	searchState.InputField.SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEscape {
 			eh.handleSearchDeactivate()
@@ -431,6 +453,9 @@ func (eh *EventHandler) handleSearchActivate() {
 
 	// Set focus to the InputField
 	eh.app.SetFocus(searchState.InputField)
+
+	// Update statusbar to show search shortcuts
+	eh.statusBar.UpdateForContext(components.FocusTable)
 
 	eh.statusBar.ShowInfo("Search mode activated. Type to filter, Esc to exit.")
 }
@@ -456,6 +481,9 @@ func (eh *EventHandler) handleSearchDeactivate() {
 	if table != nil {
 		eh.app.SetFocus(table)
 	}
+
+	// Update statusbar to restore normal shortcuts
+	eh.statusBar.UpdateForContext(components.FocusTable)
 
 	eh.statusBar.ShowInfo("Search cleared")
 }

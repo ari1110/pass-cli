@@ -105,20 +105,29 @@ func (sb *StatusBar) showTemporaryMessage(message string, duration time.Duration
 
 // getShortcutsForContext returns the appropriate shortcut text for the given focus context.
 func (sb *StatusBar) getShortcutsForContext(focus FocusContext) string {
+	// Check if search is active
+	searchState := sb.appState.GetSearchState()
+	isSearchActive := searchState != nil && searchState.Active
+
+	if isSearchActive {
+		// Search mode shortcuts
+		return "[yellow]Type[-]:Filter  [yellow]↑↓[-]:Navigate  [yellow]Enter[-]:Select  [yellow]Esc[-]:Clear Search  [yellow]?[-]:Help"
+	}
+
 	switch focus {
 	case FocusSidebar:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]Enter[-]:Select  [yellow]n[-]:New  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]Enter[-]:Select  [yellow]n[-]:New  [yellow]/[-]:Search  [yellow]s[-]:Sidebar  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
 
 	case FocusTable:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]n[-]:New  [yellow]e[-]:Edit  [yellow]d[-]:Del  [yellow]c[-]:Copy  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]n[-]:New  [yellow]e[-]:Edit  [yellow]d[-]:Del  [yellow]c[-]:Copy  [yellow]/[-]:Search  [yellow]s[-]:Sidebar  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
 
 	case FocusDetail:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]e[-]:Edit  [yellow]d[-]:Del  [yellow]p[-]:Toggle  [yellow]c[-]:Copy  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]e[-]:Edit  [yellow]d[-]:Del  [yellow]p[-]:Toggle  [yellow]c[-]:Copy  [yellow]/[-]:Search  [yellow]s[-]:Sidebar  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
 
 	case FocusModal:
 		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Field  [yellow]Enter[-]:Submit  [yellow]Esc[-]:Cancel"
 
 	default:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
+		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]/[-]:Search  [yellow]s[-]:Sidebar  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
 	}
 }
