@@ -132,7 +132,7 @@
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T024 [P] [US3] Unit test: TestPasswordDefaultsMasked in tests/unit/tui_forms_test.go (validates FR-009)
+- [X] T024 [P] [US3] Unit test: TestPasswordDefaultsMasked in tests/unit/tui_forms_test.go (validates FR-009)
   - Test AddForm initializes with passwordVisible = false
   - Test EditForm initializes with passwordVisible = false
   - Test password field mask character = '*' on form creation
@@ -153,11 +153,11 @@
 
 **NOTE**: Most functionality already implemented in US1 and US2. This phase focuses on verification and edge cases.
 
-- [ ] T027 [US3] Verify AddForm.buildFormFields() initializes password field with '*' mask (already done at line 91)
-- [ ] T028 [US3] Verify EditForm.buildFormFieldsWithValues() initializes with '*' mask (already done at line 332)
-- [ ] T029 [US3] Add edge case test: TestEmptyPasswordFieldToggle in tests/unit/tui_forms_test.go
+- [X] T027 [US3] Verify AddForm.buildFormFields() initializes password field with '*' mask (already done at line 91)
+- [X] T028 [US3] Verify EditForm.buildFormFieldsWithValues() initializes with '*' mask (already done at line 332)
+- [X] T029 [US3] Add edge case test: TestEmptyPasswordFieldToggle in tests/unit/tui_forms_test.go
   - Verify toggle works on empty password field (no crash, label still updates)
-- [ ] T030 [US3] Add unicode/emoji handling limitation to quickstart.md Common Issues section
+- [X] T030 [US3] Add unicode/emoji handling limitation to quickstart.md Common Issues section
   - **Target**: Add new issue to quickstart.md line ~295 (Common Issues section)
   - **Content**: "Issue: Unicode/emoji passwords display inconsistently across terminals. Solution: Terminal rendering of wide characters (CJK, emoji) varies - tview masks each rune as single '*', but visible display depends on terminal's Unicode support. This is expected behavior and outside our control."
   - **Note**: Technical details already documented in research.md:18-19. This task adds user-facing troubleshooting guidance.
@@ -170,12 +170,12 @@
   - Toggle to masked, verify mask applied correctly to pasted content
   - **DEFERRED REASON**: tview InputField does not provide Ctrl+C/Ctrl+V keyboard shortcuts (requires custom clipboard implementation beyond MVP scope per Principle VII - Simplicity)
   - **UN-DEFERRAL CRITERIA**: Re-enable when (1) tview adds native clipboard support in future release, OR (2) custom clipboard implementation approved by project maintainer with complexity justification in plan.md
-- [ ] T031 [US3] Add security test: TestNoPasswordLogging in tests/integration/tui_password_toggle_test.go
+- [X] T031 [US3] Add security test: TestNoPasswordLogging in tests/integration/tui_password_toggle_test.go
   - Run TUI with `--verbose` flag: `./pass-cli --verbose tui`
   - Toggle visibility multiple times
   - Verify no password content appears in stdout/stderr (only state changes logged)
-- [ ] T032 [US3] Run all tests: `go test ./tests/... -v`
-- [ ] T033 [US3] Manual testing: Verify all edge cases and security requirements from spec.md
+- [X] T032 [US3] Run all tests: `go test ./tests/... -v`
+- [X] T033 [US3] Manual testing: Verify all edge cases and security requirements from spec.md
   - Test unicode/emoji passwords (e.g., "测试🔐emoji") - toggle visible, verify characters display (terminal-dependent)
   - Verify no password logging when toggling
   - Verify form reset behavior on cancel/save/navigation

@@ -308,6 +308,9 @@ Before marking complete:
 **Issue**: Tests can't call toggle method
 - **Solution**: Either export method (capitalize) or use integration tests with keyboard events
 
+**Issue**: Unicode/emoji passwords display inconsistently across terminals
+- **Solution**: Terminal rendering of wide characters (CJK, emoji) varies - tview masks each rune as single '*', but visible display depends on terminal's Unicode support. This is expected behavior and outside our control.
+
 ## Next Steps
 
 After implementation:
