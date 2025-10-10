@@ -402,7 +402,40 @@ func (eh *EventHandler) handleSearchActivate() {
 		return
 	}
 
+	// Activate search (creates InputField)
 	searchState.Activate()
+
+	// Get table reference for refreshing
+	table := eh.appState.GetTable()
+
+	// Setup real-time filtering callback (T035)
+	searchState.InputField.SetChangedFunc(func(text string) {
+		// Update query in real-time
+		searchState.Query = text
+		
+		// Trigger table refresh to apply filter
+		if table != nil {
+			eh.app.QueueUpdateDraw(func() {
+				// Get CredentialTable wrapper to call Refresh
+				// We need to refresh the filtered credentials
+				eh.appState.SetSelectedCategory(eh.appState.GetSelectedCategory()) // Trigger refresh via callback
+			})
+		}
+	})
+
+	// Setup done function to handle Escape and Enter
+	searchState.InputField.SetDoneFunc(func(key tcell.Key) {
+		if key == tcell.KeyEscape {
+			eh.handleSearchDeactivate()
+		}
+	})
+
+	// Rebuild layout to show InputField (T034)
+	eh.layoutMgr.RebuildLayout()
+
+	// Set focus to the InputField
+	eh.app.SetFocus(searchState.InputField)
+
 	eh.statusBar.ShowInfo("Search mode activated. Type to filter, Esc to exit.")
 	eh.app.Draw()
 }
@@ -414,7 +447,21 @@ func (eh *EventHandler) handleSearchDeactivate() {
 		return
 	}
 
+	// Deactivate search (clears query and destroys InputField)
 	searchState.Deactivate()
+
+	// Rebuild layout to remove InputField
+	eh.layoutMgr.RebuildLayout()
+
+	// Trigger table refresh to clear filter
+	eh.appState.SetSelectedCategory(eh.appState.GetSelectedCategory()) // Trigger refresh via callback
+
+	// Return focus to table
+	table := eh.appState.GetTable()
+	if table != nil {
+		eh.app.SetFocus(table)
+	}
+
 	eh.statusBar.ShowInfo("Search cleared")
 	eh.app.Draw()
 }

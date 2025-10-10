@@ -117,18 +117,18 @@ func (lm *LayoutManager) HandleResize(width, height int) {
 	// Only rebuild layout if the mode changed
 	if newMode != lm.currentMode {
 		lm.currentMode = newMode
-		lm.rebuildLayout()
+		lm.RebuildLayout()
 	}
 }
 
-// rebuildLayout reconstructs the layout based on the current mode.
+// RebuildLayout reconstructs the layout based on the current mode.
 // It clears the content row and adds components according to breakpoint rules:
 //   - Small: Table only (full width)
 //   - Medium: Sidebar (20 cols) + Table (flex)
 //   - Large: Sidebar (20 cols) + Table (flex) + Detail (40 cols)
 //
 // Manual overrides (detailPanelOverride) take precedence over responsive breakpoints.
-func (lm *LayoutManager) rebuildLayout() {
+func (lm *LayoutManager) RebuildLayout() {
 	// Skip rebuild if layout hasn't been initialized yet
 	if lm.contentRow == nil {
 		return
@@ -154,6 +154,9 @@ func (lm *LayoutManager) rebuildLayout() {
 	// Determine sidebar visibility
 	showSidebar := lm.shouldShowSidebar()
 
+	// Get table area (may include search input if active)
+	tableArea := lm.getTableArea()
+
 	// Build layout based on effective mode and sidebar visibility
 	switch effectiveMode {
 	case LayoutSmall:
@@ -161,10 +164,10 @@ func (lm *LayoutManager) rebuildLayout() {
 			// Sidebar + Table (forced by override in small mode)
 			lm.contentRow.
 				AddItem(lm.sidebar, 20, 0, false).
-				AddItem(lm.table, 0, 1, true)
+				AddItem(tableArea, 0, 1, true)
 		} else {
 			// Table only (full width)
-			lm.contentRow.AddItem(lm.table, 0, 1, true)
+			lm.contentRow.AddItem(tableArea, 0, 1, true)
 		}
 
 	case LayoutMedium:
@@ -172,10 +175,10 @@ func (lm *LayoutManager) rebuildLayout() {
 			// Sidebar + Table
 			lm.contentRow.
 				AddItem(lm.sidebar, 20, 0, false).
-				AddItem(lm.table, 0, 1, true)
+				AddItem(tableArea, 0, 1, true)
 		} else {
 			// Table only (sidebar hidden by override)
-			lm.contentRow.AddItem(lm.table, 0, 1, true)
+			lm.contentRow.AddItem(tableArea, 0, 1, true)
 		}
 
 	case LayoutLarge:
@@ -183,12 +186,12 @@ func (lm *LayoutManager) rebuildLayout() {
 			// Sidebar + Table + Detail
 			lm.contentRow.
 				AddItem(lm.sidebar, 20, 0, false).
-				AddItem(lm.table, 0, 1, true).
+				AddItem(tableArea, 0, 1, true).
 				AddItem(lm.detailView, 40, 0, false)
 		} else {
 			// Table + Detail (sidebar hidden by override)
 			lm.contentRow.
-				AddItem(lm.table, 0, 1, true).
+				AddItem(tableArea, 0, 1, true).
 				AddItem(lm.detailView, 40, 0, false)
 		}
 	}
@@ -247,7 +250,7 @@ func (lm *LayoutManager) ToggleDetailPanel() string {
 	}
 
 	// Rebuild layout with new override
-	lm.rebuildLayout()
+	lm.RebuildLayout()
 
 	return message
 }
@@ -260,6 +263,26 @@ func (lm *LayoutManager) shouldShowSidebar() bool {
 	}
 	// Fallback to responsive logic: show sidebar if width >= medium breakpoint
 	return lm.width >= lm.mediumBreakpoint
+}
+
+// getTableArea returns the table area, optionally wrapped with search input.
+// When search is active, returns a vertical Flex with InputField + Table.
+// When search is inactive, returns just the table.
+func (lm *LayoutManager) getTableArea() tview.Primitive {
+	searchState := lm.appState.GetSearchState()
+	
+	// If search is not active, return table directly
+	if searchState == nil || !searchState.Active {
+		return lm.table
+	}
+	
+	// Search is active - create vertical Flex with InputField + Table
+	tableArea := tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(searchState.InputField, 1, 0, true). // Search input (1 row, focusable)
+		AddItem(lm.table, 0, 1, false)                // Table (flex height, not directly focusable)
+	
+	return tableArea
 }
 
 // ToggleSidebar manually shows/hides the sidebar, cycling through three states:
@@ -288,7 +311,7 @@ func (lm *LayoutManager) ToggleSidebar() string {
 	}
 
 	// Rebuild layout with new override
-	lm.rebuildLayout()
+	lm.RebuildLayout()
 
 	return message
 }

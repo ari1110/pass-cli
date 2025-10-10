@@ -109,8 +109,8 @@ description: "Task list for Enhanced UI Controls and Usage Visibility"
 - [X] T032 [US2] Add keyboard handler for search deactivation (Escape key) in `cmd/tui/events/handlers.go` calling `Deactivate()`
 - [X] T033 [US2] Integrate search filter into credential table refresh logic (apply `MatchesCredential()` to filter credentials)
 - [X] T033a [US2] Maintain current table selection in filtered results if credential matches query, otherwise select first result (implements FR-018)
-- [ ] T034 [US2] Add inline InputField rendering in table header area when SearchState.Active=true
-- [ ] T035 [US2] Setup InputField.SetChangedFunc() callback for real-time filtering on each keystroke
+- [X] T034 [US2] Add inline InputField rendering in table header area when SearchState.Active=true
+- [X] T035 [US2] Setup InputField.SetChangedFunc() callback for real-time filtering on each keystroke
 - [X] T036 [US2] Handle empty vault state gracefully in search logic
 - [X] T037 [US2] Verify all tests pass with `go test ./test/tui -run TestSearch` and coverage ≥80%
 
