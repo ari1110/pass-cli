@@ -27,10 +27,11 @@ var (
 
 // UsageRecord tracks where and when a credential was accessed
 type UsageRecord struct {
-	Location  string    `json:"location"`  // Working directory where accessed
-	Timestamp time.Time `json:"timestamp"` // When it was accessed
-	GitRepo   string    `json:"git_repo"`  // Git repository if available
-	Count     int       `json:"count"`     // Number of times accessed from this location
+	Location   string    `json:"location"`            // Working directory where accessed
+	Timestamp  time.Time `json:"timestamp"`           // When it was accessed
+	GitRepo    string    `json:"git_repo"`            // Git repository if available
+	Count      int       `json:"count"`               // Number of times accessed from this location
+	LineNumber int       `json:"line_number,omitempty"` // Line number in file where accessed (optional)
 }
 
 // Credential represents a stored credential with usage tracking
