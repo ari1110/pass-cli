@@ -82,14 +82,22 @@ Users need clear visual feedback about whether their password is currently visib
 - **FR-004**: System MUST display password characters as masked (e.g., asterisks or dots) when visibility is disabled
 - **FR-005**: System MUST allow users to activate the visibility toggle via Ctrl+H keyboard shortcut when focus is on the add or edit form
 - **FR-006**: ~~System MUST allow users to activate the visibility toggle via mouse/pointer interaction with a clickable control~~ **[DEFERRED]** - Mouse/pointer activation deferred to future iteration due to tview Form API limitations requiring custom rendering (see research.md Section 4). MVP implements keyboard-only via Ctrl+H.
+  - **Future Acceptance Criteria (when un-deferred)**:
+    - Clickable widget (button, icon, or label region) positioned adjacent to password field
+    - Mouse click on widget toggles visibility (same behavior as Ctrl+H)
+    - Visual feedback on hover (if terminal supports mouse events)
+    - Widget state indicates current visibility (show/hide icon or text label)
+    - Implementation requires custom Form rendering or separate clickable tview primitive (estimated 4-6 hours additional work per research.md)
 - **FR-007**: System MUST provide clear visual feedback indicating the current visibility state (visible vs. hidden) using patterns consistent with existing application UI
-- **FR-008**: System MUST maintain cursor position when toggling visibility while user is typing
+- **FR-008**: System MUST maintain cursor position (character index) when toggling visibility while user is typing, regardless of whether cursor is at the beginning, middle, or end of the password field
 - **FR-009**: System MUST default password fields to hidden state when forms are first opened
 - **FR-010**: System MUST reset password visibility to hidden when navigating away from forms
 
 ### Non-Functional Requirements
 
-- **NFR-001**: Password visibility toggle MUST use tview's UTF-8 character handling for all password character types (special characters, Unicode, multi-byte). Display correctness is terminal-dependent and not testable within our code.
+- **NFR-001**: Password visibility toggle MUST use tview's UTF-8 character handling for all password character types (special characters, Unicode, multi-byte).
+  - **Testability Note**: Display correctness (glyph rendering, character width) is terminal-dependent and outside our control. We test correct API usage (`SetMaskCharacter(0)` preserves all runes) but cannot test visual rendering.
+  - **Acceptance Criteria**: Integration test T174 verifies Unicode passwords (e.g., "测试🔐emoji") toggle between masked and visible states without data loss. Terminal rendering quality is user's terminal responsibility.
 
 ## Success Criteria *(mandatory)*
 
@@ -98,6 +106,7 @@ Users need clear visual feedback about whether their password is currently visib
 - **SC-001**: Users can toggle password visibility in under 1 second from any point in the password entry workflow
 - **SC-002**: 100% of password fields in add and edit forms support visibility toggling
 - **SC-003**: Password visibility toggle is accessible via keyboard (Ctrl+H) without losing focus or cursor position
-- **SC-004**: Manual testing confirms users can type a 16-character password, toggle visibility to verify, toggle back to masked, and save without needing to re-type due to typos (visibility toggle enables verification before save)
+- **SC-004**: Users can type a 16-character password, toggle visibility to verify correctness, toggle back to masked, and save successfully - measured by completing manual test scenario without re-typing due to typos (demonstrates visibility toggle enables error-free entry)
 - **SC-005**: Password fields default to hidden state on form load, providing security by default
 - **SC-006**: Toggle state changes are reflected immediately (under 100ms) with clear visual feedback
+- **SC-007**: ~~Mouse/pointer interaction success criteria~~ **[DEFERRED]** - Pending FR-006 implementation (deferred per research.md Section 4). MVP success criteria focus on keyboard-only interaction (SC-001 through SC-006).

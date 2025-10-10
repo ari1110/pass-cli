@@ -132,16 +132,19 @@
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T024 [P] [US3] Unit test: TestPasswordDefaultsMasked in tests/unit/tui_forms_test.go
+- [ ] T024 [P] [US3] Unit test: TestPasswordDefaultsMasked in tests/unit/tui_forms_test.go (validates FR-009)
   - Test AddForm initializes with passwordVisible = false
   - Test EditForm initializes with passwordVisible = false
   - Test password field mask character = '*' on form creation
-- [ ] T025 [P] [US3] Integration test: TestVisibilityResetOnFormClose in tests/integration/tui_password_toggle_test.go
-  - Open add form, toggle visible, close form (Esc) → reopen, verify passwordVisible = false
-  - Open add form, toggle visible, submit form (Ctrl+S) → reopen, verify passwordVisible = false
-  - Open edit form, toggle visible, close form (Esc) → reopen, verify passwordVisible = false
-  - Open edit form, toggle visible, save form (Ctrl+S) → reopen, verify passwordVisible = false
-  - Verify FR-010 compliance: visibility resets on ALL navigation paths
+  - Validates FR-009: "System MUST default password fields to hidden state when forms are first opened"
+- [ ] T025 [P] [US3] Integration test: TestVisibilityResetOnFormClose in tests/integration/tui_password_toggle_test.go (validates FR-010)
+  - **Add form cancel path**: Open add form, toggle visible, press Esc → reopen, verify passwordVisible = false
+  - **Add form submit path**: Open add form, toggle visible, press Ctrl+S → reopen, verify passwordVisible = false
+  - **Edit form cancel path**: Open edit form, toggle visible, press Esc → reopen, verify passwordVisible = false
+  - **Edit form save path**: Open edit form, toggle visible, press Ctrl+S → reopen, verify passwordVisible = false
+  - **Form switch path**: Open add form, toggle visible → switch to edit form, verify passwordVisible = false (edit form fresh state)
+  - **Main menu navigation**: Open add form, toggle visible → press Esc to main → press 'a' again, verify passwordVisible = false
+  - Validates FR-010: "System MUST reset password visibility to hidden when navigating away from forms" (all 6 navigation paths tested)
 - [ ] T026 [P] [US3] Integration test: TestVisualIndicatorChanges in tests/integration/tui_password_toggle_test.go
   - Verify label text changes reflect visibility state accurately
   - Test both forms show correct indicator on toggle
@@ -154,17 +157,19 @@
 - [ ] T028 [US3] Verify EditForm.buildFormFieldsWithValues() initializes with '*' mask (already done at line 332)
 - [ ] T029 [US3] Add edge case test: TestEmptyPasswordFieldToggle in tests/unit/tui_forms_test.go
   - Verify toggle works on empty password field (no crash, label still updates)
-- [ ] T030 [US3] Document unicode/emoji handling limitation in research.md
-  - Note: Unicode display correctness is terminal-dependent (per tview documentation)
-  - Note: Wide characters (CJK, emoji) mask as single '*' per rune (tview behavior)
-  - This is a documentation task, not a test task (terminal rendering is outside our control)
+- [ ] T030 [US3] Add unicode/emoji handling limitation to quickstart.md Common Issues section
+  - **Target**: Add new issue to quickstart.md line ~295 (Common Issues section)
+  - **Content**: "Issue: Unicode/emoji passwords display inconsistently across terminals. Solution: Terminal rendering of wide characters (CJK, emoji) varies - tview masks each rune as single '*', but visible display depends on terminal's Unicode support. This is expected behavior and outside our control."
+  - **Note**: Technical details already documented in research.md:18-19. This task adds user-facing troubleshooting guidance.
+  - Mark as complete after verifying quickstart.md contains this Common Issue entry
 - [ ] T030a [US3] **[DEFERRED]** Add edge case test: TestCopyPasteWithVisiblePassword in tests/integration/tui_password_toggle_test.go
   - Type password "SecurePass123", toggle visible
   - Select all text (Ctrl+A if supported), copy (Ctrl+C)
   - Clear field, paste (Ctrl+V)
   - Verify pasted content matches original
   - Toggle to masked, verify mask applied correctly to pasted content
-  - **DEFERRED**: tview InputField does not provide Ctrl+C/Ctrl+V keyboard shortcuts (requires custom clipboard implementation beyond MVP scope per Principle VII)
+  - **DEFERRED REASON**: tview InputField does not provide Ctrl+C/Ctrl+V keyboard shortcuts (requires custom clipboard implementation beyond MVP scope per Principle VII - Simplicity)
+  - **UN-DEFERRAL CRITERIA**: Re-enable when (1) tview adds native clipboard support in future release, OR (2) custom clipboard implementation approved by project maintainer with complexity justification in plan.md
 - [ ] T031 [US3] Add security test: TestNoPasswordLogging in tests/integration/tui_password_toggle_test.go
   - Run TUI with `--verbose` flag: `./pass-cli --verbose tui`
   - Toggle visibility multiple times

@@ -250,7 +250,10 @@ func TestAddFormPasswordToggle(t *testing.T) {
 // Additional tests: TestEditFormPasswordToggle, TestLabelUpdatesOnToggle, etc.
 ```
 
-**Note**: You may need to export `togglePasswordVisibility` methods for testing (capitalize method names) or use integration tests instead.
+**Note**: To test toggle behavior without violating Library-First Architecture (Principle II), use one of these approaches:
+- **Integration tests**: Simulate keyboard events (`tcell.EventKey` with `KeyCtrlH`) and verify password field state via `GetFormItem(2).GetMaskCharacter()`
+- **Public API testing**: Test observable behavior through public methods - verify mask character changes from `'*'` to `0` after simulated Ctrl+H event
+- **NEVER** export private methods solely for testing - this pollutes the public API and violates architectural boundaries
 
 ### Step 9: Write Integration Tests (30 min)
 
