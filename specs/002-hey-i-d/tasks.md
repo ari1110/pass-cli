@@ -90,13 +90,13 @@ description: "Task list for Enhanced UI Controls and Usage Visibility"
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T019 [P] [US2] Write test for MatchesCredential() substring matching logic in `test/tui/search_test.go`
-- [ ] T020 [P] [US2] Write test for case-insensitive search matching in `test/tui/search_test.go`
-- [ ] T021 [P] [US2] Write test for search across Service/Username/URL/Category fields (excluding Notes) in `test/tui/search_test.go`
-- [ ] T022 [P] [US2] Write test for empty query handling (all credentials match) in `test/tui/search_test.go`
-- [ ] T023 [P] [US2] Write test for zero match scenario in `test/tui/search_test.go`
-- [ ] T024 [P] [US2] Write test for Activate() and Deactivate() state transitions in `test/tui/search_test.go`
-- [ ] T025 [P] [US2] Write test for newly added credentials appearing in active search results in `test/tui/search_test.go`
+- [X] T019 [P] [US2] Write test for MatchesCredential() substring matching logic in `test/tui/search_test.go`
+- [X] T020 [P] [US2] Write test for case-insensitive search matching in `test/tui/search_test.go`
+- [X] T021 [P] [US2] Write test for search across Service/Username/URL/Category fields (excluding Notes) in `test/tui/search_test.go`
+- [X] T022 [P] [US2] Write test for empty query handling (all credentials match) in `test/tui/search_test.go`
+- [X] T023 [P] [US2] Write test for zero match scenario in `test/tui/search_test.go`
+- [X] T024 [P] [US2] Write test for Activate() and Deactivate() state transitions in `test/tui/search_test.go`
+- [X] T025 [P] [US2] Write test for newly added credentials appearing in active search results in `test/tui/search_test.go`
 
 ### Implementation for User Story 2
 
