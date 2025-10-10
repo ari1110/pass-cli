@@ -86,7 +86,7 @@ Users need clear visual feedback about whether their password is currently visib
 - **FR-008**: System MUST maintain cursor position when toggling visibility while user is typing
 - **FR-009**: System MUST default password fields to hidden state when forms are first opened
 - **FR-010**: System MUST reset password visibility to hidden when navigating away from forms
-- **FR-011**: System MUST handle all character types correctly in visible mode (special characters, Unicode, multi-byte)
+- **FR-011**: System MUST handle all character types correctly in visible mode (special characters, Unicode, multi-byte) - Note: Display correctness is terminal-dependent per tview's UTF-8 support
 
 ## Success Criteria *(mandatory)*
 

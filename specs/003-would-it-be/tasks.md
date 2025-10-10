@@ -152,9 +152,10 @@
 - [ ] T028 [US3] Verify EditForm.buildFormFieldsWithValues() initializes with '*' mask (already done at line 332)
 - [ ] T029 [US3] Add edge case test: TestEmptyPasswordFieldToggle in tests/unit/tui_forms_test.go
   - Verify toggle works on empty password field (no crash, label still updates)
-- [ ] T030 [US3] Add edge case test: TestUnicodeCharacterHandling in tests/integration/tui_password_toggle_test.go
-  - Type "测试🔐emoji", toggle visible, verify displays correctly
-  - Toggle hidden, verify masks correctly
+- [ ] T030 [US3] Document unicode/emoji handling limitation in research.md
+  - Note: Unicode display correctness is terminal-dependent (per tview documentation)
+  - Note: Wide characters (CJK, emoji) mask as single '*' per rune (tview behavior)
+  - No automated test needed - this is not our code's responsibility
 - [ ] T030a [US3] Add edge case test: TestCopyPasteWithVisiblePassword in tests/integration/tui_password_toggle_test.go
   - Type password "SecurePass123", toggle visible
   - Select all text (Ctrl+A if supported), copy (Ctrl+C)
@@ -166,6 +167,9 @@
   - Verify no password content appears in logs (only state changes)
 - [ ] T032 [US3] Run all tests: `go test ./tests/... -v`
 - [ ] T033 [US3] Manual testing: Verify all edge cases and security requirements from spec.md
+  - Test unicode/emoji passwords (e.g., "测试🔐emoji") - toggle visible, verify characters display (terminal-dependent)
+  - Verify no password logging when toggling
+  - Verify form reset behavior on cancel/save/navigation
 
 **Checkpoint**: All user stories complete - full password visibility toggle feature implemented
 
