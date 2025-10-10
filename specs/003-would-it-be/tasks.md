@@ -72,6 +72,7 @@
 - [ ] T011 [US1] Run tests: `go test ./tests/unit/tui_forms_test.go -run TestAddForm -v`
 - [ ] T012 [US1] Run integration tests: `go test ./tests/integration/tui_password_toggle_test.go -run TestAddForm -v`
 - [ ] T013 [US1] Manual testing: Build TUI, open add form, verify Ctrl+H toggles visibility correctly
+  - Verify label text changes match existing pattern (compare with detail panel 'p' toggle at cmd/tui/events/handlers.go:91)
 
 **Checkpoint**: User Story 1 complete - add form has working password visibility toggle
 
@@ -115,6 +116,7 @@
 - [ ] T021 [US2] Run tests: `go test ./tests/unit/tui_forms_test.go -run TestEditForm -v`
 - [ ] T022 [US2] Run integration tests: `go test ./tests/integration/tui_password_toggle_test.go -run TestEditForm -v`
 - [ ] T023 [US2] Manual testing: Build TUI, edit credential, verify Ctrl+H toggles visibility correctly
+  - Verify label text changes match existing pattern (compare with detail panel 'p' toggle)
 
 **Checkpoint**: User Story 2 complete - edit form has working password visibility toggle
 
@@ -156,15 +158,17 @@
   - Note: Unicode display correctness is terminal-dependent (per tview documentation)
   - Note: Wide characters (CJK, emoji) mask as single '*' per rune (tview behavior)
   - This is a documentation task, not a test task (terminal rendering is outside our control)
-- [ ] T030a [US3] Add edge case test: TestCopyPasteWithVisiblePassword in tests/integration/tui_password_toggle_test.go
+- [ ] T030a [US3] **[DEFERRED]** Add edge case test: TestCopyPasteWithVisiblePassword in tests/integration/tui_password_toggle_test.go
   - Type password "SecurePass123", toggle visible
   - Select all text (Ctrl+A if supported), copy (Ctrl+C)
   - Clear field, paste (Ctrl+V)
   - Verify pasted content matches original
   - Toggle to masked, verify mask applied correctly to pasted content
+  - **DEFERRED**: tview InputField does not provide Ctrl+C/Ctrl+V keyboard shortcuts (requires custom clipboard implementation beyond MVP scope per Principle VII)
 - [ ] T031 [US3] Add security test: TestNoPasswordLogging in tests/integration/tui_password_toggle_test.go
-  - Enable verbose logging, toggle visibility multiple times
-  - Verify no password content appears in logs (only state changes)
+  - Run TUI with `--verbose` flag: `./pass-cli --verbose tui`
+  - Toggle visibility multiple times
+  - Verify no password content appears in stdout/stderr (only state changes logged)
 - [ ] T032 [US3] Run all tests: `go test ./tests/... -v`
 - [ ] T033 [US3] Manual testing: Verify all edge cases and security requirements from spec.md
   - Test unicode/emoji passwords (e.g., "测试🔐emoji") - toggle visible, verify characters display (terminal-dependent)
