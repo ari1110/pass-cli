@@ -137,7 +137,7 @@
   - Test EditForm initializes with passwordVisible = false
   - Test password field mask character = '*' on form creation
   - Validates FR-009: "System MUST default password fields to hidden state when forms are first opened"
-- [ ] T025 [P] [US3] Integration test: TestVisibilityResetOnFormClose in tests/integration/tui_password_toggle_test.go (validates FR-010)
+- [X] T025 [P] [US3] Integration test: TestVisibilityResetOnFormClose in tests/integration/tui_password_toggle_test.go (validates FR-010)
   - **Add form cancel path**: Open add form, toggle visible, press Esc → reopen, verify passwordVisible = false
   - **Add form submit path**: Open add form, toggle visible, press Ctrl+S → reopen, verify passwordVisible = false
   - **Edit form cancel path**: Open edit form, toggle visible, press Esc → reopen, verify passwordVisible = false
@@ -145,7 +145,7 @@
   - **Form switch path**: Open add form, toggle visible → switch to edit form, verify passwordVisible = false (edit form fresh state)
   - **Main menu navigation**: Open add form, toggle visible → press Esc to main → press 'a' again, verify passwordVisible = false
   - Validates FR-010: "System MUST reset password visibility to hidden when navigating away from forms" (all 6 navigation paths tested)
-- [ ] T026 [P] [US3] Integration test: TestVisualIndicatorChanges in tests/integration/tui_password_toggle_test.go
+- [X] T026 [P] [US3] Integration test: TestVisualIndicatorChanges in tests/integration/tui_password_toggle_test.go
   - Verify label text changes reflect visibility state accurately
   - Test both forms show correct indicator on toggle
 
@@ -175,7 +175,7 @@
   - Toggle visibility multiple times
   - Verify no password content appears in stdout/stderr (only state changes logged)
 - [X] T032 [US3] Run all tests: `go test ./tests/... -v`
-- [X] T033 [US3] Manual testing: Verify all edge cases and security requirements from spec.md
+- [ ] T033 [US3] Manual testing: Verify all edge cases and security requirements from spec.md
   - Test unicode/emoji passwords (e.g., "测试🔐emoji") - toggle visible, verify characters display (terminal-dependent)
   - Verify no password logging when toggling
   - Verify form reset behavior on cancel/save/navigation
@@ -193,7 +193,7 @@
 - [X] T036 [P] Run golangci-lint on forms.go: `golangci-lint run cmd/tui/components/forms.go`
 - [X] T037 [P] Run security scan: `gosec ./cmd/tui/components/...`
 - [X] T038 Build final binary: `go build -o pass-cli.exe`
-- [X] T039 Manual end-to-end test following quickstart.md validation checklist
+- [ ] T039 Manual end-to-end test following quickstart.md validation checklist
 - [X] T040 Update specs/003-would-it-be/tasks.md to mark all tasks complete
 - [X] T041 [P] Code review: Verify constitution compliance (no secret logging, security-first, TDD followed)
 
