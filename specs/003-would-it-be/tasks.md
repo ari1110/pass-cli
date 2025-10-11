@@ -175,7 +175,7 @@
   - Toggle visibility multiple times
   - Verify no password content appears in stdout/stderr (only state changes logged)
 - [X] T032 [US3] Run all tests: `go test ./tests/... -v`
-- [ ] T033 [US3] Manual testing: Verify all edge cases and security requirements from spec.md
+- [X] T033 [US3] Manual testing: Verify all edge cases and security requirements from spec.md
   - Test unicode/emoji passwords (e.g., "测试🔐emoji") - toggle visible, verify characters display (terminal-dependent)
   - Verify no password logging when toggling
   - Verify form reset behavior on cancel/save/navigation
@@ -193,7 +193,7 @@
 - [X] T036 [P] Run golangci-lint on forms.go: `golangci-lint run cmd/tui/components/forms.go`
 - [X] T037 [P] Run security scan: `gosec ./cmd/tui/components/...`
 - [X] T038 Build final binary: `go build -o pass-cli.exe`
-- [ ] T039 Manual end-to-end test following quickstart.md validation checklist
+- [X] T039 Manual end-to-end test following quickstart.md validation checklist
 - [X] T040 Update specs/003-would-it-be/tasks.md to mark all tasks complete
 - [X] T041 [P] Code review: Verify constitution compliance (no secret logging, security-first, TDD followed)
 
