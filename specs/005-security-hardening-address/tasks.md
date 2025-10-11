@@ -36,7 +36,7 @@
 
 - [ ] T004 Expose clearBytes as public ClearBytes in `internal/crypto/crypto.go` (lines 150-159)
 - [ ] T005 Change readPassword return type from string to []byte in `cmd/helpers.go` (line 30: remove string() conversion)
-- [ ] T006 Update all readPassword call sites to accept []byte instead of string in `cmd/cli/*.go` and `cmd/tui/*.go`
+- [ ] T006 Update all readPassword call sites to accept []byte instead of string (7 call sites total: cmd/add.go lines 102, 151; cmd/init.go lines 58, 71; cmd/update.go line 137; cmd/tui.go line 165; plus cmd/helpers.go line 12 definition)
 
 **Checkpoint**: Foundation ready - byte-based password handling now available project-wide
 
@@ -103,6 +103,7 @@
 - [ ] T034 [US2] Add environment variable support for custom iterations in `internal/crypto/crypto.go` (PASS_CLI_ITERATIONS, minimum 600k)
 - [ ] T035 [US2] Run crypto timing benchmarks to verify 500-1000ms target (go test -bench=BenchmarkDeriveKey -benchtime=5s)
 - [ ] T036 [US2] Test legacy vault loading and migration flow
+- [ ] T036b [US2] Verify key derivation timing meets FR-009 constraint in `internal/crypto/crypto_test.go` (assert 500-1000ms range, fail if violated)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - memory security + crypto hardening complete (MVP functional!)
 
@@ -353,14 +354,14 @@ Despite integration points, each story is independently testable with mocked/stu
 - **Phase 1 (Setup)**: 3 tasks
 - **Phase 2 (Foundational)**: 3 tasks (BLOCKING)
 - **Phase 3 (User Story 1 - Memory Security)**: 14 tasks (2 tests + 12 implementation)
-- **Phase 4 (User Story 2 - Crypto Hardening)**: 16 tasks (3 tests + 13 implementation)
+- **Phase 4 (User Story 2 - Crypto Hardening)**: 17 tasks (3 tests + 14 implementation)
 - **Phase 5 (User Story 3 - Password Policy)**: 15 tasks (4 tests + 11 implementation)
 - **Phase 6 (User Story 4 - Audit Logging)**: 27 tasks (5 tests + 22 implementation)
 - **Phase 7 (Polish)**: 14 tasks
 
-**Total**: 92 tasks
+**Total**: 93 tasks
 
-**MVP Scope**: 36 tasks (Phase 1-2 + User Stories 1-2 + minimal Phase 7 validation)
+**MVP Scope**: 37 tasks (Phase 1-2 + User Stories 1-2 + minimal Phase 7 validation)
 
 **Parallel Opportunities**: 20+ tasks can run in parallel across different test files, structure definitions, and independent user stories
 
