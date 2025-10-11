@@ -1,4 +1,4 @@
-### 1. Communication Standards
+﻿### 1. Communication Standards
 
 **Be concise and direct**:
 - Avoid preamble like "Great!", "Sure!", "Let me help"
