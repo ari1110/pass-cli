@@ -106,8 +106,8 @@ func TestAddFormPasswordVisibilityToggle(t *testing.T) {
 
 	// Test toggle to visible - this will FAIL until implementation
 	t.Run("ToggleToVisible", func(t *testing.T) {
-		// Simulate Ctrl+H key event
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		// Simulate Ctrl+H key event with Ctrl modifier
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 		result := form.GetInputCapture()(event)
 
 		if result != nil {
@@ -122,8 +122,8 @@ func TestAddFormPasswordVisibilityToggle(t *testing.T) {
 
 	// Test toggle back to masked
 	t.Run("ToggleBackToMasked", func(t *testing.T) {
-		// Simulate Ctrl+H again
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		// Simulate Ctrl+H again with Ctrl modifier
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 		form.GetInputCapture()(event)
 
 		if passwordField.GetLabel() != "Password" {
@@ -140,7 +140,7 @@ func TestAddFormCtrlHShortcut(t *testing.T) {
 	form := NewAddForm(appState)
 
 	t.Run("CtrlHConsumed", func(t *testing.T) {
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 		result := form.GetInputCapture()(event)
 
 		if result != nil {
@@ -175,8 +175,8 @@ func TestAddFormCursorPreservation(t *testing.T) {
 	t.Run("TextPreservedAfterToggle", func(t *testing.T) {
 		originalText := passwordField.GetText()
 
-		// Toggle to visible
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		// Toggle to visible with Ctrl modifier
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 		form.GetInputCapture()(event)
 
 		if passwordField.GetText() != originalText {
@@ -218,7 +218,7 @@ func TestEditFormPasswordVisibilityToggle(t *testing.T) {
 
 	// Test toggle to visible - this will FAIL until implementation
 	t.Run("ToggleToVisible", func(t *testing.T) {
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 		form.GetInputCapture()(event)
 
 		expectedLabel := "Password [VISIBLE]"
@@ -229,7 +229,7 @@ func TestEditFormPasswordVisibilityToggle(t *testing.T) {
 
 	// Test toggle back to masked
 	t.Run("ToggleBackToMasked", func(t *testing.T) {
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 		form.GetInputCapture()(event)
 
 		if passwordField.GetLabel() != "Password" {
@@ -289,7 +289,7 @@ func TestEmptyPasswordFieldToggle(t *testing.T) {
 			}
 		}()
 
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 		form.GetInputCapture()(event)
 
 		// Label should still update
@@ -309,7 +309,7 @@ func TestVisibilityResetOnFormClose(t *testing.T) {
 	t.Run("AddFormResetOnRecreation", func(t *testing.T) {
 		// Create form, toggle to visible
 		form1 := NewAddForm(appState)
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 		form1.GetInputCapture()(event)
 
 		// Verify form1 is visible
@@ -336,7 +336,7 @@ func TestVisibilityResetOnFormClose(t *testing.T) {
 
 		// Create form, toggle to visible
 		form1 := NewEditForm(appState, credential)
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 		form1.GetInputCapture()(event)
 
 		// Verify form1 is visible
@@ -363,7 +363,7 @@ func TestVisibilityResetOnFormClose(t *testing.T) {
 
 		// Create AddForm, toggle visible
 		addForm := NewAddForm(appState)
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 		addForm.GetInputCapture()(event)
 
 		// Verify AddForm is visible
@@ -391,7 +391,7 @@ func TestVisualIndicatorChanges(t *testing.T) {
 	t.Run("AddFormIndicatorAccuracy", func(t *testing.T) {
 		form := NewAddForm(appState)
 		passwordField := form.GetFormItem(2).(*tview.InputField)
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 
 		// Initial state: "Password"
 		if passwordField.GetLabel() != "Password" {
@@ -429,7 +429,7 @@ func TestVisualIndicatorChanges(t *testing.T) {
 		}
 		form := NewEditForm(appState, credential)
 		passwordField := form.GetFormItem(2).(*tview.InputField)
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 
 		// Initial state: "Password"
 		if passwordField.GetLabel() != "Password" {
@@ -451,7 +451,7 @@ func TestVisualIndicatorChanges(t *testing.T) {
 	t.Run("IndicatorPersistenceWithText", func(t *testing.T) {
 		form := NewAddForm(appState)
 		passwordField := form.GetFormItem(2).(*tview.InputField)
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 
 		// Add text to field
 		passwordField.SetText("SecurePassword123")
@@ -489,7 +489,7 @@ func TestNoPasswordLogging(t *testing.T) {
 
 		form := NewAddForm(appState)
 		passwordField := form.GetFormItem(2).(*tview.InputField)
-		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModNone)
+		event := tcell.NewEventKey(tcell.KeyCtrlH, 0, tcell.ModCtrl)
 
 		// Set sensitive password
 		passwordField.SetText("SensitivePassword123")

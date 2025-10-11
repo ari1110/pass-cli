@@ -239,9 +239,14 @@ func (af *AddForm) setupKeyboardShortcuts() {
 			return nil
 
 		case tcell.KeyCtrlH:
-			// Ctrl+H for password visibility toggle
-			af.togglePasswordVisibility()
-			return nil
+			// Only toggle if Ctrl modifier is actually pressed
+			// Backspace sends KeyCtrlH but without ModCtrl set
+			if event.Modifiers()&tcell.ModCtrl != 0 {
+				af.togglePasswordVisibility()
+				return nil
+			}
+			// Regular backspace - pass through to allow deletion
+			return event
 
 		case tcell.KeyTab:
 			// Let form handle Tab internally (don't let it escape to app)
@@ -578,9 +583,14 @@ func (ef *EditForm) setupKeyboardShortcuts() {
 			return nil
 
 		case tcell.KeyCtrlH:
-			// Ctrl+H for password visibility toggle
-			ef.togglePasswordVisibility()
-			return nil
+			// Only toggle if Ctrl modifier is actually pressed
+			// Backspace sends KeyCtrlH but without ModCtrl set
+			if event.Modifiers()&tcell.ModCtrl != 0 {
+				ef.togglePasswordVisibility()
+				return nil
+			}
+			// Regular backspace - pass through to allow deletion
+			return event
 
 		case tcell.KeyTab:
 			// Let form handle Tab internally (don't let it escape to app)
