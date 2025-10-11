@@ -15,11 +15,11 @@
 **Commit frequently and often** when working through spec tasks:
 
 **When to commit**:
-- ✅ After completing each task
-- ✅ After completing each phase of a spec
-- ✅ After any significant milestone or working state
-- ✅ Before switching to a different task
-- ✅ When you update relevant spec documentation
+- After completing each task
+- After completing each phase of a spec
+- After any significant milestone or working state
+- Before switching to a different task
+- When you update relevant spec documentation
 
 **Commit message format**:
 ```
@@ -29,7 +29,7 @@
 
 <phase reference if applicable>
 
-🤖 Generated with Claude Code
+Generated with Claude Code
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
@@ -44,7 +44,7 @@ feat: Integrate tview view implementations into Model struct
 
 Phase 1 of tview-migration-remediation spec.
 
-🤖 Generated with Claude Code
+Generated with Claude Code
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
@@ -60,22 +60,22 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 **Accurate assessments and transparency are the #1 priority in this repository.**
 
 **NEVER**:
-- ❌ Claim a task is complete when it's only partially done
-- ❌ Mark a task as completed if tests are failing
-- ❌ Skip steps in a task to save time
-- ❌ Take shortcuts that deviate from the spec
-- ❌ Implement differently than the spec describes
-- ❌ Ignore acceptance criteria in spec
-- ❌ Hide errors or issues you encounter
+- Claim a task is complete when it's only partially done
+- Mark a task as completed if tests are failing
+- Skip steps in a task to save time
+- Take shortcuts that deviate from the spec
+- Implement differently than the spec describes
+- Ignore acceptance criteria in spec
+- Hide errors or issues you encounter
 
 **ALWAYS**:
-- ✅ Report the actual state of work, not aspirational state
-- ✅ If you discover incomplete work, STOP and document the gap
-- ✅ If you cannot complete a task, explain why clearly
-- ✅ If a spec has errors, surface them immediately
-- ✅ Follow the spec exactly as written - no interpretation
-- ✅ Execute all steps in a task, even if they seem redundant
-- ✅ Test thoroughly before marking tasks complete
+- Report the actual state of work, not aspirational state
+- If you discover incomplete work, STOP and document the gap
+- If you cannot complete a task, explain why clearly
+- If a spec has errors, surface them immediately
+- Follow the spec exactly as written - no interpretation
+- Execute all steps in a task, even if they seem redundant
+- Test thoroughly before marking tasks complete
 
 **If a spec exists, you MUST follow it with NO QUESTIONS ASKED, ONLY EXECUTION:**
 
@@ -121,7 +121,7 @@ If you think the spec is wrong, unclear, or could be improved:
 
 ## Summary: Your Responsibilities
 
-✅ **ALWAYS**:
+**ALWAYS**:
 - Read docs before creating specs
 - Follow specs exactly as written - NO shortcuts, NO deviations
 - Report accurate state of work - transparency is #1 priority
@@ -134,7 +134,7 @@ If you think the spec is wrong, unclear, or could be improved:
 - Be concise and direct in communication
 - Update task checkboxes as you progress
 
-❌ **NEVER**:
+**NEVER**:
 - Take shortcuts or skip steps in spec tasks
 - Mark tasks complete if tests are failing, or shortcuts were taken
 - Reinterpret or "improve" specs on your own

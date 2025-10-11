@@ -29,6 +29,8 @@ type AddForm struct {
 
 	appState *models.AppState
 
+	passwordVisible bool // Track password visibility state for toggle
+
 	onSubmit func()
 	onCancel func()
 }
@@ -43,6 +45,7 @@ type EditForm struct {
 
 	originalPassword string // Track original password to detect changes
 	passwordFetched  bool   // Track if password has been fetched (lazy loading)
+	passwordVisible  bool   // Track password visibility state for toggle
 
 	onSubmit func()
 	onCancel func()
@@ -214,7 +217,7 @@ func (af *AddForm) getCategories() []string {
 func (af *AddForm) addKeyboardHints() {
 	theme := styles.GetCurrentTheme()
 
-	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Add  •  Esc: Cancel"
+	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Add  •  Ctrl+H: Toggle password  •  Esc: Cancel"
 
 	hints := tview.NewTextView()
 	hints.SetText(hintsText)
@@ -234,6 +237,16 @@ func (af *AddForm) setupKeyboardShortcuts() {
 			// Ctrl+S for quick-save
 			af.onAddPressed()
 			return nil
+
+		case tcell.KeyCtrlH:
+			// Only toggle if Ctrl modifier is actually pressed
+			// Backspace sends KeyCtrlH but without ModCtrl set
+			if event.Modifiers()&tcell.ModCtrl != 0 {
+				af.togglePasswordVisibility()
+				return nil
+			}
+			// Regular backspace - pass through to allow deletion
+			return event
 
 		case tcell.KeyTab:
 			// Let form handle Tab internally (don't let it escape to app)
@@ -281,6 +294,22 @@ func (af *AddForm) applyStyles() {
 
 	// Button alignment
 	af.SetButtonsAlign(tview.AlignRight)
+}
+
+// togglePasswordVisibility switches between masked and plaintext password display.
+// Updates both the mask character and the field label to indicate current state.
+func (af *AddForm) togglePasswordVisibility() {
+	af.passwordVisible = !af.passwordVisible
+
+	passwordField := af.GetFormItem(2).(*tview.InputField)
+
+	if af.passwordVisible {
+		passwordField.SetMaskCharacter(0) // 0 = plaintext (tview convention)
+		passwordField.SetLabel("Password [VISIBLE]")
+	} else {
+		passwordField.SetMaskCharacter('*')
+		passwordField.SetLabel("Password")
+	}
 }
 
 // SetOnSubmit registers a callback to be invoked after successful add.
@@ -532,7 +561,7 @@ func (ef *EditForm) findCategoryIndex(categories []string) int {
 func (ef *EditForm) addKeyboardHints() {
 	theme := styles.GetCurrentTheme()
 
-	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Save  •  Esc: Cancel"
+	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Save  •  Ctrl+H: Toggle password  •  Esc: Cancel"
 
 	hints := tview.NewTextView()
 	hints.SetText(hintsText)
@@ -552,6 +581,16 @@ func (ef *EditForm) setupKeyboardShortcuts() {
 			// Ctrl+S for quick-save
 			ef.onSavePressed()
 			return nil
+
+		case tcell.KeyCtrlH:
+			// Only toggle if Ctrl modifier is actually pressed
+			// Backspace sends KeyCtrlH but without ModCtrl set
+			if event.Modifiers()&tcell.ModCtrl != 0 {
+				ef.togglePasswordVisibility()
+				return nil
+			}
+			// Regular backspace - pass through to allow deletion
+			return event
 
 		case tcell.KeyTab:
 			// Let form handle Tab internally (don't let it escape to app)
@@ -599,6 +638,22 @@ func (ef *EditForm) applyStyles() {
 
 	// Button alignment
 	ef.SetButtonsAlign(tview.AlignRight)
+}
+
+// togglePasswordVisibility switches between masked and plaintext password display.
+// Updates both the mask character and the field label to indicate current state.
+func (ef *EditForm) togglePasswordVisibility() {
+	ef.passwordVisible = !ef.passwordVisible
+
+	passwordField := ef.GetFormItem(2).(*tview.InputField)
+
+	if ef.passwordVisible {
+		passwordField.SetMaskCharacter(0) // 0 = plaintext (tview convention)
+		passwordField.SetLabel("Password [VISIBLE]")
+	} else {
+		passwordField.SetMaskCharacter('*')
+		passwordField.SetLabel("Password")
+	}
 }
 
 // SetOnSubmit registers a callback to be invoked after successful update.
