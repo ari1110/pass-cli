@@ -76,31 +76,12 @@ Security-conscious users and organizations need visibility into when and how cre
 
 ---
 
-### User Story 5 - Rate Limiting for Brute-Force Prevention (Priority: P3)
-
-Users accessing their vault from untrusted environments or compromised systems need protection against automated password guessing. When multiple failed unlock attempts occur in succession, the application should introduce exponential delays to make brute-force attacks impractical.
-
-**Why this priority**: This is an INFO-level defense-in-depth improvement. While offline brute-force (after vault theft) is the primary concern, this protects against online attacks when an attacker has access to the device but not the vault file. Rated P3 as it's a nice-to-have security enhancement but not critical.
-
-**Independent Test**: Can be fully tested by attempting multiple failed vault unlocks and measuring the delay between attempts (should increase exponentially: 0s, 2s, 4s, 8s, 16s, etc.), and verifying that successful unlocks reset the failure counter, and that the rate limit state persists across application restarts.
-
-**Acceptance Scenarios**:
-
-1. **Given** a user enters the wrong master password, **When** the first failed attempt occurs, **Then** no delay is imposed (immediate retry allowed)
-2. **Given** multiple failed unlock attempts, **When** the 3rd consecutive failure occurs, **Then** the application imposes a 4-second delay before allowing another attempt
-3. **Given** 5 consecutive failures, **When** another unlock is attempted, **Then** the delay increases to 16 seconds
-4. **Given** a user successfully unlocks after failures, **When** the vault is unlocked, **Then** the failure counter resets and no delay applies to the next operation
-5. **Given** rate limiting is active, **When** the application is restarted, **Then** the failure count and rate limit state persist (via local state file) and are not reset
-
----
-
 ### Edge Cases
 
 - What happens when a user migrates from an old vault (100k iterations) to the new standard (600k iterations)? The migration should be automatic and seamless during the next password change operation, with no data loss.
 - How does the system handle memory clearing if the Go garbage collector runs before manual clearing? The implementation should use byte slices exclusively for passwords and clear them immediately after use, minimizing GC exposure window.
 - What if a user's system doesn't have write permissions for the audit log directory? The application should degrade gracefully, warn the user, and continue functioning without audit logging (or use an alternate location).
 - How does password complexity enforcement handle non-English characters or special Unicode symbols? The validation should count them appropriately (symbols count as symbols, accented letters count as letters) and document which character classes are required.
-- What happens if the rate limiting state file is corrupted or deleted? The application should treat it as a fresh start (no penalties) and recreate the state file on the next failed attempt.
 - How does audit log rotation handle very high-frequency operations? The rotation should be based on file size limits (e.g., 10MB) with configurable retention, not just operation count.
 
 ## Requirements *(mandatory)*
@@ -145,25 +126,9 @@ Users accessing their vault from untrusted environments or compromised systems n
 - **FR-025**: Audit logging MUST be optional and disabled by default to avoid unexpected disk usage
 - **FR-026**: System MUST degrade gracefully if audit logging fails (warn but continue operation)
 
-#### Rate Limiting (P3)
-
-- **FR-027**: System MUST track consecutive failed vault unlock attempts in persistent state file
-- **FR-028**: System MUST implement exponential backoff after failed unlocks: 0s (first), 2s (second), 4s (third), 8s, 16s, 32s (max)
-- **FR-029**: System MUST reset failure counter and delays upon successful vault unlock
-- **FR-030**: Rate limiting state MUST persist across application restarts
-- **FR-031**: System MUST cap maximum delay at 60 seconds to prevent permanent lockout
-- **FR-032**: System MUST provide clear user feedback during rate limit delays ("Too many failed attempts. Please wait [X] seconds.")
-
-#### Additional Security Improvements (P3 - Optional)
-
-- **FR-033**: System SHOULD add constant-time delay before returning decryption errors to prevent timing attacks distinguishing wrong password from corrupted data
-- **FR-034**: System SHOULD use cryptographic hash for clipboard auto-clear comparison instead of plaintext password comparison
-- **FR-035**: System MAY make usage tracking optional or hash directory paths to improve privacy
-
 ### Key Entities
 
 - **AuditLogEntry**: Represents a single security event with timestamp, event type (unlock/access/modify), outcome (success/failure), credential service name (not password), and HMAC signature for integrity
-- **RateLimitState**: Persistent state tracking consecutive failed unlock attempts, last failure timestamp, current backoff delay, stored in local state file (`~/.pass-cli/rate_limit.state`)
 - **PasswordPolicy**: Configuration defining minimum length (12), required character classes (uppercase, lowercase, digit, symbol), and validation rules
 - **VaultMetadata**: Extended to include PBKDF2 iteration count for each vault, enabling version detection and migration
 
@@ -176,9 +141,8 @@ Users accessing their vault from untrusted environments or compromised systems n
 - **SC-003**: New vaults MUST reject passwords shorter than 12 characters or lacking required complexity (uppercase, lowercase, digit, symbol)
 - **SC-004**: Brute-force attack against a stolen vault file (at 1 million attempts/second on high-end GPU) MUST take a minimum of 10 minutes per password candidate to verify (600k iterations * cost)
 - **SC-005**: Audit logging (when enabled) MUST record 100% of vault operations (unlock, access, modify) with tamper-evident signatures
-- **SC-006**: Rate limiting MUST prevent more than 10 unlock attempts per minute after initial failures, with exponential backoff clearly communicated to users
-- **SC-007**: Existing vaults created with old security parameters MUST automatically migrate to new standards (600k iterations, enforced complexity) during password change operations without data loss
-- **SC-008**: All security hardening changes MUST maintain backward compatibility with existing vault files until password change migration occurs
+- **SC-006**: Existing vaults created with old security parameters MUST automatically migrate to new standards (600k iterations, enforced complexity) during password change operations without data loss
+- **SC-007**: All security hardening changes MUST maintain backward compatibility with existing vault files until password change migration occurs
 
 ## Assumptions *(documented)*
 
@@ -188,15 +152,13 @@ Users accessing their vault from untrusted environments or compromised systems n
 
 3. **Audit Logging Default**: Audit logging is disabled by default to avoid unexpected disk usage and maintain backward compatibility. Security-conscious users can enable it via configuration flag (e.g., `--enable-audit` or config file setting).
 
-4. **Rate Limiting Scope**: Rate limiting applies only to vault unlock operations, not to individual credential access after unlock. This balances security (preventing brute-force) with usability (not interfering with normal use).
+4. **Memory Security Limitations**: While byte array clearing significantly improves security, Go's garbage collector may still have copies of data in freed memory regions until overwritten. The implementation minimizes but cannot completely eliminate this risk without low-level memory management unavailable in Go.
 
-5. **Memory Security Limitations**: While byte array clearing significantly improves security, Go's garbage collector may still have copies of data in freed memory regions until overwritten. The implementation minimizes but cannot completely eliminate this risk without low-level memory management unavailable in Go.
+5. **Unicode Password Support**: Password complexity validation counts Unicode letters (accented characters) as letters and Unicode symbols as symbols. This supports international users while maintaining security requirements.
 
-6. **Unicode Password Support**: Password complexity validation counts Unicode letters (accented characters) as letters and Unicode symbols as symbols. This supports international users while maintaining security requirements.
+6. **Testing Environment**: Security testing (memory inspection, brute-force timing) will be performed on Windows, macOS, and Linux to ensure cross-platform consistency, as memory management and crypto libraries may behave differently across platforms.
 
-7. **Testing Environment**: Security testing (memory inspection, brute-force timing) will be performed on Windows, macOS, and Linux to ensure cross-platform consistency, as memory management and crypto libraries may behave differently across platforms.
-
-8. **Migration Path**: Users who forget to change their password will continue using 100k iterations indefinitely. This is acceptable as forcing immediate migration would risk vault access issues. Documentation will encourage password changes to benefit from improvements.
+7. **Migration Path**: Users who forget to change their password will continue using 100k iterations indefinitely. This is acceptable as forcing immediate migration would risk vault access issues. Documentation will encourage password changes to benefit from improvements.
 
 ## Out of Scope *(explicitly excluded)*
 
@@ -245,7 +207,6 @@ Users accessing their vault from untrusted environments or compromised systems n
   - Crypto timing: Benchmark on representative hardware to verify 500-1000ms target
   - Password validation: Unit tests for all complexity rules and edge cases
   - Audit logging: Verify HMAC integrity and tamper detection
-  - Rate limiting: Integration tests for exponential backoff behavior
 
 - **Documentation Impact**: README, SECURITY.md, and USAGE.md will need updates explaining:
   - Why vault unlock is slower (security improvement)
