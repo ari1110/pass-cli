@@ -26,10 +26,10 @@ description: "Task list for Documentation Update feature implementation"
 
 **Purpose**: Prepare for documentation updates by verifying current state
 
-- [ ] T001 Read current `README.md` to understand existing structure and content
-- [ ] T002 Read current `docs/USAGE.md` to understand existing structure and content
-- [ ] T003 [P] Verify all keyboard shortcuts in `cmd/tui/events/handlers.go` match research.md findings
-- [ ] T004 [P] Verify password visibility toggle implementation in `cmd/tui/components/forms.go:241,585`
+- [X] T001 Read current `README.md` to understand existing structure and content
+- [X] T002 Read current `docs/USAGE.md` to understand existing structure and content
+- [X] T003 [P] Verify all keyboard shortcuts in `cmd/tui/events/handlers.go` match research.md findings
+- [X] T004 [P] Verify password visibility toggle implementation in `cmd/tui/components/forms.go:241,585`
 
 **Checkpoint**: Current documentation state understood, all features verified in code
 
@@ -41,10 +41,10 @@ description: "Task list for Documentation Update feature implementation"
 
 **⚠️ CRITICAL**: These structural changes must complete before detailed documentation content can be added
 
-- [ ] T005 Identify insertion point for TUI Mode section in `README.md` (after Quick Start, before Usage section)
-- [ ] T006 Identify insertion point for TUI section in `docs/USAGE.md` (after Configuration ~line 740, before Best Practices)
-- [ ] T007 Audit all file path references in `README.md` and `docs/USAGE.md` for accuracy
-- [ ] T008 Verify vault file path references (`~/.pass-cli/vault.enc` vs `vault.json`)
+- [X] T005 Identify insertion point for TUI Mode section in `README.md` (after Quick Start, before Usage section)
+- [X] T006 Identify insertion point for TUI section in `docs/USAGE.md` (after Configuration ~line 740, before Best Practices)
+- [X] T007 Audit all file path references in `README.md` and `docs/USAGE.md` for accuracy
+- [X] T008 Verify vault file path references (`~/.pass-cli/vault.enc` vs `vault.json`)
 
 **Checkpoint**: Documentation insertion points identified, existing file paths audited
 
@@ -58,21 +58,21 @@ description: "Task list for Documentation Update feature implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Add TUI Mode section to `README.md` with launch instructions and features overview
-- [ ] T010 [US1] Add keyboard shortcuts reference table to `README.md` (6 essential shortcuts from quickstart.md)
-- [ ] T011 [US1] Add "TUI Mode" main section to `docs/USAGE.md` (insert content from contracts/tui-usage-section.md)
-- [ ] T012 [US1] Add "Launching TUI Mode" subsection to `docs/USAGE.md` with examples
-- [ ] T013 [US1] Add "TUI vs CLI Mode" subsection to `docs/USAGE.md` with comparison table
-- [ ] T014 [US1] Add "TUI Keyboard Shortcuts" subsection to `docs/USAGE.md` with complete organized tables
-- [ ] T015 [US1] Add "Search & Filter" subsection to `docs/USAGE.md` documenting `/` key activation and behavior
-- [ ] T016 [US1] Add "Password Visibility Toggle" subsection to `docs/USAGE.md` documenting Ctrl+H in forms
-- [ ] T017 [US1] Add "Layout Controls" subsection to `docs/USAGE.md` documenting `i` (detail panel) and `s` (sidebar) toggles
-- [ ] T018 [US1] Add "Usage Location Display" subsection to `docs/USAGE.md` documenting detail panel feature
-- [ ] T019 [US1] Add "Exiting TUI Mode" subsection to `docs/USAGE.md` documenting `q` and Ctrl+C
-- [ ] T020 [US1] Add "TUI Best Practices" section to `docs/USAGE.md` with 6 user tips
-- [ ] T021 [US1] Add "TUI Troubleshooting" section to `docs/USAGE.md` with common issues and solutions
-- [ ] T022 [US1] Update any outdated installation/build instructions in `README.md` if found during audit
-- [ ] T023 [US1] Ensure cross-references between `README.md` and `docs/USAGE.md` are consistent
+- [X] T009 [US1] Add TUI Mode section to `README.md` with launch instructions and features overview
+- [X] T010 [US1] Add keyboard shortcuts reference table to `README.md` (6 essential shortcuts from quickstart.md)
+- [X] T011 [US1] Add "TUI Mode" main section to `docs/USAGE.md` (insert content from contracts/tui-usage-section.md)
+- [X] T012 [US1] Add "Launching TUI Mode" subsection to `docs/USAGE.md` with examples
+- [X] T013 [US1] Add "TUI vs CLI Mode" subsection to `docs/USAGE.md` with comparison table
+- [X] T014 [US1] Add "TUI Keyboard Shortcuts" subsection to `docs/USAGE.md` with complete organized tables
+- [X] T015 [US1] Add "Search & Filter" subsection to `docs/USAGE.md` documenting `/` key activation and behavior
+- [X] T016 [US1] Add "Password Visibility Toggle" subsection to `docs/USAGE.md` documenting Ctrl+H in forms
+- [X] T017 [US1] Add "Layout Controls" subsection to `docs/USAGE.md` documenting `i` (detail panel) and `s` (sidebar) toggles
+- [X] T018 [US1] Add "Usage Location Display" subsection to `docs/USAGE.md` documenting detail panel feature
+- [X] T019 [US1] Add "Exiting TUI Mode" subsection to `docs/USAGE.md` documenting `q` and Ctrl+C
+- [X] T020 [US1] Add "TUI Best Practices" section to `docs/USAGE.md` with 6 user tips
+- [X] T021 [US1] Add "TUI Troubleshooting" section to `docs/USAGE.md` with common issues and solutions
+- [X] T022 [US1] Update any outdated installation/build instructions in `README.md` if found during audit
+- [X] T023 [US1] Ensure cross-references between `README.md` and `docs/USAGE.md` are consistent
 
 **Checkpoint FR-007**: Verify consistency requirement satisfied - all cross-file references synchronized (TUI feature names, keyboard shortcuts, file paths)
 

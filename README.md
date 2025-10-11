@@ -68,6 +68,43 @@ pass-cli get github --copy
 export API_KEY=$(pass-cli get myservice --quiet --field password)
 ```
 
+## 🎨 Interactive TUI Mode
+
+Pass-CLI includes an interactive Terminal User Interface (TUI) for visual credential management.
+
+### Launching TUI Mode
+
+```bash
+# Launch TUI (no arguments)
+pass-cli
+
+# CLI commands still work with explicit subcommands
+pass-cli list
+pass-cli get github
+```
+
+### TUI Features
+
+- **Visual Navigation**: Browse credentials with arrow keys and Tab
+- **Interactive Forms**: Add/edit credentials with visual feedback
+- **Password Visibility Toggle**: Press `Ctrl+H` in forms to verify passwords
+- **Search & Filter**: Press `/` to search, `Esc` to clear
+- **Keyboard Shortcuts**: Press `?` to see all available shortcuts
+- **Responsive Layout**: Sidebar and detail panel adapt to terminal size
+
+### Key TUI Shortcuts
+
+| Shortcut | Action | Context |
+|----------|--------|---------|
+| `Ctrl+H` | Toggle password visibility | Add/edit forms |
+| `/` | Activate search mode | Main view |
+| `s` | Toggle sidebar | Main view |
+| `i` | Toggle detail panel | Main view |
+| `?` | Show help | Any time |
+| `q` | Quit | Any time |
+
+See [full keyboard shortcuts reference](docs/USAGE.md#tui-keyboard-shortcuts) for complete list.
+
 ## 📖 Usage
 
 ### Initialize Vault
