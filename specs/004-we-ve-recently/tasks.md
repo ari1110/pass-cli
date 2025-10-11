@@ -96,12 +96,12 @@ description: "Task list for Documentation Update feature implementation"
 - [ ] T033 [P] [US1] Manual test: Select credential with usage history, verify "Usage Locations" section appears in detail panel
 - [ ] T034 [P] [US1] Manual test: Press `q` to quit TUI, verify app exits to shell
 - [ ] T035 [P] [US1] Manual test: Press Ctrl+C to quit TUI, verify app exits to shell
-- [ ] T036 [US1] Verify all file paths referenced in documentation exist in current codebase (zero broken references)
-- [ ] T037 [US1] Verify all documented keyboard shortcuts match actual key bindings in `cmd/tui/events/handlers.go`
-- [ ] T038 [US1] Verify all code examples in documentation are copy-pasteable (no placeholder values)
-- [ ] T039 [US1] Verify README.md and docs/USAGE.md use consistent formatting and terminology
-- [ ] T040 [US1] Final review: Read both documentation files as a new user to confirm discoverability (<1 minute to find TUI launch instructions)
-- [ ] T041 [US1] Final review: Confirm 100% of interactive features from specs 001-003 are documented
+- [X] T036 [US1] Verify all file paths referenced in documentation exist in current codebase (zero broken references)
+- [X] T037 [US1] Verify all documented keyboard shortcuts match actual key bindings in `cmd/tui/events/handlers.go`
+- [X] T038 [US1] Verify all code examples in documentation are copy-pasteable (no placeholder values)
+- [X] T039 [US1] Verify README.md and docs/USAGE.md use consistent formatting and terminology
+- [X] T040 [US1] Final review: Read both documentation files as a new user to confirm discoverability (<1 minute to find TUI launch instructions)
+- [X] T041 [US1] Final review: Confirm 100% of interactive features from specs 001-003 are documented
 
 **Checkpoint**: All documented features verified working, documentation complete and accurate
 
