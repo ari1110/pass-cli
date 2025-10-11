@@ -302,6 +302,12 @@ Before each vault update:
 - Cannot protect against phishing for master password
 - User education essential
 
+❌ **TUI Display Security (Interactive Mode)**
+- Shoulder surfing: Credentials visible on screen in TUI mode
+- Screen recording: TUI displays service names and details
+- Password visibility toggle: `Ctrl+H` shows plaintext passwords
+- Shared terminals: Other users may see credential list
+
 ## Security Guarantees
 
 ### What We Guarantee
@@ -405,6 +411,45 @@ Before each vault update:
    # Delete obsolete credentials
    pass-cli delete old-service
    ```
+
+### TUI-Specific Security
+
+1. **Screen Privacy**
+   - ⚠️ **Shoulder Surfing Risk**: TUI displays credential list on screen
+   - Use privacy screen protector in public spaces
+   - Be aware of people nearby when using TUI
+   - Consider using CLI mode for sensitive environments
+
+2. **Password Visibility Toggle**
+   - `Ctrl+H` in add/edit forms shows passwords in plaintext
+   - **Only use in private, trusted environments**
+   - Password resets to masked when form closes
+   - Be cautious in:
+     - Open offices
+     - Coffee shops
+     - Shared workspaces
+     - Screen sharing sessions
+     - Video calls with screen share
+
+3. **Screen Recording Protection**
+   - TUI displays service names and usernames by default
+   - Pause screen recording before launching TUI
+   - Use CLI mode with `--quiet` when recording tutorials
+   - Consider: `pass-cli list --format simple` for screen shares
+
+4. **Shared Terminal Sessions**
+   - **Never use TUI on shared terminal sessions**
+   - tmux/screen sessions visible to other users
+   - Use CLI mode with `--no-clipboard` instead
+   - SSH sessions: ensure you control the connection
+
+5. **Terminal History**
+   - TUI mode doesn't log to shell history
+   - CLI commands may appear in history
+   - Clear history after sensitive operations:
+     ```bash
+     history -c  # Clear session history
+     ```
 
 ### System Security
 

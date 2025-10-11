@@ -454,15 +454,23 @@ pass-cli --help
 # Initialize a vault (creates ~/.pass-cli/)
 pass-cli init
 
-# Add a test credential
-pass-cli add test
+# Launch interactive TUI mode (recommended for new users)
+pass-cli
+# Press 'q' to quit TUI
 
-# Retrieve it
-pass-cli get test
-
-# Clean up test
-pass-cli delete test --force
+# Or use CLI commands
+pass-cli add test      # Add a test credential
+pass-cli get test      # Retrieve it
+pass-cli delete test --force  # Clean up test
 ```
+
+**TUI vs CLI Mode:**
+- **TUI Mode**: Run `pass-cli` with no arguments for interactive visual interface
+  - Best for: Browsing credentials, interactive management
+  - Features: Search, keyboard shortcuts, visual feedback
+- **CLI Mode**: Run `pass-cli <command>` with explicit subcommand
+  - Best for: Scripts, automation, quick single operations
+  - Features: Quiet mode, field extraction, scriptable output
 
 ## Troubleshooting
 
