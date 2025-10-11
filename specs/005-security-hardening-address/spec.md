@@ -5,6 +5,13 @@
 **Status**: Draft
 **Input**: User description: "Security hardening: address memory security, crypto parameters, password policy, and audit logging vulnerabilities"
 
+## Clarifications
+
+### Session 2025-10-11
+
+- Q: FR-017 real-time strength indicator - Where should it be implemented (CLI, TUI, both, or neither)? → A: Both CLI and TUI with mode-appropriate UX patterns
+- Q: Does current `gopass` library support byte-array (`[]byte`) password input, or is migration to `golang.org/x/term` required? → A: Research needed - requires codebase inspection during planning phase
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Protected Master Password in Memory (Priority: P1) 🎯 MVP
@@ -112,7 +119,7 @@ Security-conscious users and organizations need visibility into when and how cre
 - **FR-014**: System MUST require master passwords to contain at least one digit (0-9)
 - **FR-015**: System MUST require master passwords to contain at least one symbol (punctuation or special character)
 - **FR-016**: System MUST provide clear, actionable error messages when password requirements are not met, listing which requirements are missing
-- **FR-017**: System SHOULD provide real-time password strength feedback during input (optional visual indicator)
+- **FR-017**: System SHOULD provide real-time password strength feedback during input in both CLI and TUI modes (CLI: text-based indicator updated per keystroke; TUI: visual strength meter component)
 - **FR-018**: Existing vaults with 8-character passwords MUST continue to function but MUST require new complexity standards when password is changed
 
 #### Audit Logging (P3)
@@ -181,7 +188,7 @@ Security-conscious users and organizations need visibility into when and how cre
 - **Go Standard Library**: `crypto/rand`, `crypto/subtle`, `crypto/sha256` for secure operations
 - **Existing Crypto Package**: `internal/crypto/crypto.go` requires refactoring to accept `[]byte` passwords
 - **Existing Vault Package**: `internal/vault/vault.go` requires changes to use byte arrays and enforce new password policy
-- **Terminal Input Library**: May need to switch from `gopass` to `golang.org/x/term` for byte-based password input
+- **Terminal Input Library**: Requires investigation during planning - determine if current `gopass` library supports `[]byte` return values or if migration to `golang.org/x/term` is necessary for FR-001/FR-005 compliance
 - **Backward Compatibility**: Must maintain ability to read vaults created with 100k iterations until migration
 
 ## Risks
