@@ -44,7 +44,7 @@ Last Updated: 2025-10-09
 
 **All development decisions prioritize security over convenience, performance, or features.**
 
-- **Encryption Standards**: AES-256-GCM with PBKDF2-SHA256 (100,000 iterations minimum) MUST be used for all credential storage. No weaker algorithms permitted.
+- **Encryption Standards**: AES-256-GCM with PBKDF2-SHA256 (600,000 iterations minimum) MUST be used for all credential storage. No weaker algorithms permitted.
 - **No Secret Logging**: Passwords, master passwords, API keys, or any credential data MUST NEVER be logged, printed to stdout/stderr, or written to any file outside the encrypted vault.
 - **Zero-Trust Clipboard**: Clipboard operations MUST clear after 30 seconds maximum. Credentials MUST NOT be stored in clipboard history.
 - **Secure Memory Handling**: Sensitive data in memory MUST be zeroed after use. No credential caching in plaintext memory.
@@ -234,4 +234,4 @@ For day-to-day development workflow, communication standards, and detailed imple
 
 ---
 
-**Version**: 1.0.0 | **Ratified**: 2025-10-09 | **Last Amended**: 2025-10-09
+**Version**: 1.1.0 | **Ratified**: 2025-10-09 | **Last Amended**: 2025-10-11
