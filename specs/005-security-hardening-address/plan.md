@@ -12,7 +12,7 @@ Harden Pass-CLI security across four critical areas: (1) memory security - elimi
 ## Technical Context
 
 **Language/Version**: Go 1.21+ (requires crypto/subtle from stdlib)
-**Primary Dependencies**: Go stdlib (`crypto/rand`, `crypto/subtle`, `crypto/sha256`), terminal input library (NEEDS CLARIFICATION: gopass vs golang.org/x/term for byte-based input)
+**Primary Dependencies**: Go stdlib (`crypto/rand`, `crypto/subtle`, `crypto/sha256`), gopass terminal library (confirmed returns `[]byte`, per research.md Decision 1)
 **Storage**: Encrypted vault files (local filesystem, AES-256-GCM), audit logs (`~/.pass-cli/audit.log` when enabled)
 **Testing**: Go testing framework (`go test`), security-specific tests (memory inspection, crypto timing benchmarks, cross-platform validation)
 **Target Platform**: Cross-platform CLI (Windows, macOS, Linux) with TUI mode support
