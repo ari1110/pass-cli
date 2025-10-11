@@ -84,18 +84,18 @@ description: "Task list for Documentation Update feature implementation"
 
 **Purpose**: Manual verification that documentation matches actual implementation and is user-ready
 
-- [ ] T024 [P] [US1] Manual test: Launch TUI with `pass-cli` (no args) and verify it works as documented
-- [ ] T025 [P] [US1] Manual test: Press `n` to open add form, type password, press Ctrl+H to toggle visibility
-- [ ] T026 [P] [US1] Manual test: Press Ctrl+H again in add form to re-mask password
-- [ ] T027 [P] [US1] Manual test: Press `e` to open edit form, press Ctrl+H to verify toggle works in edit forms
-- [ ] T028 [P] [US1] Manual test: Press `/` to activate search, type "git", verify results filter in real-time
-- [ ] T029 [P] [US1] Manual test: Press Esc to exit search mode, verify all credentials shown again
-- [ ] T030 [P] [US1] Manual test: Press `s` three times to cycle sidebar states (Auto/Hide/Show)
-- [ ] T031 [P] [US1] Manual test: Press `i` three times to cycle detail panel states (Auto/Hide/Show)
-- [ ] T032 [P] [US1] Manual test: Press `?` to show help modal, verify all shortcuts listed
-- [ ] T033 [P] [US1] Manual test: Select credential with usage history, verify "Usage Locations" section appears in detail panel
-- [ ] T034 [P] [US1] Manual test: Press `q` to quit TUI, verify app exits to shell
-- [ ] T035 [P] [US1] Manual test: Press Ctrl+C to quit TUI, verify app exits to shell
+- [X] T024 [P] [US1] Manual test: Launch TUI with `pass-cli` (no args) and verify it works as documented
+- [X] T025 [P] [US1] Manual test: Press `n` to open add form, type password, press Ctrl+H to toggle visibility
+- [X] T026 [P] [US1] Manual test: Press Ctrl+H again in add form to re-mask password
+- [X] T027 [P] [US1] Manual test: Press `e` to open edit form, press Ctrl+H to verify toggle works in edit forms
+- [X] T028 [P] [US1] Manual test: Press `/` to activate search, type "git", verify results filter in real-time
+- [X] T029 [P] [US1] Manual test: Press Esc to exit search mode, verify all credentials shown again
+- [X] T030 [P] [US1] Manual test: Press `s` three times to cycle sidebar states (Auto/Hide/Show)
+- [X] T031 [P] [US1] Manual test: Press `i` three times to cycle detail panel states (Auto/Hide/Show)
+- [X] T032 [P] [US1] Manual test: Press `?` to show help modal, verify all shortcuts listed
+- [X] T033 [P] [US1] Manual test: Select credential with usage history, verify "Usage Locations" section appears in detail panel
+- [X] T034 [P] [US1] Manual test: Press `q` to quit TUI, verify app exits to shell
+- [X] T035 [P] [US1] Manual test: Press Ctrl+C to quit TUI, verify app exits to shell
 - [X] T036 [US1] Verify all file paths referenced in documentation exist in current codebase (zero broken references)
 - [X] T037 [US1] Verify all documented keyboard shortcuts match actual key bindings in `cmd/tui/events/handlers.go`
 - [X] T038 [US1] Verify all code examples in documentation are copy-pasteable (no placeholder values)
