@@ -71,6 +71,7 @@ Users need documentation of new interactive TUI features (password visibility to
 ## Assumptions
 
 - The application's core CLI functionality (add, get, list, update, delete, generate) hasn't changed significantly and existing CLI documentation remains accurate
+- Vault storage file is `~/.pass-cli/vault.enc` (encrypted JSON format, not `vault.json`)
 - Recent changes are primarily in the TUI layer (cmd/tui) requiring documentation updates
 - Documentation should reflect implemented features only, not planned/future features
 - Scope is limited to user-facing documentation (README.md, docs/*.md visible on GitHub)
