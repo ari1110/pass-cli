@@ -208,7 +208,9 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		opts.Username = &updateUsername
 	}
 	if updatePassword != "" {
-		opts.Password = &updatePassword
+		// T020d: Convert string to []byte for vault storage
+		passwordBytes := []byte(updatePassword)
+		opts.Password = &passwordBytes
 	}
 
 	// Handle notes: clear flag takes precedence

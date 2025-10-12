@@ -33,7 +33,8 @@ func TestCryptoService_DeriveKey(t *testing.T) {
 	password := "test-password"
 	salt := make([]byte, SaltLength)
 
-	key, err := cs.DeriveKey(password, salt)
+	// T017: Convert string to []byte for DeriveKey
+	key, err := cs.DeriveKey([]byte(password), salt)
 	if err != nil {
 		t.Fatalf("DeriveKey failed: %v", err)
 	}
@@ -43,7 +44,7 @@ func TestCryptoService_DeriveKey(t *testing.T) {
 	}
 
 	// Same password and salt should produce same key
-	key2, err := cs.DeriveKey(password, salt)
+	key2, err := cs.DeriveKey([]byte(password), salt)
 	if err != nil {
 		t.Fatalf("DeriveKey failed: %v", err)
 	}
@@ -55,7 +56,7 @@ func TestCryptoService_DeriveKey(t *testing.T) {
 	// Different salt should produce different key
 	salt2 := make([]byte, SaltLength)
 	salt2[0] = 1 // Make it different
-	key3, err := cs.DeriveKey(password, salt2)
+	key3, err := cs.DeriveKey([]byte(password), salt2)
 	if err != nil {
 		t.Fatalf("DeriveKey failed: %v", err)
 	}
@@ -74,7 +75,8 @@ func TestCryptoService_EncryptDecrypt(t *testing.T) {
 		t.Fatalf("GenerateSalt failed: %v", err)
 	}
 
-	key, err := cs.DeriveKey("test-password", salt)
+	// T017: Convert string literal to []byte
+	key, err := cs.DeriveKey([]byte("test-password"), salt)
 	if err != nil {
 		t.Fatalf("DeriveKey failed: %v", err)
 	}
@@ -113,7 +115,8 @@ func TestCryptoService_EncryptDecryptEmpty(t *testing.T) {
 		t.Fatalf("GenerateSalt failed: %v", err)
 	}
 
-	key, err := cs.DeriveKey("test-password", salt)
+	// T017: Convert string literal to []byte
+	key, err := cs.DeriveKey([]byte("test-password"), salt)
 	if err != nil {
 		t.Fatalf("DeriveKey failed: %v", err)
 	}
@@ -187,7 +190,8 @@ func TestCryptoService_InvalidInputs(t *testing.T) {
 
 	// Test invalid salt length for key derivation
 	shortSalt := make([]byte, 16) // Too short
-	_, err = cs.DeriveKey("password", shortSalt)
+	// T017: Convert string literal to []byte
+	_, err = cs.DeriveKey([]byte("password"), shortSalt)
 	if err != ErrInvalidSaltLength {
 		t.Errorf("Expected ErrInvalidSaltLength, got %v", err)
 	}
@@ -338,7 +342,7 @@ func TestCryptoService_NonceUniqueness(t *testing.T) {
 // These help identify potential timing attack vulnerabilities
 func BenchmarkCryptoService_DeriveKey(b *testing.B) {
 	cs := NewCryptoService()
-	password := "test-password-for-benchmarking"
+	password := []byte("test-password-for-benchmarking") // T017: Use []byte
 	salt := make([]byte, SaltLength)
 
 	b.ResetTimer()
@@ -441,7 +445,7 @@ func TestCryptoService_AuthenticationTag(t *testing.T) {
 func TestCryptoService_PBKDF2Consistency(t *testing.T) {
 	cs := NewCryptoService()
 
-	password := "test-password"
+	password := []byte("test-password") // T017: Use []byte
 	salt := make([]byte, SaltLength)
 	copy(salt, "fixed-salt-for-testing-32-bytes!")
 
@@ -462,7 +466,8 @@ func TestCryptoService_PBKDF2Consistency(t *testing.T) {
 	}
 
 	// Different password should produce different key
-	key3, err := cs.DeriveKey("different-password", salt)
+	// T017: Convert string literal to []byte
+	key3, err := cs.DeriveKey([]byte("different-password"), salt)
 	if err != nil {
 		t.Fatalf("DeriveKey failed: %v", err)
 	}

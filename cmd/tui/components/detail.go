@@ -153,7 +153,8 @@ func (dv *DetailView) formatPasswordField(b *strings.Builder, cred *vault.Creden
 		// Fetch full credential to get password
 		fullCred, err := dv.appState.GetFullCredential(cred.Service)
 		if err == nil && fullCred != nil {
-			password = fullCred.Password
+			// T020d: Convert []byte to string for display
+			password = string(fullCred.Password)
 			hint = "  [gray](Press 'p' to hide)[-]"
 		} else {
 			password = "[red]Error loading password[-]"
@@ -188,6 +189,7 @@ func (dv *DetailView) TogglePasswordVisibility() {
 
 // CopyPasswordToClipboard copies the selected credential's password to clipboard.
 // Returns error if no credential selected or clipboard operation fails.
+// T020g: Added explicit memory zeroing after clipboard write
 func (dv *DetailView) CopyPasswordToClipboard() error {
 	cred := dv.appState.GetSelectedCredential()
 	if cred == nil {
@@ -200,10 +202,20 @@ func (dv *DetailView) CopyPasswordToClipboard() error {
 		return fmt.Errorf("failed to get credential: %w", err)
 	}
 
+	// T020g: Convert []byte to string for clipboard, then immediately zero the byte slice
+	passwordStr := string(fullCred.Password)
+
 	// Copy password to clipboard
-	err = clipboard.WriteAll(fullCred.Password)
+	err = clipboard.WriteAll(passwordStr)
 	if err != nil {
 		return fmt.Errorf("failed to copy to clipboard: %w", err)
+	}
+
+	// T020g: Zero the password bytes immediately after clipboard write
+	// Note: This only zeros the source []byte in fullCred, not the string copy
+	// The string copy is necessary for clipboard API and will be GC'd
+	for i := range fullCred.Password {
+		fullCred.Password[i] = 0
 	}
 
 	return nil

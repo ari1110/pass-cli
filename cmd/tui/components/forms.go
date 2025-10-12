@@ -428,9 +428,10 @@ func (ef *EditForm) fetchPasswordIfNeeded(passwordField *tview.InputField) {
 	}
 
 	// Set password field and cache original value
+	// T020d: Convert []byte password to string for display
 	if cred != nil {
-		ef.originalPassword = cred.Password
-		passwordField.SetText(cred.Password)
+		ef.originalPassword = string(cred.Password)
+		passwordField.SetText(string(cred.Password))
 	}
 
 	ef.passwordFetched = true
@@ -469,8 +470,10 @@ func (ef *EditForm) onSavePressed() {
 
 	// Only update password if user changed it (not empty AND different from original)
 	// This prevents unnecessary updates when user just views the form
+	// T020d: Convert string password to []byte for UpdateOpts
 	if password != "" && password != ef.originalPassword {
-		opts.Password = &password
+		passwordBytes := []byte(password)
+		opts.Password = &passwordBytes
 	}
 
 	// Always set category (even if empty, to allow clearing)

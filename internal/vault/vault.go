@@ -35,10 +35,11 @@ type UsageRecord struct {
 }
 
 // Credential represents a stored credential with usage tracking
+// T020c: Password field changed from string to []byte for secure memory handling
 type Credential struct {
 	Service     string                 `json:"service"`
 	Username    string                 `json:"username"`
-	Password    string                 `json:"password"`
+	Password    []byte                 `json:"password"` // T020c: Changed to []byte for memory security
 	Category    string                 `json:"category,omitempty"`
 	URL         string                 `json:"url,omitempty"`
 	Notes       string                 `json:"notes"`
@@ -231,7 +232,8 @@ func (v *VaultService) save() error {
 }
 
 // AddCredential adds a new credential to the vault
-func (v *VaultService) AddCredential(service, username, password, category, url, notes string) error {
+// T020d: Password parameter changed to []byte for memory security
+func (v *VaultService) AddCredential(service, username string, password []byte, category, url, notes string) error {
 	if !v.unlocked {
 		return ErrVaultLocked
 	}
@@ -240,7 +242,7 @@ func (v *VaultService) AddCredential(service, username, password, category, url,
 	if service == "" {
 		return fmt.Errorf("%w: service name cannot be empty", ErrInvalidCredential)
 	}
-	if password == "" {
+	if len(password) == 0 {
 		return fmt.Errorf("%w: password cannot be empty", ErrInvalidCredential)
 	}
 
@@ -249,12 +251,15 @@ func (v *VaultService) AddCredential(service, username, password, category, url,
 		return fmt.Errorf("%w: %s", ErrCredentialExists, service)
 	}
 
-	// Create credential
+	// Create credential (make a copy of password to store)
 	now := time.Now()
+	passwordCopy := make([]byte, len(password))
+	copy(passwordCopy, password)
+
 	credential := Credential{
 		Service:     service,
 		Username:    username,
-		Password:    password,
+		Password:    passwordCopy, // T020d: Store []byte password
 		Category:    category,
 		URL:         url,
 		Notes:       notes,
@@ -368,9 +373,10 @@ func (v *VaultService) ListCredentials() ([]string, error) {
 
 // UpdateOpts contains optional fields for updating a credential
 // Use pointers to distinguish between "don't change" (nil) and "set to empty/value" (non-nil)
+// T020d: Password changed to *[]byte for memory security
 type UpdateOpts struct {
-	Username *string // nil = don't change, non-nil = set to value (even if empty)
-	Password *string
+	Username *string  // nil = don't change, non-nil = set to value (even if empty)
+	Password *[]byte  // T020d: Changed to *[]byte for memory security
 	Category *string
 	URL      *string
 	Notes    *string
@@ -469,13 +475,16 @@ func (v *VaultService) UpdateCredential(service string, opts UpdateOpts) error {
 // UpdateCredentialFields updates fields using the planned 6-parameter signature
 // Empty strings mean "no change" to align with original plan semantics.
 // Note: This wrapper cannot set a field to empty string. Use UpdateCredential with UpdateOpts for that.
+// T020d: Converts string password to []byte for UpdateOpts
 func (v *VaultService) UpdateCredentialFields(service, username, password, category, url, notes string) error {
 	opts := UpdateOpts{}
 	if username != "" {
 		opts.Username = &username
 	}
 	if password != "" {
-		opts.Password = &password
+		// T020d: Convert string to []byte for opts.Password
+		passwordBytes := []byte(password)
+		opts.Password = &passwordBytes
 	}
 	if category != "" {
 		opts.Category = &category

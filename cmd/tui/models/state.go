@@ -15,9 +15,10 @@ import (
 
 // VaultService interface defines the vault operations needed by AppState.
 // This interface enables testing with mock implementations.
+// T020d: Updated AddCredential signature to accept []byte password
 type VaultService interface {
 	ListCredentialsWithMetadata() ([]vault.CredentialMetadata, error)
-	AddCredential(service, username, password, category, url, notes string) error
+	AddCredential(service, username string, password []byte, category, url, notes string) error // T020d: []byte password
 	UpdateCredential(service string, opts vault.UpdateOpts) error
 	DeleteCredential(service string) error
 	GetCredential(service string, trackUsage bool) (*vault.Credential, error)
@@ -25,9 +26,10 @@ type VaultService interface {
 
 // UpdateCredentialOpts mirrors vault.UpdateOpts for AppState layer.
 // Using pointer fields allows distinguishing "don't update" (nil) from "clear to empty" (non-nil empty string).
+// T020d: Password changed to *[]byte for memory security
 type UpdateCredentialOpts struct {
 	Username *string
-	Password *string
+	Password *[]byte // T020d: Changed to *[]byte
 	Category *string
 	URL      *string
 	Notes    *string
@@ -172,9 +174,13 @@ func (s *AppState) LoadCredentials() error {
 
 // AddCredential adds a new credential to the vault.
 // CRITICAL: Minimizes lock duration by releasing lock during vault I/O operations.
+// T020d: Converts string password to []byte for vault storage
 func (s *AppState) AddCredential(service, username, password, category, url, notes string) error {
+	// T020d: Convert string password to []byte for vault
+	passwordBytes := []byte(password)
+
 	// Perform vault I/O without holding lock (vault has its own synchronization)
-	err := s.vault.AddCredential(service, username, password, category, url, notes)
+	err := s.vault.AddCredential(service, username, passwordBytes, category, url, notes)
 	if err != nil {
 		wrappedErr := fmt.Errorf("failed to add credential: %w", err)
 		s.notifyError(wrappedErr)

@@ -53,7 +53,8 @@ func (m *MockVaultService) ListCredentialsWithMetadata() ([]vault.CredentialMeta
 }
 
 // AddCredential adds a mock credential.
-func (m *MockVaultService) AddCredential(service, username, password, category, url, notes string) error {
+// T020d: Updated signature to accept []byte password
+func (m *MockVaultService) AddCredential(service, username string, password []byte, category, url, notes string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -142,10 +143,11 @@ func (m *MockVaultService) GetCredential(service string, trackUsage bool) (*vaul
 	// Find credential
 	for _, cred := range m.credentials {
 		if cred.Service == service {
+			// T020d: Return []byte password
 			return &vault.Credential{
 				Service:     cred.Service,
 				Username:    cred.Username,
-				Password:    "mock-password",
+				Password:    []byte("mock-password"),
 				Notes:       cred.Notes,
 				CreatedAt:   cred.CreatedAt,
 				UpdatedAt:   cred.UpdatedAt,
@@ -315,7 +317,7 @@ func TestUpdateCredential(t *testing.T) {
 
 	// Update credential with all fields using UpdateCredentialOpts
 	newuser := "newuser"
-	newpass := "newpass"
+	newpass := []byte("newpass") // T020d: Convert to []byte
 	newCategory := "Updated Category"
 	newURL := "https://new-url.com"
 	newNotes := "Updated notes"
@@ -651,8 +653,9 @@ func TestGetFullCredential(t *testing.T) {
 	if fullCred.Service != "AWS" {
 		t.Errorf("Expected service 'AWS', got '%s'", fullCred.Service)
 	}
-	if fullCred.Password != "mock-password" {
-		t.Errorf("Expected password 'mock-password', got '%s'", fullCred.Password)
+	// T020d: Compare []byte password
+	if string(fullCred.Password) != "mock-password" {
+		t.Errorf("Expected password 'mock-password', got '%s'", string(fullCred.Password))
 	}
 
 	// Verify vault method called

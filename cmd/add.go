@@ -112,8 +112,11 @@ func runAdd(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("password cannot be empty")
 	}
 
+	// T020d: Convert string password to []byte for vault
+	passwordBytes := []byte(addPassword)
+
 	// Add credential to vault with all metadata fields
-	if err := vaultService.AddCredential(service, addUsername, addPassword, addCategory, addURL, addNotes); err != nil {
+	if err := vaultService.AddCredential(service, addUsername, passwordBytes, addCategory, addURL, addNotes); err != nil {
 		return fmt.Errorf("failed to add credential: %w", err)
 	}
 

@@ -111,7 +111,7 @@ func BenchmarkDetailRendering(b *testing.B) {
 		Username:    "user@example.com",
 		Category:    "work",
 		URL:         "https://github.com",
-		Password:    "secret123",
+		Password:    []byte("secret123"), // T020d: Convert to []byte
 		CreatedAt:   time.Now().Add(-30 * 24 * time.Hour),
 		UpdatedAt:   time.Now().Add(-1 * 24 * time.Hour),
 		UsageRecord: usageRecords,
@@ -144,7 +144,7 @@ func TestDetailRendering_Performance(t *testing.T) {
 		Username:    "user@example.com",
 		Category:    "work",
 		URL:         "https://github.com",
-		Password:    "secret123",
+		Password:    []byte("secret123"), // T020d: Convert to []byte
 		CreatedAt:   time.Now().Add(-30 * 24 * time.Hour),
 		UpdatedAt:   time.Now().Add(-1 * 24 * time.Hour),
 		UsageRecord: usageRecords,

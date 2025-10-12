@@ -26,7 +26,8 @@ func (m *MockVaultService) ListCredentialsWithMetadata() ([]vault.CredentialMeta
 	return m.credentials, nil
 }
 
-func (m *MockVaultService) AddCredential(service, username, password, category, url, notes string) error {
+// T020d: Updated signature to accept []byte password
+func (m *MockVaultService) AddCredential(service, username string, password []byte, category, url, notes string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.credentials = append(m.credentials, vault.CredentialMetadata{
@@ -76,7 +77,8 @@ func (m *MockVaultService) GetCredential(service string, trackUsage bool) (*vaul
 	defer m.mu.Unlock()
 	for _, cred := range m.credentials {
 		if cred.Service == service {
-			return &vault.Credential{Service: cred.Service, Username: cred.Username, Password: "mock"}, nil
+			// T020d: Convert to []byte
+			return &vault.Credential{Service: cred.Service, Username: cred.Username, Password: []byte("mock")}, nil
 		}
 	}
 	return nil, errors.New("not found")

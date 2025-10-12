@@ -38,7 +38,7 @@ func CreateTestCredential(service, username string, usageRecords map[string]vaul
 	return &vault.Credential{
 		Service:     service,
 		Username:    username,
-		Password:    "test-password",
+		Password:    []byte("test-password"), // T020d: Convert to []byte
 		Category:    "test-category",
 		URL:         "https://example.com",
 		Notes:       "test notes",

@@ -109,7 +109,7 @@ func outputQuietMode(cred *vault.Credential) error {
 	case "username", "user", "u":
 		value = cred.Username
 	case "password", "pass", "p":
-		value = cred.Password
+		value = string(cred.Password) // T020d: Convert []byte to string
 	case "category", "cat", "c":
 		value = cred.Category
 	case "url":
@@ -138,7 +138,8 @@ func outputNormalMode(cred *vault.Credential) error {
 	if getMasked {
 		fmt.Printf("🔑 Password: %s\n", strings.Repeat("*", len(cred.Password)))
 	} else {
-		fmt.Printf("🔑 Password: %s\n", cred.Password)
+		// T020d: Convert []byte to string for display
+		fmt.Printf("🔑 Password: %s\n", string(cred.Password))
 	}
 
 	if cred.Category != "" {
@@ -161,16 +162,26 @@ func outputNormalMode(cred *vault.Credential) error {
 
 	// Copy to clipboard unless disabled
 	if !getNoClipboard {
-		if err := clipboard.WriteAll(cred.Password); err != nil {
+		// T020g: Convert []byte to string for clipboard, then immediately zero the byte slice
+		passwordStr := string(cred.Password)
+
+		if err := clipboard.WriteAll(passwordStr); err != nil {
 			fmt.Fprintf(os.Stderr, "\n⚠️  Warning: failed to copy to clipboard: %v\n", err)
 		} else {
+			// T020g: Zero the password bytes immediately after clipboard write
+			// Note: This only zeros the source []byte in cred, not the string copy
+			// The string copy is necessary for clipboard API and will be GC'd
+			for i := range cred.Password {
+				cred.Password[i] = 0
+			}
+
 			fmt.Println("\n✅ Password copied to clipboard!")
 
 			// Schedule clipboard clear in background (30 seconds)
 			go func() {
 				time.Sleep(30 * time.Second)
 				// Only clear if the clipboard still contains our password
-				if current, err := clipboard.ReadAll(); err == nil && current == cred.Password {
+				if current, err := clipboard.ReadAll(); err == nil && current == passwordStr {
 					_ = clipboard.WriteAll("")
 					if IsVerbose() {
 						fmt.Fprintln(os.Stderr, "🧹 Clipboard cleared")
