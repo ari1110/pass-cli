@@ -11,6 +11,11 @@
 
 - Q: FR-017 real-time strength indicator - Where should it be implemented (CLI, TUI, both, or neither)? → A: Both CLI and TUI with mode-appropriate UX patterns
 - Q: Does current `gopass` library support byte-array (`[]byte`) password input, or is migration to `golang.org/x/term` required? → A: Research needed - requires codebase inspection during planning phase
+- Q: When a password change migration to 600k iterations fails mid-operation (e.g., power loss during vault re-encryption), what should the recovery behavior be? → A: Option B - Implement atomic write with backup; auto-rollback on next unlock if migration incomplete; include pre-flight checks (disk space, write permissions) and retain backup until next successful unlock
+- Q: FR-027 requires HMAC signatures to protect audit log integrity, but the key derivation method is unspecified. Where should the HMAC key come from? → A: Option D - Use OS keychain (Windows Credential Manager, macOS Keychain, Linux Secret Service) with per-vault HMAC keys identified by vault UUID; allows log verification without master password; gracefully disable audit logging if keychain unavailable; use github.com/zalando/go-keyring library
+- Q: When a user fails password complexity validation during vault initialization, what should the retry behavior be? → A: Option B - Apply rate limiting after 3 failed attempts (5-second cooldown between attempts)
+- Q: FR-029 specifies 10MB default threshold for audit log rotation, but retention duration is undefined. How long should old audit logs be kept? → A: Option A - Keep last 7 days of logs (delete older rotated logs automatically)
+- Q: FR-004 requires memory clearing with `crypto/subtle`, but doesn't specify how to validate this behavior in tests. What testing approach should be used? → A: Option B - Targeted unit tests that verify specific byte slices are zeroed after use (not heap scanning). Test retains reference to password slice passed to function, then verifies slice is zeroed after function completes. Can force GC with runtime.GC() for reliability. Supplemented by manual profiling during development and code review for defer patterns.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -20,7 +25,7 @@ Users expect their master password to be securely handled in memory and not left
 
 **Why this priority**: This is a CRITICAL security vulnerability (High severity). An attacker with local access who can inspect process memory can extract the plaintext master password, leading to complete vault compromise. This undermines the entire security model of the password manager.
 
-**Independent Test**: Can be fully tested by instrumenting memory inspection tools (debuggers, memory profilers) to verify that master password byte arrays are zeroed after key derivation operations, and that no string-based password copies remain in memory longer than necessary.
+**Independent Test**: Can be fully tested using targeted unit tests that retain a reference to the password byte slice passed to the function under test, then verify the slice is zeroed after execution (not heap scanning). Tests can force GC with `runtime.GC()` to increase reliability. Supplemented by manual memory profiling (debuggers like delve, pprof) during development and mandatory code review to verify defer patterns.
 
 **Acceptance Scenarios**:
 
@@ -85,11 +90,14 @@ Security-conscious users and organizations need visibility into when and how cre
 
 ### Edge Cases
 
-- What happens when a user migrates from an old vault (100k iterations) to the new standard (600k iterations)? The migration should be automatic and seamless during the next password change operation, with no data loss.
+- What happens when a user migrates from an old vault (100k iterations) to the new standard (600k iterations)? The migration should be automatic and seamless during the next password change operation, with no data loss. Migration uses atomic write pattern: write to temporary file, then rename. If migration fails mid-operation (power loss, crash, disk full), auto-rollback restores original vault on next unlock. Pre-flight checks verify disk space and write permissions before attempting migration. Backup file (vault.bak) retained until next successful unlock for additional safety.
 - How does the system handle memory clearing if the Go garbage collector runs before manual clearing? The implementation should use byte slices exclusively for passwords and clear them immediately after use, minimizing GC exposure window.
 - What if a user's system doesn't have write permissions for the audit log directory? The application should degrade gracefully, warn the user, and continue functioning without audit logging (or use an alternate location).
 - How does password complexity enforcement handle non-English characters or special Unicode symbols? The validation should count them appropriately (symbols count as symbols, accented letters count as letters) and document which character classes are required.
-- How does audit log rotation handle very high-frequency operations? The rotation should be based on file size limits (e.g., 10MB) with configurable retention, not just operation count.
+- How does audit log rotation handle very high-frequency operations? The rotation should be based on file size limits (e.g., 10MB) with configurable retention, not just operation count. Rotated logs older than 7 days are automatically deleted to prevent unbounded disk usage.
+- What happens if OS keychain is unavailable for audit HMAC keys (e.g., headless SSH session)? The system should gracefully disable audit logging with a warning message to the user. Since audit logging is P3 (optional, defense-in-depth), this degradation is acceptable.
+- How are audit HMAC keys managed across multiple vaults? Each vault has a unique HMAC key stored in OS keychain with identifier `pass-cli-audit-<vault-uuid>`. Vault UUID is stored in vault metadata. This ensures each vault + audit log pair is portable and self-contained.
+- What happens when a user repeatedly fails password complexity validation during vault initialization? The first 3 attempts allow immediate retries. After 3 failures, a 5-second cooldown is enforced between subsequent attempts. This prevents automated abuse while allowing legitimate users to retry as they learn the requirements.
 
 ## Requirements *(mandatory)*
 
@@ -110,34 +118,45 @@ Security-conscious users and organizations need visibility into when and how cre
 - **FR-008**: System MUST provide automatic vault migration to higher iteration counts when users change their master password
 - **FR-009**: Key derivation MUST take 500-1000ms on modern consumer hardware to balance security and usability
 - **FR-010**: System MUST support configurable iteration counts for future-proofing (with 600k as minimum)
+- **FR-011**: System MUST implement atomic vault migration using write-to-temp-then-rename pattern to prevent corruption during password changes
+- **FR-012**: System MUST perform pre-flight checks (disk space, write permissions) before attempting vault migration
+- **FR-013**: System MUST auto-rollback to original vault on next unlock if migration fails mid-operation
+- **FR-014**: System MUST retain backup file (vault.bak) until next successful unlock after migration for additional safety
+- **FR-015**: System MUST notify user when migration rollback occurs, explaining the failure and suggesting retry
 
 #### Password Policy (P2)
 
-- **FR-011**: System MUST enforce minimum master password length of 12 characters (increased from 8)
-- **FR-012**: System MUST require master passwords to contain at least one uppercase letter (A-Z)
-- **FR-013**: System MUST require master passwords to contain at least one lowercase letter (a-z)
-- **FR-014**: System MUST require master passwords to contain at least one digit (0-9)
-- **FR-015**: System MUST require master passwords to contain at least one symbol (punctuation or special character)
-- **FR-016**: System MUST provide clear, actionable error messages when password requirements are not met, listing which requirements are missing
-- **FR-017**: System SHOULD provide real-time password strength feedback during input in both CLI and TUI modes (CLI: text-based indicator updated per keystroke; TUI: visual strength meter component)
-- **FR-018**: Existing vaults with 8-character passwords MUST continue to function but MUST require new complexity standards when password is changed
+- **FR-016**: System MUST enforce minimum master password length of 12 characters (increased from 8)
+- **FR-017**: System MUST require master passwords to contain at least one uppercase letter (A-Z)
+- **FR-018**: System MUST require master passwords to contain at least one lowercase letter (a-z)
+- **FR-019**: System MUST require master passwords to contain at least one digit (0-9)
+- **FR-020**: System MUST require master passwords to contain at least one symbol (punctuation or special character)
+- **FR-021**: System MUST provide clear, actionable error messages when password requirements are not met, listing which requirements are missing
+- **FR-022**: System SHOULD provide real-time password strength feedback during input in both CLI and TUI modes (CLI: text-based indicator updated per keystroke; TUI: visual strength meter component)
+- **FR-023**: Existing vaults with 8-character passwords MUST continue to function but MUST require new complexity standards when password is changed
+- **FR-024**: System MUST allow unlimited immediate retries for the first 3 password complexity validation failures, then enforce a 5-second cooldown between subsequent attempts to prevent automated abuse
 
 #### Audit Logging (P3)
 
-- **FR-019**: System MUST log all vault unlock attempts (successful and failed) with timestamp and outcome
-- **FR-020**: System MUST log all credential access operations with timestamp, operation type (get/add/update/delete), and credential service name
-- **FR-021**: System MUST NOT log credential passwords or sensitive field values in audit logs
-- **FR-022**: System MUST protect audit log integrity using HMAC signatures to detect tampering
-- **FR-023**: System MUST support configurable audit log location (default: `~/.pass-cli/audit.log`)
-- **FR-024**: System MUST rotate audit logs when size exceeds configurable threshold (default: 10MB)
-- **FR-025**: Audit logging MUST be optional and disabled by default to avoid unexpected disk usage
-- **FR-026**: System MUST degrade gracefully if audit logging fails (warn but continue operation)
+- **FR-025**: System MUST log all vault unlock attempts (successful and failed) with timestamp and outcome
+- **FR-026**: System MUST log all credential access operations with timestamp, operation type (get/add/update/delete), and credential service name
+- **FR-027**: System MUST NOT log credential passwords or sensitive field values in audit logs
+- **FR-028**: System MUST protect audit log integrity using HMAC signatures to detect tampering
+- **FR-029**: System MUST support configurable audit log location (default: `~/.pass-cli/audit.log`)
+- **FR-030**: System MUST rotate audit logs when size exceeds configurable threshold (default: 10MB)
+- **FR-031**: System MUST automatically delete rotated audit logs older than 7 days to prevent unbounded disk usage
+- **FR-032**: Audit logging MUST be optional and disabled by default to avoid unexpected disk usage
+- **FR-033**: System MUST degrade gracefully if audit logging fails (warn but continue operation)
+- **FR-034**: System MUST generate unique HMAC key per vault and store in OS keychain (Windows Credential Manager, macOS Keychain, Linux Secret Service) using identifier `pass-cli-audit-<vault-uuid>`
+- **FR-035**: System MUST support audit log verification without requiring master password or vault unlock
+- **FR-036**: System MUST disable audit logging gracefully with warning if OS keychain is unavailable (e.g., headless environment)
+- **FR-037**: System MUST store vault UUID in vault metadata to enable keychain key retrieval
 
 ### Key Entities
 
-- **AuditLogEntry**: Represents a single security event with timestamp, event type (unlock/access/modify), outcome (success/failure), credential service name (not password), and HMAC signature for integrity
+- **AuditLogEntry**: Represents a single security event with timestamp, event type (unlock/access/modify), outcome (success/failure), credential service name (not password), and HMAC signature for integrity. HMAC key is per-vault, stored in OS keychain.
 - **PasswordPolicy**: Configuration defining minimum length (12), required character classes (uppercase, lowercase, digit, symbol), and validation rules
-- **VaultMetadata**: Extended to include PBKDF2 iteration count for each vault, enabling version detection and migration
+- **VaultMetadata**: Extended to include PBKDF2 iteration count and unique vault UUID (for keychain HMAC key identification), enabling version detection, migration, and audit log integrity verification
 
 ## Success Criteria *(mandatory)*
 
@@ -189,6 +208,7 @@ Security-conscious users and organizations need visibility into when and how cre
 - **Existing Crypto Package**: `internal/crypto/crypto.go` requires refactoring to accept `[]byte` passwords
 - **Existing Vault Package**: `internal/vault/vault.go` requires changes to use byte arrays and enforce new password policy
 - **Terminal Input Library**: Requires investigation during planning - determine if current `gopass` library supports `[]byte` return values or if migration to `golang.org/x/term` is necessary for FR-001/FR-005 compliance
+- **OS Keychain Library**: `github.com/zalando/go-keyring` for cross-platform OS keychain integration (Windows Credential Manager, macOS Keychain, Linux Secret Service) to store per-vault HMAC keys for audit log integrity
 - **Backward Compatibility**: Must maintain ability to read vaults created with 100k iterations until migration
 
 ## Risks
@@ -210,7 +230,7 @@ Security-conscious users and organizations need visibility into when and how cre
 - **Backward Compatibility**: This feature maintains vault file compatibility. Old vaults work with new code, new vaults work with new code. Old vaults get security upgrades only when password is changed.
 
 - **Testing Strategy**: Security features require specialized testing:
-  - Memory inspection: Use debuggers (gdb, delve) and memory profilers to verify password clearing
+  - Memory clearing: Targeted unit tests that retain reference to password byte slice passed to functions under test, then verify slice is zeroed after execution. Tests can force GC with `runtime.GC()` to increase reliability. Supplemented by manual profiling (delve, pprof) during development and mandatory code review for defer patterns.
   - Crypto timing: Benchmark on representative hardware to verify 500-1000ms target
   - Password validation: Unit tests for all complexity rules and edge cases
   - Audit logging: Verify HMAC integrity and tamper detection
