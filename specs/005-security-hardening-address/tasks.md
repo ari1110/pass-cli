@@ -71,11 +71,11 @@
 - [X] T020 [US1] Run memory inspection tests to verify password clearing works (use delve debugger per quickstart.md)
 - [X] T020a [P] [US1] Create clipboard security verification test in `tests/security/clipboard_test.go` (verify 30-second auto-clear per constitution)
 - [X] T020b [P] [US1] Create terminal input security test in `tests/security/input_test.go` (verify readPassword returns []byte with no string conversion)
-- [ ] T020c [US1] Change Credential.Password field from string to []byte in `internal/vault/credential.go` (similar to VaultService.masterPassword)
-- [ ] T020d [US1] Update all Credential.Password access sites to handle []byte instead of string
-- [ ] T020e [US1] Add deferred cleanup for Credential.Password in credential lifecycle methods
-- [ ] T020f [US1] Refactor all ~20 Credential.Password call sites in `cmd/get.go:89`, `cmd/add.go:156`, `cmd/update.go:142`, `cmd/tui/components/detail.go:67,85`, `cmd/tui/components/forms.go:123,187,234` to handle []byte. Ensure display conversions are brief with immediate zeroing.
-- [ ] T020g [US1] Add explicit memory zeroing to clipboard copy function in `cmd/get.go` and `cmd/tui/components/detail.go` immediately after password written to clipboard (FR-001, Constitution line 50)
+- [X] T020c [US1] Change Credential.Password field from string to []byte in `internal/vault/credential.go` (similar to VaultService.masterPassword)
+- [X] T020d [US1] Update all Credential.Password access sites to handle []byte instead of string
+- [X] T020e [US1] Add deferred cleanup for Credential.Password in credential lifecycle methods
+- [X] T020f [US1] Refactor all ~20 Credential.Password call sites in `cmd/get.go:89`, `cmd/add.go:156`, `cmd/update.go:142`, `cmd/tui/components/detail.go:67,85`, `cmd/tui/components/forms.go:123,187,234` to handle []byte. Ensure display conversions are brief with immediate zeroing.
+- [X] T020g [US1] Add explicit memory zeroing to clipboard copy function in `cmd/get.go` and `cmd/tui/components/detail.go` immediately after password written to clipboard (FR-001, Constitution line 50)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - master password AND credential passwords are byte-based and cleared after use
 
