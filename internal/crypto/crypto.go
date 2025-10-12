@@ -13,10 +13,12 @@ import (
 )
 
 const (
-	KeyLength   = 32     // AES-256 key length
-	NonceLength = 12     // GCM nonce length
-	SaltLength  = 32     // PBKDF2 salt length
-	Iterations  = 100000 // PBKDF2 iterations for key derivation
+	KeyLength        = 32     // AES-256 key length
+	NonceLength      = 12     // GCM nonce length
+	SaltLength       = 32     // PBKDF2 salt length
+	DefaultIterations = 600000 // PBKDF2 iterations for new vaults (OWASP 2023, T029)
+	MinIterations    = 600000 // Minimum allowed iterations (T029)
+	LegacyIterations = 100000 // Legacy iteration count for backward compatibility
 )
 
 var (
@@ -41,12 +43,13 @@ func (c *CryptoService) GenerateSalt() ([]byte, error) {
 	return salt, nil
 }
 
-func (c *CryptoService) DeriveKey(password []byte, salt []byte) ([]byte, error) {
+func (c *CryptoService) DeriveKey(password []byte, salt []byte, iterations int) ([]byte, error) {
 	if len(salt) != SaltLength {
 		return nil, ErrInvalidSaltLength
 	}
 
-	key := pbkdf2.Key(password, salt, Iterations, KeyLength, sha256.New)
+	// T027/T028: Use iterations parameter instead of hardcoded constant (FR-007)
+	key := pbkdf2.Key(password, salt, iterations, KeyLength, sha256.New)
 	return key, nil
 }
 

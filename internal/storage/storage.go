@@ -28,10 +28,11 @@ var (
 )
 
 type VaultMetadata struct {
-	Version   int       `json:"version"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Salt      []byte    `json:"salt"`
+	Version    int       `json:"version"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+	Salt       []byte    `json:"salt"`
+	Iterations int       `json:"iterations"` // PBKDF2 iteration count (FR-007)
 }
 
 type EncryptedVault struct {
@@ -80,12 +81,13 @@ func (s *StorageService) InitializeVault(password string) error {
 	// Create initial empty vault data
 	emptyVault := []byte("{}")
 
-	// Create vault metadata
+	// T032: Create vault metadata with 600k iterations (OWASP 2023, FR-007)
 	metadata := VaultMetadata{
-		Version:   1,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		Salt:      salt,
+		Version:    1,
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
+		Salt:       salt,
+		Iterations: crypto.DefaultIterations, // 600,000 for new vaults
 	}
 
 	// Encrypt and save vault
@@ -102,8 +104,8 @@ func (s *StorageService) LoadVault(password string) ([]byte, error) {
 		return nil, err
 	}
 
-	// Derive key from password and salt
-	key, err := s.cryptoService.DeriveKey([]byte(password), encryptedVault.Metadata.Salt)
+	// T031: Derive key from password and salt with iterations from metadata (FR-007)
+	key, err := s.cryptoService.DeriveKey([]byte(password), encryptedVault.Metadata.Salt, encryptedVault.Metadata.Iterations)
 	if err != nil {
 		return nil, fmt.Errorf("failed to derive key: %w", err)
 	}
@@ -194,6 +196,12 @@ func (s *StorageService) ValidateVault() error {
 		return ErrVaultCorrupted
 	}
 
+	// Validate Iterations field (T025 - FR-007)
+	// Allow 0 for backward compatibility (will default to 100000 on load)
+	if encryptedVault.Metadata.Iterations != 0 && encryptedVault.Metadata.Iterations < 100000 {
+		return fmt.Errorf("%w: iterations must be >= 100,000", ErrVaultCorrupted)
+	}
+
 	return nil
 }
 
@@ -231,12 +239,17 @@ func (s *StorageService) loadEncryptedVault() (*EncryptedVault, error) {
 		return nil, fmt.Errorf("failed to parse vault file: %w", err)
 	}
 
+	// T026: Backward compatibility for legacy vaults without Iterations field (FR-008)
+	if encryptedVault.Metadata.Iterations == 0 {
+		encryptedVault.Metadata.Iterations = 100000 // Legacy default
+	}
+
 	return &encryptedVault, nil
 }
 
 func (s *StorageService) saveEncryptedVault(data []byte, metadata VaultMetadata, password string) error {
-	// Derive key from password and salt
-	key, err := s.cryptoService.DeriveKey([]byte(password), metadata.Salt)
+	// T030: Derive key from password and salt with iterations from metadata (FR-007)
+	key, err := s.cryptoService.DeriveKey([]byte(password), metadata.Salt, metadata.Iterations)
 	if err != nil {
 		return fmt.Errorf("failed to derive key: %w", err)
 	}
