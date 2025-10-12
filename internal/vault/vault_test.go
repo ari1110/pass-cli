@@ -827,3 +827,79 @@ func TestBackwardCompatibility(t *testing.T) {
 		t.Errorf("Notes = %s, want notes", cred.Notes)
 	}
 }
+
+// T023 [US2]: Test automatic migration from 100k to 600k iterations on password change
+// FR-010: System MUST automatically upgrade legacy vaults to 600k iterations
+func TestIterationsMigrationOnPasswordChange(t *testing.T) {
+	t.Skip("T023: Migration test - will be enabled after T024-T033 implementation")
+
+	// vault, _, cleanup := setupTestVault(t)
+	// defer cleanup()
+	//
+	// password := "test-password-12345"
+	// newPassword := "new-password-67890"
+	//
+	// // Initialize vault with 100k iterations (legacy)
+	// // T032: Initialize should set metadata.Iterations = 600000 for new vaults
+	// // But for this test, we simulate a legacy vault with 100k
+	// if err := vault.Initialize([]byte(password), false); err != nil {
+	// 	t.Fatalf("Initialize() failed: %v", err)
+	// }
+	//
+	// // Manually set iterations to 100k to simulate legacy vault
+	// // (In real scenario, this would be loaded from an old vault file)
+	// // TODO: After T024, set vault.storage.metadata.Iterations = 100000
+	//
+	// if err := vault.Unlock([]byte(password)); err != nil {
+	// 	t.Fatalf("Unlock() failed: %v", err)
+	// }
+	//
+	// // Verify starting with 100k iterations
+	// // TODO: After T024, add GetIterations() method or access metadata
+	// // initialIterations := vault.storage.metadata.Iterations
+	// // if initialIterations != 100000 {
+	// // 	t.Fatalf("Expected initial iterations 100000, got %d", initialIterations)
+	// // }
+	//
+	// // Add a credential to ensure data survives migration
+	// if err := vault.AddCredential("test", "user", []byte("pass"), "", "", "test migration"); err != nil {
+	// 	t.Fatalf("AddCredential() failed: %v", err)
+	// }
+	//
+	// // Change password - should trigger migration to 600k iterations
+	// // T033: ChangePassword should upgrade iterations if < 600000
+	// if err := vault.ChangePassword([]byte(newPassword)); err != nil {
+	// 	t.Fatalf("ChangePassword() failed: %v", err)
+	// }
+	//
+	// // Verify iterations were upgraded to 600k
+	// // TODO: After T024, check metadata
+	// // newIterations := vault.storage.metadata.Iterations
+	// // if newIterations != 600000 {
+	// // 	t.Errorf("Expected iterations upgraded to 600000, got %d", newIterations)
+	// // }
+	//
+	// // Lock and unlock with new password to verify migration worked
+	// vault.Lock()
+	// if err := vault.Unlock([]byte(newPassword)); err != nil {
+	// 	t.Fatalf("Unlock() with new password failed: %v", err)
+	// }
+	//
+	// // Verify credential still exists after migration
+	// cred, err := vault.GetCredential("test", false)
+	// if err != nil {
+	// 	t.Fatalf("GetCredential() failed after migration: %v", err)
+	// }
+	//
+	// if cred.Username != "user" {
+	// 	t.Errorf("Username = %s, want user", cred.Username)
+	// }
+	// if string(cred.Password) != "pass" {
+	// 	t.Errorf("Password = %s, want pass", string(cred.Password))
+	// }
+	// if cred.Notes != "test migration" {
+	// 	t.Errorf("Notes = %s, want 'test migration'", cred.Notes)
+	// }
+	//
+	// t.Log("Migration from 100k to 600k iterations successful")
+}

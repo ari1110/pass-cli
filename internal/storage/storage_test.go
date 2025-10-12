@@ -1079,3 +1079,58 @@ func TestStorageService_MetadataValidation(t *testing.T) {
 		t.Error("UpdatedAt should be updated after save")
 	}
 }
+
+// T022 [US2]: Test backward compatibility for loading vaults without Iterations field
+// FR-010: System MUST support loading legacy vaults with 100k iterations
+func TestStorageService_BackwardCompatibleIterations(t *testing.T) {
+	t.Skip("T022: Backward compatibility test - will be enabled after T024-T026 implementation")
+
+	// cryptoService := crypto.NewCryptoService()
+	// tempDir := t.TempDir()
+	// vaultPath := filepath.Join(tempDir, "legacy_vault.enc")
+	//
+	// // Create a vault file manually with metadata missing Iterations field
+	// // This simulates a vault created before T024 (adding Iterations field)
+	// legacyVaultJSON := `{
+	// 	"metadata": {
+	// 		"version": 1,
+	// 		"created_at": "2025-01-01T00:00:00Z",
+	// 		"updated_at": "2025-01-01T00:00:00Z",
+	// 		"salt": "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY="
+	// 	},
+	// 	"data": "dGVzdA=="
+	// }`
+	//
+	// if err := os.WriteFile(vaultPath, []byte(legacyVaultJSON), VaultPermissions); err != nil {
+	// 	t.Fatalf("Failed to create legacy vault file: %v", err)
+	// }
+	//
+	// storage, err := NewStorageService(cryptoService, vaultPath)
+	// if err != nil {
+	// 	t.Fatalf("NewStorageService failed: %v", err)
+	// }
+	//
+	// // Load legacy vault - should default to 100k iterations
+	// // T026: Load method should detect missing Iterations and default to 100000
+	// _, err = storage.LoadVault("test-password")
+	// if err != nil {
+	// 	t.Logf("Load failed (expected until key matches): %v", err)
+	// }
+	//
+	// // Get vault info and verify iterations defaulted correctly
+	// info, err := storage.GetVaultInfo()
+	// if err != nil {
+	// 	t.Fatalf("GetVaultInfo failed: %v", err)
+	// }
+	//
+	// // T026: Verify default iterations applied
+	// if info.Iterations == 0 {
+	// 	t.Error("Iterations should be populated, got 0")
+	// }
+	//
+	// if info.Iterations != 100000 {
+	// 	t.Errorf("Expected default iterations 100000, got %d", info.Iterations)
+	// }
+	//
+	// t.Logf("Legacy vault loaded with iterations: %d", info.Iterations)
+}

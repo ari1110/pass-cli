@@ -476,3 +476,35 @@ func TestCryptoService_PBKDF2Consistency(t *testing.T) {
 		t.Error("Different passwords should produce different keys")
 	}
 }
+
+// T021 [US2]: Test crypto timing for 600k iterations
+// FR-009: Key derivation MUST take 500-1000ms to balance security and UX
+func TestCryptoService_KeyDerivationTiming(t *testing.T) {
+	t.Skip("T021: Timing test - will be enabled after T027-T029 implementation")
+
+	// cs := NewCryptoService()
+	// password := []byte("test-password-for-timing-benchmark")
+	// salt := make([]byte, SaltLength)
+	//
+	// // Time a single key derivation with 600k iterations
+	// start := time.Now()
+	// _, err := cs.DeriveKey(password, salt, 600000) // T027: iterations parameter
+	// duration := time.Since(start)
+	//
+	// if err != nil {
+	// 	t.Fatalf("DeriveKey failed: %v", err)
+	// }
+	//
+	// // FR-009: Must be between 500ms and 1000ms
+	// minDuration := 500 * time.Millisecond
+	// maxDuration := 1000 * time.Millisecond
+	//
+	// if duration < minDuration {
+	// 	t.Errorf("Key derivation too fast: %v (expected >= %v)", duration, minDuration)
+	// }
+	// if duration > maxDuration {
+	// 	t.Errorf("Key derivation too slow: %v (expected <= %v)", duration, maxDuration)
+	// }
+	//
+	// t.Logf("Key derivation timing: %v (target: 500-1000ms)", duration)
+}
