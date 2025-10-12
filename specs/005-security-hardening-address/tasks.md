@@ -132,19 +132,19 @@
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T037 [P] [US3] Create password validation tests in `internal/security/password_test.go` (test all FR-011-015 rules)
-- [ ] T038 [P] [US3] Create strength calculation tests in `internal/security/password_test.go` (verify weak/medium/strong boundaries)
-- [ ] T039 [P] [US3] Create Unicode character tests in `internal/security/password_test.go` (verify accented letters, international symbols)
-- [ ] T040 [P] [US3] Create policy enforcement tests in `internal/vault/vault_test.go` (verify vault init/change reject weak passwords)
+- [X] T037 [P] [US3] Create password validation tests in `internal/security/password_test.go` (test all FR-011-015 rules)
+- [X] T038 [P] [US3] Create strength calculation tests in `internal/security/password_test.go` (verify weak/medium/strong boundaries)
+- [X] T039 [P] [US3] Create Unicode character tests in `internal/security/password_test.go` (verify accented letters, international symbols)
+- [X] T040 [P] [US3] Create policy enforcement tests in `internal/vault/vault_test.go` (verify vault init/change reject weak passwords)
 
 ### Implementation for User Story 3
 
-- [ ] T041 [P] [US3] Create PasswordPolicy struct in `internal/security/password.go` (MinLength, RequireUppercase, RequireLowercase, RequireDigit, RequireSymbol)
-- [ ] T042 [P] [US3] Create DefaultPasswordPolicy constant in `internal/security/password.go` (12 chars, all requirements true)
-- [ ] T043 [US3] Implement PasswordPolicy.Validate method in `internal/security/password.go` (validate password, return descriptive error per FR-016)
-- [ ] T044 [US3] Implement PasswordPolicy.Strength method in `internal/security/password.go` (calculate weak/medium/strong per FR-017 algorithm in data-model.md:186-238)
-- [ ] T045 [US3] Add password policy validation to VaultService.Initialize in `internal/vault/vault.go:96` (call security.DefaultPasswordPolicy.Validate before proceeding)
-- [ ] T046 [US3] Add password policy validation to VaultService.ChangePassword in `internal/vault/vault.go:514` (call security.DefaultPasswordPolicy.Validate before proceeding)
+- [X] T041 [P] [US3] Create PasswordPolicy struct in `internal/security/password.go` (MinLength, RequireUppercase, RequireLowercase, RequireDigit, RequireSymbol)
+- [X] T042 [P] [US3] Create DefaultPasswordPolicy constant in `internal/security/password.go` (12 chars, all requirements true)
+- [X] T043 [US3] Implement PasswordPolicy.Validate method in `internal/security/password.go` (validate password, return descriptive error per FR-016)
+- [X] T044 [US3] Implement PasswordPolicy.Strength method in `internal/security/password.go` (calculate weak/medium/strong per FR-017 algorithm in data-model.md:186-238)
+- [X] T045 [US3] Add password policy validation to VaultService.Initialize in `internal/vault/vault.go:96` (call security.DefaultPasswordPolicy.Validate before proceeding)
+- [X] T046 [US3] Add password policy validation to VaultService.ChangePassword in `internal/vault/vault.go:514` (call security.DefaultPasswordPolicy.Validate before proceeding)
 - [ ] T047 [US3] Implement CLI real-time strength indicator in `cmd/cli/init.go` and `cmd/cli/change_password.go` (text-based: "⚠ Weak", "⚠ Medium", "✓ Strong")
 - [ ] T048 [US3] Implement TUI strength meter component in `cmd/tui/components/forms.go` (tview.ProgressBar with color coding per research.md:136-149)
 - [ ] T049 [US3] Update password input forms to call strength calculation on change in `cmd/tui/components/forms.go` (SetChangedFunc hook)
