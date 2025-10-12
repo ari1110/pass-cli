@@ -103,7 +103,7 @@ func (s *StorageService) LoadVault(password string) ([]byte, error) {
 	}
 
 	// Derive key from password and salt
-	key, err := s.cryptoService.DeriveKey(password, encryptedVault.Metadata.Salt)
+	key, err := s.cryptoService.DeriveKey([]byte(password), encryptedVault.Metadata.Salt)
 	if err != nil {
 		return nil, fmt.Errorf("failed to derive key: %w", err)
 	}
@@ -236,7 +236,7 @@ func (s *StorageService) loadEncryptedVault() (*EncryptedVault, error) {
 
 func (s *StorageService) saveEncryptedVault(data []byte, metadata VaultMetadata, password string) error {
 	// Derive key from password and salt
-	key, err := s.cryptoService.DeriveKey(password, metadata.Salt)
+	key, err := s.cryptoService.DeriveKey([]byte(password), metadata.Salt)
 	if err != nil {
 		return fmt.Errorf("failed to derive key: %w", err)
 	}

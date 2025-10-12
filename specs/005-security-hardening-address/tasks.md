@@ -52,25 +52,25 @@
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T007 [P] [US1] Create memory inspection test in `tests/security/memory_test.go` (verify password clearing after vault operations)
-- [ ] T008 [P] [US1] Create panic recovery test in `tests/security/memory_test.go` (verify deferred cleanup executes on panic)
+- [X] T007 [P] [US1] Create memory inspection test in `tests/security/memory_test.go` (verify password clearing after vault operations)
+- [X] T008 [P] [US1] Create panic recovery test in `tests/security/memory_test.go` (verify deferred cleanup executes on panic)
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Change VaultService.masterPassword field from string to []byte in `internal/vault/vault.go:65`
-- [ ] T010 [US1] Update VaultService.Initialize signature to accept []byte password in `internal/vault/vault.go:96`
-- [ ] T011 [US1] Update VaultService.Unlock signature to accept []byte password in `internal/vault/vault.go:141`
-- [ ] T012 [US1] Update VaultService.ChangePassword signature to accept []byte password in `internal/vault/vault.go:514`
-- [ ] T013 [US1] Fix VaultService.Lock method to properly clear []byte password in `internal/vault/vault.go:180-194` (replace ineffective string clearing with crypto.ClearBytes)
-- [ ] T014 [US1] Add deferred cleanup to VaultService.Initialize in `internal/vault/vault.go` (defer crypto.ClearBytes on password parameter)
-- [ ] T015 [US1] Add deferred cleanup to VaultService.Unlock in `internal/vault/vault.go` (defer crypto.ClearBytes on password parameter)
-- [ ] T016 [US1] Add deferred cleanup to VaultService.ChangePassword in `internal/vault/vault.go` (defer crypto.ClearBytes on password parameter)
-- [ ] T017 [US1] Update crypto.DeriveKey signature to accept []byte password in `internal/crypto/crypto.go:44` (replace string parameter)
-- [ ] T018 [US1] Remove string-to-byte conversion in crypto.DeriveKey in `internal/crypto/crypto.go:49-50` (password is already []byte)
-- [ ] T019 [US1] Update all crypto.DeriveKey call sites in `internal/storage/storage.go:106, 239` to pass []byte passwords
-- [ ] T020 [US1] Run memory inspection tests to verify password clearing works (use delve debugger per quickstart.md)
-- [ ] T020a [P] [US1] Create clipboard security verification test in `tests/security/clipboard_test.go` (verify 30-second auto-clear per constitution)
-- [ ] T020b [P] [US1] Create terminal input security test in `tests/security/input_test.go` (verify readPassword returns []byte with no string conversion)
+- [X] T009 [US1] Change VaultService.masterPassword field from string to []byte in `internal/vault/vault.go:65`
+- [X] T010 [US1] Update VaultService.Initialize signature to accept []byte password in `internal/vault/vault.go:96`
+- [X] T011 [US1] Update VaultService.Unlock signature to accept []byte password in `internal/vault/vault.go:141`
+- [X] T012 [US1] Update VaultService.ChangePassword signature to accept []byte password in `internal/vault/vault.go:514`
+- [X] T013 [US1] Fix VaultService.Lock method to properly clear []byte password in `internal/vault/vault.go:180-194` (replace ineffective string clearing with crypto.ClearBytes)
+- [X] T014 [US1] Add deferred cleanup to VaultService.Initialize in `internal/vault/vault.go` (defer crypto.ClearBytes on password parameter)
+- [X] T015 [US1] Add deferred cleanup to VaultService.Unlock in `internal/vault/vault.go` (defer crypto.ClearBytes on password parameter)
+- [X] T016 [US1] Add deferred cleanup to VaultService.ChangePassword in `internal/vault/vault.go` (defer crypto.ClearBytes on password parameter)
+- [X] T017 [US1] Update crypto.DeriveKey signature to accept []byte password in `internal/crypto/crypto.go:44` (replace string parameter)
+- [X] T018 [US1] Remove string-to-byte conversion in crypto.DeriveKey in `internal/crypto/crypto.go:49-50` (password is already []byte)
+- [X] T019 [US1] Update all crypto.DeriveKey call sites in `internal/storage/storage.go:106, 239` to pass []byte passwords
+- [X] T020 [US1] Run memory inspection tests to verify password clearing works (use delve debugger per quickstart.md)
+- [X] T020a [P] [US1] Create clipboard security verification test in `tests/security/clipboard_test.go` (verify 30-second auto-clear per constitution)
+- [X] T020b [P] [US1] Create terminal input security test in `tests/security/input_test.go` (verify readPassword returns []byte with no string conversion)
 - [ ] T020c [US1] Change Credential.Password field from string to []byte in `internal/vault/credential.go` (similar to VaultService.masterPassword)
 - [ ] T020d [US1] Update all Credential.Password access sites to handle []byte instead of string
 - [ ] T020e [US1] Add deferred cleanup for Credential.Password in credential lifecycle methods

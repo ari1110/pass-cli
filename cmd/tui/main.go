@@ -84,16 +84,16 @@ func getDefaultVaultPath() string {
 }
 
 // promptForPassword securely prompts user for master password
-func promptForPassword() (string, error) {
+func promptForPassword() ([]byte, error) {
 	fmt.Print("Enter master password: ")
 
 	// Use gopass for masked input
 	passwordBytes, err := gopass.GetPasswdMasked()
 	if err != nil {
-		return "", fmt.Errorf("failed to read password: %w", err)
+		return nil, fmt.Errorf("failed to read password: %w", err)
 	}
 
-	return string(passwordBytes), nil
+	return passwordBytes, nil
 }
 
 // LaunchTUI initializes and runs the TUI application

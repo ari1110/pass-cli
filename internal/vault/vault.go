@@ -62,7 +62,7 @@ type VaultService struct {
 
 	// In-memory state
 	unlocked       bool
-	masterPassword string
+	masterPassword []byte // Byte array for secure memory clearing (T009)
 	vaultData      *VaultData
 }
 
@@ -93,7 +93,10 @@ func New(vaultPath string) (*VaultService, error) {
 }
 
 // Initialize creates a new vault with a master password
-func (v *VaultService) Initialize(masterPassword string, useKeychain bool) error {
+// T010: Updated signature to accept []byte, T014: Added deferred cleanup
+func (v *VaultService) Initialize(masterPassword []byte, useKeychain bool) error {
+	defer crypto.ClearBytes(masterPassword) // T014: Ensure cleanup even on error
+
 	// Validate master password
 	if len(masterPassword) < 8 {
 		return errors.New("master password must be at least 8 characters")
@@ -116,19 +119,22 @@ func (v *VaultService) Initialize(masterPassword string, useKeychain bool) error
 		return fmt.Errorf("failed to marshal vault data: %w", err)
 	}
 
+	// Convert to string for storage service (TODO: Phase 4 will update storage.go to accept []byte)
+	masterPasswordStr := string(masterPassword)
+
 	// Initialize storage (creates directory and vault file)
-	if err := v.storageService.InitializeVault(masterPassword); err != nil {
+	if err := v.storageService.InitializeVault(masterPasswordStr); err != nil {
 		return fmt.Errorf("failed to initialize vault: %w", err)
 	}
 
 	// Save initial empty vault
-	if err := v.storageService.SaveVault(data, masterPassword); err != nil {
+	if err := v.storageService.SaveVault(data, masterPasswordStr); err != nil {
 		return fmt.Errorf("failed to save initial vault: %w", err)
 	}
 
 	// Store master password in keychain if requested
 	if useKeychain && v.keychainService.IsAvailable() {
-		if err := v.keychainService.Store(masterPassword); err != nil {
+		if err := v.keychainService.Store(masterPasswordStr); err != nil {
 			// Log warning but don't fail initialization
 			fmt.Fprintf(os.Stderr, "Warning: failed to store password in keychain: %v\n", err)
 		}
@@ -138,13 +144,19 @@ func (v *VaultService) Initialize(masterPassword string, useKeychain bool) error
 }
 
 // Unlock opens the vault and loads credentials into memory
-func (v *VaultService) Unlock(masterPassword string) error {
+// T011: Updated signature to accept []byte, T015: Added deferred cleanup
+func (v *VaultService) Unlock(masterPassword []byte) error {
+	defer crypto.ClearBytes(masterPassword) // T015: Ensure cleanup even on error
+
 	if v.unlocked {
 		return nil // Already unlocked
 	}
 
+	// Convert to string for storage service (TODO: Phase 4 will update storage.go to accept []byte)
+	masterPasswordStr := string(masterPassword)
+
 	// Try to load vault
-	data, err := v.storageService.LoadVault(masterPassword)
+	data, err := v.storageService.LoadVault(masterPasswordStr)
 	if err != nil {
 		return fmt.Errorf("failed to unlock vault: %w", err)
 	}
@@ -155,9 +167,10 @@ func (v *VaultService) Unlock(masterPassword string) error {
 		return fmt.Errorf("failed to parse vault data: %w", err)
 	}
 
-	// Store in memory
+	// Store in memory (make a copy since we're clearing the parameter)
 	v.unlocked = true
-	v.masterPassword = masterPassword
+	v.masterPassword = make([]byte, len(masterPassword))
+	copy(v.masterPassword, masterPassword)
 	v.vaultData = &vaultData
 
 	return nil
@@ -174,20 +187,18 @@ func (v *VaultService) UnlockWithKeychain() error {
 		return fmt.Errorf("failed to retrieve password from keychain: %w", err)
 	}
 
-	return v.Unlock(password)
+	return v.Unlock([]byte(password))
 }
 
 // Lock clears in-memory credentials and password
+// T013: Fixed to properly clear []byte password using crypto.ClearBytes
 func (v *VaultService) Lock() {
 	v.unlocked = false
 
 	// Clear sensitive data from memory
-	if v.masterPassword != "" {
-		// Overwrite password string
-		for i := range v.masterPassword {
-			_ = i // Use i to prevent compiler optimization
-		}
-		v.masterPassword = ""
+	if v.masterPassword != nil {
+		crypto.ClearBytes(v.masterPassword)
+		v.masterPassword = nil
 	}
 
 	v.vaultData = nil
@@ -209,7 +220,10 @@ func (v *VaultService) save() error {
 		return fmt.Errorf("failed to marshal vault data: %w", err)
 	}
 
-	if err := v.storageService.SaveVault(data, v.masterPassword); err != nil {
+	// Convert to string for storage service (TODO: Phase 4 will update storage.go to accept []byte)
+	masterPasswordStr := string(v.masterPassword)
+
+	if err := v.storageService.SaveVault(data, masterPasswordStr); err != nil {
 		return fmt.Errorf("failed to save vault: %w", err)
 	}
 
@@ -511,7 +525,10 @@ func (v *VaultService) GetUsageStats(service string) (map[string]UsageRecord, er
 }
 
 // ChangePassword changes the vault master password
-func (v *VaultService) ChangePassword(newPassword string) error {
+// T012: Updated signature to accept []byte, T016: Added deferred cleanup
+func (v *VaultService) ChangePassword(newPassword []byte) error {
+	defer crypto.ClearBytes(newPassword) // T016: Ensure cleanup even on error
+
 	if !v.unlocked {
 		return ErrVaultLocked
 	}
@@ -521,8 +538,12 @@ func (v *VaultService) ChangePassword(newPassword string) error {
 		return errors.New("new password must be at least 8 characters")
 	}
 
-	// Update master password
-	v.masterPassword = newPassword
+	// Clear old password
+	crypto.ClearBytes(v.masterPassword)
+
+	// Update master password (make a copy since we're clearing the parameter)
+	v.masterPassword = make([]byte, len(newPassword))
+	copy(v.masterPassword, newPassword)
 
 	// Re-save vault with new password
 	if err := v.save(); err != nil {
@@ -531,7 +552,8 @@ func (v *VaultService) ChangePassword(newPassword string) error {
 
 	// Update keychain if available
 	if v.keychainService.IsAvailable() {
-		if err := v.keychainService.Store(newPassword); err != nil {
+		newPasswordStr := string(newPassword)
+		if err := v.keychainService.Store(newPasswordStr); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to update password in keychain: %v\n", err)
 		}
 	}

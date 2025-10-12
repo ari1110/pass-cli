@@ -41,15 +41,12 @@ func (c *CryptoService) GenerateSalt() ([]byte, error) {
 	return salt, nil
 }
 
-func (c *CryptoService) DeriveKey(password string, salt []byte) ([]byte, error) {
+func (c *CryptoService) DeriveKey(password []byte, salt []byte) ([]byte, error) {
 	if len(salt) != SaltLength {
 		return nil, ErrInvalidSaltLength
 	}
 
-	passwordBytes := []byte(password)
-	defer ClearBytes(passwordBytes)
-
-	key := pbkdf2.Key(passwordBytes, salt, Iterations, KeyLength, sha256.New)
+	key := pbkdf2.Key(password, salt, Iterations, KeyLength, sha256.New)
 	return key, nil
 }
 

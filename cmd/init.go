@@ -86,8 +86,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 	}
 
 	// Initialize vault
-	// TODO: Remove string conversion in Phase 3 (T010)
-	if err := vaultService.Initialize(string(password), useKeychain); err != nil {
+	if err := vaultService.Initialize(password, useKeychain); err != nil {
 		return fmt.Errorf("failed to initialize vault: %w", err)
 	}
 

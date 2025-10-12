@@ -160,14 +160,9 @@ func launchTUI(vaultService *vault.VaultService) error {
 }
 
 // promptForMasterPassword prompts the user for the master password
-func promptForMasterPassword() (string, error) {
+func promptForMasterPassword() ([]byte, error) {
 	fmt.Print("Enter master password: ")
-	password, err := readPassword()
-	if err != nil {
-		return "", err
-	}
-	// TODO: Remove string conversion in Phase 3 (T011)
-	return string(password), nil
+	return readPassword()
 }
 
 // createTUIApp creates and configures a new tview.Application
