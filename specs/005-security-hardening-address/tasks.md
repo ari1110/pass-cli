@@ -69,8 +69,13 @@
 - [ ] T018 [US1] Remove string-to-byte conversion in crypto.DeriveKey in `internal/crypto/crypto.go:49-50` (password is already []byte)
 - [ ] T019 [US1] Update all crypto.DeriveKey call sites in `internal/storage/storage.go:106, 239` to pass []byte passwords
 - [ ] T020 [US1] Run memory inspection tests to verify password clearing works (use delve debugger per quickstart.md)
+- [ ] T020a [P] [US1] Create clipboard security verification test in `tests/security/clipboard_test.go` (verify 30-second auto-clear per constitution)
+- [ ] T020b [P] [US1] Create terminal input security test in `tests/security/input_test.go` (verify readPassword returns []byte with no string conversion)
+- [ ] T020c [US1] Change Credential.Password field from string to []byte in `internal/vault/credential.go` (similar to VaultService.masterPassword)
+- [ ] T020d [US1] Update all Credential.Password access sites to handle []byte instead of string
+- [ ] T020e [US1] Add deferred cleanup for Credential.Password in credential lifecycle methods
 
-**Checkpoint**: At this point, User Story 1 should be fully functional - master password is byte-based and cleared after use
+**Checkpoint**: At this point, User Story 1 should be fully functional - master password AND credential passwords are byte-based and cleared after use
 
 ---
 
@@ -286,27 +291,29 @@ Task T059: "Create AuditLogger struct in internal/security/audit.go"
 
 ## Implementation Strategy
 
-### MVP First (User Stories 1 + 2 Only)
+### MVP First (User Stories 1 + 2 + 3)
 
 1. Complete Phase 1: Setup (T001-T003)
 2. Complete Phase 2: Foundational (T004-T006) - CRITICAL - blocks all stories
 3. Complete Phase 3: User Story 1 (T007-T020) - Memory Security
 4. Complete Phase 4: User Story 2 (T021-T036) - Crypto Hardening
-5. **STOP and VALIDATE**: Test both stories independently with memory inspection and crypto benchmarks
-6. Run Phase 7 security scanning (T079-T081)
-7. Deploy/demo if ready - **MVP complete with critical security fixes**
+5. Complete Phase 5: User Story 3 (T037-T051) - Password Policy
+6. **STOP and VALIDATE**: Test all three stories independently with memory inspection, crypto benchmarks, and password validation
+7. Run Phase 7 security scanning (T079-T081)
+8. Deploy/demo if ready - **MVP complete with critical security fixes and password policy**
 
-**MVP Rationale**: US1 + US2 are both P1 priorities and address the most critical vulnerabilities:
+**MVP Rationale**: US1 + US2 + US3 address the most critical vulnerabilities and prevent weak password selection:
 - US1 fixes master password exposure in memory (High severity)
 - US2 fixes weak PBKDF2 iterations (Medium severity, OWASP compliance)
-- Together they form a complete security foundation
+- US3 prevents weak password selection (Medium severity) - no point in strong crypto if users choose "password123"
+- Together they form a complete security foundation that addresses both system and user-caused vulnerabilities
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (Memory security fixed)
-3. Add User Story 2 → Test independently → Deploy/Demo (Crypto hardening complete - **MVP!**)
-4. Add User Story 3 → Test independently → Deploy/Demo (Password policy enforced)
+3. Add User Story 2 → Test independently → Deploy/Demo (Crypto hardening complete)
+4. Add User Story 3 → Test independently → Deploy/Demo (Password policy enforced - **MVP!**)
 5. Add User Story 4 → Test independently → Deploy/Demo (Audit logging available)
 6. Each story adds value without breaking previous stories
 
@@ -353,15 +360,15 @@ Despite integration points, each story is independently testable with mocked/stu
 
 - **Phase 1 (Setup)**: 3 tasks
 - **Phase 2 (Foundational)**: 3 tasks (BLOCKING)
-- **Phase 3 (User Story 1 - Memory Security)**: 14 tasks (2 tests + 12 implementation)
+- **Phase 3 (User Story 1 - Memory Security)**: 19 tasks (4 tests + 15 implementation, includes Credential.Password conversion and security verification)
 - **Phase 4 (User Story 2 - Crypto Hardening)**: 17 tasks (3 tests + 14 implementation)
 - **Phase 5 (User Story 3 - Password Policy)**: 15 tasks (4 tests + 11 implementation)
 - **Phase 6 (User Story 4 - Audit Logging)**: 27 tasks (5 tests + 22 implementation)
 - **Phase 7 (Polish)**: 14 tasks
 
-**Total**: 93 tasks
+**Total**: 98 tasks (includes 5 additional security gap tasks from expert analysis)
 
-**MVP Scope**: 37 tasks (Phase 1-2 + User Stories 1-2 + minimal Phase 7 validation)
+**MVP Scope**: 57 tasks (Phase 1-2 + User Stories 1-3 + minimal Phase 7 validation)
 
 **Parallel Opportunities**: 20+ tasks can run in parallel across different test files, structure definitions, and independent user stories
 
