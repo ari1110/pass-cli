@@ -97,15 +97,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [P] [US2] Add Iterations int field to VaultMetadata struct in `internal/storage/storage.go:30-35`
-- [ ] T025 [P] [US2] Add Iterations validation to VaultMetadata.Validate in `internal/storage/storage.go` (must be >= 100000)
-- [ ] T026 [US2] Implement backward-compatible loading in `internal/storage/storage.go` Load method (if Iterations == 0, default to 100000)
-- [ ] T027 [US2] Add iterations parameter to crypto.DeriveKey signature in `internal/crypto/crypto.go:44` (func DeriveKey(password []byte, salt []byte, iterations int))
-- [ ] T028 [US2] Update crypto.DeriveKey implementation to use iterations parameter in `internal/crypto/crypto.go:49` (replace hardcoded Iterations constant)
-- [ ] T029 [US2] Update crypto constants in `internal/crypto/crypto.go:19` (change Iterations = 100000 to DefaultIterations = 600000, add MinIterations = 600000)
-- [ ] T030 [US2] Update storage.Save to pass metadata.Iterations to DeriveKey in `internal/storage/storage.go:106`
-- [ ] T031 [US2] Update storage.Load to pass metadata.Iterations to DeriveKey in `internal/storage/storage.go:239`
-- [ ] T032 [US2] Set new vaults to 600k iterations in VaultService.Initialize in `internal/vault/vault.go:96` (set metadata.Iterations = 600000)
+- [X] T024 [P] [US2] Add Iterations int field to VaultMetadata struct in `internal/storage/storage.go:30-35`
+- [X] T025 [P] [US2] Add Iterations validation to VaultMetadata.Validate in `internal/storage/storage.go` (must be >= 100000)
+- [X] T026 [US2] Implement backward-compatible loading in `internal/storage/storage.go` Load method (if Iterations == 0, default to 100000)
+- [X] T027 [US2] Add iterations parameter to crypto.DeriveKey signature in `internal/crypto/crypto.go:44` (func DeriveKey(password []byte, salt []byte, iterations int))
+- [X] T028 [US2] Update crypto.DeriveKey implementation to use iterations parameter in `internal/crypto/crypto.go:49` (replace hardcoded Iterations constant)
+- [X] T029 [US2] Update crypto constants in `internal/crypto/crypto.go:19` (change Iterations = 100000 to DefaultIterations = 600000, add MinIterations = 600000)
+- [X] T030 [US2] Update storage.Save to pass metadata.Iterations to DeriveKey in `internal/storage/storage.go:106`
+- [X] T031 [US2] Update storage.Load to pass metadata.Iterations to DeriveKey in `internal/storage/storage.go:239`
+- [X] T032 [US2] Set new vaults to 600k iterations in VaultService.Initialize in `internal/vault/vault.go:96` (set metadata.Iterations = 600000)
 - [ ] T033 [US2] Add migration logic to VaultService.ChangePassword in `internal/vault/vault.go:514` (if metadata.Iterations < 600000, upgrade to 600000)
 - [ ] T034 [US2] Add environment variable support for custom iterations in `internal/crypto/crypto.go` (PASS_CLI_ITERATIONS, minimum 600k)
 - [ ] T035 [US2] Run crypto timing benchmarks to verify 500-1000ms target (go test -bench=BenchmarkDeriveKey -benchtime=5s)
