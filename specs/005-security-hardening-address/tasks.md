@@ -22,9 +22,9 @@
 
 **Purpose**: Minimal project setup - project structure already exists
 
-- [ ] T001 Create new security package directory: `internal/security/`
-- [ ] T002 [P] Create test directory for security-specific tests: `tests/security/`
-- [ ] T003 [P] Verify Go 1.21+ installed and crypto/subtle available
+- [X] T001 Create new security package directory: `internal/security/`
+- [X] T002 [P] Create test directory for security-specific tests: `tests/security/`
+- [X] T003 [P] Verify Go 1.21+ installed and crypto/subtle available
 
 ---
 
