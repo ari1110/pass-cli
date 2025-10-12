@@ -272,15 +272,52 @@ func someFunction() error {
 
 ## Decision 7: HMAC Audit Log Format
 
-**HMAC Signature Scheme** (FR-022):
+**HMAC Signature Scheme** (FR-022, FR-034, FR-035):
 
 ### Key Management
 ```go
-// Derive audit log HMAC key from vault master key
-// Ensures only vault owner can verify audit integrity
-func deriveAuditKey(masterKey []byte) []byte {
-    // Use HKDF for key derivation
-    return hkdf.Expand(sha256.New, masterKey, []byte("audit-log-hmac"))[:32]
+// Generate unique HMAC key per vault, store in OS keychain
+// Allows log verification without master password (FR-035)
+func generateAuditKey(vaultUUID string) ([]byte, error) {
+    // Generate cryptographically random 32-byte key
+    key := make([]byte, 32)
+    if _, err := rand.Read(key); err != nil {
+        return nil, err
+    }
+
+    // Store in OS keychain using 99designs/keyring
+    kr, err := keyring.Open(keyring.Config{
+        ServiceName: "pass-cli-audit",
+    })
+    if err != nil {
+        return nil, err
+    }
+
+    keyID := fmt.Sprintf("pass-cli-audit-%s", vaultUUID)
+    err = kr.Set(keyring.Item{
+        Key:  keyID,
+        Data: key,
+    })
+
+    return key, err
+}
+
+// Retrieve audit key from keychain for verification
+func getAuditKey(vaultUUID string) ([]byte, error) {
+    kr, err := keyring.Open(keyring.Config{
+        ServiceName: "pass-cli-audit",
+    })
+    if err != nil {
+        return nil, err
+    }
+
+    keyID := fmt.Sprintf("pass-cli-audit-%s", vaultUUID)
+    item, err := kr.Get(keyID)
+    if err != nil {
+        return nil, err
+    }
+
+    return item.Data, nil
 }
 ```
 
@@ -325,14 +362,20 @@ func verifyLogIntegrity(entries []AuditLogEntry, key []byte) error {
 }
 ```
 
-**Key Rotation**: Audit key derived from master key means:
-- Key automatically rotates when master password changes
-- Old logs cannot be verified after password change (acceptable tradeoff)
-- Users warned during password change: "Audit log signatures will be invalidated"
+**Key Rotation**: Audit key stored in OS keychain means:
+- Key persists independently of master password
+- Old logs remain verifiable after password change
+- Key tied to vault UUID, not master password
+- Users can verify logs without unlocking vault (FR-035)
+
+**Graceful Degradation** (FR-036):
+- If OS keychain unavailable (headless, SSH session), disable audit logging with warning
+- Vault operations continue normally without audit capability
 
 **Alternatives Considered**:
+- Master key derivation: Cannot verify without password, rejected
 - Blockchain/Merkle tree: Overkill for local-only tool
-- Separate audit key file: Key management complexity, user confusion
+- Separate audit key file: Key management complexity, less secure than OS keychain
 - Encrypted log entries: Doesn't prevent deletion, adds complexity
 
 ---

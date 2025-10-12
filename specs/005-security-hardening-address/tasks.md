@@ -74,6 +74,8 @@
 - [ ] T020c [US1] Change Credential.Password field from string to []byte in `internal/vault/credential.go` (similar to VaultService.masterPassword)
 - [ ] T020d [US1] Update all Credential.Password access sites to handle []byte instead of string
 - [ ] T020e [US1] Add deferred cleanup for Credential.Password in credential lifecycle methods
+- [ ] T020f [US1] Refactor all ~20 Credential.Password call sites in `cmd/get.go:89`, `cmd/add.go:156`, `cmd/update.go:142`, `cmd/tui/components/detail.go:67,85`, `cmd/tui/components/forms.go:123,187,234` to handle []byte. Ensure display conversions are brief with immediate zeroing.
+- [ ] T020g [US1] Add explicit memory zeroing to clipboard copy function in `cmd/get.go` and `cmd/tui/components/detail.go` immediately after password written to clipboard (FR-001, Constitution line 50)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - master password AND credential passwords are byte-based and cleared after use
 
@@ -109,6 +111,12 @@
 - [ ] T035 [US2] Run crypto timing benchmarks to verify 500-1000ms target (go test -bench=BenchmarkDeriveKey -benchtime=5s)
 - [ ] T036 [US2] Test legacy vault loading and migration flow
 - [ ] T036b [US2] Verify key derivation timing meets FR-009 constraint in `internal/crypto/crypto_test.go` (assert 500-1000ms range, fail if violated)
+- [ ] T036c [US2] Implement atomic vault migration in VaultService.ChangePassword: write to vault.tmp, fsync, rename to vault.json (FR-011)
+- [ ] T036d [US2] Add pre-flight checks before migration: verify disk space >= 2x vault size, test write permissions to vault directory (FR-012)
+- [ ] T036e [US2] Implement auto-rollback in VaultService.Unlock: detect incomplete migration (vault.tmp exists), restore from vault.bak if present (FR-013)
+- [ ] T036f [US2] Retain vault.bak until next successful unlock after migration, then delete old backup (FR-014)
+- [ ] T036g [US2] Add user notification on rollback: "Migration failed, restored from backup. Retry password change." (FR-015)
+- [ ] T036h [P] [US2] Create migration safety integration test in `tests/integration/migration_test.go`: simulate power loss during migration, verify rollback works
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - memory security + crypto hardening complete (MVP functional!)
 
@@ -142,6 +150,7 @@
 - [ ] T049 [US3] Update password input forms to call strength calculation on change in `cmd/tui/components/forms.go` (SetChangedFunc hook)
 - [ ] T050 [US3] Run password validation tests to verify all complexity rules enforced
 - [ ] T051 [US3] Manually test CLI and TUI strength indicators for UX validation
+- [ ] T051a [US3] Implement rate limiting in password validation: track failure count, enforce 5-second cooldown after 3rd failure (FR-024 per clarification Q4)
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work - memory security + crypto hardening + password policy complete
 
@@ -173,7 +182,7 @@
 - [ ] T062 [US4] Implement AuditLogger.ShouldRotate method in `internal/security/audit.go` (check size threshold per data-model.md:339-341)
 - [ ] T063 [US4] Implement AuditLogger.Rotate method in `internal/security/audit.go` (rename to .old, create new per data-model.md:343-347)
 - [ ] T064 [US4] Implement AuditLogger.Log method in `internal/security/audit.go` (write entry, sign with HMAC, handle rotation)
-- [ ] T065 [US4] Implement audit key derivation in `internal/security/audit.go` (derive from master key per research.md:278-284)
+- [ ] T065 [US4] Implement audit key management using OS keychain: generate unique 32-byte HMAC key per vault, store via 99designs/keyring with vault UUID as identifier, retrieve for signing/verifying (FR-034, enables FR-035 verification without master password)
 - [ ] T066 [US4] Add audit configuration support in `internal/vault/vault.go` (enable/disable flag, default disabled per FR-025)
 - [ ] T067 [US4] Add audit logging to VaultService.Initialize in `internal/vault/vault.go` (log vault creation event)
 - [ ] T068 [US4] Add audit logging to VaultService.Unlock in `internal/vault/vault.go` (log unlock success/failure per FR-019)
@@ -187,6 +196,7 @@
 - [ ] T076 [US4] Run audit integrity tests to verify tamper detection works
 - [ ] T077 [US4] Test log rotation at size threshold
 - [ ] T078 [US4] Verify credentials never logged (privacy test per FR-021)
+- [ ] T078a [US4] Implement automatic deletion of rotated audit logs older than 7 days in AuditLogger.Rotate (FR-031 per clarification Q5)
 
 **Checkpoint**: All user stories should now be independently functional - complete security hardening suite implemented
 
@@ -210,6 +220,9 @@
 - [ ] T090 Run quickstart.md validation per testing checklist (lines 199-211)
 - [ ] T091 Final memory inspection test with delve debugger to confirm no password leaks
 - [ ] T092 Generate test coverage report: `go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out`
+- [ ] T093 [P] Run go mod tidy to ensure clean dependency tree
+- [ ] T094 [P] Run govulncheck to scan for known vulnerabilities in dependencies
+- [ ] T095 Investigate tview password input memory handling, document if string conversion unavoidable (known limitation)
 
 ---
 
@@ -295,26 +308,26 @@ Task T059: "Create AuditLogger struct in internal/security/audit.go"
 
 1. Complete Phase 1: Setup (T001-T003)
 2. Complete Phase 2: Foundational (T004-T006) - CRITICAL - blocks all stories
-3. Complete Phase 3: User Story 1 (T007-T020) - Memory Security
-4. Complete Phase 4: User Story 2 (T021-T036) - Crypto Hardening
-5. Complete Phase 5: User Story 3 (T037-T051) - Password Policy
-6. **STOP and VALIDATE**: Test all three stories independently with memory inspection, crypto benchmarks, and password validation
-7. Run Phase 7 security scanning (T079-T081)
+3. Complete Phase 3: User Story 1 (T007-T020g) - Memory Security (21 tasks including Credential.Password refactoring and clipboard zeroing)
+4. Complete Phase 4: User Story 2 (T021-T036h) - Crypto Hardening (23 tasks including atomic migration with rollback safety)
+5. Complete Phase 5: User Story 3 (T037-T051a) - Password Policy (16 tasks including rate limiting)
+6. **STOP and VALIDATE**: Test all three stories independently with memory inspection, crypto benchmarks, password validation, and migration safety
+7. Run Phase 7 security scanning (T079-T081, T093-T094)
 8. Deploy/demo if ready - **MVP complete with critical security fixes and password policy**
 
 **MVP Rationale**: US1 + US2 + US3 address the most critical vulnerabilities and prevent weak password selection:
-- US1 fixes master password exposure in memory (High severity)
-- US2 fixes weak PBKDF2 iterations (Medium severity, OWASP compliance)
+- US1 fixes master password AND credential password exposure in memory (High severity) - includes ~20 call site refactorings
+- US2 fixes weak PBKDF2 iterations (Medium severity, OWASP compliance) - includes atomic migration with rollback per FR-011-015
 - US3 prevents weak password selection (Medium severity) - no point in strong crypto if users choose "password123"
 - Together they form a complete security foundation that addresses both system and user-caused vulnerabilities
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (Memory security fixed)
-3. Add User Story 2 → Test independently → Deploy/Demo (Crypto hardening complete)
-4. Add User Story 3 → Test independently → Deploy/Demo (Password policy enforced - **MVP!**)
-5. Add User Story 4 → Test independently → Deploy/Demo (Audit logging available)
+2. Add User Story 1 (21 tasks) → Test independently → Deploy/Demo (Memory security fixed for master + credentials)
+3. Add User Story 2 (23 tasks) → Test independently → Deploy/Demo (Crypto hardening with safe migration)
+4. Add User Story 3 (16 tasks) → Test independently → Deploy/Demo (Password policy enforced - **MVP!**)
+5. Add User Story 4 (29 tasks) → Test independently → Deploy/Demo (Audit logging with keychain HMAC keys)
 6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -360,15 +373,15 @@ Despite integration points, each story is independently testable with mocked/stu
 
 - **Phase 1 (Setup)**: 3 tasks
 - **Phase 2 (Foundational)**: 3 tasks (BLOCKING)
-- **Phase 3 (User Story 1 - Memory Security)**: 19 tasks (4 tests + 15 implementation, includes Credential.Password conversion and security verification)
-- **Phase 4 (User Story 2 - Crypto Hardening)**: 17 tasks (3 tests + 14 implementation)
-- **Phase 5 (User Story 3 - Password Policy)**: 15 tasks (4 tests + 11 implementation)
-- **Phase 6 (User Story 4 - Audit Logging)**: 27 tasks (5 tests + 22 implementation)
-- **Phase 7 (Polish)**: 14 tasks
+- **Phase 3 (User Story 1 - Memory Security)**: 21 tasks (4 tests + 17 implementation, includes Credential.Password conversion with ~20 call sites and clipboard zeroing)
+- **Phase 4 (User Story 2 - Crypto Hardening)**: 23 tasks (3 tests + 20 implementation, includes atomic migration with rollback per FR-011-015)
+- **Phase 5 (User Story 3 - Password Policy)**: 16 tasks (4 tests + 12 implementation, includes rate limiting per FR-024)
+- **Phase 6 (User Story 4 - Audit Logging)**: 29 tasks (5 tests + 24 implementation, includes OS keychain HMAC key management and log deletion)
+- **Phase 7 (Polish)**: 17 tasks (includes dependency scanning and TUI memory investigation)
 
-**Total**: 98 tasks (includes 5 additional security gap tasks from expert analysis)
+**Total**: 112 tasks (expanded from initial 93 based on two rounds of expert security analysis)
 
-**MVP Scope**: 57 tasks (Phase 1-2 + User Stories 1-3 + minimal Phase 7 validation)
+**MVP Scope**: 66 tasks (Phase 1-2 + User Stories 1-3 + minimal Phase 7 validation, includes migration safety)
 
 **Parallel Opportunities**: 20+ tasks can run in parallel across different test files, structure definitions, and independent user stories
 
