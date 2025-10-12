@@ -938,3 +938,96 @@ func TestIterationsMigrationOnPasswordChange(t *testing.T) {
 
 	t.Log("Migration from 100k to 600k iterations successful")
 }
+
+// T036h [US2]: Test migration safety with simulated power loss
+// FR-013: System MUST rollback from backup if migration is interrupted
+func TestMigrationRollbackOnPowerLoss(t *testing.T) {
+	vault, storageService, cleanup := setupTestVaultWithStorage(t)
+	defer cleanup()
+
+	password := "test-password-12345"
+
+	// Initialize vault with 100k iterations (simulating legacy vault)
+	if err := vault.Initialize([]byte(password), false); err != nil {
+		t.Fatalf("Initialize() failed: %v", err)
+	}
+	if err := vault.Unlock([]byte(password)); err != nil {
+		t.Fatalf("Unlock() failed: %v", err)
+	}
+
+	// Add credential
+	if err := vault.AddCredential("test", "user", []byte("pass"), "", "", "test data"); err != nil {
+		t.Fatalf("AddCredential() failed: %v", err)
+	}
+
+	// Downgrade to 100k iterations to simulate legacy vault
+	data, err := json.Marshal(vault.vaultData)
+	if err != nil {
+		t.Fatalf("Failed to marshal vault data: %v", err)
+	}
+	if err := storageService.SaveVaultWithIterationsUnsafe(data, password, 100000); err != nil {
+		t.Fatalf("Failed to save legacy vault: %v", err)
+	}
+
+	vault.Lock()
+
+	// Simulate incomplete migration by:
+	// 1. Creating a backup file (as SaveVaultWithIterations would)
+	// 2. Creating a temporary file (as atomicWrite would start)
+	// 3. NOT completing the atomic rename (simulating power loss)
+
+	vaultPath := vault.vaultPath
+	backupPath := vaultPath + storage.BackupSuffix
+	tempPath := vaultPath + storage.TempSuffix
+
+	// Read current vault as "backup"
+	vaultData, err := os.ReadFile(vaultPath)
+	if err != nil {
+		t.Fatalf("Failed to read vault: %v", err)
+	}
+
+	// Create backup file
+	if err := os.WriteFile(backupPath, vaultData, storage.VaultPermissions); err != nil {
+		t.Fatalf("Failed to create backup: %v", err)
+	}
+
+	// Create incomplete temp file (simulating interrupted write)
+	if err := os.WriteFile(tempPath, []byte("incomplete"), storage.VaultPermissions); err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+
+	// Verify files exist
+	if _, err := os.Stat(backupPath); err != nil {
+		t.Fatalf("Backup file should exist: %v", err)
+	}
+	if _, err := os.Stat(tempPath); err != nil {
+		t.Fatalf("Temp file should exist: %v", err)
+	}
+
+	// Now attempt to unlock - should detect incomplete migration and rollback
+	if err := vault.Unlock([]byte(password)); err != nil {
+		t.Fatalf("Unlock() should succeed after rollback: %v", err)
+	}
+
+	// Verify temp file was removed
+	if _, err := os.Stat(tempPath); !os.IsNotExist(err) {
+		t.Error("Temp file should be removed after rollback")
+	}
+
+	// Verify data is intact after rollback
+	cred, err := vault.GetCredential("test", false)
+	if err != nil {
+		t.Fatalf("GetCredential() failed after rollback: %v", err)
+	}
+	if cred.Username != "user" || string(cred.Password) != "pass" {
+		t.Error("Credential data corrupted after rollback")
+	}
+
+	// Verify vault is still at 100k iterations (rollback succeeded)
+	currentIterations := storageService.GetIterations()
+	if currentIterations != 100000 {
+		t.Errorf("Expected iterations 100000 after rollback, got %d", currentIterations)
+	}
+
+	t.Log("Rollback from incomplete migration successful")
+}

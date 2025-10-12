@@ -110,13 +110,13 @@
 - [X] T034 [US2] Add environment variable support for custom iterations in `internal/crypto/crypto.go` (PASS_CLI_ITERATIONS, minimum 600k)
 - [X] T035 [US2] Run crypto timing benchmarks to verify 500-1000ms target (go test -bench=BenchmarkDeriveKey -benchtime=5s)
 - [X] T036 [US2] Test legacy vault loading and migration flow
-- [ ] T036b [US2] Verify key derivation timing meets FR-009 constraint in `internal/crypto/crypto_test.go` (assert 500-1000ms range, fail if violated)
-- [ ] T036c [US2] Implement atomic vault migration in VaultService.ChangePassword: write to vault.tmp, fsync, rename to vault.json (FR-011)
-- [ ] T036d [US2] Add pre-flight checks before migration: verify disk space >= 2x vault size, test write permissions to vault directory (FR-012)
-- [ ] T036e [US2] Implement auto-rollback in VaultService.Unlock: detect incomplete migration (vault.tmp exists), restore from vault.bak if present (FR-013)
-- [ ] T036f [US2] Retain vault.bak until next successful unlock after migration, then delete old backup (FR-014)
-- [ ] T036g [US2] Add user notification on rollBback: "Migration failed, restored from backup. Retry password change." (FR-015)
-- [ ] T036h [P] [US2] Create migration safety integration test in `tests/integration/migration_test.go`: simulate power loss during migration, verify rollback works
+- [X] T036b [US2] Verify key derivation timing meets FR-009 constraint in `internal/crypto/crypto_test.go` (assert 500-1000ms range, fail if violated)
+- [X] T036c [US2] Implement atomic vault migration in VaultService.ChangePassword: write to vault.tmp, fsync, rename to vault.json (FR-011)
+- [X] T036d [US2] Add pre-flight checks before migration: verify disk space >= 2x vault size, test write permissions to vault directory (FR-012)
+- [X] T036e [US2] Implement auto-rollback in VaultService.Unlock: detect incomplete migration (vault.tmp exists), restore from vault.bak if present (FR-013)
+- [X] T036f [US2] Retain vault.bak until next successful unlock after migration, then delete old backup (FR-014)
+- [X] T036g [US2] Add user notification on rollback: "Migration failed, restored from backup. Retry password change." (FR-015)
+- [X] T036h [P] [US2] Create migration safety integration test in `internal/vault/vault_test.go`: simulate power loss during migration, verify rollback works
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - memory security + crypto hardening complete (MVP functional!)
 

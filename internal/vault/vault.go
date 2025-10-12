@@ -146,11 +146,49 @@ func (v *VaultService) Initialize(masterPassword []byte, useKeychain bool) error
 
 // Unlock opens the vault and loads credentials into memory
 // T011: Updated signature to accept []byte, T015: Added deferred cleanup
+// T036e: Auto-rollback on incomplete migration detection
 func (v *VaultService) Unlock(masterPassword []byte) error {
 	defer crypto.ClearBytes(masterPassword) // T015: Ensure cleanup even on error
 
 	if v.unlocked {
 		return nil // Already unlocked
+	}
+
+	// T036e: Check for incomplete migration (vault.tmp exists)
+	vaultTmpPath := v.vaultPath + storage.TempSuffix
+	vaultBackupPath := v.vaultPath + storage.BackupSuffix
+
+	if _, err := os.Stat(vaultTmpPath); err == nil {
+		// T036g: Incomplete migration detected - inform user with actionable message
+		fmt.Fprintf(os.Stderr, "\n*** MIGRATION FAILURE DETECTED ***\n")
+		fmt.Fprintf(os.Stderr, "An incomplete vault migration was found (power loss or system crash).\n")
+
+		if _, err := os.Stat(vaultBackupPath); err == nil {
+			// Backup exists - restore it
+			fmt.Fprintf(os.Stderr, "Attempting automatic recovery from backup...\n")
+
+			// Read backup
+			backupData, err := os.ReadFile(vaultBackupPath)
+			if err != nil {
+				return fmt.Errorf("failed to read backup for rollback: %w", err)
+			}
+
+			// Restore to main vault path
+			if err := os.WriteFile(v.vaultPath, backupData, storage.VaultPermissions); err != nil {
+				return fmt.Errorf("failed to restore backup: %w", err)
+			}
+
+			// Remove incomplete temp file
+			_ = os.Remove(vaultTmpPath)
+
+			fmt.Fprintf(os.Stderr, "SUCCESS: Vault restored from backup. Your data is safe.\n")
+			fmt.Fprintf(os.Stderr, "You may continue using the vault normally.\n\n")
+		} else {
+			// No backup available - just remove temp file and warn
+			fmt.Fprintf(os.Stderr, "WARNING: No backup file found. Cleaning up temporary files.\n")
+			_ = os.Remove(vaultTmpPath)
+			fmt.Fprintf(os.Stderr, "If you experience issues, please report this immediately.\n\n")
+		}
 	}
 
 	// Convert to string for storage service (TODO: Phase 4 will update storage.go to accept []byte)
@@ -173,6 +211,16 @@ func (v *VaultService) Unlock(masterPassword []byte) error {
 	v.masterPassword = make([]byte, len(masterPassword))
 	copy(v.masterPassword, masterPassword)
 	v.vaultData = &vaultData
+
+	// T036f: Remove backup file after successful unlock
+	// This confirms the vault is readable and migration (if any) was successful
+	backupPath := v.vaultPath + storage.BackupSuffix
+	if _, err := os.Stat(backupPath); err == nil {
+		if err := os.Remove(backupPath); err != nil {
+			// Log warning but don't fail unlock - backup cleanup is not critical
+			fmt.Fprintf(os.Stderr, "Warning: failed to remove backup file: %v\n", err)
+		}
+	}
 
 	return nil
 }
