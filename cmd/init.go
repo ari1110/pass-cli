@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"pass-cli/internal/security"
 	"pass-cli/internal/vault"
 )
 
@@ -54,16 +55,29 @@ func runInit(cmd *cobra.Command, args []string) error {
 	fmt.Printf("📁 Vault location: %s\n\n", vaultPath)
 
 	// Prompt for master password
-	fmt.Print("Enter master password (min 8 characters): ")
+	fmt.Print("Enter master password (min 12 characters with uppercase, lowercase, digit, symbol): ")
 	password, err := readPassword()
 	if err != nil {
 		return fmt.Errorf("failed to read password: %w", err)
 	}
 	fmt.Println() // newline after password input
 
-	// Validate password length
-	if len(password) < 8 {
-		return fmt.Errorf("master password must be at least 8 characters")
+	// T047 [US3]: Display real-time strength indicator
+	policy := &security.PasswordPolicy{
+		MinLength:         12,
+		RequireUppercase:  true,
+		RequireLowercase:  true,
+		RequireDigit:      true,
+		RequireSymbol:     true,
+	}
+	strength := policy.Strength(password)
+	switch strength {
+	case security.PasswordStrengthWeak:
+		fmt.Println("⚠  Password strength: Weak")
+	case security.PasswordStrengthMedium:
+		fmt.Println("⚠  Password strength: Medium")
+	case security.PasswordStrengthStrong:
+		fmt.Println("✓ Password strength: Strong")
 	}
 
 	// Confirm password

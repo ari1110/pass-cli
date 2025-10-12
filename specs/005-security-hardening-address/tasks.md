@@ -145,10 +145,10 @@
 - [X] T044 [US3] Implement PasswordPolicy.Strength method in `internal/security/password.go` (calculate weak/medium/strong per FR-017 algorithm in data-model.md:186-238)
 - [X] T045 [US3] Add password policy validation to VaultService.Initialize in `internal/vault/vault.go:96` (call security.DefaultPasswordPolicy.Validate before proceeding)
 - [X] T046 [US3] Add password policy validation to VaultService.ChangePassword in `internal/vault/vault.go:514` (call security.DefaultPasswordPolicy.Validate before proceeding)
-- [ ] T047 [US3] Implement CLI real-time strength indicator in `cmd/cli/init.go` and `cmd/cli/change_password.go` (text-based: "⚠ Weak", "⚠ Medium", "✓ Strong")
-- [ ] T048 [US3] Implement TUI strength meter component in `cmd/tui/components/forms.go` (tview.ProgressBar with color coding per research.md:136-149)
-- [ ] T049 [US3] Update password input forms to call strength calculation on change in `cmd/tui/components/forms.go` (SetChangedFunc hook)
-- [ ] T050 [US3] Run password validation tests to verify all complexity rules enforced
+- [X] T047 [US3] Implement CLI real-time strength indicator in `cmd/init.go` and `cmd/change_password.go` (text-based: "⚠ Weak", "⚠ Medium", "✓ Strong")
+- [X] T048 [US3] Implement TUI strength meter component in `cmd/tui/components/forms.go` (TextView with color coding)
+- [X] T049 [US3] Update password input forms to call strength calculation on change in `cmd/tui/components/forms.go` (SetChangedFunc hook)
+- [X] T050 [US3] Run password validation tests to verify all complexity rules enforced
 - [ ] T051 [US3] Manually test CLI and TUI strength indicators for UX validation
 - [ ] T051a [US3] Implement rate limiting in password validation: track failure count, enforce 5-second cooldown after 3rd failure (FR-024 per clarification Q4)
 

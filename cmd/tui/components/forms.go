@@ -10,6 +10,7 @@ import (
 	"github.com/rivo/tview"
 	"pass-cli/cmd/tui/models"
 	"pass-cli/cmd/tui/styles"
+	"pass-cli/internal/security"
 	"pass-cli/internal/vault"
 )
 
@@ -30,6 +31,7 @@ type AddForm struct {
 	appState *models.AppState
 
 	passwordVisible bool // Track password visibility state for toggle
+	strengthMeter   *tview.TextView // T048: Password strength indicator
 
 	onSubmit func()
 	onCancel func()
@@ -46,6 +48,7 @@ type EditForm struct {
 	originalPassword string // Track original password to detect changes
 	passwordFetched  bool   // Track if password has been fetched (lazy loading)
 	passwordVisible  bool   // Track password visibility state for toggle
+	strengthMeter    *tview.TextView // T048: Password strength indicator
 
 	onSubmit func()
 	onCancel func()
@@ -91,7 +94,28 @@ func (af *AddForm) buildFormFields() {
 	// Use 0 width to make fields fill available space (prevents black rectangles)
 	af.AddInputField("Service (UID)", "", 0, nil, nil)
 	af.AddInputField("Username", "", 0, nil, nil)
-	af.AddPasswordField("Password", "", 0, '*', nil)
+
+	// T048, T049: Password field with real-time strength indicator
+	passwordField := tview.NewInputField().
+		SetLabel("Password").
+		SetFieldWidth(0).
+		SetMaskCharacter('*')
+
+	// T049: Update strength meter on password change
+	passwordField.SetChangedFunc(func(text string) {
+		af.updateStrengthMeter([]byte(text))
+	})
+
+	af.AddFormItem(passwordField)
+
+	// T048: Add strength meter below password field
+	theme := styles.GetCurrentTheme()
+	af.strengthMeter = tview.NewTextView()
+	af.strengthMeter.SetDynamicColors(true)
+	af.strengthMeter.SetTextAlign(tview.AlignLeft)
+	af.strengthMeter.SetBackgroundColor(theme.Background)
+	af.updateStrengthMeter([]byte("")) // Initialize with empty
+	af.AddFormItem(af.strengthMeter)
 
 	// Optional metadata fields - default to "Uncategorized"
 
@@ -140,12 +164,13 @@ func (af *AddForm) onAddPressed() {
 	}
 
 	// Extract field values (using form item index)
+	// Note: indices shifted due to strength meter at index 3
 	service := af.GetFormItem(0).(*tview.InputField).GetText()
 	username := af.GetFormItem(1).(*tview.InputField).GetText()
 	password := af.GetFormItem(2).(*tview.InputField).GetText()
 
-	// Extract category from input field (index 3)
-  category := af.GetFormItem(3).(*tview.InputField).GetText()
+	// Extract category from input field (index 4, after strength meter at 3)
+  category := af.GetFormItem(4).(*tview.InputField).GetText()
   category = normalizeCategory(category) // Convert "Uncategorized" to empty string
 	
 	//Original dropdown approach (commented out for autocomplete field) 
@@ -153,8 +178,8 @@ func (af *AddForm) onAddPressed() {
 	// _, category := categoryDropdown.GetCurrentOption()
 	// category = normalizeCategory(category) // Convert "Uncategorized" to empty string
 
-	url := af.GetFormItem(4).(*tview.InputField).GetText()
-	notes := af.GetFormItem(5).(*tview.TextArea).GetText()
+	url := af.GetFormItem(5).(*tview.InputField).GetText()
+	notes := af.GetFormItem(6).(*tview.TextArea).GetText()
 
 	// Call AppState to add credential with all 6 fields
 	err := af.appState.AddCredential(service, username, password, category, url, notes)
@@ -200,6 +225,24 @@ func (af *AddForm) validate() error {
 	}
 
 	return nil
+}
+
+// T048, T049: updateStrengthMeter updates the password strength indicator
+func (af *AddForm) updateStrengthMeter(password []byte) {
+	policy := security.DefaultPasswordPolicy
+	strength := policy.Strength(password)
+
+	var text string
+	switch strength {
+	case security.PasswordStrengthWeak:
+		text = "[yellow]⚠ Password strength: Weak[-]"
+	case security.PasswordStrengthMedium:
+		text = "[orange]⚠ Password strength: Medium[-]"
+	case security.PasswordStrengthStrong:
+		text = "[green]✓ Password strength: Strong[-]"
+	}
+
+	af.strengthMeter.SetText(text)
 }
 
 // getCategories retrieves available categories from AppState.
@@ -268,9 +311,13 @@ func (af *AddForm) applyStyles() {
 	// Apply form-level styling
 	styles.ApplyFormStyle(af.Form)
 
-	// Style individual input fields (indices 0-5)
+	// Style individual input fields (indices 0-2, 4-6)
+	// Note: index 3 is strength meter (TextView), skip styling
 	// Use BackgroundLight for input fields - lighter than form Background for contrast
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 7; i++ {
+		if i == 3 {
+			continue // Skip strength meter
+		}
 		item := af.GetFormItem(i)
 		switch field := item.(type) {
 		case *tview.InputField:
@@ -353,7 +400,8 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 
 	ef.AddInputField("Username", ef.credential.Username, 0, nil, nil)
 
-	// Password field - defer fetching until user focuses field (lazy loading)
+	// T048, T049: Password field with real-time strength indicator
+	// Defer fetching until user focuses field (lazy loading)
 	// This prevents blocking UI and avoids incrementing usage stats on form open
 	passwordField := tview.NewInputField().
 		SetLabel("Password").
@@ -365,7 +413,21 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 		ef.fetchPasswordIfNeeded(passwordField)
 	})
 
+	// T049: Update strength meter on password change
+	passwordField.SetChangedFunc(func(text string) {
+		ef.updateStrengthMeter([]byte(text))
+	})
+
 	ef.AddFormItem(passwordField)
+
+	// T048: Add strength meter below password field
+	theme := styles.GetCurrentTheme()
+	ef.strengthMeter = tview.NewTextView()
+	ef.strengthMeter.SetDynamicColors(true)
+	ef.strengthMeter.SetTextAlign(tview.AlignLeft)
+	ef.strengthMeter.SetBackgroundColor(theme.Background)
+	ef.updateStrengthMeter([]byte("")) // Initialize with empty
+	ef.AddFormItem(ef.strengthMeter)
 
 	// Optional metadata fields - pre-populated from credential
 	// ef.AddDropDown("Category", categories, categoryIndex, nil)
@@ -450,16 +512,17 @@ func (ef *EditForm) onSavePressed() {
 	// Note: Use original credential.Service as identifier, not form field
 	// This prevents ErrCredentialNotFound if user tries to edit service name
 	// For service renaming, a dedicated rename flow should be implemented
+	// Note: indices shifted due to strength meter at index 3
 	service := ef.credential.Service
 	username := ef.GetFormItem(1).(*tview.InputField).GetText()
 	password := ef.GetFormItem(2).(*tview.InputField).GetText()
 
-	// Extract category from input field (index 3)
-	category := ef.GetFormItem(3).(*tview.InputField).GetText()
+	// Extract category from input field (index 4, after strength meter at 3)
+	category := ef.GetFormItem(4).(*tview.InputField).GetText()
 	category = normalizeCategory(category) // Convert "Uncategorized" to empty string
 
-	url := ef.GetFormItem(4).(*tview.InputField).GetText()
-	notes := ef.GetFormItem(5).(*tview.TextArea).GetText()
+	url := ef.GetFormItem(5).(*tview.InputField).GetText()
+	notes := ef.GetFormItem(6).(*tview.TextArea).GetText()
 
 	// Build UpdateCredentialOpts with only non-empty fields
 	opts := models.UpdateCredentialOpts{}
@@ -608,6 +671,24 @@ func (ef *EditForm) setupKeyboardShortcuts() {
 	})
 }
 
+// T048, T049: updateStrengthMeter updates the password strength indicator
+func (ef *EditForm) updateStrengthMeter(password []byte) {
+	policy := security.DefaultPasswordPolicy
+	strength := policy.Strength(password)
+
+	var text string
+	switch strength {
+	case security.PasswordStrengthWeak:
+		text = "[yellow]⚠ Password strength: Weak[-]"
+	case security.PasswordStrengthMedium:
+		text = "[orange]⚠ Password strength: Medium[-]"
+	case security.PasswordStrengthStrong:
+		text = "[green]✓ Password strength: Strong[-]"
+	}
+
+	ef.strengthMeter.SetText(text)
+}
+
 // applyStyles applies theme colors and border styling to the form.
 func (ef *EditForm) applyStyles() {
 	theme := styles.GetCurrentTheme()
@@ -615,9 +696,13 @@ func (ef *EditForm) applyStyles() {
 	// Apply form-level styling
 	styles.ApplyFormStyle(ef.Form)
 
-	// Style individual input fields (indices 0-5)
+	// Style individual input fields (indices 0-2, 4-6)
+	// Note: index 3 is strength meter (TextView), skip styling
 	// Use BackgroundLight for input fields - lighter than form Background for contrast
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 7; i++ {
+		if i == 3 {
+			continue // Skip strength meter
+		}
 		item := ef.GetFormItem(i)
 		switch field := item.(type) {
 		case *tview.InputField:
