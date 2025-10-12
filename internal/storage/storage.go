@@ -81,13 +81,14 @@ func (s *StorageService) InitializeVault(password string) error {
 	// Create initial empty vault data
 	emptyVault := []byte("{}")
 
-	// T032: Create vault metadata with 600k iterations (OWASP 2023, FR-007)
+	// T032/T034: Create vault metadata with configurable iterations (FR-007, FR-010)
+	// Uses PASS_CLI_ITERATIONS env var if set, otherwise defaults to 600k (OWASP 2023)
 	metadata := VaultMetadata{
 		Version:    1,
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 		Salt:       salt,
-		Iterations: crypto.DefaultIterations, // 600,000 for new vaults
+		Iterations: crypto.GetIterations(), // Configurable via env var (T034)
 	}
 
 	// Encrypt and save vault

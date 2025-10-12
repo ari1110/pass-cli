@@ -106,9 +106,9 @@
 - [X] T030 [US2] Update storage.Save to pass metadata.Iterations to DeriveKey in `internal/storage/storage.go:106`
 - [X] T031 [US2] Update storage.Load to pass metadata.Iterations to DeriveKey in `internal/storage/storage.go:239`
 - [X] T032 [US2] Set new vaults to 600k iterations in VaultService.Initialize in `internal/vault/vault.go:96` (set metadata.Iterations = 600000)
-- [ ] T033 [US2] Add migration logic to VaultService.ChangePassword in `internal/vault/vault.go:514` (if metadata.Iterations < 600000, upgrade to 600000)
-- [ ] T034 [US2] Add environment variable support for custom iterations in `internal/crypto/crypto.go` (PASS_CLI_ITERATIONS, minimum 600k)
-- [ ] T035 [US2] Run crypto timing benchmarks to verify 500-1000ms target (go test -bench=BenchmarkDeriveKey -benchtime=5s)
+- [X] T033 [US2] Add migration logic to VaultService.ChangePassword in `internal/vault/vault.go:514` (if metadata.Iterations < 600000, upgrade to 600000)
+- [X] T034 [US2] Add environment variable support for custom iterations in `internal/crypto/crypto.go` (PASS_CLI_ITERATIONS, minimum 600k)
+- [X] T035 [US2] Run crypto timing benchmarks to verify 500-1000ms target (go test -bench=BenchmarkDeriveKey -benchtime=5s)
 - [ ] T036 [US2] Test legacy vault loading and migration flow
 - [ ] T036b [US2] Verify key derivation timing meets FR-009 constraint in `internal/crypto/crypto_test.go` (assert 500-1000ms range, fail if violated)
 - [ ] T036c [US2] Implement atomic vault migration in VaultService.ChangePassword: write to vault.tmp, fsync, rename to vault.json (FR-011)

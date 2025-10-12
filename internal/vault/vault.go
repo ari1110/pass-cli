@@ -559,6 +559,16 @@ func (v *VaultService) ChangePassword(newPassword []byte) error {
 		return errors.New("new password must be at least 8 characters")
 	}
 
+	// T033/T034: Check if iteration count needs upgrading
+	// Use configurable iterations from env var if set (T034)
+	targetIterations := crypto.GetIterations()
+	if v.vaultData.Metadata.Iterations < targetIterations {
+		// Migration opportunity: upgrade to stronger KDF
+		fmt.Fprintf(os.Stderr, "Upgrading PBKDF2 iterations from %d to %d for improved security...\n",
+			v.vaultData.Metadata.Iterations, targetIterations)
+		v.vaultData.Metadata.Iterations = targetIterations
+	}
+
 	// Clear old password
 	crypto.ClearBytes(v.masterPassword)
 

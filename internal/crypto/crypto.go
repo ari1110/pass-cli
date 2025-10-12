@@ -7,6 +7,8 @@ import (
 	"crypto/subtle"
 	"errors"
 	"fmt"
+	"os"
+	"strconv"
 
 	"crypto/sha256"
 	"golang.org/x/crypto/pbkdf2"
@@ -160,4 +162,30 @@ func ClearBytes(data []byte) {
 	// that might remove the clearing operation
 	dummy := make([]byte, len(data))
 	subtle.ConstantTimeCompare(data, dummy)
+}
+
+// GetIterations returns the PBKDF2 iteration count to use for new vaults.
+// Supports PASS_CLI_ITERATIONS environment variable override (T034).
+// Returns DefaultIterations if env var is not set or invalid.
+// Minimum value enforced is MinIterations (600,000).
+func GetIterations() int {
+	envVal := os.Getenv("PASS_CLI_ITERATIONS")
+	if envVal == "" {
+		return DefaultIterations
+	}
+
+	// Parse environment variable
+	iterations, err := strconv.Atoi(envVal)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: invalid PASS_CLI_ITERATIONS value '%s', using default %d\n", envVal, DefaultIterations)
+		return DefaultIterations
+	}
+
+	// Enforce minimum (security requirement)
+	if iterations < MinIterations {
+		fmt.Fprintf(os.Stderr, "Warning: PASS_CLI_ITERATIONS (%d) below minimum (%d), using minimum\n", iterations, MinIterations)
+		return MinIterations
+	}
+
+	return iterations
 }
