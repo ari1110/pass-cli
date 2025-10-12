@@ -76,7 +76,7 @@ func TestPasswordPolicy_Validate_RequireUppercase(t *testing.T) {
 		},
 		{
 			name:     "Multiple uppercase",
-			password: []byte("PASSWORD123!"),
+			password: []byte("PASSword123!"),
 			wantErr:  false,
 		},
 		{
@@ -119,7 +119,7 @@ func TestPasswordPolicy_Validate_RequireLowercase(t *testing.T) {
 		},
 		{
 			name:     "Multiple lowercase",
-			password: []byte("password123!"),
+			password: []byte("Passssword1!"),
 			wantErr:  false,
 		},
 		{
@@ -167,7 +167,7 @@ func TestPasswordPolicy_Validate_RequireDigit(t *testing.T) {
 		},
 		{
 			name:     "Digit at start",
-			password: []byte("1Password!!"),
+			password: []byte("1Password!!!"),
 			wantErr:  false,
 		},
 	}
@@ -562,7 +562,7 @@ func TestPasswordPolicy_Validate_UnicodeAccentedLetters(t *testing.T) {
 		},
 		{
 			name:     "Mixed ASCII and Unicode",
-			password: []byte("MyPássw0rd!"),
+			password: []byte("MyPássw0rd1!"),
 			wantErr:  false,
 			desc:     "Should accept mix of ASCII and Unicode",
 		},

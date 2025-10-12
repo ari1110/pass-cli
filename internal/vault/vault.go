@@ -11,6 +11,7 @@ import (
 
 	"pass-cli/internal/crypto"
 	"pass-cli/internal/keychain"
+	"pass-cli/internal/security"
 	"pass-cli/internal/storage"
 )
 
@@ -95,12 +96,21 @@ func New(vaultPath string) (*VaultService, error) {
 
 // Initialize creates a new vault with a master password
 // T010: Updated signature to accept []byte, T014: Added deferred cleanup
+// T045: Added password policy validation (FR-016)
 func (v *VaultService) Initialize(masterPassword []byte, useKeychain bool) error {
 	defer crypto.ClearBytes(masterPassword) // T014: Ensure cleanup even on error
 
-	// Validate master password
-	if len(masterPassword) < 8 {
-		return errors.New("master password must be at least 8 characters")
+	// T045 [US3]: Validate master password against policy (FR-016)
+	// Import security package required at top of file
+	passwordPolicy := &security.PasswordPolicy{
+		MinLength:         12,
+		RequireUppercase:  true,
+		RequireLowercase:  true,
+		RequireDigit:      true,
+		RequireSymbol:     true,
+	}
+	if err := passwordPolicy.Validate(masterPassword); err != nil {
+		return fmt.Errorf("password does not meet requirements: %w", err)
 	}
 
 	// Check if vault already exists
@@ -595,6 +605,7 @@ func (v *VaultService) GetUsageStats(service string) (map[string]UsageRecord, er
 
 // ChangePassword changes the vault master password
 // T012: Updated signature to accept []byte, T016: Added deferred cleanup
+// T046: Added password policy validation (FR-016)
 func (v *VaultService) ChangePassword(newPassword []byte) error {
 	defer crypto.ClearBytes(newPassword) // T016: Ensure cleanup even on error
 
@@ -602,9 +613,16 @@ func (v *VaultService) ChangePassword(newPassword []byte) error {
 		return ErrVaultLocked
 	}
 
-	// Validate new password
-	if len(newPassword) < 8 {
-		return errors.New("new password must be at least 8 characters")
+	// T046 [US3]: Validate new password against policy (FR-016)
+	passwordPolicy := &security.PasswordPolicy{
+		MinLength:         12,
+		RequireUppercase:  true,
+		RequireLowercase:  true,
+		RequireDigit:      true,
+		RequireSymbol:     true,
+	}
+	if err := passwordPolicy.Validate(newPassword); err != nil {
+		return fmt.Errorf("new password does not meet requirements: %w", err)
 	}
 
 	// T033/T034: Check if iteration count needs upgrading

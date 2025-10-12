@@ -1083,9 +1083,6 @@ func TestInitialize_WeakPasswordRejected(t *testing.T) {
 }
 
 func TestInitialize_StrongPasswordAccepted(t *testing.T) {
-	vault, _, cleanup := setupTestVault(t)
-	defer cleanup()
-
 	strongPasswords := []string{
 		"MySecurePassword123!",
 		"P@ssw0rd!Testing",
@@ -1096,10 +1093,10 @@ func TestInitialize_StrongPasswordAccepted(t *testing.T) {
 	for _, password := range strongPasswords {
 		t.Run(password, func(t *testing.T) {
 			// Create new vault for each test since Initialize can only be called once
-			tempVault, _, tempCleanup := setupTestVault(t)
-			defer tempCleanup()
+			vault, _, cleanup := setupTestVault(t)
+			defer cleanup()
 
-			err := tempVault.Initialize([]byte(password), false)
+			err := vault.Initialize([]byte(password), false)
 			if err != nil {
 				t.Errorf("Initialize() should accept strong password %s: %v", password, err)
 			}
@@ -1230,12 +1227,12 @@ func TestPasswordPolicy_ErrorMessagesDescriptive(t *testing.T) {
 		},
 		{
 			name:            "No digit mentions digit",
-			password:        "Password!!!",
+			password:        "PasswordTest!",
 			expectedInError: "digit",
 		},
 		{
 			name:            "No symbol mentions symbol",
-			password:        "Password123",
+			password:        "Password1234",
 			expectedInError: "symbol",
 		},
 	}
