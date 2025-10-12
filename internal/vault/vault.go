@@ -233,7 +233,10 @@ func (v *VaultService) save() error {
 
 // AddCredential adds a new credential to the vault
 // T020d: Password parameter changed to []byte for memory security
+// T020e: Added deferred cleanup for password parameter
 func (v *VaultService) AddCredential(service, username string, password []byte, category, url, notes string) error {
+	defer crypto.ClearBytes(password) // T020e: Ensure cleanup even on error
+
 	if !v.unlocked {
 		return ErrVaultLocked
 	}
@@ -439,7 +442,13 @@ func (v *VaultService) ListCredentialsWithMetadata() ([]CredentialMetadata, erro
 
 // UpdateCredential updates an existing credential using optional fields
 // Use nil pointers to skip updating a field, non-nil to set (including to empty string)
+// T020e: Added deferred cleanup for password if provided
 func (v *VaultService) UpdateCredential(service string, opts UpdateOpts) error {
+	// T020e: Clear password bytes after use (if provided)
+	if opts.Password != nil {
+		defer crypto.ClearBytes(*opts.Password)
+	}
+
 	if !v.unlocked {
 		return ErrVaultLocked
 	}
@@ -454,7 +463,10 @@ func (v *VaultService) UpdateCredential(service string, opts UpdateOpts) error {
 		credential.Username = *opts.Username
 	}
 	if opts.Password != nil {
-		credential.Password = *opts.Password
+		// T020e: Make a copy before storing to avoid clearing stored password
+		passwordCopy := make([]byte, len(*opts.Password))
+		copy(passwordCopy, *opts.Password)
+		credential.Password = passwordCopy
 	}
 	if opts.Category != nil {
 		credential.Category = *opts.Category
