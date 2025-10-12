@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -1030,4 +1031,226 @@ func TestMigrationRollbackOnPowerLoss(t *testing.T) {
 	}
 
 	t.Log("Rollback from incomplete migration successful")
+}
+
+// T040 [US3]: Test password policy enforcement in vault operations
+// FR-016: Vault init/change MUST reject weak passwords
+
+func TestInitialize_WeakPasswordRejected(t *testing.T) {
+	vault, _, cleanup := setupTestVault(t)
+	defer cleanup()
+
+	weakPasswords := []struct {
+		name     string
+		password string
+		reason   string
+	}{
+		{
+			name:     "Too short",
+			password: "Pass123!",
+			reason:   "Less than 12 characters",
+		},
+		{
+			name:     "No uppercase",
+			password: "password123!",
+			reason:   "Missing uppercase letter",
+		},
+		{
+			name:     "No lowercase",
+			password: "PASSWORD123!",
+			reason:   "Missing lowercase letter",
+		},
+		{
+			name:     "No digit",
+			password: "Password!!!",
+			reason:   "Missing digit",
+		},
+		{
+			name:     "No symbol",
+			password: "Password1234",
+			reason:   "Missing special character",
+		},
+	}
+
+	for _, tt := range weakPasswords {
+		t.Run(tt.name, func(t *testing.T) {
+			err := vault.Initialize([]byte(tt.password), false)
+			if err == nil {
+				t.Errorf("Initialize() should reject weak password: %s", tt.reason)
+			}
+		})
+	}
+}
+
+func TestInitialize_StrongPasswordAccepted(t *testing.T) {
+	vault, _, cleanup := setupTestVault(t)
+	defer cleanup()
+
+	strongPasswords := []string{
+		"MySecurePassword123!",
+		"P@ssw0rd!Testing",
+		"ComplexP@ss2024!",
+		"SecureVault123!@#",
+	}
+
+	for _, password := range strongPasswords {
+		t.Run(password, func(t *testing.T) {
+			// Create new vault for each test since Initialize can only be called once
+			tempVault, _, tempCleanup := setupTestVault(t)
+			defer tempCleanup()
+
+			err := tempVault.Initialize([]byte(password), false)
+			if err != nil {
+				t.Errorf("Initialize() should accept strong password %s: %v", password, err)
+			}
+		})
+	}
+}
+
+func TestChangePassword_WeakPasswordRejected(t *testing.T) {
+	vault, _, cleanup := setupTestVault(t)
+	defer cleanup()
+
+	initialPassword := "GoodInitialPass123!"
+
+	// Initialize with strong password
+	if err := vault.Initialize([]byte(initialPassword), false); err != nil {
+		t.Fatalf("Initialize() failed: %v", err)
+	}
+	if err := vault.Unlock([]byte(initialPassword)); err != nil {
+		t.Fatalf("Unlock() failed: %v", err)
+	}
+
+	weakPasswords := []struct {
+		name     string
+		password string
+		reason   string
+	}{
+		{
+			name:     "Too short",
+			password: "Short1!",
+			reason:   "Less than 12 characters",
+		},
+		{
+			name:     "No uppercase",
+			password: "password123!",
+			reason:   "Missing uppercase letter",
+		},
+		{
+			name:     "No lowercase",
+			password: "PASSWORD123!",
+			reason:   "Missing lowercase letter",
+		},
+		{
+			name:     "No digit",
+			password: "Password!!!",
+			reason:   "Missing digit",
+		},
+		{
+			name:     "No symbol",
+			password: "Password1234",
+			reason:   "Missing special character",
+		},
+	}
+
+	for _, tt := range weakPasswords {
+		t.Run(tt.name, func(t *testing.T) {
+			err := vault.ChangePassword([]byte(tt.password))
+			if err == nil {
+				t.Errorf("ChangePassword() should reject weak password: %s", tt.reason)
+			}
+		})
+	}
+
+	// Verify original password still works
+	vault.Lock()
+	if err := vault.Unlock([]byte(initialPassword)); err != nil {
+		t.Error("Original password should still work after rejected password changes")
+	}
+}
+
+func TestChangePassword_StrongPasswordAccepted(t *testing.T) {
+	vault, _, cleanup := setupTestVault(t)
+	defer cleanup()
+
+	initialPassword := "InitialPassword123!"
+	newPasswords := []string{
+		"MyNewSecurePass123!",
+		"StrongP@ssw0rd2024",
+		"ComplexChange123!@#",
+	}
+
+	// Initialize with strong password
+	if err := vault.Initialize([]byte(initialPassword), false); err != nil {
+		t.Fatalf("Initialize() failed: %v", err)
+	}
+	if err := vault.Unlock([]byte(initialPassword)); err != nil {
+		t.Fatalf("Unlock() failed: %v", err)
+	}
+
+	for _, newPassword := range newPasswords {
+		t.Run(newPassword, func(t *testing.T) {
+			err := vault.ChangePassword([]byte(newPassword))
+			if err != nil {
+				t.Errorf("ChangePassword() should accept strong password %s: %v", newPassword, err)
+			}
+
+			// Verify new password works
+			vault.Lock()
+			if err := vault.Unlock([]byte(newPassword)); err != nil {
+				t.Errorf("Should be able to unlock with new password: %v", err)
+			}
+		})
+	}
+}
+
+func TestPasswordPolicy_ErrorMessagesDescriptive(t *testing.T) {
+	vault, _, cleanup := setupTestVault(t)
+	defer cleanup()
+
+	tests := []struct {
+		name            string
+		password        string
+		expectedInError string
+	}{
+		{
+			name:            "Too short mentions length",
+			password:        "Pass1!",
+			expectedInError: "12",
+		},
+		{
+			name:            "No uppercase mentions uppercase",
+			password:        "password123!",
+			expectedInError: "uppercase",
+		},
+		{
+			name:            "No lowercase mentions lowercase",
+			password:        "PASSWORD123!",
+			expectedInError: "lowercase",
+		},
+		{
+			name:            "No digit mentions digit",
+			password:        "Password!!!",
+			expectedInError: "digit",
+		},
+		{
+			name:            "No symbol mentions symbol",
+			password:        "Password123",
+			expectedInError: "symbol",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := vault.Initialize([]byte(tt.password), false)
+			if err == nil {
+				t.Errorf("Initialize() should reject password: %s", tt.password)
+				return
+			}
+
+			if !strings.Contains(strings.ToLower(err.Error()), strings.ToLower(tt.expectedInError)) {
+				t.Errorf("Error message should mention %s, got: %v", tt.expectedInError, err)
+			}
+		})
+	}
 }
