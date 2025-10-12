@@ -91,9 +91,9 @@
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T021 [P] [US2] Create crypto timing benchmark in `internal/crypto/crypto_test.go` (BenchmarkDeriveKey should take 500-1000ms)
-- [ ] T022 [P] [US2] Create backward compatibility test in `internal/storage/storage_test.go` (load vault with missing Iterations field)
-- [ ] T023 [P] [US2] Create migration test in `internal/vault/vault_test.go` (verify 100k → 600k upgrade on password change)
+- [X] T021 [P] [US2] Create crypto timing benchmark in `internal/crypto/crypto_test.go` (BenchmarkDeriveKey should take 500-1000ms)
+- [X] T022 [P] [US2] Create backward compatibility test in `internal/storage/storage_test.go` (load vault with missing Iterations field)
+- [X] T023 [P] [US2] Create migration test in `internal/vault/vault_test.go` (verify 100k → 600k upgrade on password change)
 
 ### Implementation for User Story 2
 
