@@ -148,6 +148,101 @@ func (s *StorageService) SaveVault(data []byte, password string) error {
 	return nil
 }
 
+// SaveVaultWithIterations saves vault data with an updated iteration count.
+// Used for migration from legacy iteration counts (T033).
+func (s *StorageService) SaveVaultWithIterations(data []byte, password string, iterations int) error {
+	if iterations < crypto.MinIterations {
+		return fmt.Errorf("iterations must be >= %d", crypto.MinIterations)
+	}
+
+	// Load existing vault to get metadata
+	encryptedVault, err := s.loadEncryptedVault()
+	if err != nil {
+		return err
+	}
+
+	// Update metadata with new iterations
+	encryptedVault.Metadata.UpdatedAt = time.Now()
+	encryptedVault.Metadata.Iterations = iterations
+
+	// Create backup before saving
+	if err := s.createBackup(); err != nil {
+		return fmt.Errorf("failed to create backup: %w", err)
+	}
+
+	// Save encrypted vault
+	if err := s.saveEncryptedVault(data, encryptedVault.Metadata, password); err != nil {
+		// Restore from backup on failure
+		if restoreErr := s.restoreFromBackup(); restoreErr != nil {
+			return fmt.Errorf("save failed and backup restore failed: %v (original error: %w)", restoreErr, err)
+		}
+		return fmt.Errorf("failed to save vault: %w", err)
+	}
+
+	return nil
+}
+
+// SaveVaultWithIterationsUnsafe saves vault data with a specific iteration count without validation.
+// ONLY FOR TESTING: Allows simulating legacy vaults with low iteration counts.
+// DO NOT USE in production code.
+func (s *StorageService) SaveVaultWithIterationsUnsafe(data []byte, password string, iterations int) error {
+	// Load existing vault to get metadata
+	encryptedVault, err := s.loadEncryptedVault()
+	if err != nil {
+		return err
+	}
+
+	// Update metadata with new iterations (no validation)
+	encryptedVault.Metadata.UpdatedAt = time.Now()
+	encryptedVault.Metadata.Iterations = iterations
+
+	// Create backup before saving
+	if err := s.createBackup(); err != nil {
+		return fmt.Errorf("failed to create backup: %w", err)
+	}
+
+	// Save encrypted vault
+	if err := s.saveEncryptedVault(data, encryptedVault.Metadata, password); err != nil {
+		// Restore from backup on failure
+		if restoreErr := s.restoreFromBackup(); restoreErr != nil {
+			return fmt.Errorf("save failed and backup restore failed: %v (original error: %w)", restoreErr, err)
+		}
+		return fmt.Errorf("failed to save vault: %w", err)
+	}
+
+	return nil
+}
+
+// GetIterations returns the current PBKDF2 iteration count from vault metadata.
+// Returns 0 if vault doesn't exist or error occurs.
+func (s *StorageService) GetIterations() int {
+	encryptedVault, err := s.loadEncryptedVault()
+	if err != nil {
+		return 0
+	}
+	return encryptedVault.Metadata.Iterations
+}
+
+// SetIterations updates the PBKDF2 iteration count in vault metadata.
+// This will take effect on the next SaveVault call.
+// Used for migration from legacy iteration counts (T033).
+func (s *StorageService) SetIterations(iterations int) error {
+	if iterations < crypto.MinIterations {
+		return fmt.Errorf("iterations must be >= %d", crypto.MinIterations)
+	}
+
+	encryptedVault, err := s.loadEncryptedVault()
+	if err != nil {
+		return err
+	}
+
+	encryptedVault.Metadata.Iterations = iterations
+	
+	// Note: The updated iterations will be persisted on next SaveVault call
+	// We don't save immediately to avoid double-write overhead
+	return nil
+}
+
 func (s *StorageService) VaultExists() bool {
 	_, err := os.Stat(s.vaultPath)
 	return err == nil

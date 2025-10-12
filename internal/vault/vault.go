@@ -562,11 +562,13 @@ func (v *VaultService) ChangePassword(newPassword []byte) error {
 	// T033/T034: Check if iteration count needs upgrading
 	// Use configurable iterations from env var if set (T034)
 	targetIterations := crypto.GetIterations()
-	if v.vaultData.Metadata.Iterations < targetIterations {
+	currentIterations := v.storageService.GetIterations()
+	
+	needsMigration := currentIterations < targetIterations
+	if needsMigration {
 		// Migration opportunity: upgrade to stronger KDF
 		fmt.Fprintf(os.Stderr, "Upgrading PBKDF2 iterations from %d to %d for improved security...\n",
-			v.vaultData.Metadata.Iterations, targetIterations)
-		v.vaultData.Metadata.Iterations = targetIterations
+			currentIterations, targetIterations)
 	}
 
 	// Clear old password
@@ -576,14 +578,26 @@ func (v *VaultService) ChangePassword(newPassword []byte) error {
 	v.masterPassword = make([]byte, len(newPassword))
 	copy(v.masterPassword, newPassword)
 
-	// Re-save vault with new password
-	if err := v.save(); err != nil {
-		return fmt.Errorf("failed to save vault with new password: %w", err)
+	// Marshal vault data
+	data, err := json.Marshal(v.vaultData)
+	if err != nil {
+		return fmt.Errorf("failed to marshal vault data: %w", err)
+	}
+
+	// Re-save vault with new password and potentially upgraded iterations
+	newPasswordStr := string(newPassword)
+	if needsMigration {
+		if err := v.storageService.SaveVaultWithIterations(data, newPasswordStr, targetIterations); err != nil {
+			return fmt.Errorf("failed to save vault with new password: %w", err)
+		}
+	} else {
+		if err := v.storageService.SaveVault(data, newPasswordStr); err != nil {
+			return fmt.Errorf("failed to save vault with new password: %w", err)
+		}
 	}
 
 	// Update keychain if available
 	if v.keychainService.IsAvailable() {
-		newPasswordStr := string(newPassword)
 		if err := v.keychainService.Store(newPasswordStr); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to update password in keychain: %v\n", err)
 		}
