@@ -104,7 +104,7 @@ func runAdd(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("failed to read password: %w", err)
 		}
 		fmt.Println() // newline after password input
-		addPassword = password
+		addPassword = string(password) // TODO: Remove string conversion in Phase 3 (T020d)
 	}
 
 	// Validate password is not empty
@@ -154,7 +154,8 @@ func unlockVault(vaultService *vault.VaultService) error {
 	}
 	fmt.Println() // newline after password input
 
-	if err := vaultService.Unlock(password); err != nil {
+	// TODO: Remove string conversion in Phase 3 (T010, T011)
+	if err := vaultService.Unlock(string(password)); err != nil {
 		return fmt.Errorf("failed to unlock vault: %w", err)
 	}
 

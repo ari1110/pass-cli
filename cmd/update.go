@@ -139,7 +139,7 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("failed to read password: %w", err)
 		}
 		fmt.Println()
-		updatePassword = password
+		updatePassword = string(password) // TODO: Remove string conversion in Phase 3 (T020d)
 
 		// Prompt for category
 		fmt.Printf("Category [%s]: ", cred.Category)

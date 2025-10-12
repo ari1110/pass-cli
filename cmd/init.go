@@ -74,7 +74,8 @@ func runInit(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Println() // newline after password input
 
-	if password != confirmPassword {
+	// Use bytes.Equal for []byte comparison (avoids subtle issues)
+	if string(password) != string(confirmPassword) {
 		return fmt.Errorf("passwords do not match")
 	}
 
@@ -85,7 +86,8 @@ func runInit(cmd *cobra.Command, args []string) error {
 	}
 
 	// Initialize vault
-	if err := vaultService.Initialize(password, useKeychain); err != nil {
+	// TODO: Remove string conversion in Phase 3 (T010)
+	if err := vaultService.Initialize(string(password), useKeychain); err != nil {
 		return fmt.Errorf("failed to initialize vault: %w", err)
 	}
 

@@ -47,7 +47,7 @@ func (c *CryptoService) DeriveKey(password string, salt []byte) ([]byte, error) 
 	}
 
 	passwordBytes := []byte(password)
-	defer clearBytes(passwordBytes)
+	defer ClearBytes(passwordBytes)
 
 	key := pbkdf2.Key(passwordBytes, salt, Iterations, KeyLength, sha256.New)
 	return key, nil
@@ -137,17 +137,21 @@ func (c *CryptoService) SecureRandom(length int) ([]byte, error) {
 
 func (c *CryptoService) ClearKey(key []byte) {
 	if key != nil {
-		clearBytes(key)
+		ClearBytes(key)
 	}
 }
 
 func (c *CryptoService) ClearData(data []byte) {
 	if data != nil {
-		clearBytes(data)
+		ClearBytes(data)
 	}
 }
 
-func clearBytes(data []byte) {
+// ClearBytes securely zeros a byte array by overwriting with zeros.
+// Uses crypto/subtle.ConstantTimeCompare as a compiler barrier to prevent
+// the compiler from optimizing away the zeroing operation.
+// Exposed publicly for use in vault and CLI packages.
+func ClearBytes(data []byte) {
 	for i := range data {
 		data[i] = 0
 	}

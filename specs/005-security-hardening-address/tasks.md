@@ -34,9 +34,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. All stories depend on byte-based password handling.
 
-- [ ] T004 Expose clearBytes as public ClearBytes in `internal/crypto/crypto.go` (lines 150-159)
-- [ ] T005 Change readPassword return type from string to []byte in `cmd/helpers.go` (line 30: remove string() conversion)
-- [ ] T006 Update all readPassword call sites to accept []byte instead of string (7 call sites total: cmd/add.go lines 102, 151; cmd/init.go lines 58, 71; cmd/update.go line 137; cmd/tui.go line 165; plus cmd/helpers.go line 12 definition)
+- [X] T004 Expose clearBytes as public ClearBytes in `internal/crypto/crypto.go` (lines 150-159)
+- [X] T005 Change readPassword return type from string to []byte in `cmd/helpers.go` (line 30: remove string() conversion)
+- [X] T006 Update all readPassword call sites to accept []byte instead of string (7 call sites total: cmd/add.go lines 102, 151; cmd/init.go lines 58, 71; cmd/update.go line 137; cmd/tui.go line 165; plus cmd/helpers.go line 12 definition)
 
 **Checkpoint**: Foundation ready - byte-based password handling now available project-wide
 
