@@ -296,7 +296,7 @@ func (af *AddForm) wrapInFrame() {
 	flex := tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(af.form, 0, 1, true).  // Form takes all available space
-		AddItem(hints, 1, 0, false)     // Hints fixed at 1 row (will expand if wrapped)
+		AddItem(hints, 2, 0, false)     // Hints fixed at 2 rows (enough for wrapped text)
 
 	// Apply border and title to the flex container
 	flex.SetBorder(true).
@@ -674,7 +674,7 @@ func (ef *EditForm) wrapInFrame() {
 	flex := tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(ef.form, 0, 1, true).  // Form takes all available space
-		AddItem(hints, 1, 0, false)     // Hints fixed at 1 row (will expand if wrapped)
+		AddItem(hints, 2, 0, false)     // Hints fixed at 2 rows (enough for wrapped text)
 
 	// Apply border and title to the flex container
 	flex.SetBorder(true).
