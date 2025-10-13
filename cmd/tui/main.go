@@ -142,6 +142,11 @@ func LaunchTUI(vaultService *vault.VaultService) error {
 		detailView.Refresh()
 	})
 
+	appState.SetOnFilterChanged(func() {
+		// Refresh table only (not detail view) during search filtering
+		table.Refresh()
+	})
+
 	appState.SetOnError(func(err error) {
 		// Display error in status bar
 		statusBar.ShowError(err)

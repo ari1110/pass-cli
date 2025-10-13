@@ -64,6 +64,7 @@ type AppState struct {
 	// Notification callbacks
 	onCredentialsChanged func()      // Called when credentials are loaded/modified
 	onSelectionChanged   func()      // Called when selection changes
+	onFilterChanged      func()      // Called when filter changes (search/category) without selection change
 	onError              func(error) // Called when errors occur
 }
 
@@ -419,6 +420,14 @@ func (s *AppState) SetOnError(callback func(error)) {
 	s.onError = callback
 }
 
+// SetOnFilterChanged registers a callback for filter changes (search/category).
+// Used to refresh table without refreshing detail view during search.
+func (s *AppState) SetOnFilterChanged(callback func()) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.onFilterChanged = callback
+}
+
 // notifyCredentialsChanged invokes the credentials changed callback.
 // CRITICAL: Must be called AFTER releasing locks to prevent deadlocks.
 func (s *AppState) notifyCredentialsChanged() {
@@ -449,9 +458,28 @@ func (s *AppState) notifySelectionChanged() {
 }
 
 // TriggerRefresh manually triggers the selection changed callback to refresh UI components.
-// Used by search filtering to update the table display without changing selection state.
+// DEPRECATED: Use TriggerFilterChanged for search/filter updates to avoid unnecessary detail view refreshes.
 func (s *AppState) TriggerRefresh() {
 	s.notifySelectionChanged()
+}
+
+// TriggerFilterChanged triggers only the filter changed callback (not selection changed).
+// Used by search filtering to update table display without refreshing detail view.
+func (s *AppState) TriggerFilterChanged() {
+	s.notifyFilterChanged()
+}
+
+// notifyFilterChanged invokes the filter changed callback.
+// CRITICAL: Must be called AFTER releasing locks to prevent deadlocks.
+func (s *AppState) notifyFilterChanged() {
+	// Read callback without holding lock
+	s.mu.RLock()
+	callback := s.onFilterChanged
+	s.mu.RUnlock()
+
+	if callback != nil {
+		callback()
+	}
 }
 
 // notifyError invokes the error callback.

@@ -458,8 +458,8 @@ func (eh *EventHandler) handleSearchActivate() {
 		// Update query in real-time
 		searchState.Query = text
 
-		// Trigger selection changed callback to refresh table
-		eh.appState.TriggerRefresh()
+		// Trigger filter changed callback to refresh table only (not detail view)
+		eh.appState.TriggerFilterChanged()
 	})
 
 	// Setup done function to handle Escape (redundant but safe)

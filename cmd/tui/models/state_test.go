@@ -165,6 +165,13 @@ func (m *MockVaultService) SetCredentials(creds []vault.CredentialMetadata) {
 	m.credentials = creds
 }
 
+// GetCalled returns the number of times GetCredential was called.
+func (m *MockVaultService) GetCalled() int {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.getCalled
+}
+
 // TestNewAppState verifies AppState creation.
 func TestNewAppState(t *testing.T) {
 	mockVault := NewMockVaultService()
@@ -762,5 +769,63 @@ func TestUpdateCategories_EmptyCredentials(t *testing.T) {
 	// Verify empty slice returned
 	if len(categories) != 0 {
 		t.Errorf("Expected empty categories slice, got %d categories", len(categories))
+	}
+}
+
+// TestTriggerFilterChanged verifies onFilterChanged callback fires independently from onSelectionChanged.
+func TestTriggerFilterChanged(t *testing.T) {
+	mockVault := NewMockVaultService()
+	state := NewAppState(mockVault)
+
+	// Track callback invocations separately
+	filterChangedCount := 0
+	selectionChangedCount := 0
+
+	state.SetOnFilterChanged(func() {
+		filterChangedCount++
+	})
+
+	state.SetOnSelectionChanged(func() {
+		selectionChangedCount++
+	})
+
+	// Trigger filter changed (should only invoke onFilterChanged)
+	state.TriggerFilterChanged()
+
+	// Verify only filter callback invoked
+	if filterChangedCount != 1 {
+		t.Errorf("Expected onFilterChanged called 1 time, got %d", filterChangedCount)
+	}
+	if selectionChangedCount != 0 {
+		t.Errorf("Expected onSelectionChanged not called, got %d", selectionChangedCount)
+	}
+}
+
+// TestTriggerRefresh verifies TriggerRefresh still invokes onSelectionChanged.
+func TestTriggerRefresh(t *testing.T) {
+	mockVault := NewMockVaultService()
+	state := NewAppState(mockVault)
+
+	// Track callback invocations
+	filterChangedCount := 0
+	selectionChangedCount := 0
+
+	state.SetOnFilterChanged(func() {
+		filterChangedCount++
+	})
+
+	state.SetOnSelectionChanged(func() {
+		selectionChangedCount++
+	})
+
+	// Trigger refresh (should invoke onSelectionChanged but not onFilterChanged)
+	state.TriggerRefresh()
+
+	// Verify only selection callback invoked
+	if selectionChangedCount != 1 {
+		t.Errorf("Expected onSelectionChanged called 1 time, got %d", selectionChangedCount)
+	}
+	if filterChangedCount != 0 {
+		t.Errorf("Expected onFilterChanged not called, got %d", filterChangedCount)
 	}
 }

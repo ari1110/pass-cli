@@ -30,8 +30,9 @@ const (
 type DetailView struct {
 	*tview.TextView
 
-	appState        *models.AppState
-	passwordVisible bool // Toggle for password visibility (false = masked)
+	appState                *models.AppState
+	passwordVisible         bool   // Toggle for password visibility (false = masked)
+	cachedCredentialService string // Cache last refreshed credential service to avoid unnecessary vault calls
 }
 
 // NewDetailView creates and configures a new DetailView component.
@@ -56,6 +57,7 @@ func NewDetailView(appState *models.AppState) *DetailView {
 
 // Refresh rebuilds the detail view from the currently selected credential.
 // Displays formatted credential information or empty state if no selection.
+// Uses caching to avoid expensive vault operations when the same credential is refreshed.
 func (dv *DetailView) Refresh() {
 	// Debug: Uncomment to trace selection changes
 	// fmt.Printf("[DetailView] Refresh called, selected: %v\n", dv.appState.GetSelectedCredential())
@@ -63,9 +65,19 @@ func (dv *DetailView) Refresh() {
 	cred := dv.appState.GetSelectedCredential()
 
 	if cred == nil {
+		dv.cachedCredentialService = "" // Clear cache
 		dv.showEmptyState()
 		return
 	}
+
+	// Cache optimization: skip refresh if same credential and not password toggle
+	if cred.Service == dv.cachedCredentialService {
+		// Same credential already displayed, no need to rebuild
+		return
+	}
+
+	// Update cache
+	dv.cachedCredentialService = cred.Service
 
 	content := dv.formatCredential(cred)
 	dv.SetText(content)
@@ -182,8 +194,10 @@ func (dv *DetailView) showEmptyState() {
 
 // TogglePasswordVisibility toggles the password display state and refreshes.
 // Alternates between masked (••••••••) and plaintext display.
+// Invalidates cache to force refresh with new password visibility state.
 func (dv *DetailView) TogglePasswordVisibility() {
 	dv.passwordVisible = !dv.passwordVisible
+	dv.cachedCredentialService = "" // Invalidate cache to force refresh
 	dv.Refresh()
 }
 
