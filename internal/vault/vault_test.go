@@ -1258,7 +1258,7 @@ func TestVaultOperationsWithFailedAuditLogging(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize vault (audit logging not configured - should succeed anyway)
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -1288,7 +1288,7 @@ func TestVaultOperationsWithFailedAuditLogging(t *testing.T) {
 	}
 
 	// Test password change (should succeed)
-	if err := vault.ChangePassword([]byte("new-vault-pass-123!")); err != nil {
+	if err := vault.ChangePassword([]byte("NewVaultPass123!")); err != nil {
 		t.Fatalf("ChangePassword() should succeed even without audit logging: %v", err)
 	}
 
@@ -1299,7 +1299,7 @@ func TestVaultOperationsWithInvalidAuditPath(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// TODO: Once audit logging is implemented, configure with invalid path
 	// For now, test that operations work without audit configuration

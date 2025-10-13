@@ -66,6 +66,10 @@ type VaultService struct {
 	unlocked       bool
 	masterPassword []byte // Byte array for secure memory clearing (T009)
 	vaultData      *VaultData
+
+	// T066: Audit logging configuration (FR-025: default disabled)
+	auditEnabled bool
+	auditLogger  *security.AuditLogger
 }
 
 // New creates a new VaultService
@@ -91,7 +95,51 @@ func New(vaultPath string) (*VaultService, error) {
 		storageService:  storageService,
 		keychainService: keychain.New(),
 		unlocked:        false,
+		auditEnabled:    false, // T066: Default disabled per FR-025
 	}, nil
+}
+
+// T066: EnableAudit enables audit logging for this vault
+// vaultID should be a unique identifier for the vault (e.g., filepath or UUID)
+func (v *VaultService) EnableAudit(auditLogPath, vaultID string) error {
+	if v.auditEnabled {
+		return nil // Already enabled
+	}
+
+	logger, err := security.NewAuditLogger(auditLogPath, vaultID)
+	if err != nil {
+		return fmt.Errorf("failed to create audit logger: %w", err)
+	}
+
+	v.auditLogger = logger
+	v.auditEnabled = true
+	return nil
+}
+
+// T066: DisableAudit disables audit logging
+func (v *VaultService) DisableAudit() {
+	v.auditEnabled = false
+	v.auditLogger = nil
+}
+
+// T074: logAudit logs an audit event with graceful degradation (FR-026)
+// Per FR-026: System MUST continue operation even if audit logging fails
+func (v *VaultService) logAudit(eventType, outcome, credentialName string) {
+	if !v.auditEnabled || v.auditLogger == nil {
+		return // Audit not enabled
+	}
+
+	entry := &security.AuditLogEntry{
+		Timestamp:      time.Now(),
+		EventType:      eventType,
+		Outcome:        outcome,
+		CredentialName: credentialName,
+	}
+
+	// FR-026: Log errors to stderr but continue operation
+	if err := v.auditLogger.Log(entry); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: audit logging failed (operation continues): %v\n", err)
+	}
 }
 
 // Initialize creates a new vault with a master password
@@ -151,6 +199,9 @@ func (v *VaultService) Initialize(masterPassword []byte, useKeychain bool) error
 		}
 	}
 
+	// T067: Log vault creation event (FR-019)
+	v.logAudit(security.EventVaultUnlock, security.OutcomeSuccess, "")
+
 	return nil
 }
 
@@ -207,6 +258,8 @@ func (v *VaultService) Unlock(masterPassword []byte) error {
 	// Try to load vault
 	data, err := v.storageService.LoadVault(masterPasswordStr)
 	if err != nil {
+		// T068: Log unlock failure (FR-019)
+		v.logAudit(security.EventVaultUnlock, security.OutcomeFailure, "")
 		return fmt.Errorf("failed to unlock vault: %w", err)
 	}
 
@@ -232,6 +285,9 @@ func (v *VaultService) Unlock(masterPassword []byte) error {
 		}
 	}
 
+	// T068: Log unlock success (FR-019)
+	v.logAudit(security.EventVaultUnlock, security.OutcomeSuccess, "")
+
 	return nil
 }
 
@@ -251,7 +307,11 @@ func (v *VaultService) UnlockWithKeychain() error {
 
 // Lock clears in-memory credentials and password
 // T013: Fixed to properly clear []byte password using crypto.ClearBytes
+// T069: Added audit logging (FR-019)
 func (v *VaultService) Lock() {
+	// T069: Log lock event before clearing state (FR-019)
+	v.logAudit(security.EventVaultLock, security.OutcomeSuccess, "")
+
 	v.unlocked = false
 
 	// Clear sensitive data from memory
@@ -333,7 +393,13 @@ func (v *VaultService) AddCredential(service, username string, password []byte, 
 	v.vaultData.Credentials[service] = credential
 
 	// Save to disk
-	return v.save()
+	if err := v.save(); err != nil {
+		return err
+	}
+
+	// T071: Log credential add (FR-020)
+	v.logAudit(security.EventCredentialAdd, security.OutcomeSuccess, service)
+	return nil
 }
 
 // GetCredential retrieves a credential and tracks usage
@@ -354,6 +420,9 @@ func (v *VaultService) GetCredential(service string, trackUsage bool) (*Credenti
 			fmt.Fprintf(os.Stderr, "Warning: failed to track usage: %v\n", err)
 		}
 	}
+
+	// T071: Log credential access (FR-020)
+	v.logAudit(security.EventCredentialAccess, security.OutcomeSuccess, service)
 
 	// Return a copy to prevent external modification
 	cred := credential
@@ -539,7 +608,13 @@ func (v *VaultService) UpdateCredential(service string, opts UpdateOpts) error {
 	credential.UpdatedAt = time.Now()
 	v.vaultData.Credentials[service] = credential
 
-	return v.save()
+	if err := v.save(); err != nil {
+		return err
+	}
+
+	// T071: Log credential update (FR-020)
+	v.logAudit(security.EventCredentialUpdate, security.OutcomeSuccess, service)
+	return nil
 }
 
 // UpdateCredentialFields updates fields using the planned 6-parameter signature
@@ -580,7 +655,13 @@ func (v *VaultService) DeleteCredential(service string) error {
 
 	delete(v.vaultData.Credentials, service)
 
-	return v.save()
+	if err := v.save(); err != nil {
+		return err
+	}
+
+	// T071: Log credential delete (FR-020)
+	v.logAudit(security.EventCredentialDelete, security.OutcomeSuccess, service)
+	return nil
 }
 
 // GetUsageStats returns usage statistics for a credential
@@ -668,6 +749,9 @@ func (v *VaultService) ChangePassword(newPassword []byte) error {
 			fmt.Fprintf(os.Stderr, "Warning: failed to update password in keychain: %v\n", err)
 		}
 	}
+
+	// T070: Log password change (FR-019)
+	v.logAudit(security.EventVaultPasswordChange, security.OutcomeSuccess, "")
 
 	return nil
 }
