@@ -1239,6 +1239,9 @@ func TestPasswordPolicy_ErrorMessagesDescriptive(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// T051a: Reset rate limiter between subtests
+			vault.rateLimiter.Reset()
+
 			err := vault.Initialize([]byte(tt.password), false)
 			if err == nil {
 				t.Errorf("Initialize() should reject password: %s", tt.password)

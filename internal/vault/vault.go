@@ -70,6 +70,9 @@ type VaultService struct {
 	// T066: Audit logging configuration (FR-025: default disabled)
 	auditEnabled bool
 	auditLogger  *security.AuditLogger
+
+	// T051a: Rate limiting for password validation (FR-024)
+	rateLimiter *security.ValidationRateLimiter
 }
 
 // New creates a new VaultService
@@ -95,7 +98,8 @@ func New(vaultPath string) (*VaultService, error) {
 		storageService:  storageService,
 		keychainService: keychain.New(),
 		unlocked:        false,
-		auditEnabled:    false, // T066: Default disabled per FR-025
+		auditEnabled:    false,      // T066: Default disabled per FR-025
+		rateLimiter:     security.NewValidationRateLimiter(), // T051a: Initialize rate limiter
 	}, nil
 }
 
@@ -158,8 +162,15 @@ func (v *VaultService) Initialize(masterPassword []byte, useKeychain bool) error
 		RequireSymbol:     true,
 	}
 	if err := passwordPolicy.Validate(masterPassword); err != nil {
+		// T051a: Record failure and check rate limit
+		if rateLimitErr := v.rateLimiter.CheckAndRecordFailure(); rateLimitErr != nil {
+			return rateLimitErr // Rate limit triggered
+		}
 		return fmt.Errorf("password does not meet requirements: %w", err)
 	}
+
+	// T051a: Reset rate limiter on successful validation
+	v.rateLimiter.Reset()
 
 	// Check if vault already exists
 	if _, err := os.Stat(v.vaultPath); err == nil {
@@ -703,8 +714,15 @@ func (v *VaultService) ChangePassword(newPassword []byte) error {
 		RequireSymbol:     true,
 	}
 	if err := passwordPolicy.Validate(newPassword); err != nil {
+		// T051a: Record failure and check rate limit
+		if rateLimitErr := v.rateLimiter.CheckAndRecordFailure(); rateLimitErr != nil {
+			return rateLimitErr // Rate limit triggered
+		}
 		return fmt.Errorf("new password does not meet requirements: %w", err)
 	}
+
+	// T051a: Reset rate limiter on successful validation
+	v.rateLimiter.Reset()
 
 	// T033/T034: Check if iteration count needs upgrading
 	// Use configurable iterations from env var if set (T034)
