@@ -3,6 +3,8 @@ package security
 import (
 	"errors"
 	"fmt"
+	"sync"
+	"time"
 	"unicode"
 )
 
@@ -162,4 +164,60 @@ func (p *PasswordPolicy) Strength(password []byte) PasswordStrength {
 	}
 
 	return PasswordStrengthWeak
+}
+
+// T051a [US3]: ValidationRateLimiter prevents brute-force password guessing
+// FR-024: Enforce 5-second cooldown after 3rd validation failure
+type ValidationRateLimiter struct {
+	mu            sync.Mutex
+	failureCount  int
+	lastFailure   time.Time
+	cooldownUntil time.Time
+}
+
+// NewValidationRateLimiter creates a new rate limiter
+func NewValidationRateLimiter() *ValidationRateLimiter {
+	return &ValidationRateLimiter{}
+}
+
+// CheckAndRecordFailure checks if rate limiting is active and records a failure
+// Returns error if in cooldown period, nil otherwise
+func (rl *ValidationRateLimiter) CheckAndRecordFailure() error {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+
+	now := time.Now()
+
+	// Check if currently in cooldown
+	if now.Before(rl.cooldownUntil) {
+		remaining := time.Until(rl.cooldownUntil).Round(time.Second)
+		return fmt.Errorf("too many failed attempts - please wait %v before trying again", remaining)
+	}
+
+	// Reset counter if last failure was > 30 seconds ago
+	if now.Sub(rl.lastFailure) > 30*time.Second {
+		rl.failureCount = 0
+	}
+
+	// Increment failure count
+	rl.failureCount++
+	rl.lastFailure = now
+
+	// Trigger cooldown after 3rd failure
+	if rl.failureCount >= 3 {
+		rl.cooldownUntil = now.Add(5 * time.Second)
+		rl.failureCount = 0 // Reset after triggering cooldown
+		return fmt.Errorf("too many failed attempts - please wait 5 seconds before trying again")
+	}
+
+	return nil
+}
+
+// Reset clears the rate limiter state (for successful validation)
+func (rl *ValidationRateLimiter) Reset() {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+
+	rl.failureCount = 0
+	rl.cooldownUntil = time.Time{}
 }

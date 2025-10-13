@@ -16,8 +16,8 @@ echo ========================================
 echo.
 
 REM Configuration
-set TEST_VAULT=test-vault-tview\vault.enc
-set TEST_PASSWORD=test123456
+set TEST_VAULT=test-vault\vault
+set TEST_PASSWORD=TestPassword123!
 set BINARY=pass-cli.exe
 
 REM Check if binary exists

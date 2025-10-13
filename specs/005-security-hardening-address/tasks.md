@@ -149,8 +149,8 @@
 - [X] T048 [US3] Implement TUI strength meter component in `cmd/tui/components/forms.go` (TextView with color coding)
 - [X] T049 [US3] Update password input forms to call strength calculation on change in `cmd/tui/components/forms.go` (SetChangedFunc hook)
 - [X] T050 [US3] Run password validation tests to verify all complexity rules enforced
-- [ ] T051 [US3] Manually test CLI and TUI strength indicators for UX validation
-- [ ] T051a [US3] Implement rate limiting in password validation: track failure count, enforce 5-second cooldown after 3rd failure (FR-024 per clarification Q4)
+- [X] T051 [US3] Manually test CLI and TUI strength indicators for UX validation
+- [X] T051a [US3] Implement rate limiting in password validation: track failure count, enforce 5-second cooldown after 3rd failure (FR-024 per clarification Q4)
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work - memory security + crypto hardening + password policy complete
 
