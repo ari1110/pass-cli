@@ -98,10 +98,24 @@ func (l *AuditLogger) ShouldRotate() bool {
 }
 
 // T063: Rotate renames current log to .old and creates new empty log
+// T078a: Auto-delete rotated logs older than 7 days (FR-031)
 // Per data-model.md:343-347
 func (l *AuditLogger) Rotate() error {
-	// Rename current log to .old
+	// T078a: Delete old rotated logs (7 days retention per FR-031)
 	oldPath := l.filePath + ".old"
+	if info, err := os.Stat(oldPath); err == nil {
+		// Old log exists - check age
+		age := time.Since(info.ModTime())
+		if age > 7*24*time.Hour {
+			// Older than 7 days - delete it
+			if err := os.Remove(oldPath); err != nil {
+				// Log warning but don't fail rotation
+				fmt.Fprintf(os.Stderr, "Warning: failed to delete old audit log: %v\n", err)
+			}
+		}
+	}
+
+	// Rename current log to .old
 	if err := os.Rename(l.filePath, oldPath); err != nil {
 		// If file doesn't exist, that's OK
 		if !os.IsNotExist(err) {
