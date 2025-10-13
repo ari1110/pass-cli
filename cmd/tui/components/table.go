@@ -71,7 +71,8 @@ func (ct *CredentialTable) buildHeader() {
 }
 
 // Refresh rebuilds the table from filtered credentials.
-// Gets credentials from AppState, filters by selected category and search query, and repopulates rows.
+// Gets credentials from AppState, filters by selected category and search query, and updates rows.
+// Uses incremental updates: reuses existing rows instead of full rebuild for better performance.
 func (ct *CredentialTable) Refresh() {
 	// Get credentials and filter by category (thread-safe read)
 	allCreds := ct.appState.GetCredentials()
@@ -82,13 +83,57 @@ func (ct *CredentialTable) Refresh() {
 	searchState := ct.appState.GetSearchState()
 	ct.filteredCreds = ct.filterBySearch(categoryFiltered, searchState)
 
-	// Clear table (keep header at row 0)
-	for row := ct.GetRowCount() - 1; row > 0; row-- {
-		ct.RemoveRow(row)
+	// Get current row count (excluding header)
+	currentRowCount := ct.GetRowCount() - 1
+	newRowCount := len(ct.filteredCreds)
+
+	theme := styles.GetCurrentTheme()
+
+	// Update existing rows and add new ones if needed
+	for i, cred := range ct.filteredCreds {
+		row := i + 1 // +1 to skip header row
+
+		if i < currentRowCount {
+			// Reuse existing row - update cell contents
+			ct.GetCell(row, 0).SetText(cred.Service).SetReference(cred)
+			ct.GetCell(row, 1).SetText(cred.Username)
+
+			lastUsed := "Never"
+			if !cred.LastAccessed.IsZero() {
+				lastUsed = formatRelativeTime(cred.LastAccessed)
+			}
+			ct.GetCell(row, 2).SetText(lastUsed)
+		} else {
+			// Add new row (same as populateRows logic)
+			serviceCell := tview.NewTableCell(cred.Service).
+				SetTextColor(theme.TextPrimary).
+				SetAlign(tview.AlignLeft).
+				SetReference(cred)
+
+			usernameCell := tview.NewTableCell(cred.Username).
+				SetTextColor(theme.TableHeader).
+				SetAlign(tview.AlignLeft)
+
+			lastUsed := "Never"
+			if !cred.LastAccessed.IsZero() {
+				lastUsed = formatRelativeTime(cred.LastAccessed)
+			}
+			lastUsedCell := tview.NewTableCell(lastUsed).
+				SetTextColor(theme.TextSecondary).
+				SetAlign(tview.AlignLeft)
+
+			ct.SetCell(row, 0, serviceCell)
+			ct.SetCell(row, 1, usernameCell)
+			ct.SetCell(row, 2, lastUsedCell)
+		}
 	}
 
-	// Populate rows
-	ct.populateRows(ct.filteredCreds)
+	// Remove excess rows if new list is shorter
+	if newRowCount < currentRowCount {
+		for row := currentRowCount; row > newRowCount; row-- {
+			ct.RemoveRow(row)
+		}
+	}
 
 	// Update title with count
 	ct.SetTitle(fmt.Sprintf(" Credentials (%d) ", len(ct.filteredCreds)))
