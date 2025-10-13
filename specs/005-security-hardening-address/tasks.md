@@ -217,12 +217,12 @@
 - [X] T087 Update README.md with performance expectations (vault unlock now takes 500-1000ms)
 - [X] T088 Update USAGE.md with password requirements and audit logging instructions
 - [X] T089 Create migration guide in docs/ (how to upgrade from 100k to 600k iterations)
-- [ ] T090 Run quickstart.md validation per testing checklist (lines 199-211)
-- [ ] T091 Final memory inspection test with delve debugger to confirm no password leaks
-- [ ] T092 Generate test coverage report: `go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out`
-- [ ] T093 [P] Run go mod tidy to ensure clean dependency tree
-- [ ] T094 [P] Run govulncheck to scan for known vulnerabilities in dependencies
-- [ ] T095 Investigate tview password input memory handling, document if string conversion unavoidable (known limitation)
+- [X] T090 Run quickstart.md validation per testing checklist (lines 199-211)
+- [X] T091 Final memory inspection test with delve debugger to confirm no password leaks
+- [X] T092 Generate test coverage report: `go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out`
+- [X] T093 [P] Run go mod tidy to ensure clean dependency tree
+- [X] T094 [P] Run govulncheck to scan for known vulnerabilities in dependencies
+- [X] T095 Investigate tview password input memory handling, document if string conversion unavoidable (known limitation)
 
 ---
 
