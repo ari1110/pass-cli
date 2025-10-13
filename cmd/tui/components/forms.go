@@ -114,6 +114,7 @@ func (af *AddForm) buildFormFields() {
 	af.strengthMeter.SetDynamicColors(true)
 	af.strengthMeter.SetTextAlign(tview.AlignLeft)
 	af.strengthMeter.SetBackgroundColor(theme.Background)
+	af.strengthMeter.SetMaxLines(1) // Constrain to single line
 	af.updateStrengthMeter([]byte("")) // Initialize with empty
 	af.AddFormItem(af.strengthMeter)
 
@@ -426,6 +427,7 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 	ef.strengthMeter.SetDynamicColors(true)
 	ef.strengthMeter.SetTextAlign(tview.AlignLeft)
 	ef.strengthMeter.SetBackgroundColor(theme.Background)
+	ef.strengthMeter.SetMaxLines(1) // Constrain to single line
 	ef.updateStrengthMeter([]byte("")) // Initialize with empty
 	ef.AddFormItem(ef.strengthMeter)
 
