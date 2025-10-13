@@ -59,9 +59,9 @@ func normalizeCategory(c string) string {
 }
 
 // AddForm provides a modal form for adding new credentials.
-// Embeds tview.Frame (which contains the Form) and manages validation and submission.
+// Embeds tview.Flex (which contains Form + hints footer) and manages validation and submission.
 type AddForm struct {
-	*tview.Frame
+	*tview.Flex
 	form *tview.Form
 
 	appState *models.AppState
@@ -73,9 +73,9 @@ type AddForm struct {
 }
 
 // EditForm provides a modal form for editing existing credentials.
-// Embeds tview.Frame (which contains the Form) and pre-populates fields from credential.
+// Embeds tview.Flex (which contains Form + hints footer) and pre-populates fields from credential.
 type EditForm struct {
-	*tview.Frame
+	*tview.Flex
 	form *tview.Form
 
 	appState   *models.AppState
@@ -277,27 +277,34 @@ func (af *AddForm) getCategories() []string {
 	return categories
 }
 
-// wrapInFrame wraps the form in a Frame to add keyboard hints footer.
+// wrapInFrame wraps the form in a Flex with a TextView footer for keyboard hints.
 func (af *AddForm) wrapInFrame() {
 	theme := styles.GetCurrentTheme()
 
-	frame := tview.NewFrame(af.form)
-	frame.SetBorder(true).
+	// Create hints footer as a TextView with wrapping enabled
+	hintsText := "Tab/Shift+Tab: Navigate  •  Ctrl+S: Add  •  Ctrl+H: Toggle password  •  Esc: Cancel"
+	hints := tview.NewTextView().
+		SetText(hintsText).
+		SetTextAlign(tview.AlignCenter).
+		SetDynamicColors(true).
+		SetWrap(true).
+		SetWordWrap(true).
+		SetTextColor(theme.TextSecondary)
+	hints.SetBackgroundColor(theme.Background)
+
+	// Create Flex layout: form on top, hints at bottom
+	flex := tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(af.form, 0, 1, true).  // Form takes all available space
+		AddItem(hints, 1, 0, false)     // Hints fixed at 1 row (will expand if wrapped)
+
+	// Apply border and title to the flex container
+	flex.SetBorder(true).
 		SetTitle(" Add Credential ").
 		SetTitleAlign(tview.AlignLeft).
 		SetBorderColor(theme.BorderColor)
 
-	// Add keyboard hints as footer text with wrapping
-	hintsText := "Tab/Shift+Tab: Navigate  •  Ctrl+S: Add  •  Ctrl+H: Toggle password  •  Esc: Cancel"
-
-	// Wrap text to fit frame width (estimate based on typical modal width)
-	// Frame width is typically 80 columns minus borders
-	wrappedLines := tview.WordWrap(hintsText, 76)
-	for _, line := range wrappedLines {
-		frame.AddText(line, false, tview.AlignCenter, theme.TextSecondary)
-	}
-
-	af.Frame = frame
+	af.Flex = flex
 }
 
 
@@ -648,27 +655,34 @@ func (ef *EditForm) findCategoryIndex(categories []string) int {
 	return 0
 }
 
-// wrapInFrame wraps the form in a Frame to add keyboard hints footer.
+// wrapInFrame wraps the form in a Flex with a TextView footer for keyboard hints.
 func (ef *EditForm) wrapInFrame() {
 	theme := styles.GetCurrentTheme()
 
-	frame := tview.NewFrame(ef.form)
-	frame.SetBorder(true).
+	// Create hints footer as a TextView with wrapping enabled
+	hintsText := "Tab/Shift+Tab: Navigate  •  Ctrl+S: Save  •  Ctrl+H: Toggle password  •  Esc: Cancel"
+	hints := tview.NewTextView().
+		SetText(hintsText).
+		SetTextAlign(tview.AlignCenter).
+		SetDynamicColors(true).
+		SetWrap(true).
+		SetWordWrap(true).
+		SetTextColor(theme.TextSecondary)
+	hints.SetBackgroundColor(theme.Background)
+
+	// Create Flex layout: form on top, hints at bottom
+	flex := tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(ef.form, 0, 1, true).  // Form takes all available space
+		AddItem(hints, 1, 0, false)     // Hints fixed at 1 row (will expand if wrapped)
+
+	// Apply border and title to the flex container
+	flex.SetBorder(true).
 		SetTitle(" Edit Credential ").
 		SetTitleAlign(tview.AlignLeft).
 		SetBorderColor(theme.BorderColor)
 
-	// Add keyboard hints as footer text with wrapping
-	hintsText := "Tab/Shift+Tab: Navigate  •  Ctrl+S: Save  •  Ctrl+H: Toggle password  •  Esc: Cancel"
-
-	// Wrap text to fit frame width (estimate based on typical modal width)
-	// Frame width is typically 80 columns minus borders
-	wrappedLines := tview.WordWrap(hintsText, 76)
-	for _, line := range wrappedLines {
-		frame.AddText(line, false, tview.AlignCenter, theme.TextSecondary)
-	}
-
-	ef.Frame = frame
+	ef.Flex = flex
 }
 
 // setupKeyboardShortcuts configures form-level keyboard shortcuts.
