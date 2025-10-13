@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	useKeychain bool
+	useKeychain  bool
+	enableAudit  bool   // T073: Flag to enable audit logging (FR-025)
 )
 
 var initCmd = &cobra.Command{
@@ -41,6 +42,8 @@ so you don't have to enter it every time.`,
 func init() {
 	rootCmd.AddCommand(initCmd)
 	initCmd.Flags().BoolVar(&useKeychain, "use-keychain", false, "store master password in system keychain")
+	// T073: Add --enable-audit flag (FR-025: opt-in per FR-025)
+	initCmd.Flags().BoolVar(&enableAudit, "enable-audit", false, "enable tamper-evident audit logging for vault operations")
 }
 
 func runInit(cmd *cobra.Command, args []string) error {
@@ -102,6 +105,19 @@ func runInit(cmd *cobra.Command, args []string) error {
 	// Initialize vault
 	if err := vaultService.Initialize(password, useKeychain); err != nil {
 		return fmt.Errorf("failed to initialize vault: %w", err)
+	}
+
+	// T073: Enable audit logging if requested (FR-025)
+	if enableAudit {
+		auditLogPath := getAuditLogPath(vaultPath)
+		vaultID := getVaultID(vaultPath)
+		if err := vaultService.EnableAudit(auditLogPath, vaultID); err != nil {
+			// T074: Graceful degradation - warn but don't fail init
+			fmt.Fprintf(os.Stderr, "⚠️  Warning: failed to enable audit logging: %v\n", err)
+			fmt.Fprintf(os.Stderr, "   Vault initialized successfully but audit logging is disabled.\n")
+		} else {
+			fmt.Printf("📊 Audit logging enabled: %s\n", auditLogPath)
+		}
 	}
 
 	// Success message

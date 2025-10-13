@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/howeyc/gopass"
 	"golang.org/x/term"
@@ -29,4 +30,28 @@ func readPassword() ([]byte, error) {
 	}
 
 	return passwordBytes, nil
+}
+
+// T072: getAuditLogPath returns the audit log path from environment variable or default
+// Per FR-023: PASS_AUDIT_LOG environment variable for custom log location
+func getAuditLogPath(vaultPath string) string {
+	// Check environment variable first
+	if auditPath := os.Getenv("PASS_AUDIT_LOG"); auditPath != "" {
+		return auditPath
+	}
+
+	// Default: <vault-dir>/audit.log
+	vaultDir := filepath.Dir(vaultPath)
+	return filepath.Join(vaultDir, "audit.log")
+}
+
+// T072: getVaultID returns a unique identifier for the vault (used for keychain)
+// Uses vault file path as unique identifier
+func getVaultID(vaultPath string) string {
+	// Use absolute path as vault ID for keychain
+	absPath, err := filepath.Abs(vaultPath)
+	if err != nil {
+		return vaultPath // Fallback to relative path
+	}
+	return absPath
 }
