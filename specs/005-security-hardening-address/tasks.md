@@ -207,8 +207,8 @@
 **Purpose**: Improvements that affect multiple user stories and project-wide quality
 
 - [ ] T079 [P] Run gosec security scanner across all modified files: `gosec -quiet ./...`
-- [ ] T080 [P] Run golangci-lint on all modified files: `golangci-lint run --timeout=5m`
-- [ ] T081 [P] Run full test suite to verify no regressions: `go test ./...`
+- [X] T080 [P] Run golangci-lint on all modified files: `golangci-lint run --timeout=5m`
+- [X] T081 [P] Run full test suite to verify no regressions: `go test ./...`
 - [ ] T082 Run crypto performance benchmarks and document results in quickstart.md
 - [ ] T083 [P] Test on Windows (native environment)
 - [ ] T084 [P] Test on Linux (WSL or CI)
@@ -220,8 +220,8 @@
 - [ ] T090 Run quickstart.md validation per testing checklist (lines 199-211)
 - [ ] T091 Final memory inspection test with delve debugger to confirm no password leaks
 - [ ] T092 Generate test coverage report: `go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out`
-- [ ] T093 [P] Run go mod tidy to ensure clean dependency tree
-- [ ] T094 [P] Run govulncheck to scan for known vulnerabilities in dependencies
+- [X] T093 [P] Run go mod tidy to ensure clean dependency tree
+- [X] T094 [P] Run govulncheck to scan for known vulnerabilities in dependencies
 - [ ] T095 Investigate tview password input memory handling, document if string conversion unavoidable (known limitation)
 
 ---

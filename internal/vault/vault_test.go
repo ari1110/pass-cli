@@ -77,7 +77,7 @@ func TestInitialize(t *testing.T) {
 	vault, vaultPath, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize vault
 	err := vault.Initialize([]byte(password), false)
@@ -106,7 +106,7 @@ func TestInitializeExistingVault(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize once
 	err := vault.Initialize([]byte(password), false)
@@ -125,7 +125,7 @@ func TestUnlock(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize and unlock
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -145,7 +145,7 @@ func TestUnlockWithWrongPassword(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -167,7 +167,7 @@ func TestLock(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize and unlock
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -189,7 +189,7 @@ func TestAddCredential(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize and unlock
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -220,7 +220,7 @@ func TestAddCredentialWhenLocked(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize but don't unlock
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -238,7 +238,7 @@ func TestAddDuplicateCredential(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize and unlock
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -264,7 +264,7 @@ func TestGetCredential(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -308,7 +308,7 @@ func TestGetCredentialWithUsageTracking(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -360,7 +360,7 @@ func TestUpdateCredential(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -427,7 +427,7 @@ func TestUpdateCredentialClearFields(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential with category and URL
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -477,7 +477,7 @@ func TestUpdateCredentialPartial(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -528,7 +528,7 @@ func TestUpdateCredentialFields(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -575,7 +575,7 @@ func TestUpdateCredentialFieldsEmptyMeansNoChange(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -623,7 +623,7 @@ func TestListCredentialsWithMetadataIncludesCategoryAndURL(t *testing.T) {
 	v, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	pw := "test-password-12345"
+	pw := "TestPassword123!"
 	// T020d: Convert to []byte
 	if err := v.Initialize([]byte(pw), false); err != nil {
 		t.Fatal(err)
@@ -655,7 +655,7 @@ func TestDeleteCredential(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -689,7 +689,7 @@ func TestDeleteNonExistentCredential(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize and unlock
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -714,7 +714,7 @@ func TestPersistence(t *testing.T) {
 	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	vaultPath := filepath.Join(tempDir, "test.vault")
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Create first vault instance
 	vault1, err := New(vaultPath)
@@ -764,8 +764,8 @@ func TestChangePassword(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	oldPassword := "old-password-12345"
-	newPassword := "new-password-67890"
+	oldPassword := "OldPassword123!"
+	newPassword := "NewPassword789!"
 
 	// Initialize and unlock
 	// T020d: Convert to []byte
@@ -815,7 +815,7 @@ func TestBackwardCompatibility(t *testing.T) {
 	vault, _, cleanup := setupTestVault(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize and unlock
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -863,8 +863,8 @@ func TestIterationsMigrationOnPasswordChange(t *testing.T) {
 	vault, storageService, cleanup := setupTestVaultWithStorage(t)
 	defer cleanup()
 
-	password := "test-password-12345"
-	newPassword := "new-password-67890"
+	password := "TestPassword123!"
+	newPassword := "NewPassword789!"
 
 	// Initialize vault (will use 600k iterations by default)
 	if err := vault.Initialize([]byte(password), false); err != nil {
@@ -946,7 +946,7 @@ func TestMigrationRollbackOnPowerLoss(t *testing.T) {
 	vault, storageService, cleanup := setupTestVaultWithStorage(t)
 	defer cleanup()
 
-	password := "test-password-12345"
+	password := "TestPassword123!"
 
 	// Initialize vault with 100k iterations (simulating legacy vault)
 	if err := vault.Initialize([]byte(password), false); err != nil {
