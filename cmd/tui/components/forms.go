@@ -287,9 +287,15 @@ func (af *AddForm) wrapInFrame() {
 		SetTitleAlign(tview.AlignLeft).
 		SetBorderColor(theme.BorderColor)
 
-	// Add keyboard hints as footer text
-	hintsText := "Tab: Next  •  Shift+Tab: Prev  •  Ctrl+S: Add  •  Ctrl+H: Toggle pwd  •  Esc: Cancel"
-	frame.AddText(hintsText, false, tview.AlignCenter, theme.TextSecondary)
+	// Add keyboard hints as footer text with wrapping
+	hintsText := "Tab/Shift+Tab: Navigate  •  Ctrl+S: Add  •  Ctrl+H: Toggle password  •  Esc: Cancel"
+
+	// Wrap text to fit frame width (estimate based on typical modal width)
+	// Frame width is typically 80 columns minus borders
+	wrappedLines := tview.WordWrap(hintsText, 76)
+	for _, line := range wrappedLines {
+		frame.AddText(line, false, tview.AlignCenter, theme.TextSecondary)
+	}
 
 	af.Frame = frame
 }
@@ -652,9 +658,15 @@ func (ef *EditForm) wrapInFrame() {
 		SetTitleAlign(tview.AlignLeft).
 		SetBorderColor(theme.BorderColor)
 
-	// Add keyboard hints as footer text
-	hintsText := "Tab: Next  •  Shift+Tab: Prev  •  Ctrl+S: Save  •  Ctrl+H: Toggle pwd  •  Esc: Cancel"
-	frame.AddText(hintsText, false, tview.AlignCenter, theme.TextSecondary)
+	// Add keyboard hints as footer text with wrapping
+	hintsText := "Tab/Shift+Tab: Navigate  •  Ctrl+S: Save  •  Ctrl+H: Toggle password  •  Esc: Cancel"
+
+	// Wrap text to fit frame width (estimate based on typical modal width)
+	// Frame width is typically 80 columns minus borders
+	wrappedLines := tview.WordWrap(hintsText, 76)
+	for _, line := range wrappedLines {
+		frame.AddText(line, false, tview.AlignCenter, theme.TextSecondary)
+	}
 
 	ef.Frame = frame
 }
