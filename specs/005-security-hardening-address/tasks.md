@@ -209,7 +209,7 @@
 - [X] T079 [P] Run gosec security scanner across all modified files: `gosec -quiet ./...`
 - [X] T080 [P] Run golangci-lint on all modified files: `golangci-lint run --timeout=5m`
 - [X] T081 [P] Run full test suite to verify no regressions: `go test ./...`
-- [ ] T082 Run crypto performance benchmarks and document results in quickstart.md
+- [X] T082 Run crypto performance benchmarks and document results in quickstart.md
 - [ ] T083 [P] Test on Windows (native environment)
 - [ ] T084 [P] Test on Linux (WSL or CI)
 - [ ] T085 [P] Test on macOS (CI) - verify crypto/subtle behavior consistent
