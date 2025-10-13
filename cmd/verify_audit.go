@@ -66,7 +66,7 @@ func runVerifyAudit(cmd *cobra.Command, args []string) error {
 	}
 
 	// Open audit log
-	file, err := os.Open(auditLogPath)
+	file, err := os.Open(auditLogPath) // #nosec G304 -- Audit log path is user-specified or derived from validated vault path
 	if err != nil {
 		return fmt.Errorf("failed to open audit log: %w", err)
 	}

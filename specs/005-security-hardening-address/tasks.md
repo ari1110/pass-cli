@@ -206,7 +206,7 @@
 
 **Purpose**: Improvements that affect multiple user stories and project-wide quality
 
-- [ ] T079 [P] Run gosec security scanner across all modified files: `gosec -quiet ./...`
+- [X] T079 [P] Run gosec security scanner across all modified files: `gosec -quiet ./...`
 - [X] T080 [P] Run golangci-lint on all modified files: `golangci-lint run --timeout=5m`
 - [X] T081 [P] Run full test suite to verify no regressions: `go test ./...`
 - [ ] T082 Run crypto performance benchmarks and document results in quickstart.md

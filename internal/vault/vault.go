@@ -229,7 +229,7 @@ func (v *VaultService) Unlock(masterPassword []byte) error {
 			fmt.Fprintf(os.Stderr, "Attempting automatic recovery from backup...\n")
 
 			// Read backup
-			backupData, err := os.ReadFile(vaultBackupPath)
+			backupData, err := os.ReadFile(vaultBackupPath) // #nosec G304 -- Vault backup path validated by storage layer
 			if err != nil {
 				return fmt.Errorf("failed to read backup for rollback: %w", err)
 			}

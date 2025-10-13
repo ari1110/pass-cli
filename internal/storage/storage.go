@@ -449,7 +449,7 @@ func (s *StorageService) preflightChecks() error {
 
 	// Test write permissions by creating a temporary test file
 	testPath := filepath.Join(vaultDir, ".pass-cli-write-test")
-	testFile, err := os.OpenFile(testPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, VaultPermissions)
+	testFile, err := os.OpenFile(testPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, VaultPermissions) // #nosec G304 -- Test file path constructed from validated vault directory
 	if err != nil {
 		return fmt.Errorf("no write permission in vault directory: %w", err)
 	}

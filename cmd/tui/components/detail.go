@@ -157,7 +157,7 @@ func (dv *DetailView) formatPasswordField(b *strings.Builder, cred *vault.Creden
 			password = string(fullCred.Password)
 			hint = "  [gray](Press 'p' to hide)[-]"
 		} else {
-			password = "[red]Error loading password[-]"
+			password = "[red]Error loading password[-]" // #nosec G101 -- UI error message, not actual credentials
 			hint = ""
 		}
 	}
