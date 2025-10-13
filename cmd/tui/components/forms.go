@@ -59,9 +59,10 @@ func normalizeCategory(c string) string {
 }
 
 // AddForm provides a modal form for adding new credentials.
-// Embeds tview.Form and manages validation and submission.
+// Embeds tview.Frame (which contains the Form) and manages validation and submission.
 type AddForm struct {
-	*tview.Form
+	*tview.Frame
+	form *tview.Form
 
 	appState *models.AppState
 
@@ -72,9 +73,10 @@ type AddForm struct {
 }
 
 // EditForm provides a modal form for editing existing credentials.
-// Embeds tview.Form and pre-populates fields from credential.
+// Embeds tview.Frame (which contains the Form) and pre-populates fields from credential.
 type EditForm struct {
-	*tview.Form
+	*tview.Frame
+	form *tview.Form
 
 	appState   *models.AppState
 	credential *vault.CredentialMetadata
@@ -93,13 +95,14 @@ func NewAddForm(appState *models.AppState) *AddForm {
 	form := tview.NewForm()
 
 	af := &AddForm{
-		Form:     form,
+		form:     form,
 		appState: appState,
 	}
 
 	af.buildFormFields()
 	af.applyStyles()
 	af.setupKeyboardShortcuts()
+	af.wrapInFrame()
 
 	return af
 }
@@ -125,8 +128,8 @@ func (af *AddForm) buildFormFields() {
 
 	// Core credential fields
 	// Use 0 width to make fields fill available space (prevents black rectangles)
-	af.AddInputField("Service (UID)", "", 0, nil, nil)
-	af.AddInputField("Username", "", 0, nil, nil)
+	af.form.AddInputField("Service (UID)", "", 0, nil, nil)
+	af.form.AddInputField("Username", "", 0, nil, nil)
 
 	// T048, T049: Password field with real-time strength indicator
 	passwordField := tview.NewInputField().
@@ -139,12 +142,12 @@ func (af *AddForm) buildFormFields() {
 		af.updatePasswordLabel(passwordField, []byte(text))
 	})
 
-	af.AddFormItem(passwordField)
+	af.form.AddFormItem(passwordField)
 
 	// Optional metadata fields - default to "Uncategorized"
 
 	// Original dropdown approach (commented out for autocomplete field)
-	// af.AddDropDown("Category", categories, uncategorizedIndex, nil)
+	// af.form.AddDropDown("Category", categories, uncategorizedIndex, nil)
 
 	// New autocomplete input field for Category
 	categoryField := tview.NewInputField().
@@ -165,13 +168,13 @@ func (af *AddForm) buildFormFields() {
       return matches
   })
 
-  af.AddFormItem(categoryField)
-	af.AddInputField("URL", "", 0, nil, nil)
-	af.AddTextArea("Notes", "", 0, 5, 0, nil)
+  af.form.AddFormItem(categoryField)
+	af.form.AddInputField("URL", "", 0, nil, nil)
+	af.form.AddTextArea("Notes", "", 0, 5, 0, nil)
 
 	// Action buttons
-	af.AddButton("Add", af.onAddPressed)
-	af.AddButton("Cancel", af.onCancelPressed)
+	af.form.AddButton("Add", af.onAddPressed)
+	af.form.AddButton("Cancel", af.onCancelPressed)
 }
 
 // onAddPressed handles the Add button submission.
@@ -185,16 +188,16 @@ func (af *AddForm) onAddPressed() {
 	}
 
 	// Extract field values (using form item index)
-	service := af.GetFormItem(0).(*tview.InputField).GetText()
-	username := af.GetFormItem(1).(*tview.InputField).GetText()
-	password := af.GetFormItem(2).(*tview.InputField).GetText()
+	service := af.form.GetFormItem(0).(*tview.InputField).GetText()
+	username := af.form.GetFormItem(1).(*tview.InputField).GetText()
+	password := af.form.GetFormItem(2).(*tview.InputField).GetText()
 
 	// Extract category from input field
-	category := af.GetFormItem(3).(*tview.InputField).GetText()
+	category := af.form.GetFormItem(3).(*tview.InputField).GetText()
 	category = normalizeCategory(category) // Convert "Uncategorized" to empty string
 
-	url := af.GetFormItem(4).(*tview.InputField).GetText()
-	notes := af.GetFormItem(5).(*tview.TextArea).GetText()
+	url := af.form.GetFormItem(4).(*tview.InputField).GetText()
+	notes := af.form.GetFormItem(5).(*tview.TextArea).GetText()
 
 	// Call AppState to add credential with all 6 fields
 	err := af.appState.AddCredential(service, username, password, category, url, notes)
@@ -222,19 +225,19 @@ func (af *AddForm) onCancelPressed() {
 // Returns error describing first validation failure, or nil if valid.
 func (af *AddForm) validate() error {
 	// Service is required (cannot be empty)
-	service := af.GetFormItem(0).(*tview.InputField).GetText()
+	service := af.form.GetFormItem(0).(*tview.InputField).GetText()
 	if service == "" {
 		return fmt.Errorf("service is required")
 	}
 
 	// Username is required (minimum validation)
-	username := af.GetFormItem(1).(*tview.InputField).GetText()
+	username := af.form.GetFormItem(1).(*tview.InputField).GetText()
 	if username == "" {
 		return fmt.Errorf("username is required")
 	}
 
 	// Password validation (basic check)
-	password := af.GetFormItem(2).(*tview.InputField).GetText()
+	password := af.form.GetFormItem(2).(*tview.InputField).GetText()
 	if password == "" {
 		return fmt.Errorf("password is required")
 	}
@@ -274,11 +277,28 @@ func (af *AddForm) getCategories() []string {
 	return categories
 }
 
+// wrapInFrame wraps the form in a Frame to add keyboard hints footer.
+func (af *AddForm) wrapInFrame() {
+	theme := styles.GetCurrentTheme()
+
+	frame := tview.NewFrame(af.form)
+	frame.SetBorder(true).
+		SetTitle(" Add Credential ").
+		SetTitleAlign(tview.AlignLeft).
+		SetBorderColor(theme.BorderColor)
+
+	// Add keyboard hints as footer text
+	hintsText := "Tab: Next  •  Shift+Tab: Prev  •  Ctrl+S: Add  •  Ctrl+H: Toggle pwd  •  Esc: Cancel"
+	frame.AddText(hintsText, false, tview.AlignCenter, theme.TextSecondary)
+
+	af.Frame = frame
+}
+
 
 // setupKeyboardShortcuts configures form-level keyboard shortcuts.
 // Adds Ctrl+S for quick-save and ensures Tab/Shift+Tab stay within form.
 func (af *AddForm) setupKeyboardShortcuts() {
-	af.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	af.form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyCtrlS:
 			// Ctrl+S for quick-save
@@ -315,12 +335,12 @@ func (af *AddForm) applyStyles() {
 	theme := styles.GetCurrentTheme()
 
 	// Apply form-level styling
-	styles.ApplyFormStyle(af.Form)
+	styles.ApplyFormStyle(af.form)
 
 	// Style individual input fields
 	// Use BackgroundLight for input fields - lighter than form Background for contrast
 	for i := 0; i < 6; i++ {
-		item := af.GetFormItem(i)
+		item := af.form.GetFormItem(i)
 		switch field := item.(type) {
 		case *tview.InputField:
 			field.SetFieldBackgroundColor(theme.BackgroundLight).
@@ -335,14 +355,8 @@ func (af *AddForm) applyStyles() {
 		}
 	}
 
-	// Set border and title
-	af.SetBorder(true).
-		SetTitle(" Add Credential ").
-		SetTitleAlign(tview.AlignLeft).
-		SetBorderColor(theme.BorderColor)
-
 	// Button alignment
-	af.SetButtonsAlign(tview.AlignRight)
+	af.form.SetButtonsAlign(tview.AlignRight)
 }
 
 // togglePasswordVisibility switches between masked and plaintext password display.
@@ -350,14 +364,20 @@ func (af *AddForm) applyStyles() {
 func (af *AddForm) togglePasswordVisibility() {
 	af.passwordVisible = !af.passwordVisible
 
-	passwordField := af.GetFormItem(2).(*tview.InputField)
+	passwordField := af.form.GetFormItem(2).(*tview.InputField)
 
 	if af.passwordVisible {
 		passwordField.SetMaskCharacter(0) // 0 = plaintext (tview convention)
 		passwordField.SetLabel("Password [VISIBLE]")
 	} else {
 		passwordField.SetMaskCharacter('*')
-		passwordField.SetLabel("Password")
+		// Restore label with current strength if password exists
+		text := passwordField.GetText()
+		if text != "" {
+			af.updatePasswordLabel(passwordField, []byte(text))
+		} else {
+			passwordField.SetLabel("Password")
+		}
 	}
 }
 
@@ -377,7 +397,7 @@ func NewEditForm(appState *models.AppState, credential *vault.CredentialMetadata
 	form := tview.NewForm()
 
 	ef := &EditForm{
-		Form:       form,
+		form:       form,
 		appState:   appState,
 		credential: credential,
 	}
@@ -385,6 +405,7 @@ func NewEditForm(appState *models.AppState, credential *vault.CredentialMetadata
 	ef.buildFormFieldsWithValues()
 	ef.applyStyles()
 	ef.setupKeyboardShortcuts()
+	ef.wrapInFrame()
 
 	return ef
 }
@@ -396,11 +417,11 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 	// Pre-populate fields with existing credential data
 	// Service field is read-only (cannot be changed in edit mode)
 	// Use 0 width to make fields fill available space (prevents black rectangles)
-	ef.AddInputField("Service (UID)", ef.credential.Service, 0, nil, nil)
-	serviceField := ef.GetFormItem(0).(*tview.InputField)
+	ef.form.AddInputField("Service (UID)", ef.credential.Service, 0, nil, nil)
+	serviceField := ef.form.GetFormItem(0).(*tview.InputField)
 	serviceField.SetDisabled(true) // Make read-only to prevent confusion
 
-	ef.AddInputField("Username", ef.credential.Username, 0, nil, nil)
+	ef.form.AddInputField("Username", ef.credential.Username, 0, nil, nil)
 
 	// T048, T049: Password field with real-time strength indicator
 	// Defer fetching until user focuses field (lazy loading)
@@ -420,7 +441,7 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 		ef.updatePasswordLabel(passwordField, []byte(text))
 	})
 
-	ef.AddFormItem(passwordField)
+	ef.form.AddFormItem(passwordField)
 
 	// Optional metadata fields - pre-populated from credential
 	// ef.AddDropDown("Category", categories, categoryIndex, nil)
@@ -451,14 +472,14 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 		return matches
 	})
 
-	ef.AddFormItem(categoryField)
+	ef.form.AddFormItem(categoryField)
 
-	ef.AddInputField("URL", ef.credential.URL, 0, nil, nil)
-	ef.AddTextArea("Notes", ef.credential.Notes, 0, 5, 0, nil)
+	ef.form.AddInputField("URL", ef.credential.URL, 0, nil, nil)
+	ef.form.AddTextArea("Notes", ef.credential.Notes, 0, 5, 0, nil)
 
 	// Action buttons
-	ef.AddButton("Save", ef.onSavePressed)
-	ef.AddButton("Cancel", ef.onCancelPressed)
+	ef.form.AddButton("Save", ef.onSavePressed)
+	ef.form.AddButton("Cancel", ef.onCancelPressed)
 }
 
 // fetchPasswordIfNeeded lazily fetches the password when the field is focused.
@@ -503,15 +524,15 @@ func (ef *EditForm) onSavePressed() {
 	// This prevents ErrCredentialNotFound if user tries to edit service name
 	// For service renaming, a dedicated rename flow should be implemented
 	service := ef.credential.Service
-	username := ef.GetFormItem(1).(*tview.InputField).GetText()
-	password := ef.GetFormItem(2).(*tview.InputField).GetText()
+	username := ef.form.GetFormItem(1).(*tview.InputField).GetText()
+	password := ef.form.GetFormItem(2).(*tview.InputField).GetText()
 
 	// Extract category from input field
-	category := ef.GetFormItem(3).(*tview.InputField).GetText()
+	category := ef.form.GetFormItem(3).(*tview.InputField).GetText()
 	category = normalizeCategory(category) // Convert "Uncategorized" to empty string
 
-	url := ef.GetFormItem(4).(*tview.InputField).GetText()
-	notes := ef.GetFormItem(5).(*tview.TextArea).GetText()
+	url := ef.form.GetFormItem(4).(*tview.InputField).GetText()
+	notes := ef.form.GetFormItem(5).(*tview.TextArea).GetText()
 
 	// Build UpdateCredentialOpts with only non-empty fields
 	opts := models.UpdateCredentialOpts{}
@@ -563,13 +584,13 @@ func (ef *EditForm) onCancelPressed() {
 // Returns error describing first validation failure, or nil if valid.
 func (ef *EditForm) validate() error {
 	// Service is required (cannot be empty)
-	service := ef.GetFormItem(0).(*tview.InputField).GetText()
+	service := ef.form.GetFormItem(0).(*tview.InputField).GetText()
 	if service == "" {
 		return fmt.Errorf("service is required")
 	}
 
 	// Username is required (minimum validation)
-	username := ef.GetFormItem(1).(*tview.InputField).GetText()
+	username := ef.form.GetFormItem(1).(*tview.InputField).GetText()
 	if username == "" {
 		return fmt.Errorf("username is required")
 	}
@@ -611,11 +632,27 @@ func (ef *EditForm) findCategoryIndex(categories []string) int {
 	return 0
 }
 
+// wrapInFrame wraps the form in a Frame to add keyboard hints footer.
+func (ef *EditForm) wrapInFrame() {
+	theme := styles.GetCurrentTheme()
+
+	frame := tview.NewFrame(ef.form)
+	frame.SetBorder(true).
+		SetTitle(" Edit Credential ").
+		SetTitleAlign(tview.AlignLeft).
+		SetBorderColor(theme.BorderColor)
+
+	// Add keyboard hints as footer text
+	hintsText := "Tab: Next  •  Shift+Tab: Prev  •  Ctrl+S: Save  •  Ctrl+H: Toggle pwd  •  Esc: Cancel"
+	frame.AddText(hintsText, false, tview.AlignCenter, theme.TextSecondary)
+
+	ef.Frame = frame
+}
 
 // setupKeyboardShortcuts configures form-level keyboard shortcuts.
 // Adds Ctrl+S for quick-save and ensures Tab/Shift+Tab stay within form.
 func (ef *EditForm) setupKeyboardShortcuts() {
-	ef.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	ef.form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyCtrlS:
 			// Ctrl+S for quick-save
@@ -674,12 +711,12 @@ func (ef *EditForm) applyStyles() {
 	theme := styles.GetCurrentTheme()
 
 	// Apply form-level styling
-	styles.ApplyFormStyle(ef.Form)
+	styles.ApplyFormStyle(ef.form)
 
 	// Style individual input fields
 	// Use BackgroundLight for input fields - lighter than form Background for contrast
 	for i := 0; i < 6; i++ {
-		item := ef.GetFormItem(i)
+		item := ef.form.GetFormItem(i)
 		switch field := item.(type) {
 		case *tview.InputField:
 			field.SetFieldBackgroundColor(theme.BackgroundLight).
@@ -694,14 +731,8 @@ func (ef *EditForm) applyStyles() {
 		}
 	}
 
-	// Set border and title
-	ef.SetBorder(true).
-		SetTitle(" Edit Credential ").
-		SetTitleAlign(tview.AlignLeft).
-		SetBorderColor(theme.BorderColor)
-
 	// Button alignment
-	ef.SetButtonsAlign(tview.AlignRight)
+	ef.form.SetButtonsAlign(tview.AlignRight)
 }
 
 // togglePasswordVisibility switches between masked and plaintext password display.
@@ -709,14 +740,20 @@ func (ef *EditForm) applyStyles() {
 func (ef *EditForm) togglePasswordVisibility() {
 	ef.passwordVisible = !ef.passwordVisible
 
-	passwordField := ef.GetFormItem(2).(*tview.InputField)
+	passwordField := ef.form.GetFormItem(2).(*tview.InputField)
 
 	if ef.passwordVisible {
 		passwordField.SetMaskCharacter(0) // 0 = plaintext (tview convention)
 		passwordField.SetLabel("Password [VISIBLE]")
 	} else {
 		passwordField.SetMaskCharacter('*')
-		passwordField.SetLabel("Password")
+		// Restore label with current strength if password exists
+		text := passwordField.GetText()
+		if text != "" {
+			ef.updatePasswordLabel(passwordField, []byte(text))
+		} else {
+			passwordField.SetLabel("Password")
+		}
 	}
 }
 
