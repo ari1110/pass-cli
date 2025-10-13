@@ -48,15 +48,16 @@ func NewEventHandler(
 // CRITICAL: Implements input protection to prevent intercepting form input.
 func (eh *EventHandler) SetupGlobalShortcuts() {
 	eh.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		// ✅ CRITICAL: When a modal is open, only intercept Ctrl+C and Esc
-		// All other keys (including Tab) go to the modal/form
+		// ✅ CRITICAL: When a modal is open, only intercept Ctrl+C
+		// Let modals handle Escape (for custom close logic like confirmation dialogs)
+		// All other keys go to the modal/form
 		if eh.pageManager.HasModals() {
 			switch event.Key() {
-			case tcell.KeyCtrlC, tcell.KeyEscape:
+			case tcell.KeyCtrlC:
 				eh.handleQuit() // Closes modal or quits app
 				return nil
 			}
-			// Let modal handle all other keys (Tab, input, etc.)
+			// Let modal handle all other keys (including Escape, Tab, input, etc.)
 			return event
 		}
 
@@ -169,6 +170,10 @@ func (eh *EventHandler) handleNewCredential() {
 		eh.pageManager.CloseModal("add-form")
 	})
 
+	form.SetOnCancelConfirm(func(message string, onYes func(), onNo func()) {
+		eh.pageManager.ShowConfirmDialog("Confirm", message, onYes, onNo)
+	})
+
 	eh.pageManager.ShowModal("add-form", form, layout.FormModalWidth, layout.FormModalHeight)
 }
 
@@ -189,6 +194,10 @@ func (eh *EventHandler) handleEditCredential() {
 
 	form.SetOnCancel(func() {
 		eh.pageManager.CloseModal("edit-form")
+	})
+
+	form.SetOnCancelConfirm(func(message string, onYes func(), onNo func()) {
+		eh.pageManager.ShowConfirmDialog("Confirm", message, onYes, onNo)
 	})
 
 	eh.pageManager.ShowModal("edit-form", form, layout.FormModalWidth, layout.FormModalHeight)

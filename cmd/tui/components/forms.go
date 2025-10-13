@@ -68,8 +68,9 @@ type AddForm struct {
 
 	passwordVisible bool // Track password visibility state for toggle
 
-	onSubmit func()
-	onCancel func()
+	onSubmit        func()
+	onCancel        func()
+	onCancelConfirm func(message string, onYes func(), onNo func()) // Callback to show confirmation dialog
 }
 
 // EditForm provides a modal form for editing existing credentials.
@@ -85,8 +86,9 @@ type EditForm struct {
 	passwordFetched  bool   // Track if password has been fetched (lazy loading)
 	passwordVisible  bool   // Track password visibility state for toggle
 
-	onSubmit func()
-	onCancel func()
+	onSubmit        func()
+	onCancel        func()
+	onCancelConfirm func(message string, onYes func(), onNo func()) // Callback to show confirmation dialog
 }
 
 // NewAddForm creates a new form for adding credentials.
@@ -214,11 +216,44 @@ func (af *AddForm) onAddPressed() {
 }
 
 // onCancelPressed handles the Cancel button.
-// Invokes onCancel callback to close modal without saving.
+// Shows confirmation dialog if there's unsaved data, otherwise closes immediately.
 func (af *AddForm) onCancelPressed() {
-	if af.onCancel != nil {
-		af.onCancel()
+	// Check if any fields have data
+	if af.hasUnsavedData() && af.onCancelConfirm != nil {
+		af.onCancelConfirm(
+			"Discard unsaved credential?\nAll entered data will be lost.",
+			func() {
+				// Yes - discard and close
+				if af.onCancel != nil {
+					af.onCancel()
+				}
+			},
+			func() {
+				// No - return to form (do nothing)
+			},
+		)
+	} else {
+		// No data or no confirmation callback - close immediately
+		if af.onCancel != nil {
+			af.onCancel()
+		}
 	}
+}
+
+// hasUnsavedData checks if any form fields contain data.
+func (af *AddForm) hasUnsavedData() bool {
+	service := af.form.GetFormItem(0).(*tview.InputField).GetText()
+	username := af.form.GetFormItem(1).(*tview.InputField).GetText()
+	password := af.form.GetFormItem(2).(*tview.InputField).GetText()
+	category := af.form.GetFormItem(3).(*tview.InputField).GetText()
+	url := af.form.GetFormItem(4).(*tview.InputField).GetText()
+	notes := af.form.GetFormItem(5).(*tview.TextArea).GetText()
+
+	// Consider form "dirty" if any field has non-empty value
+	// Ignore "Uncategorized" since it's the default
+	return service != "" || username != "" || password != "" ||
+		(category != "" && category != "Uncategorized") ||
+		url != "" || notes != ""
 }
 
 // validate checks that required fields are filled.
@@ -404,6 +439,11 @@ func (af *AddForm) SetOnCancel(callback func()) {
 	af.onCancel = callback
 }
 
+// SetOnCancelConfirm registers a callback to show confirmation dialogs.
+func (af *AddForm) SetOnCancelConfirm(callback func(message string, onYes func(), onNo func())) {
+	af.onCancelConfirm = callback
+}
+
 // GetFormItem delegates to the internal form for test access.
 func (af *AddForm) GetFormItem(index int) tview.FormItem {
 	return af.form.GetFormItem(index)
@@ -534,8 +574,28 @@ func (ef *EditForm) fetchPasswordIfNeeded(passwordField *tview.InputField) {
 }
 
 // onSavePressed handles the Save button submission.
-// Validates inputs, calls AppState.UpdateCredential(), invokes onSubmit callback.
+// Shows confirmation if data changed, validates, and saves credential.
 func (ef *EditForm) onSavePressed() {
+	// Check if any changes were made
+	if ef.hasUnsavedChanges() && ef.onCancelConfirm != nil {
+		ef.onCancelConfirm(
+			"Save changes to credential?",
+			func() {
+				// Yes - proceed with save
+				ef.performSave()
+			},
+			func() {
+				// No - return to form (do nothing)
+			},
+		)
+	} else {
+		// No changes or no confirmation callback - save immediately
+		ef.performSave()
+	}
+}
+
+// performSave validates and saves the credential changes.
+func (ef *EditForm) performSave() {
 	// Validate inputs before submission
 	if err := ef.validate(); err != nil {
 		// Validation failed - form stays open for correction
@@ -596,11 +656,47 @@ func (ef *EditForm) onSavePressed() {
 }
 
 // onCancelPressed handles the Cancel button.
-// Invokes onCancel callback to close modal without saving.
+// Shows confirmation dialog if there are unsaved changes, otherwise closes immediately.
 func (ef *EditForm) onCancelPressed() {
-	if ef.onCancel != nil {
-		ef.onCancel()
+	// Check if any changes were made
+	if ef.hasUnsavedChanges() && ef.onCancelConfirm != nil {
+		ef.onCancelConfirm(
+			"Discard unsaved changes?\nAll modifications will be lost.",
+			func() {
+				// Yes - discard and close
+				if ef.onCancel != nil {
+					ef.onCancel()
+				}
+			},
+			func() {
+				// No - return to form (do nothing)
+			},
+		)
+	} else {
+		// No changes or no confirmation callback - close immediately
+		if ef.onCancel != nil {
+			ef.onCancel()
+		}
 	}
+}
+
+// hasUnsavedChanges checks if any form fields have been modified from original values.
+func (ef *EditForm) hasUnsavedChanges() bool {
+	username := ef.form.GetFormItem(1).(*tview.InputField).GetText()
+	password := ef.form.GetFormItem(2).(*tview.InputField).GetText()
+	category := ef.form.GetFormItem(3).(*tview.InputField).GetText()
+	url := ef.form.GetFormItem(4).(*tview.InputField).GetText()
+	notes := ef.form.GetFormItem(5).(*tview.TextArea).GetText()
+
+	// Normalize current category for comparison
+	normalizedCategory := normalizeCategory(category)
+
+	// Compare with original values
+	return username != ef.credential.Username ||
+		password != ef.originalPassword ||
+		normalizedCategory != ef.credential.Category ||
+		url != ef.credential.URL ||
+		notes != ef.credential.Notes
 }
 
 // validate checks that required fields are filled.
@@ -801,6 +897,11 @@ func (ef *EditForm) SetOnSubmit(callback func()) {
 // SetOnCancel registers a callback to be invoked when cancel is pressed.
 func (ef *EditForm) SetOnCancel(callback func()) {
 	ef.onCancel = callback
+}
+
+// SetOnCancelConfirm registers a callback to show confirmation dialogs.
+func (ef *EditForm) SetOnCancelConfirm(callback func(message string, onYes func(), onNo func())) {
+	ef.onCancelConfirm = callback
 }
 
 // GetFormItem delegates to the internal form for test access.

@@ -1,7 +1,6 @@
 package layout
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -204,16 +203,10 @@ func (pm *PageManager) centerModal(modal tview.Primitive, width, height int) tvi
 	return vFlex
 }
 
-// setupEscapeHandler configures Escape key to close the topmost modal.
-// If no modals are open, the Escape key passes through to underlying components.
+// setupEscapeHandler is intentionally left empty.
+// Escape key handling is delegated to individual modals/forms via their InputCapture handlers,
+// allowing them to implement custom logic (e.g., confirmation dialogs before closing).
+// The global handler in handlers.go (handleQuit) provides the fallback Escape behavior.
 func (pm *PageManager) setupEscapeHandler() {
-	pm.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyEscape {
-			if len(pm.modalStack) > 0 {
-				pm.CloseTopModal()
-				return nil // Consume event
-			}
-		}
-		return event // Pass through
-	})
+	// No-op: Let forms and global handler manage Escape key
 }
