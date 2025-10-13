@@ -210,7 +210,7 @@
 - [X] T080 [P] Run golangci-lint on all modified files: `golangci-lint run --timeout=5m`
 - [X] T081 [P] Run full test suite to verify no regressions: `go test ./...`
 - [X] T082 Run crypto performance benchmarks and document results in quickstart.md
-- [ ] T083 [P] Test on Windows (native environment)
+- [X] T083 [P] Test on Windows (native environment)
 - [ ] T084 [P] Test on Linux (WSL or CI)
 - [ ] T085 [P] Test on macOS (CI) - verify crypto/subtle behavior consistent
 - [ ] T086 Update SECURITY.md with new security features and migration instructions
