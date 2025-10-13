@@ -6,9 +6,11 @@ Pass-CLI is a fast, secure password and API key manager that stores credentials 
 
 ## ✨ Key Features
 
-- **🔒 Military-Grade Encryption**: AES-256-GCM with PBKDF2 key derivation (100,000 iterations)
+- **🔒 Military-Grade Encryption**: AES-256-GCM with hardened PBKDF2 key derivation (600,000 iterations)
 - **🔐 System Keychain Integration**: Seamless integration with Windows Credential Manager, macOS Keychain, and Linux Secret Service
-- **⚡ Lightning Fast**: Sub-100ms credential retrieval for smooth workflows
+- **🛡️ Password Policy Enforcement**: Complexity requirements for vault and credential passwords
+- **📝 Tamper-Evident Audit Logging**: Optional HMAC-signed audit trail for vault operations
+- **⚡ Lightning Fast**: Sub-100ms credential retrieval, ~50-100ms vault unlock on modern CPUs
 - **🖥️ Cross-Platform**: Single binary for Windows, macOS (Intel/ARM), and Linux (amd64/arm64)
 - **📋 Clipboard Support**: Automatic credential copying with security timeouts
 - **🔑 Password Generation**: Cryptographically secure random passwords
@@ -217,10 +219,33 @@ pass-cli version --verbose
 ### Encryption
 
 - **Algorithm**: AES-256-GCM (Galois/Counter Mode)
-- **Key Derivation**: PBKDF2-SHA256 with 100,000 iterations
+- **Key Derivation**: PBKDF2-SHA256 with 600,000 iterations (hardened January 2025)
 - **Salt**: Unique 32-byte random salt per vault
 - **Authentication**: Built-in authentication tag (GCM) prevents tampering
 - **IV**: Unique initialization vector per credential
+- **Performance**: ~50-100ms on modern CPUs, 500-1000ms on older hardware
+
+### Password Policy (January 2025)
+
+All passwords (vault and credentials) must meet:
+- Minimum 12 characters
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one digit
+- At least one special symbol (!@#$%^&*()-_=+[]{}|;:,.<>?)
+
+### Audit Logging (Optional)
+
+Enable tamper-evident audit logging:
+```bash
+# Initialize vault with audit logging
+pass-cli init --enable-audit
+
+# Verify audit log integrity
+pass-cli verify-audit
+```
+
+Audit logs use HMAC-SHA256 signatures and store keys in OS keychain.
 
 ### Master Password Storage
 
@@ -247,11 +272,13 @@ The encrypted vault is stored at:
 
 ### Best Practices
 
-- ✅ Use a strong, unique master password (20+ characters)
+- ✅ Use a strong, unique master password (20+ characters, meets complexity requirements)
 - ✅ Keep your vault backed up (it's just a file!)
-- ✅ Use `--generate` for new passwords
+- ✅ Use `--generate` for new passwords (automatic policy compliance)
 - ✅ Regularly update credentials
 - ✅ Use `--quiet` mode in scripts to avoid logging sensitive data
+- ✅ Enable audit logging for compliance/security monitoring (`--enable-audit`)
+- ✅ Migrate old vaults to 600k iterations (see `docs/MIGRATION.md`)
 - ❌ Don't commit vault files to version control
 - ❌ Don't share your master password
 
@@ -444,9 +471,13 @@ Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTIN
 - [x] Core credential management (add, get, list, update, delete)
 - [x] AES-256-GCM encryption
 - [x] System keychain integration
+- [x] Hardened crypto (600k PBKDF2 iterations)
+- [x] Password policy enforcement
+- [x] Tamper-evident audit logging
 - [x] Password generation
 - [x] Clipboard support
 - [x] Usage tracking
+- [x] Atomic vault operations with rollback
 - [ ] Import from other password managers
 - [ ] Export functionality
 - [ ] Credential sharing (encrypted)

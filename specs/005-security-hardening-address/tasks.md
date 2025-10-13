@@ -213,10 +213,10 @@
 - [X] T083 [P] Test on Windows (native environment)
 - [X] T084 [P] Test on Linux (WSL or CI)
 - [X] T085 [P] Test on macOS (CI) - verify crypto/subtle behavior consistent
-- [ ] T086 Update SECURITY.md with new security features and migration instructions
-- [ ] T087 Update README.md with performance expectations (vault unlock now takes 500-1000ms)
-- [ ] T088 Update USAGE.md with password requirements and audit logging instructions
-- [ ] T089 Create migration guide in docs/ (how to upgrade from 100k to 600k iterations)
+- [X] T086 Update SECURITY.md with new security features and migration instructions
+- [X] T087 Update README.md with performance expectations (vault unlock now takes 500-1000ms)
+- [X] T088 Update USAGE.md with password requirements and audit logging instructions
+- [X] T089 Create migration guide in docs/ (how to upgrade from 100k to 600k iterations)
 - [ ] T090 Run quickstart.md validation per testing checklist (lines 199-211)
 - [ ] T091 Final memory inspection test with delve debugger to confirm no password leaks
 - [ ] T092 Generate test coverage report: `go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out`

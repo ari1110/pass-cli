@@ -70,12 +70,57 @@ pass-cli init
 pass-cli --vault /custom/path/vault.enc init
 ```
 
+#### Flags
+
+| Flag | Type | Description |
+|------|------|-------------|
+| `--enable-audit` | bool | Enable tamper-evident audit logging |
+| `--use-keychain` | bool | Store master password in OS keychain (default: true) |
+
+#### Password Policy (January 2025)
+
+All master passwords must meet complexity requirements:
+- **Minimum Length**: 12 characters
+- **Uppercase**: At least one uppercase letter (A-Z)
+- **Lowercase**: At least one lowercase letter (a-z)
+- **Digit**: At least one digit (0-9)
+- **Symbol**: At least one special symbol (!@#$%^&*()-_=+[]{}|;:,.<>?)
+
+**Examples**:
+- ✅ `MySecureP@ssw0rd2025!` (meets all requirements)
+- ✅ `Correct-Horse-Battery-29!` (meets all requirements)
+- ❌ `password123` (too short, no uppercase, no symbol)
+- ❌ `MyPassword` (no digit, no symbol)
+
+#### Audit Logging (Optional)
+
+Enable audit logging to record vault operations with HMAC signatures:
+
+```bash
+# Initialize vault with audit logging
+pass-cli init --enable-audit
+```
+
+**Audit features**:
+- **Tamper-Evident**: HMAC-SHA256 signatures prevent log modification
+- **Privacy**: Service names logged, passwords NEVER logged
+- **Key Storage**: HMAC keys stored in OS keychain (separate from vault)
+- **Auto-Rotation**: Logs rotate at 10MB with 7-day retention
+- **Graceful Degradation**: Operations continue if logging fails
+
+**Verification**:
+```bash
+# Verify audit log integrity
+pass-cli verify-audit
+```
+
 #### Notes
 
-- Master password must be at least 8 characters
-- Strong passwords (20+ characters) are recommended
+- Master password must meet complexity requirements (12+ chars, uppercase, lowercase, digit, symbol)
+- Strong passwords (20+ characters) recommended for master password
 - Master password is stored in OS keychain for convenience
 - Vault file is created with restricted permissions (0600)
+- Audit logging is opt-in (disabled by default)
 
 ---
 
@@ -141,12 +186,19 @@ Enter URL (optional): https://github.com
 Enter notes (optional): Personal account
 ```
 
+#### Password Policy
+
+Credential passwords must meet the same complexity requirements as master passwords:
+- Minimum 12 characters with uppercase, lowercase, digit, and symbol
+- TUI mode shows real-time strength indicator
+- Generated passwords automatically meet policy requirements
+
 #### Notes
 
 - Service names must be unique
 - Password input is hidden by default
 - Passing password via `-p` flag is insecure (visible in shell history)
-- Use `--generate` for strong random passwords
+- Use `--generate` for strong random passwords that meet policy requirements
 - Usage tracking begins when credential is first accessed
 
 ---
