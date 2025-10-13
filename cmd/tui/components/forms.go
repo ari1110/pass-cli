@@ -26,6 +26,7 @@ func newReadOnlyLabel() *readOnlyLabel {
 	tv.SetWrap(true)
 	tv.SetWordWrap(true)
 	tv.SetScrollable(false) // Don't allow scrolling in single-line labels
+
 	return &readOnlyLabel{TextView: tv}
 }
 
@@ -291,11 +292,11 @@ func (af *AddForm) getCategories() []string {
 func (af *AddForm) addKeyboardHints() {
 	theme := styles.GetCurrentTheme()
 
-	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Add  •  Ctrl+H: Toggle password  •  Esc: Cancel"
+	hintsText := "Tab: Next  •  Shift+Tab: Prev  •  Ctrl+S: Add  •  Ctrl+H: Toggle pwd  •  Esc: Cancel"
 
 	hints := newReadOnlyLabel()
 	hints.SetText(hintsText)
-	hints.SetTextAlign(tview.AlignCenter)
+	hints.SetTextAlign(tview.AlignLeft) // Left align to prevent wrapping issues
 	hints.SetTextColor(theme.TextSecondary) // Muted color for hints
 
 	af.AddFormItem(hints)
@@ -656,11 +657,11 @@ func (ef *EditForm) findCategoryIndex(categories []string) int {
 func (ef *EditForm) addKeyboardHints() {
 	theme := styles.GetCurrentTheme()
 
-	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Save  •  Ctrl+H: Toggle password  •  Esc: Cancel"
+	hintsText := "Tab: Next  •  Shift+Tab: Prev  •  Ctrl+S: Save  •  Ctrl+H: Toggle pwd  •  Esc: Cancel"
 
 	hints := newReadOnlyLabel()
 	hints.SetText(hintsText)
-	hints.SetTextAlign(tview.AlignCenter)
+	hints.SetTextAlign(tview.AlignLeft) // Left align to prevent wrapping issues
 	hints.SetTextColor(theme.TextSecondary) // Muted color for hints
 
 	ef.AddFormItem(hints)
