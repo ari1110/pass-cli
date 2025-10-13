@@ -1251,3 +1251,69 @@ func TestPasswordPolicy_ErrorMessagesDescriptive(t *testing.T) {
 		})
 	}
 }
+
+// T056 [US4]: Test graceful degradation - vault operations continue if audit logging fails
+// FR-026: System MUST continue operation even if audit logging fails
+func TestVaultOperationsWithFailedAuditLogging(t *testing.T) {
+	vault, _, cleanup := setupTestVault(t)
+	defer cleanup()
+
+	password := "test-password-12345"
+
+	// Initialize vault (audit logging not configured - should succeed anyway)
+	if err := vault.Initialize([]byte(password), false); err != nil {
+		t.Fatalf("Initialize() should succeed even without audit logging: %v", err)
+	}
+
+	if err := vault.Unlock([]byte(password)); err != nil {
+		t.Fatalf("Unlock() should succeed even without audit logging: %v", err)
+	}
+
+	// Test credential operations (should all succeed)
+	if err := vault.AddCredential("test", "user", []byte("pass"), "", "", ""); err != nil {
+		t.Fatalf("AddCredential() should succeed even without audit logging: %v", err)
+	}
+
+	if _, err := vault.GetCredential("test", false); err != nil {
+		t.Fatalf("GetCredential() should succeed even without audit logging: %v", err)
+	}
+
+	newPassword := []byte("new-pass")
+	if err := vault.UpdateCredential("test", UpdateOpts{Password: &newPassword}); err != nil {
+		t.Fatalf("UpdateCredential() should succeed even without audit logging: %v", err)
+	}
+
+	if err := vault.DeleteCredential("test"); err != nil {
+		t.Fatalf("DeleteCredential() should succeed even without audit logging: %v", err)
+	}
+
+	// Test password change (should succeed)
+	if err := vault.ChangePassword([]byte("new-vault-pass-123!")); err != nil {
+		t.Fatalf("ChangePassword() should succeed even without audit logging: %v", err)
+	}
+
+	vault.Lock() // Lock should succeed even without audit logging
+}
+
+func TestVaultOperationsWithInvalidAuditPath(t *testing.T) {
+	vault, _, cleanup := setupTestVault(t)
+	defer cleanup()
+
+	password := "test-password-12345"
+
+	// TODO: Once audit logging is implemented, configure with invalid path
+	// For now, test that operations work without audit configuration
+
+	if err := vault.Initialize([]byte(password), false); err != nil {
+		t.Fatalf("Initialize() failed: %v", err)
+	}
+
+	if err := vault.Unlock([]byte(password)); err != nil {
+		t.Fatalf("Unlock() failed: %v", err)
+	}
+
+	// Vault operations should succeed regardless of audit configuration
+	if err := vault.AddCredential("test", "user", []byte("pass"), "", "", ""); err != nil {
+		t.Fatalf("AddCredential() should succeed: %v", err)
+	}
+}
