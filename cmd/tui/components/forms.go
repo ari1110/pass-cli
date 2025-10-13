@@ -14,6 +14,37 @@ import (
 	"pass-cli/internal/vault"
 )
 
+// readOnlyLabel wraps TextView as a non-focusable FormItem for display-only content.
+// Used for password strength indicators and keyboard hints.
+type readOnlyLabel struct {
+	*tview.TextView
+}
+
+func newReadOnlyLabel() *readOnlyLabel {
+	tv := tview.NewTextView()
+	tv.SetDynamicColors(true)
+	return &readOnlyLabel{TextView: tv}
+}
+
+// FormItem interface implementation
+func (r *readOnlyLabel) GetLabel() string                        { return "" }
+func (r *readOnlyLabel) SetLabel(label string) tview.FormItem    { return r }
+func (r *readOnlyLabel) GetLabelWidth() int                      { return 0 }
+func (r *readOnlyLabel) SetLabelWidth(width int) tview.FormItem  { return r }
+func (r *readOnlyLabel) GetFieldWidth() int                      { return 0 }
+func (r *readOnlyLabel) SetFieldWidth(width int) tview.FormItem  { return r }
+func (r *readOnlyLabel) GetFieldHeight() int                     { return 1 }
+func (r *readOnlyLabel) SetDisabled(disabled bool) tview.FormItem { return r }
+func (r *readOnlyLabel) GetDisabled() bool                       { return true }
+func (r *readOnlyLabel) SetFinishedFunc(handler func(key tcell.Key)) tview.FormItem {
+	return r
+}
+func (r *readOnlyLabel) SetFormAttributes(labelWidth int, labelColor, bgColor, fieldTextColor, fieldBgColor tcell.Color) tview.FormItem {
+	r.SetBackgroundColor(bgColor)
+	r.SetTextColor(fieldTextColor)
+	return r
+}
+
 // normalizeCategory converts the "Uncategorized" UI label to empty string for storage.
 // Prevents the UI label from leaking into credential data.
 func normalizeCategory(c string) string {
@@ -30,8 +61,8 @@ type AddForm struct {
 
 	appState *models.AppState
 
-	passwordVisible bool // Track password visibility state for toggle
-	strengthMeter   *tview.TextView // T048: Password strength indicator
+	passwordVisible bool             // Track password visibility state for toggle
+	strengthMeter   *readOnlyLabel   // T048: Password strength indicator
 
 	onSubmit func()
 	onCancel func()
@@ -45,10 +76,10 @@ type EditForm struct {
 	appState   *models.AppState
 	credential *vault.CredentialMetadata
 
-	originalPassword string // Track original password to detect changes
-	passwordFetched  bool   // Track if password has been fetched (lazy loading)
-	passwordVisible  bool   // Track password visibility state for toggle
-	strengthMeter    *tview.TextView // T048: Password strength indicator
+	originalPassword string          // Track original password to detect changes
+	passwordFetched  bool            // Track if password has been fetched (lazy loading)
+	passwordVisible  bool            // Track password visibility state for toggle
+	strengthMeter    *readOnlyLabel  // T048: Password strength indicator
 
 	onSubmit func()
 	onCancel func()
@@ -108,13 +139,9 @@ func (af *AddForm) buildFormFields() {
 
 	af.AddFormItem(passwordField)
 
-	// T048: Add strength meter below password field
-	theme := styles.GetCurrentTheme()
-	af.strengthMeter = tview.NewTextView()
-	af.strengthMeter.SetDynamicColors(true)
+	// T048: Add strength meter below password field (non-focusable, 1-line height)
+	af.strengthMeter = newReadOnlyLabel()
 	af.strengthMeter.SetTextAlign(tview.AlignLeft)
-	af.strengthMeter.SetBackgroundColor(theme.Background)
-	af.strengthMeter.SetMaxLines(1) // Constrain to single line
 	af.updateStrengthMeter([]byte("")) // Initialize with empty
 	af.AddFormItem(af.strengthMeter)
 
@@ -263,11 +290,10 @@ func (af *AddForm) addKeyboardHints() {
 
 	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Add  •  Ctrl+H: Toggle password  •  Esc: Cancel"
 
-	hints := tview.NewTextView()
+	hints := newReadOnlyLabel()
 	hints.SetText(hintsText)
 	hints.SetTextAlign(tview.AlignCenter)
 	hints.SetTextColor(theme.TextSecondary) // Muted color for hints
-	hints.SetBackgroundColor(theme.Background)
 
 	af.AddFormItem(hints)
 }
@@ -421,13 +447,9 @@ func (ef *EditForm) buildFormFieldsWithValues() {
 
 	ef.AddFormItem(passwordField)
 
-	// T048: Add strength meter below password field
-	theme := styles.GetCurrentTheme()
-	ef.strengthMeter = tview.NewTextView()
-	ef.strengthMeter.SetDynamicColors(true)
+	// T048: Add strength meter below password field (non-focusable, 1-line height)
+	ef.strengthMeter = newReadOnlyLabel()
 	ef.strengthMeter.SetTextAlign(tview.AlignLeft)
-	ef.strengthMeter.SetBackgroundColor(theme.Background)
-	ef.strengthMeter.SetMaxLines(1) // Constrain to single line
 	ef.updateStrengthMeter([]byte("")) // Initialize with empty
 	ef.AddFormItem(ef.strengthMeter)
 
@@ -631,11 +653,10 @@ func (ef *EditForm) addKeyboardHints() {
 
 	hintsText := "  Tab: Next field  •  Shift+Tab: Previous  •  Ctrl+S: Save  •  Ctrl+H: Toggle password  •  Esc: Cancel"
 
-	hints := tview.NewTextView()
+	hints := newReadOnlyLabel()
 	hints.SetText(hintsText)
 	hints.SetTextAlign(tview.AlignCenter)
 	hints.SetTextColor(theme.TextSecondary) // Muted color for hints
-	hints.SetBackgroundColor(theme.Background)
 
 	ef.AddFormItem(hints)
 }
