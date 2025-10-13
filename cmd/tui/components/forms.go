@@ -282,14 +282,14 @@ func (af *AddForm) wrapInFrame() {
 	theme := styles.GetCurrentTheme()
 
 	// Create hints footer as a TextView with wrapping enabled
-	hintsText := "Tab/Shift+Tab: Navigate  •  Ctrl+S: Add  •  Ctrl+H: Toggle password  •  Esc: Cancel"
+	// Match statusbar style: [yellow] for keys, [white] for separators
+	hintsText := "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Navigate  [yellow]Ctrl+S[-]:Add  [yellow]Ctrl+H[-]:Toggle password  [yellow]Esc[-]:Cancel"
 	hints := tview.NewTextView().
 		SetText(hintsText).
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true).
 		SetWrap(true).
-		SetWordWrap(true).
-		SetTextColor(theme.TextSecondary)
+		SetWordWrap(true)
 	hints.SetBackgroundColor(theme.Background)
 
 	// Create Flex layout: form on top, hints at bottom
@@ -660,14 +660,14 @@ func (ef *EditForm) wrapInFrame() {
 	theme := styles.GetCurrentTheme()
 
 	// Create hints footer as a TextView with wrapping enabled
-	hintsText := "Tab/Shift+Tab: Navigate  •  Ctrl+S: Save  •  Ctrl+H: Toggle password  •  Esc: Cancel"
+	// Match statusbar style: [yellow] for keys, [white] for separators
+	hintsText := "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Navigate  [yellow]Ctrl+S[-]:Save  [yellow]Ctrl+H[-]:Toggle password  [yellow]Esc[-]:Cancel"
 	hints := tview.NewTextView().
 		SetText(hintsText).
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true).
 		SetWrap(true).
-		SetWordWrap(true).
-		SetTextColor(theme.TextSecondary)
+		SetWordWrap(true)
 	hints.SetBackgroundColor(theme.Background)
 
 	// Create Flex layout: form on top, hints at bottom
