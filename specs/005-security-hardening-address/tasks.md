@@ -212,7 +212,7 @@
 - [X] T082 Run crypto performance benchmarks and document results in quickstart.md
 - [X] T083 [P] Test on Windows (native environment)
 - [X] T084 [P] Test on Linux (WSL or CI)
-- [ ] T085 [P] Test on macOS (CI) - verify crypto/subtle behavior consistent
+- [X] T085 [P] Test on macOS (CI) - verify crypto/subtle behavior consistent
 - [ ] T086 Update SECURITY.md with new security features and migration instructions
 - [ ] T087 Update README.md with performance expectations (vault unlock now takes 500-1000ms)
 - [ ] T088 Update USAGE.md with password requirements and audit logging instructions
