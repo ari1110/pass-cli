@@ -2,11 +2,15 @@ package security
 
 import (
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/zalando/go-keyring"
 )
 
 // T057: AuditLogEntry represents a single security event with tamper-evident HMAC signature
@@ -154,4 +158,78 @@ func (l *AuditLogger) Log(entry *AuditLogEntry) error {
 	l.currentSize += int64(len(data) + 1)
 
 	return nil
+}
+
+// T065: Audit key management using OS keychain
+// Per FR-034: Generate unique 32-byte HMAC key per vault, store via OS keychain with vault UUID as identifier
+// Per FR-035: Enables verification without master password
+
+const (
+	auditKeyService = "pass-cli-audit"
+	auditKeyLength  = 32 // HMAC-SHA256 key size
+)
+
+// GetOrCreateAuditKey retrieves or generates audit HMAC key for a vault
+// vaultID should be the vault UUID or unique identifier
+func GetOrCreateAuditKey(vaultID string) ([]byte, error) {
+	// Try to retrieve existing key from OS keychain
+	keyHex, err := keyring.Get(auditKeyService, vaultID)
+	if err == nil {
+		// Key exists - decode and return
+		key, err := hex.DecodeString(keyHex)
+		if err != nil {
+			return nil, fmt.Errorf("failed to decode audit key: %w", err)
+		}
+		if len(key) != auditKeyLength {
+			return nil, fmt.Errorf("invalid audit key length: got %d, want %d", len(key), auditKeyLength)
+		}
+		return key, nil
+	}
+
+	// Key doesn't exist - generate new one
+	key := make([]byte, auditKeyLength)
+	if _, err := rand.Read(key); err != nil {
+		return nil, fmt.Errorf("failed to generate audit key: %w", err)
+	}
+
+	// Store in OS keychain
+	keyHex = hex.EncodeToString(key)
+	if err := keyring.Set(auditKeyService, vaultID, keyHex); err != nil {
+		return nil, fmt.Errorf("failed to store audit key in keychain: %w", err)
+	}
+
+	return key, nil
+}
+
+// DeleteAuditKey removes audit key from OS keychain
+func DeleteAuditKey(vaultID string) error {
+	if err := keyring.Delete(auditKeyService, vaultID); err != nil {
+		// Ignore "not found" errors
+		if err != keyring.ErrNotFound {
+			return fmt.Errorf("failed to delete audit key: %w", err)
+		}
+	}
+	return nil
+}
+
+// NewAuditLogger creates a new audit logger with OS keychain key management
+func NewAuditLogger(filePath string, vaultID string) (*AuditLogger, error) {
+	// Get or create audit key for this vault
+	key, err := GetOrCreateAuditKey(vaultID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get audit key: %w", err)
+	}
+
+	// Get current log file size if it exists
+	var currentSize int64
+	if info, err := os.Stat(filePath); err == nil {
+		currentSize = info.Size()
+	}
+
+	return &AuditLogger{
+		filePath:     filePath,
+		maxSizeBytes: 10 * 1024 * 1024, // 10MB default (FR-024)
+		currentSize:  currentSize,
+		auditKey:     key,
+	}, nil
 }
