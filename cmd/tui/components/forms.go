@@ -23,6 +23,9 @@ type readOnlyLabel struct {
 func newReadOnlyLabel() *readOnlyLabel {
 	tv := tview.NewTextView()
 	tv.SetDynamicColors(true)
+	tv.SetWrap(true)
+	tv.SetWordWrap(true)
+	tv.SetScrollable(false) // Don't allow scrolling in single-line labels
 	return &readOnlyLabel{TextView: tv}
 }
 
@@ -318,13 +321,15 @@ func (af *AddForm) setupKeyboardShortcuts() {
 			// Regular backspace - pass through to allow deletion
 			return event
 
-		case tcell.KeyTab:
-			// Let form handle Tab internally (don't let it escape to app)
-			// Return event to allow tview's built-in form navigation
-			return event
+		case tcell.KeyEscape:
+			// Handle Escape to close form
+			af.onCancelPressed()
+			return nil
 
-		case tcell.KeyBacktab: // Shift+Tab
-			// Let form handle Shift+Tab internally
+		case tcell.KeyTab, tcell.KeyBacktab:
+			// Let form handle Tab/Shift+Tab internally
+			// tview's Form will cycle through focusable items and skip disabled ones
+			// Return event to allow built-in navigation
 			return event
 		}
 		return event
@@ -681,13 +686,15 @@ func (ef *EditForm) setupKeyboardShortcuts() {
 			// Regular backspace - pass through to allow deletion
 			return event
 
-		case tcell.KeyTab:
-			// Let form handle Tab internally (don't let it escape to app)
-			// Return event to allow tview's built-in form navigation
-			return event
+		case tcell.KeyEscape:
+			// Handle Escape to close form
+			ef.onCancelPressed()
+			return nil
 
-		case tcell.KeyBacktab: // Shift+Tab
-			// Let form handle Shift+Tab internally
+		case tcell.KeyTab, tcell.KeyBacktab:
+			// Let form handle Tab/Shift+Tab internally
+			// tview's Form will cycle through focusable items and skip disabled ones
+			// Return event to allow built-in navigation
 			return event
 		}
 		return event

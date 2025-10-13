@@ -48,6 +48,18 @@ func NewEventHandler(
 // CRITICAL: Implements input protection to prevent intercepting form input.
 func (eh *EventHandler) SetupGlobalShortcuts() {
 	eh.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		// ✅ CRITICAL: When a modal is open, only intercept Ctrl+C and Esc
+		// All other keys (including Tab) go to the modal/form
+		if eh.pageManager.HasModals() {
+			switch event.Key() {
+			case tcell.KeyCtrlC, tcell.KeyEscape:
+				eh.handleQuit() // Closes modal or quits app
+				return nil
+			}
+			// Let modal handle all other keys (Tab, input, etc.)
+			return event
+		}
+
 		// ✅ CRITICAL: Check if focused component should handle input
 		focused := eh.app.GetFocus()
 		if focused != nil {
