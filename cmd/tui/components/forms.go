@@ -391,6 +391,16 @@ func (af *AddForm) SetOnCancel(callback func()) {
 	af.onCancel = callback
 }
 
+// GetFormItem delegates to the internal form for test access.
+func (af *AddForm) GetFormItem(index int) tview.FormItem {
+	return af.form.GetFormItem(index)
+}
+
+// GetInputCapture delegates to the internal form for test access.
+func (af *AddForm) GetInputCapture() func(event *tcell.EventKey) *tcell.EventKey {
+	return af.form.GetInputCapture()
+}
+
 // NewEditForm creates a new form for editing an existing credential.
 // Pre-populates all fields with current credential values.
 func NewEditForm(appState *models.AppState, credential *vault.CredentialMetadata) *EditForm {
@@ -765,4 +775,14 @@ func (ef *EditForm) SetOnSubmit(callback func()) {
 // SetOnCancel registers a callback to be invoked when cancel is pressed.
 func (ef *EditForm) SetOnCancel(callback func()) {
 	ef.onCancel = callback
+}
+
+// GetFormItem delegates to the internal form for test access.
+func (ef *EditForm) GetFormItem(index int) tview.FormItem {
+	return ef.form.GetFormItem(index)
+}
+
+// GetInputCapture delegates to the internal form for test access.
+func (ef *EditForm) GetInputCapture() func(event *tcell.EventKey) *tcell.EventKey {
+	return ef.form.GetInputCapture()
 }
