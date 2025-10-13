@@ -166,37 +166,37 @@
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T052 [P] [US4] Create HMAC signature tests in `internal/security/audit_test.go` (verify Sign and Verify methods)
-- [ ] T053 [P] [US4] Create tamper detection tests in `internal/security/audit_test.go` (modify log entry, verify Verify fails)
-- [ ] T054 [P] [US4] Create log rotation tests in `internal/security/audit_test.go` (verify rotation at 10MB threshold)
-- [ ] T055 [P] [US4] Create privacy tests in `internal/security/audit_test.go` (verify passwords NEVER logged per FR-021)
-- [ ] T056 [P] [US4] Create graceful degradation tests in `internal/vault/vault_test.go` (verify vault operations continue if audit logging fails)
+- [X] T052 [P] [US4] Create HMAC signature tests in `internal/security/audit_test.go` (verify Sign and Verify methods)
+- [X] T053 [P] [US4] Create tamper detection tests in `internal/security/audit_test.go` (modify log entry, verify Verify fails)
+- [X] T054 [P] [US4] Create log rotation tests in `internal/security/audit_test.go` (verify rotation at 10MB threshold)
+- [X] T055 [P] [US4] Create privacy tests in `internal/security/audit_test.go` (verify passwords NEVER logged per FR-021)
+- [X] T056 [P] [US4] Create graceful degradation tests in `internal/vault/vault_test.go` (verify vault operations continue if audit logging fails)
 
 ### Implementation for User Story 4
 
-- [ ] T057 [P] [US4] Create AuditLogEntry struct in `internal/security/audit.go` (Timestamp, EventType, Outcome, CredentialName, HMACSignature per data-model.md:256-262)
-- [ ] T058 [P] [US4] Create event type constants in `internal/security/audit.go` (EventVaultUnlock, EventCredentialAccess, etc. per data-model.md:268-277)
-- [ ] T059 [P] [US4] Create AuditLogger struct in `internal/security/audit.go` (filePath, maxSizeBytes, currentSize, auditKey per data-model.md:332-337)
-- [ ] T060 [US4] Implement AuditLogEntry.Sign method in `internal/security/audit.go` (HMAC-SHA256 per data-model.md:291-305)
-- [ ] T061 [US4] Implement AuditLogEntry.Verify method in `internal/security/audit.go` (constant-time comparison per data-model.md:307-326)
-- [ ] T062 [US4] Implement AuditLogger.ShouldRotate method in `internal/security/audit.go` (check size threshold per data-model.md:339-341)
-- [ ] T063 [US4] Implement AuditLogger.Rotate method in `internal/security/audit.go` (rename to .old, create new per data-model.md:343-347)
-- [ ] T064 [US4] Implement AuditLogger.Log method in `internal/security/audit.go` (write entry, sign with HMAC, handle rotation)
-- [ ] T065 [US4] Implement audit key management using OS keychain: generate unique 32-byte HMAC key per vault, store via 99designs/keyring with vault UUID as identifier, retrieve for signing/verifying (FR-034, enables FR-035 verification without master password)
-- [ ] T066 [US4] Add audit configuration support in `internal/vault/vault.go` (enable/disable flag, default disabled per FR-025)
-- [ ] T067 [US4] Add audit logging to VaultService.Initialize in `internal/vault/vault.go` (log vault creation event)
-- [ ] T068 [US4] Add audit logging to VaultService.Unlock in `internal/vault/vault.go` (log unlock success/failure per FR-019)
-- [ ] T069 [US4] Add audit logging to VaultService.Lock in `internal/vault/vault.go` (log lock event per FR-019)
-- [ ] T070 [US4] Add audit logging to VaultService.ChangePassword in `internal/vault/vault.go` (log password change per FR-019)
-- [ ] T071 [US4] Add audit logging to credential operations in `internal/vault/vault.go` (Get, Add, Update, Delete per FR-020)
-- [ ] T072 [US4] Add PASS_AUDIT_LOG environment variable support in `cmd/cli/main.go` (custom log location per FR-023)
-- [ ] T073 [US4] Add --enable-audit flag to vault init command in `cmd/cli/init.go` (opt-in per FR-025)
-- [ ] T074 [US4] Implement graceful degradation in `internal/security/audit.go` (log errors to stderr, continue operation per FR-026)
-- [ ] T075 [US4] Add audit log verification command in `cmd/cli/verify_audit.go` (read log, verify all HMAC signatures per FR-022)
-- [ ] T076 [US4] Run audit integrity tests to verify tamper detection works
-- [ ] T077 [US4] Test log rotation at size threshold
-- [ ] T078 [US4] Verify credentials never logged (privacy test per FR-021)
-- [ ] T078a [US4] Implement automatic deletion of rotated audit logs older than 7 days in AuditLogger.Rotate (FR-031 per clarification Q5)
+- [X] T057 [P] [US4] Create AuditLogEntry struct in `internal/security/audit.go` (Timestamp, EventType, Outcome, CredentialName, HMACSignature per data-model.md:256-262)
+- [X] T058 [P] [US4] Create event type constants in `internal/security/audit.go` (EventVaultUnlock, EventCredentialAccess, etc. per data-model.md:268-277)
+- [X] T059 [P] [US4] Create AuditLogger struct in `internal/security/audit.go` (filePath, maxSizeBytes, currentSize, auditKey per data-model.md:332-337)
+- [X] T060 [US4] Implement AuditLogEntry.Sign method in `internal/security/audit.go` (HMAC-SHA256 per data-model.md:291-305)
+- [X] T061 [US4] Implement AuditLogEntry.Verify method in `internal/security/audit.go` (constant-time comparison per data-model.md:307-326)
+- [X] T062 [US4] Implement AuditLogger.ShouldRotate method in `internal/security/audit.go` (check size threshold per data-model.md:339-341)
+- [X] T063 [US4] Implement AuditLogger.Rotate method in `internal/security/audit.go` (rename to .old, create new per data-model.md:343-347)
+- [X] T064 [US4] Implement AuditLogger.Log method in `internal/security/audit.go` (write entry, sign with HMAC, handle rotation)
+- [X] T065 [US4] Implement audit key management using OS keychain: generate unique 32-byte HMAC key per vault, store via zalando/go-keyring with vault UUID as identifier, retrieve for signing/verifying (FR-034, enables FR-035 verification without master password)
+- [X] T066 [US4] Add audit configuration support in `internal/vault/vault.go` (enable/disable flag, default disabled per FR-025)
+- [X] T067 [US4] Add audit logging to VaultService.Initialize in `internal/vault/vault.go` (log vault creation event)
+- [X] T068 [US4] Add audit logging to VaultService.Unlock in `internal/vault/vault.go` (log unlock success/failure per FR-019)
+- [X] T069 [US4] Add audit logging to VaultService.Lock in `internal/vault/vault.go` (log lock event per FR-019)
+- [X] T070 [US4] Add audit logging to VaultService.ChangePassword in `internal/vault/vault.go` (log password change per FR-019)
+- [X] T071 [US4] Add audit logging to credential operations in `internal/vault/vault.go` (Get, Add, Update, Delete per FR-020)
+- [X] T072 [US4] Add PASS_AUDIT_LOG environment variable support in `cmd/helpers.go` (custom log location per FR-023)
+- [X] T073 [US4] Add --enable-audit flag to vault init command in `cmd/init.go` (opt-in per FR-025)
+- [X] T074 [US4] Implement graceful degradation in `internal/vault/vault.go` (log errors to stderr, continue operation per FR-026)
+- [X] T075 [US4] Add audit log verification command in `cmd/verify_audit.go` (read log, verify all HMAC signatures per FR-022)
+- [X] T076 [US4] Run audit integrity tests to verify tamper detection works
+- [X] T077 [US4] Test log rotation at size threshold
+- [X] T078 [US4] Verify credentials never logged (privacy test per FR-021)
+- [X] T078a [US4] Implement automatic deletion of rotated audit logs older than 7 days in AuditLogger.Rotate (FR-031 per clarification Q5)
 
 **Checkpoint**: All user stories should now be independently functional - complete security hardening suite implemented
 
