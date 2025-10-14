@@ -3,7 +3,9 @@ package config
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 
 	"github.com/spf13/viper"
 )
@@ -91,6 +93,110 @@ func GetConfigPath() (string, error) {
 	}
 
 	return filepath.Join(configDir, "config.yml"), nil
+}
+
+// GetEditor returns the editor to use for editing config files.
+// Checks EDITOR environment variable first, then falls back to OS defaults.
+func GetEditor() (string, error) {
+	// Check EDITOR environment variable first
+	if editor := os.Getenv("EDITOR"); editor != "" {
+		return editor, nil
+	}
+
+	// Platform-specific defaults
+	switch runtime.GOOS {
+	case "windows":
+		return "notepad.exe", nil
+	case "darwin", "linux":
+		// Check for common editors in order of preference
+		for _, ed := range []string{"nano", "vim", "vi"} {
+			if _, err := exec.LookPath(ed); err == nil {
+				return ed, nil
+			}
+		}
+		return "", fmt.Errorf("no editor found. Please set EDITOR environment variable (e.g., export EDITOR=nano)")
+	default:
+		return "", fmt.Errorf("unsupported platform for editor detection")
+	}
+}
+
+// OpenEditor opens the config file in the user's editor.
+func OpenEditor(filePath string) error {
+	editor, err := GetEditor()
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command(editor, filePath)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	return cmd.Run()
+}
+
+// GetDefaultConfigTemplate returns the default config file content with comments.
+func GetDefaultConfigTemplate() string {
+	return `# Pass-CLI Configuration File
+# 
+# This file allows you to customize terminal size warnings and keyboard shortcuts.
+# All settings are optional - missing values will use defaults.
+
+# Terminal size warning configuration
+terminal:
+  # Enable or disable terminal size warnings (default: true)
+  warning_enabled: true
+  
+  # Minimum terminal width in columns before warning appears (default: 60)
+  # Valid range: 1-10000
+  min_width: 60
+  
+  # Minimum terminal height in rows before warning appears (default: 30)
+  # Valid range: 1-1000
+  min_height: 30
+
+# Keyboard shortcuts
+# Format: action: "key" or "modifier+key"
+# Valid modifiers: ctrl, alt, shift
+# Valid keys: letters, numbers, enter, esc, tab, space, f1-f12
+#
+# All shortcuts are lowercase (e.g., "ctrl+q" not "CTRL+Q")
+keybindings:
+  # Application control
+  quit: "q"                    # Quit application (with confirmation)
+  help: "?"                    # Show help modal with all shortcuts
+  
+  # Credential management
+  add_credential: "a"          # Open form to add new credential
+  edit_credential: "e"         # Edit selected credential
+  delete_credential: "d"       # Delete selected credential (with confirmation)
+  
+  # View controls
+  toggle_detail: "tab"         # Toggle detail panel visibility
+  toggle_sidebar: "s"          # Toggle sidebar visibility
+  search: "/"                  # Activate search/filter mode
+  
+  # Form controls (used in modals/dialogs)
+  confirm: "enter"             # Confirm action in forms
+  cancel: "esc"                # Cancel action in forms
+
+# Example custom keybindings:
+#
+# Vim-style bindings:
+#   add_credential: "i"        # Insert mode
+#   search: "/"                # Vim search
+#   toggle_sidebar: "ctrl+w"   # Vim window command
+#
+# Emacs-style bindings:
+#   quit: "ctrl+x"
+#   search: "ctrl+s"
+#   add_credential: "ctrl+n"
+#
+# Custom modifier keys:
+#   quit: "ctrl+q"
+#   add_credential: "n"
+#   help: "f1"
+`
 }
 
 // LoadFromPath loads configuration from a specific file path (useful for testing)

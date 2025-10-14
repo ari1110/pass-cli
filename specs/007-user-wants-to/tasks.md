@@ -128,15 +128,15 @@
 
 ### Implementation for User Story 3
 
-- [ ] T042 [P] [US3] Create `cmd/config.go` with cobra command structure for `config` subcommand
-- [ ] T043 [P] [US3] Implement `GetEditor()` function in `internal/config/config.go` (check EDITOR env var, fallback to OS defaults: notepad on Windows, nano>vim>vi on Linux/macOS; if all fail, return clear error: "No editor found. Please set EDITOR environment variable")
-- [ ] T044 [P] [US3] Implement `OpenEditor()` function in `internal/config/config.go` using exec.Command
-- [ ] T045 [US3] Implement `config init` command in `cmd/config.go` (create config file at GetConfigPath() with commented examples, exit codes 0=success/2=file error)
-- [ ] T046 [US3] Implement `config edit` command in `cmd/config.go` (open config file with OpenEditor(), exit codes 0=success/2=file error)
-- [ ] T047 [US3] Implement `config validate` command in `cmd/config.go` (call config.Load(), display validation results with line numbers, exit codes 0=valid/1=errors)
-- [ ] T048 [US3] Implement `config reset` command in `cmd/config.go` (backup to .backup, write defaults, exit codes 0=success/2=file error)
-- [ ] T049 [US3] Add structured error messages with line numbers to validation output in `internal/config/config.go`
-- [ ] T050 [US3] Create default config template with comments for `config init` in `internal/config/config.go`
+- [X] T042 [P] [US3] Create `cmd/config.go` with cobra command structure for `config` subcommand
+- [X] T043 [P] [US3] Implement `GetEditor()` function in `internal/config/config.go` (check EDITOR env var, fallback to OS defaults: notepad on Windows, nano>vim>vi on Linux/macOS; if all fail, return clear error: "No editor found. Please set EDITOR environment variable")
+- [X] T044 [P] [US3] Implement `OpenEditor()` function in `internal/config/config.go` using exec.Command
+- [X] T045 [US3] Implement `config init` command in `cmd/config.go` (create config file at GetConfigPath() with commented examples, exit codes 0=success/2=file error)
+- [X] T046 [US3] Implement `config edit` command in `cmd/config.go` (open config file with OpenEditor(), exit codes 0=success/2=file error)
+- [X] T047 [US3] Implement `config validate` command in `cmd/config.go` (call config.Load(), display validation results with line numbers, exit codes 0=valid/1=errors)
+- [X] T048 [US3] Implement `config reset` command in `cmd/config.go` (backup to .backup, write defaults, exit codes 0=success/2=file error)
+- [X] T049 [US3] Add structured error messages with line numbers to validation output in `internal/config/config.go`
+- [X] T050 [US3] Create default config template with comments for `config init` in `internal/config/config.go`
 
 **Checkpoint**: All user stories should now be independently functional - terminal config, keybindings, and CLI management commands all work
 
