@@ -115,44 +115,43 @@ As a user, I want CLI commands to manage my configuration file so that I can eas
 
 ### Key Entities *(include if feature involves data)*
 
-- **Config**: Represents the complete application configuration
-  - `terminal`: Terminal size warning settings
-    - `warning_enabled`: Boolean flag to enable/disable warnings
-    - `min_width`: Minimum terminal width in columns
-    - `min_height`: Minimum terminal height in rows
-  - `keybindings`: Action-to-key mappings
-    - `quit`: Key to quit application
-    - `add_credential`: Key to add new credential
-    - `edit_credential`: Key to edit selected credential
-    - `delete_credential`: Key to delete selected credential
-    - `toggle_detail`: Key to toggle detail panel
-    - `toggle_sidebar`: Key to toggle sidebar
-    - `help`: Key to show help modal
-    - `search`: Key to activate search
-    - `confirm`: Key to confirm actions
-    - `cancel`: Key to cancel actions
+- **Configuration File**: User's customization preferences stored in YAML format
+  - Terminal size warning settings:
+    - Warning enable/disable toggle
+    - Minimum terminal width (in columns)
+    - Minimum terminal height (in rows)
+  - Keyboard shortcut mappings for actions:
+    - Quit application
+    - Add new credential
+    - Edit selected credential
+    - Delete selected credential
+    - Toggle detail panel visibility
+    - Toggle sidebar visibility
+    - Show help information
+    - Activate search
+    - Confirm actions
+    - Cancel actions
 
-- **KeyBinding**: Represents a single action-to-key mapping
-  - `action`: The action name (e.g., "add_credential")
-  - `key`: The key string representation (e.g., "a", "ctrl+c", "f1")
-  - `tcellKey`: The parsed tcell.EventKey for runtime matching
+- **Keyboard Shortcut**: Mapping between an action and the key(s) that trigger it
+  - Action name (what the shortcut does)
+  - Key representation (single key or modifier combination like "ctrl+c")
 
-- **ValidationResult**: Result of config validation
-  - `valid`: Boolean indicating if config is valid
-  - `errors`: List of validation errors with descriptions
-  - `warnings`: List of non-fatal warnings
+- **Validation Result**: Outcome of checking configuration correctness
+  - Valid/invalid status
+  - List of errors preventing use (if any)
+  - List of warnings for attention (if any)
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can customize terminal size thresholds without editing source code
-- **SC-002**: Users can disable terminal size warnings entirely via config
-- **SC-003**: Users can remap any keyboard shortcut without conflicts
-- **SC-004**: All UI elements (status bar, help modal, forms) automatically reflect custom keybindings
-- **SC-005**: Users can initialize, edit, validate, and reset config via CLI commands
-- **SC-006**: Invalid config files produce clear error messages (not cryptic stack traces)
-- **SC-007**: App continues to function with defaults when config file has errors
-- **SC-008**: Config validation detects and reports keybinding conflicts before app starts
-- **SC-009**: Partial config files (e.g., only terminal settings) merge correctly with defaults
-- **SC-010**: Config changes take effect on next app start (no restart required for validation)
+- **SC-001**: 100% of terminal size thresholds (width and height) are user-customizable through configuration file
+- **SC-002**: Terminal size warning system can be completely disabled with a single configuration setting
+- **SC-003**: All 10 keyboard shortcuts are remappable without conflicts, with validation rejecting duplicate key assignments
+- **SC-004**: Custom keybindings appear in all 3 UI hint locations (status bar, help modal, form hints) within 1 second of app startup
+- **SC-005**: 4 configuration management commands (init, edit, validate, reset) are available via CLI
+- **SC-006**: Configuration errors display user-friendly messages identifying the specific problem and line number (where applicable)
+- **SC-007**: Application remains fully functional with default settings when configuration file contains errors or is missing
+- **SC-008**: Keybinding conflict detection runs on startup and reports all conflicts before application proceeds
+- **SC-009**: Configuration files with any subset of settings (1-100% complete) successfully merge with defaults
+- **SC-010**: Configuration changes applied immediately on next application launch (validation command provides instant feedback without restart)
