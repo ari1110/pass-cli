@@ -38,15 +38,16 @@ type UsageRecord struct {
 // Credential represents a stored credential with usage tracking
 // T020c: Password field changed from string to []byte for secure memory handling
 type Credential struct {
-	Service     string                 `json:"service"`
-	Username    string                 `json:"username"`
-	Password    []byte                 `json:"password"` // T020c: Changed to []byte for memory security
-	Category    string                 `json:"category,omitempty"`
-	URL         string                 `json:"url,omitempty"`
-	Notes       string                 `json:"notes"`
-	CreatedAt   time.Time              `json:"created_at"`
-	UpdatedAt   time.Time              `json:"updated_at"`
-	UsageRecord map[string]UsageRecord `json:"usage_records"` // Map of location -> UsageRecord
+	Service      string                 `json:"service"`
+	Username     string                 `json:"username"`
+	Password     []byte                 `json:"password"` // T020c: Changed to []byte for memory security
+	Category     string                 `json:"category,omitempty"`
+	URL          string                 `json:"url,omitempty"`
+	Notes        string                 `json:"notes"`
+	CreatedAt    time.Time              `json:"created_at"`
+	UpdatedAt    time.Time              `json:"updated_at"`
+	ModifiedCount int                   `json:"modified_count"` // Number of times credential has been modified
+	UsageRecord  map[string]UsageRecord `json:"usage_records"`  // Map of location -> UsageRecord
 }
 
 // VaultData is the decrypted vault structure
@@ -389,15 +390,16 @@ func (v *VaultService) AddCredential(service, username string, password []byte, 
 	copy(passwordCopy, password)
 
 	credential := Credential{
-		Service:     service,
-		Username:    username,
-		Password:    passwordCopy, // T020d: Store []byte password
-		Category:    category,
-		URL:         url,
-		Notes:       notes,
-		CreatedAt:   now,
-		UpdatedAt:   now,
-		UsageRecord: make(map[string]UsageRecord),
+		Service:       service,
+		Username:      username,
+		Password:      passwordCopy, // T020d: Store []byte password
+		Category:      category,
+		URL:           url,
+		Notes:         notes,
+		CreatedAt:     now,
+		UpdatedAt:     now,
+		ModifiedCount: 0, // Initialize modification counter
+		UsageRecord:   make(map[string]UsageRecord),
 	}
 
 	// Add to vault
@@ -525,16 +527,17 @@ type UpdateOpts struct {
 
 // CredentialMetadata contains non-sensitive credential information for listing
 type CredentialMetadata struct {
-	Service      string
-	Username     string
-	Category     string
-	URL          string
-	Notes        string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	UsageCount   int       // Total usage count across all locations
-	LastAccessed time.Time // Most recent access time
-	Locations    []string  // List of locations where accessed
+	Service       string
+	Username      string
+	Category      string
+	URL           string
+	Notes         string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	ModifiedCount int       // Number of times credential has been modified
+	UsageCount    int       // Total usage count across all locations
+	LastAccessed  time.Time // Most recent access time
+	Locations     []string  // List of locations where accessed
 }
 
 // ListCredentialsWithMetadata returns all credentials with metadata (no passwords)
@@ -546,13 +549,14 @@ func (v *VaultService) ListCredentialsWithMetadata() ([]CredentialMetadata, erro
 	metadata := make([]CredentialMetadata, 0, len(v.vaultData.Credentials))
 	for _, cred := range v.vaultData.Credentials {
 		meta := CredentialMetadata{
-			Service:   cred.Service,
-			Username:  cred.Username,
-			Category:  cred.Category,
-			URL:       cred.URL,
-			Notes:     cred.Notes,
-			CreatedAt: cred.CreatedAt,
-			UpdatedAt: cred.UpdatedAt,
+			Service:       cred.Service,
+			Username:      cred.Username,
+			Category:      cred.Category,
+			URL:           cred.URL,
+			Notes:         cred.Notes,
+			CreatedAt:     cred.CreatedAt,
+			UpdatedAt:     cred.UpdatedAt,
+			ModifiedCount: cred.ModifiedCount,
 		}
 
 		// Calculate usage statistics
@@ -596,24 +600,37 @@ func (v *VaultService) UpdateCredential(service string, opts UpdateOpts) error {
 		return fmt.Errorf("%w: %s", ErrCredentialNotFound, service)
 	}
 
+	// Track if any field was actually updated
+	fieldUpdated := false
+
 	// Update fields only if pointer is non-nil
 	if opts.Username != nil {
 		credential.Username = *opts.Username
+		fieldUpdated = true
 	}
 	if opts.Password != nil {
 		// T020e: Make a copy before storing to avoid clearing stored password
 		passwordCopy := make([]byte, len(*opts.Password))
 		copy(passwordCopy, *opts.Password)
 		credential.Password = passwordCopy
+		fieldUpdated = true
 	}
 	if opts.Category != nil {
 		credential.Category = *opts.Category
+		fieldUpdated = true
 	}
 	if opts.URL != nil {
 		credential.URL = *opts.URL
+		fieldUpdated = true
 	}
 	if opts.Notes != nil {
 		credential.Notes = *opts.Notes
+		fieldUpdated = true
+	}
+
+	// Only increment counter if something was actually modified
+	if fieldUpdated {
+		credential.ModifiedCount++
 	}
 
 	credential.UpdatedAt = time.Now()

@@ -129,6 +129,15 @@ func (dv *DetailView) formatCredential(cred *vault.CredentialMetadata) string {
 	b.WriteString(fmt.Sprintf("[gray]Created:[-]     [white]%s[-]\n", cred.CreatedAt.Format("2006-01-02 03:04 PM")))
 	b.WriteString(fmt.Sprintf("[gray]Modified:[-]    [white]%s[-]\n", cred.UpdatedAt.Format("2006-01-02 03:04 PM")))
 
+	// Display modification count
+	if cred.ModifiedCount > 0 {
+		timesText := "time"
+		if cred.ModifiedCount > 1 {
+			timesText = "times"
+		}
+		b.WriteString(fmt.Sprintf("[gray]# Modified:[-]  [white]%d %s[-]\n", cred.ModifiedCount, timesText))
+	}
+
 	if !cred.LastAccessed.IsZero() {
 		relativeTime := formatRelativeTime(cred.LastAccessed)
 		b.WriteString(fmt.Sprintf("[gray]Last Used:[-]   [white]%s[-]\n", relativeTime))
