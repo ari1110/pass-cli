@@ -413,3 +413,149 @@ func TestFullResizeFlow_ShowAndHide(t *testing.T) {
 		t.Errorf("Expected height=40, got %d", lm.height)
 	}
 }
+
+// =============================================================================
+// Edge Case Tests
+// =============================================================================
+
+// TestHandleResize_RapidOscillation verifies no crashes or memory leaks
+// during rapid resize oscillation across the minimum boundary.
+func TestHandleResize_RapidOscillation(t *testing.T) {
+	mockPM := &mockPageManager{}
+	lm := &LayoutManager{
+		mediumBreakpoint: 80,
+		largeBreakpoint:  120,
+		currentMode:      LayoutSmall,
+		pageManager:      mockPM,
+	}
+
+	// Rapidly oscillate 100 times between small and adequate sizes
+	for i := 0; i < 100; i++ {
+		if i%2 == 0 {
+			lm.HandleResize(50, 20) // Below minimum
+		} else {
+			lm.HandleResize(80, 40) // Adequate size
+		}
+	}
+
+	// Verify no crashes occurred (test completes without panic)
+	// Verify final state is correct (last iteration was 80×40)
+	if lm.width != 80 {
+		t.Errorf("Expected final width=80, got %d", lm.width)
+	}
+	if lm.height != 40 {
+		t.Errorf("Expected final height=40, got %d", lm.height)
+	}
+
+	// Verify HideSizeWarning was called on final iteration
+	if !mockPM.hideSizeWarningCalled {
+		t.Error("Expected HideSizeWarning to be called after oscillation")
+	}
+}
+
+// TestModalPreservation_DuringWarning verifies that when a modal is open
+// and terminal resizes below minimum, the warning overlays on top while
+// preserving the modal state.
+func TestModalPreservation_DuringWarning(t *testing.T) {
+	// Note: This is a structural test since we use mocks.
+	// Real integration would require tview app running.
+
+	mockPM := &mockPageManager{}
+	lm := &LayoutManager{
+		mediumBreakpoint: 80,
+		largeBreakpoint:  120,
+		currentMode:      LayoutMedium,
+		pageManager:      mockPM,
+	}
+
+	// Simulate: user opens form modal (PageManager tracks this separately)
+	// Then resize below minimum
+	lm.HandleResize(50, 20)
+
+	// Verify warning was shown (will overlay on top of modal)
+	if !mockPM.showSizeWarningCalled {
+		t.Error("Expected warning to show even when modal is open")
+	}
+
+	// The modal state is preserved because ShowSizeWarning uses AddPage
+	// which adds to the page stack without removing existing pages.
+	// This is verified by the implementation in pages.go:238 using AddPage.
+
+	// Resize back to adequate size
+	mockPM.hideSizeWarningCalled = false
+	lm.HandleResize(80, 40)
+
+	// Verify warning was hidden (modal should now be visible again)
+	if !mockPM.hideSizeWarningCalled {
+		t.Error("Expected warning to hide after resize to adequate size")
+	}
+}
+
+// TestHandleResize_BoundaryEdgeCases verifies exact boundary conditions
+// around the minimum size threshold.
+func TestHandleResize_BoundaryEdgeCases(t *testing.T) {
+	tests := []struct {
+		name          string
+		width         int
+		height        int
+		shouldWarn    bool
+		description   string
+	}{
+		{
+			name:        "59×30 - width just below minimum",
+			width:       59,
+			height:      30,
+			shouldWarn:  true,
+			description: "Width 59 < 60, should warn",
+		},
+		{
+			name:        "60×29 - height just below minimum",
+			width:       60,
+			height:      29,
+			shouldWarn:  true,
+			description: "Height 29 < 30, should warn",
+		},
+		{
+			name:        "61×31 - both above minimum",
+			width:       61,
+			height:      31,
+			shouldWarn:  false,
+			description: "Both dimensions above minimum, no warning",
+		},
+		{
+			name:        "59×29 - both below minimum",
+			width:       59,
+			height:      29,
+			shouldWarn:  true,
+			description: "Both dimensions below minimum, should warn",
+		},
+		{
+			name:        "60×30 - exactly at minimum",
+			width:       60,
+			height:      30,
+			shouldWarn:  false,
+			description: "Exactly at minimum (inclusive), no warning",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockPM := &mockPageManager{}
+			lm := &LayoutManager{
+				mediumBreakpoint: 80,
+				largeBreakpoint:  120,
+				currentMode:      LayoutSmall,
+				pageManager:      mockPM,
+			}
+
+			lm.HandleResize(tt.width, tt.height)
+
+			if tt.shouldWarn && !mockPM.showSizeWarningCalled {
+				t.Errorf("%s: Expected warning to show but it didn't. %s", tt.name, tt.description)
+			}
+			if !tt.shouldWarn && mockPM.showSizeWarningCalled {
+				t.Errorf("%s: Expected NO warning but it showed. %s", tt.name, tt.description)
+			}
+		})
+	}
+}

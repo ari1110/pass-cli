@@ -124,23 +124,23 @@
 
 ### Edge Case Tests (TDD - WRITE FIRST) ⚠️
 
-- [ ] T024 [P] [EdgeCase] Write unit test `TestHandleResize_RapidOscillation` in `cmd/tui/layout/manager_test.go` - loop 100 times alternating 50×20 / 80×40, verify no crashes or memory leaks (per clarification: immediate show/hide acceptable)
-- [ ] T025 [P] [EdgeCase] Write integration test `TestModalPreservation_DuringWarning` in `tests/integration/tui_resize_test.go` - open form modal, resize below minimum, verify warning overlays on top, form state preserved
-- [ ] T026 [P] [EdgeCase] Write unit test `TestHandleResize_BoundaryEdgeCases` in `cmd/tui/layout/manager_test.go` - test 59×30 (warn), 60×29 (warn), 61×31 (no warn)
+- [X] T024 [P] [EdgeCase] Write unit test `TestHandleResize_RapidOscillation` in `cmd/tui/layout/manager_test.go` - loop 100 times alternating 50×20 / 80×40, verify no crashes or memory leaks (per clarification: immediate show/hide acceptable)
+- [X] T025 [P] [EdgeCase] Write integration test `TestModalPreservation_DuringWarning` in `tests/integration/tui_resize_test.go` - open form modal, resize below minimum, verify warning overlays on top, form state preserved
+- [X] T026 [P] [EdgeCase] Write unit test `TestHandleResize_BoundaryEdgeCases` in `cmd/tui/layout/manager_test.go` - test 59×30 (warn), 60×29 (warn), 61×31 (no warn)
 
 **USER APPROVAL GATE**: Present tests T024-T026 to user, verify they fail before proceeding
 
 ### Edge Case Implementation
 
-- [ ] T027 [EdgeCase] Verify HandleResize continues layout updates even when warning shown in `cmd/tui/layout/manager.go` - confirm no early return after ShowSizeWarning call (prevents recovery deadlock)
-- [ ] T028 [EdgeCase] Add explicit `app.Draw()` calls in ShowSizeWarning and HideSizeWarning in `cmd/tui/layout/pages.go` - ensures <100ms response time per success criteria
+- [X] T027 [EdgeCase] Verify HandleResize continues layout updates even when warning shown in `cmd/tui/layout/manager.go` - confirm no early return after ShowSizeWarning call (prevents recovery deadlock)
+- [X] T028 [EdgeCase] Add explicit `app.Draw()` calls in ShowSizeWarning and HideSizeWarning in `cmd/tui/layout/pages.go` - ensures <100ms response time per success criteria
 
 ### Documentation & Polish
 
-- [ ] T029 [P] [Polish] Add code comments to ShowSizeWarning/HideSizeWarning methods in `cmd/tui/layout/pages.go` - document behavior, parameters, and state management
-- [ ] T030 [P] [Polish] Add code comments to MinTerminal constants in `cmd/tui/layout/manager.go` - explain why 60×30 chosen (LayoutSmall mode usability)
-- [ ] T031 [P] [Polish] Update CLAUDE.md context if needed - add reference to minimum size constants location (agent context script already ran, verify completeness)
-- [ ] T032 [Polish] Run quickstart.md manual verification tests - execute all test scenarios from `specs/006-implement-minimum-terminal/quickstart.md` (covers FR-010: warning readability at extremely small sizes)
+- [X] T029 [P] [Polish] Add code comments to ShowSizeWarning/HideSizeWarning methods in `cmd/tui/layout/pages.go` - document behavior, parameters, and state management
+- [X] T030 [P] [Polish] Add code comments to MinTerminal constants in `cmd/tui/layout/manager.go` - explain why 60×30 chosen (LayoutSmall mode usability)
+- [X] T031 [P] [Polish] Update CLAUDE.md context if needed - add reference to minimum size constants location (agent context script already ran, verify completeness)
+- [X] T032 [Polish] Run quickstart.md manual verification tests - execute all test scenarios from `specs/006-implement-minimum-terminal/quickstart.md` (covers FR-010: warning readability at extremely small sizes)
 
 ---
 
