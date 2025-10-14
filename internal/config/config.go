@@ -15,6 +15,9 @@ type Config struct {
 
 	// LoadErrors populated during config loading (not in YAML)
 	LoadErrors []string `mapstructure:"-"`
+
+	// ParsedKeybindings stores parsed keybinding objects (populated during Validate)
+	ParsedKeybindings map[string]*Keybinding `mapstructure:"-"`
 }
 
 // TerminalConfig represents terminal size warning configuration
@@ -195,7 +198,8 @@ func (c *Config) Validate() *ValidationResult {
 	// Validate terminal configuration
 	result = c.validateTerminal(result)
 
-	// TODO: Add keybinding validation in Phase 4
+	// T032: Validate keybindings
+	result = c.validateKeybindings(result)
 
 	// Set Valid flag based on error count
 	if len(result.Errors) > 0 {
@@ -240,4 +244,63 @@ func (c *Config) validateTerminal(result *ValidationResult) *ValidationResult {
 	}
 
 	return result
+}
+
+// T032: validateKeybindings validates and parses keybinding configuration
+func (c *Config) validateKeybindings(result *ValidationResult) *ValidationResult {
+	// If keybindings is empty, merge with defaults
+	if len(c.Keybindings) == 0 {
+		c.Keybindings = GetDefaults().Keybindings
+	}
+
+	// Step 1: Check for unknown actions
+	actionErrors := ValidateActions(c.Keybindings)
+	for _, errMsg := range actionErrors {
+		result.Errors = append(result.Errors, ValidationError{
+			Field:   "keybindings",
+			Message: errMsg,
+		})
+	}
+
+	// Step 2: Check for conflicts (duplicate key assignments)
+	conflicts := DetectKeybindingConflicts(c.Keybindings)
+	for _, conflict := range conflicts {
+		result.Errors = append(result.Errors, ValidationError{
+			Field:   "keybindings",
+			Message: conflict,
+		})
+	}
+
+	// Step 3: Parse each keybinding and store parsed versions
+	c.ParsedKeybindings = make(map[string]*Keybinding)
+	for action, keyStr := range c.Keybindings {
+		key, r, mods, err := ParseKeybinding(keyStr)
+		if err != nil {
+			result.Errors = append(result.Errors, ValidationError{
+				Field:   fmt.Sprintf("keybindings.%s", action),
+				Message: fmt.Sprintf("invalid key format '%s': %v", keyStr, err),
+			})
+			continue
+		}
+
+		// Store parsed keybinding
+		c.ParsedKeybindings[action] = &Keybinding{
+			Action:    action,
+			KeyString: keyStr,
+			Key:       key,
+			Rune:      r,
+			Modifiers: mods,
+		}
+	}
+
+	return result
+}
+
+// GetParsedKeybindings returns the parsed keybindings map
+// Must call Validate() first to populate ParsedKeybindings
+func (c *Config) GetParsedKeybindings() map[string]*Keybinding {
+	if c.ParsedKeybindings == nil {
+		return make(map[string]*Keybinding)
+	}
+	return c.ParsedKeybindings
 }

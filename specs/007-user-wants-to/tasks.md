@@ -100,8 +100,8 @@
 - [X] T029 [P] [US2] Implement keybinding string parser `ParseKeybinding()` in `internal/config/keybinding.go` (parse "key", "ctrl+key", "alt+key", "shift+key" formats to tcell types)
 - [X] T030 [P] [US2] Implement valid action name list and unknown action validation in `internal/config/keybinding.go`
 - [X] T031 [US2] Implement keybinding conflict detection in `internal/config/keybinding.go` Validate() (check no duplicate key assignments)
-- [ ] T032 [US2] Add keybinding loading to `config.Load()` in `internal/config/config.go` (parse YAML keybindings section, validate, merge with defaults)
-- [ ] T033 [US2] Create keybinding registry/lookup structure in `internal/config/keybinding.go` for runtime event matching
+- [X] T032 [US2] Add keybinding loading to `config.Load()` in `internal/config/config.go` (parse YAML keybindings section, validate, merge with defaults)
+- [X] T033 [US2] Create keybinding registry/lookup structure in `internal/config/keybinding.go` for runtime event matching
 - [ ] T034 [US2] Modify event handlers to use config keybindings instead of hardcoded keys (discover actual TUI event handler files, likely cmd/tui/events/ or cmd/tui/handlers/)
 - [ ] T035 [US2] Update status bar rendering to display custom keybinding hints (discover actual statusbar file, likely cmd/tui/components/ or cmd/tui/views/)
 - [ ] T036 [US2] Update help modal to display custom keybinding hints (discover actual help modal file in cmd/tui/)
