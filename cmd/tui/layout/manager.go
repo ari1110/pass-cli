@@ -7,6 +7,14 @@ import (
 	"pass-cli/cmd/tui/models"
 )
 
+// MinTerminalWidth is the minimum terminal width (columns) required for usable interface.
+// Below this width, a warning overlay is displayed prompting the user to resize.
+const MinTerminalWidth = 60
+
+// MinTerminalHeight is the minimum terminal height (rows) required for usable interface.
+// Below this height, a warning overlay is displayed prompting the user to resize.
+const MinTerminalHeight = 30
+
 // LayoutMode represents the current layout configuration based on terminal width.
 type LayoutMode int
 

@@ -30,7 +30,7 @@
 
 **⚠️ CRITICAL**: This phase must complete before ANY user story implementation begins
 
-- [ ] T001 [Foundational] Add MinTerminalWidth=60 and MinTerminalHeight=30 constants to `cmd/tui/layout/manager.go` at package level (after import statements, before LayoutMode type definition)
+- [X] T001 [Foundational] Add MinTerminalWidth=60 and MinTerminalHeight=30 constants to `cmd/tui/layout/manager.go` at package level (after import statements, before LayoutMode type definition)
 
 **Checkpoint**: Foundation ready - constants defined, user story implementation can now begin
 
