@@ -72,9 +72,9 @@
 - [X] T019 [P] [US1] Implement terminal config validation in `internal/config/config.go` Validate() method (check min_width > 0, min_height > 0, range 1-10000/1-1000)
 - [X] T020 [US1] Implement terminal config merging with defaults in `internal/config/config.go` Load() function (depends on T018, T019)
 - [X] T021 [US1] Add terminal config unusually large size warnings (warn if >500 width or >200 height) in `internal/config/config.go` Validate() method
-- [ ] T022 [US1] Modify TUI startup in `cmd/tui/main.go` to call `config.Load()` and use terminal config for size warning thresholds
-- [ ] T023 [US1] Update size warning modal display logic in TUI to respect `WarningEnabled` flag from config
-- [ ] T024 [US1] Add config validation error modal display in TUI startup (call PageManager method when Load() returns errors - discover actual TUI file with PageManager, likely cmd/tui/layout/pages.go or similar)
+- [X] T022 [US1] Modify TUI startup in `cmd/tui/main.go` to call `config.Load()` and use terminal config for size warning thresholds
+- [X] T023 [US1] Update size warning modal display logic in TUI to respect `WarningEnabled` flag from config
+- [X] T024 [US1] Add config validation error modal display in TUI startup (call PageManager method when Load() returns errors - discover actual TUI file with PageManager, likely cmd/tui/layout/pages.go or similar)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can customize terminal thresholds or disable warnings via config file
 

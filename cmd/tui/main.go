@@ -12,6 +12,7 @@ import (
 	"pass-cli/cmd/tui/layout"
 	"pass-cli/cmd/tui/models"
 	"pass-cli/cmd/tui/styles"
+	"pass-cli/internal/config"
 	"pass-cli/internal/vault"
 )
 
@@ -106,6 +107,9 @@ func LaunchTUI(vaultService *vault.VaultService) error {
 	// Set rounded borders globally
 	styles.SetRoundedBorders()
 
+	// 1. Load user configuration (T022)
+	cfg, validationResult := config.Load()
+
 	// 1. Create tview.Application
 	app := NewApp()
 
@@ -161,8 +165,8 @@ func LaunchTUI(vaultService *vault.VaultService) error {
 		events.OnFocusChanged(focus, statusBar)
 	})
 
-	// 8. Create LayoutManager
-	layoutMgr := layout.NewLayoutManager(app, appState)
+	// 8. Create LayoutManager (T022: pass config)
+	layoutMgr := layout.NewLayoutManager(app, appState, cfg)
 
 	// 9. Create PageManager
 	pageManager := layout.NewPageManager(app)
@@ -173,6 +177,19 @@ func LaunchTUI(vaultService *vault.VaultService) error {
 
 	// 9b. Build layout (this will trigger initial resize check)
 	mainLayout := layoutMgr.CreateMainLayout()
+
+	// 9c. T024: Display config validation errors if any
+	if !validationResult.Valid && len(validationResult.Errors) > 0 {
+		errorMessages := make([]string, len(validationResult.Errors))
+		for i, err := range validationResult.Errors {
+			if err.Line > 0 {
+				errorMessages[i] = fmt.Sprintf("%s (line %d): %s", err.Field, err.Line, err.Message)
+			} else {
+				errorMessages[i] = fmt.Sprintf("%s: %s", err.Field, err.Message)
+			}
+		}
+		pageManager.ShowConfigValidationError(errorMessages)
+	}
 
 	// 10. Create EventHandler and setup shortcuts
 	eventHandler := events.NewEventHandler(app, appState, nav, pageManager, statusBar, detailView, layoutMgr)

@@ -325,3 +325,30 @@ func (pm *PageManager) ApplyPendingWarnings() {
 func (pm *PageManager) IsSizeWarningActive() bool {
 	return pm.sizeWarningActive
 }
+
+// ShowConfigValidationError displays config validation errors in a modal on startup (T024).
+// Shows all validation errors with field names and messages.
+// The modal is dismissible with Enter/Escape, after which the app continues with defaults.
+func (pm *PageManager) ShowConfigValidationError(errors []string) {
+	if len(errors) == 0 {
+		return
+	}
+
+	// Build error message
+	message := "Configuration file has errors:\n\n"
+	for i, err := range errors {
+		message += fmt.Sprintf("%d. %s\n", i+1, err)
+	}
+	message += "\nUsing default settings. Press Enter to continue."
+
+	modal := tview.NewModal().
+		SetText(message).
+		AddButtons([]string{"OK"}).
+		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+			pm.CloseModal("config-error")
+		}).
+		SetBackgroundColor(tcell.ColorDarkRed)
+
+	// Use ShowModal to display with standard dimensions
+	pm.ShowModal("config-error", modal, 70, 20)
+}

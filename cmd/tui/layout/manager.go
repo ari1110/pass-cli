@@ -4,6 +4,7 @@ package layout
 import (
 	"github.com/rivo/tview"
 	"pass-cli/cmd/tui/models"
+	"pass-cli/internal/config"
 )
 
 // MinTerminalWidth is the minimum terminal width (columns) required for usable interface.
@@ -67,17 +68,22 @@ type LayoutManager struct {
 
 	// PageManager for terminal size warnings
 	pageManager PageManagerInterface
+
+	// User configuration (T022)
+	config *config.Config
 }
 
 // NewLayoutManager creates a new layout manager with default breakpoints.
 // Components are not retrieved until CreateMainLayout is called.
-func NewLayoutManager(app *tview.Application, appState *models.AppState) *LayoutManager {
+// T022: Now accepts config parameter for terminal size configuration.
+func NewLayoutManager(app *tview.Application, appState *models.AppState, cfg *config.Config) *LayoutManager {
 	return &LayoutManager{
 		app:              app,
 		appState:         appState,
 		mediumBreakpoint: 80,
 		largeBreakpoint:  120,
 		currentMode:      LayoutSmall, // Start with small, will adjust on first draw
+		config:           cfg,
 	}
 }
 
@@ -115,17 +121,32 @@ func (lm *LayoutManager) CreateMainLayout() *tview.Flex {
 // HandleResize responds to terminal size changes.
 // It determines if the layout mode needs to change and triggers a rebuild if necessary.
 // Also checks terminal size against minimum requirements and shows/hides warning overlay.
+// T022+T023: Now uses config values for terminal size thresholds and respects WarningEnabled flag.
 func (lm *LayoutManager) HandleResize(width, height int) {
 	lm.width = width
 	lm.height = height
 
-	// Check minimum terminal size and show/hide warning
-	if lm.pageManager != nil {
-		if width < MinTerminalWidth || height < MinTerminalHeight {
-			lm.pageManager.ShowSizeWarning(width, height, MinTerminalWidth, MinTerminalHeight)
+	// T022+T023: Get terminal config values (use defaults if config not set)
+	minWidth := MinTerminalWidth
+	minHeight := MinTerminalHeight
+	warningEnabled := true
+
+	if lm.config != nil {
+		minWidth = lm.config.Terminal.MinWidth
+		minHeight = lm.config.Terminal.MinHeight
+		warningEnabled = lm.config.Terminal.WarningEnabled
+	}
+
+	// Check minimum terminal size and show/hide warning (T023: respect WarningEnabled flag)
+	if lm.pageManager != nil && warningEnabled {
+		if width < minWidth || height < minHeight {
+			lm.pageManager.ShowSizeWarning(width, height, minWidth, minHeight)
 		} else {
 			lm.pageManager.HideSizeWarning()
 		}
+	} else if lm.pageManager != nil && !warningEnabled {
+		// T023: Warning disabled, always hide
+		lm.pageManager.HideSizeWarning()
 	}
 
 	// Determine the new layout mode based on width
