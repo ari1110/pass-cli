@@ -35,7 +35,9 @@ type PageManager struct {
 	app        *tview.Application
 	modalStack []string // Track modal names for proper close operations
 
-	sizeWarningActive bool // Track whether terminal size warning is currently displayed
+	sizeWarningActive bool   // Track whether terminal size warning is currently displayed
+	pendingSizeWarning *tview.Primitive // Pending warning modal to be added on next safe opportunity
+	pendingHideWarning bool   // Flag to hide warning on next safe opportunity
 }
 
 // NewPageManager creates a new page manager for handling modals and page switching.
@@ -219,11 +221,20 @@ func (pm *PageManager) setupEscapeHandler() {
 // ShowSizeWarning displays a blocking warning overlay when terminal is too small.
 // Shows current dimensions vs. minimum required dimensions in plain language.
 // The warning uses a dark red background for visual distinction.
+// Uses full-screen display to ensure visibility even at extremely small terminal sizes.
+//
+// When called from SetBeforeDrawFunc, this creates the modal but doesn't add it immediately
+// to avoid deadlock. Call ApplyPendingWarnings() after the draw cycle to apply changes.
 //
 // Parameters:
 //   - currentWidth, currentHeight: Current terminal dimensions in columns/rows
 //   - minWidth, minHeight: Minimum required dimensions in columns/rows
 func (pm *PageManager) ShowSizeWarning(currentWidth, currentHeight, minWidth, minHeight int) {
+	// Skip if already showing to avoid redundant operations
+	if pm.sizeWarningActive {
+		return
+	}
+
 	message := fmt.Sprintf(
 		"Terminal too small!\n\nCurrent: %dx%d\nMinimum required: %dx%d\n\nPlease resize your terminal window.",
 		currentWidth, currentHeight, minWidth, minHeight,
@@ -233,24 +244,39 @@ func (pm *PageManager) ShowSizeWarning(currentWidth, currentHeight, minWidth, mi
 		SetText(message).
 		SetBackgroundColor(tcell.ColorDarkRed)
 
-	// Add as page with centering (reuse centerModal for consistency)
-	centered := pm.centerModal(modal, 60, 12)
-	pm.AddPage("size-warning", centered, true, true)
-
-	pm.sizeWarningActive = true
-	pm.app.Draw()
+	// Store the modal to be added later (to avoid deadlock from within draw cycle)
+	primitive := tview.Primitive(modal)
+	pm.pendingSizeWarning = &primitive
+	pm.pendingHideWarning = false
 }
 
 // HideSizeWarning removes the terminal size warning overlay.
 // Safe to call even if warning is not currently showing (idempotent).
+//
+// When called from SetBeforeDrawFunc, this sets a flag but doesn't remove immediately
+// to avoid deadlock. Call ApplyPendingWarnings() after the draw cycle to apply changes.
 func (pm *PageManager) HideSizeWarning() {
 	if !pm.sizeWarningActive {
 		return
 	}
 
-	pm.RemovePage("size-warning")
-	pm.sizeWarningActive = false
-	pm.app.Draw()
+	// Set flag to hide on next safe opportunity
+	pm.pendingHideWarning = true
+	pm.pendingSizeWarning = nil
+}
+
+// ApplyPendingWarnings applies any pending show/hide operations for the size warning.
+// This must be called outside of the draw cycle (e.g., in a goroutine or after SetBeforeDrawFunc).
+func (pm *PageManager) ApplyPendingWarnings() {
+	if pm.pendingSizeWarning != nil {
+		pm.AddPage("size-warning", *pm.pendingSizeWarning, true, true)
+		pm.sizeWarningActive = true
+		pm.pendingSizeWarning = nil
+	} else if pm.pendingHideWarning {
+		pm.RemovePage("size-warning")
+		pm.sizeWarningActive = false
+		pm.pendingHideWarning = false
+	}
 }
 
 // IsSizeWarningActive returns true if the terminal size warning is currently displayed.

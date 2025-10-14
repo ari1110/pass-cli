@@ -2,7 +2,6 @@
 package layout
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"pass-cli/cmd/tui/models"
 )
@@ -109,17 +108,6 @@ func (lm *LayoutManager) CreateMainLayout() *tview.Flex {
 		SetDirection(tview.FlexRow).
 		AddItem(lm.contentRow, 0, 1, true). // Content area (flex height)
 		AddItem(lm.statusBar, 1, 0, false)  // Status bar (fixed 1 row)
-
-	// Setup resize detection using SetDrawFunc
-	// This detects the initial terminal size and subsequent resizes
-	lm.mainLayout.SetDrawFunc(func(screen tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		// Always check for size changes (not just initial)
-		termWidth, termHeight := screen.Size()
-		if lm.width != termWidth || lm.height != termHeight {
-			lm.HandleResize(termWidth, termHeight)
-		}
-		return x, y, width, height
-	})
 
 	return lm.mainLayout
 }

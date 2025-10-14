@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/howeyc/gopass"
 	"pass-cli/cmd/tui/components"
 	"pass-cli/cmd/tui/events"
@@ -160,25 +161,49 @@ func LaunchTUI(vaultService *vault.VaultService) error {
 		events.OnFocusChanged(focus, statusBar)
 	})
 
-	// 8. Create LayoutManager and build layout
+	// 8. Create LayoutManager
 	layoutMgr := layout.NewLayoutManager(app, appState)
-	mainLayout := layoutMgr.CreateMainLayout()
 
 	// 9. Create PageManager
 	pageManager := layout.NewPageManager(app)
 
-	// 9a. Wire PageManager to LayoutManager for terminal size warnings
+	// 9a. Wire PageManager to LayoutManager BEFORE creating layout
+	// This ensures size warning handler is ready when resize events fire
 	layoutMgr.SetPageManager(pageManager)
+
+	// 9b. Build layout (this will trigger initial resize check)
+	mainLayout := layoutMgr.CreateMainLayout()
 
 	// 10. Create EventHandler and setup shortcuts
 	eventHandler := events.NewEventHandler(app, appState, nav, pageManager, statusBar, detailView, layoutMgr)
 	eventHandler.SetupGlobalShortcuts()
 
-	// 11. Set root primitive (use pages for modal support over main layout)
+	// 11. Set up proactive resize handling to prevent crashes
+	// This is called before every screen draw.
+	var lastWidth, lastHeight int
+	app.SetBeforeDrawFunc(func(screen tcell.Screen) bool {
+		width, height := screen.Size()
+		if lastWidth != width || lastHeight != height {
+			// Pass resize event to layout manager to handle responsive changes
+			// and show/hide size warnings.
+			layoutMgr.HandleResize(width, height)
+			lastWidth = width
+			lastHeight = height
+
+			// Apply pending warning changes in a goroutine to avoid deadlock
+			go pageManager.ApplyPendingWarnings()
+		}
+
+		// Returning false allows the draw to continue. We don't want to suppress drawing,
+		// just ensure the correct page (main or warning) is visible.
+		return false
+	})
+
+	// 13. Set root primitive (use pages for modal support over main layout)
 	pageManager.ShowPage("main", mainLayout)
 	app.SetRoot(pageManager.Pages, true)
 
-	// 12. Run application (blocking)
+	// 14. Run application (blocking)
 	return app.Run()
 }
 
