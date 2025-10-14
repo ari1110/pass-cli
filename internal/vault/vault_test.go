@@ -321,10 +321,9 @@ func TestGetCredentialWithUsageTracking(t *testing.T) {
 		t.Fatalf("AddCredential() failed: %v", err)
 	}
 
-	// Get credential with usage tracking
-	_, err := vault.GetCredential("github", true)
-	if err != nil {
-		t.Fatalf("GetCredential() failed: %v", err)
+	// Explicitly track field access (GetCredential no longer auto-tracks)
+	if err := vault.RecordFieldAccess("github", "password"); err != nil {
+		t.Fatalf("RecordFieldAccess() failed: %v", err)
 	}
 
 	// Check usage stats
@@ -337,10 +336,22 @@ func TestGetCredentialWithUsageTracking(t *testing.T) {
 		t.Error("Expected usage record, got none")
 	}
 
+	// Verify field access was tracked
+	for _, record := range stats {
+		if record.Count != 1 {
+			t.Errorf("Usage count = %d, want 1", record.Count)
+		}
+		if record.FieldAccess == nil {
+			t.Error("FieldAccess map is nil")
+		}
+		if record.FieldAccess["password"] != 1 {
+			t.Errorf("Password field access count = %d, want 1", record.FieldAccess["password"])
+		}
+	}
+
 	// Access again to increment count
-	_, err = vault.GetCredential("github", true)
-	if err != nil {
-		t.Fatalf("Second GetCredential() failed: %v", err)
+	if err := vault.RecordFieldAccess("github", "password"); err != nil {
+		t.Fatalf("Second RecordFieldAccess() failed: %v", err)
 	}
 
 	stats, err = vault.GetUsageStats("github")
@@ -352,6 +363,9 @@ func TestGetCredentialWithUsageTracking(t *testing.T) {
 	for _, record := range stats {
 		if record.Count != 2 {
 			t.Errorf("Usage count = %d, want 2", record.Count)
+		}
+		if record.FieldAccess["password"] != 2 {
+			t.Errorf("Password field access count = %d, want 2", record.FieldAccess["password"])
 		}
 	}
 }

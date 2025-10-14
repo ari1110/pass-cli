@@ -22,6 +22,7 @@ type VaultService interface {
 	UpdateCredential(service string, opts vault.UpdateOpts) error
 	DeleteCredential(service string) error
 	GetCredential(service string, trackUsage bool) (*vault.Credential, error)
+	RecordFieldAccess(service, field string) error // Track field-specific access
 }
 
 // UpdateCredentialOpts mirrors vault.UpdateOpts for AppState layer.
@@ -147,6 +148,15 @@ func (s *AppState) GetFullCredentialWithTracking(service string, track bool) (*v
 	defer s.mu.RUnlock()
 
 	return s.vault.GetCredential(service, track)
+}
+
+// RecordFieldAccess tracks access to a specific credential field.
+// Used to record when fields are actually accessed (e.g., password copied to clipboard).
+func (s *AppState) RecordFieldAccess(service, field string) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	return s.vault.RecordFieldAccess(service, field)
 }
 
 // LoadCredentials loads all credentials from the vault.

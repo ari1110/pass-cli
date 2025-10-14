@@ -28,11 +28,12 @@ var (
 
 // UsageRecord tracks where and when a credential was accessed
 type UsageRecord struct {
-	Location   string    `json:"location"`            // Working directory where accessed
-	Timestamp  time.Time `json:"timestamp"`           // When it was accessed
-	GitRepo    string    `json:"git_repo"`            // Git repository if available
-	Count      int       `json:"count"`               // Number of times accessed from this location
-	LineNumber int       `json:"line_number,omitempty"` // Line number in file where accessed (optional)
+	Location    string         `json:"location"`              // Working directory where accessed
+	Timestamp   time.Time      `json:"timestamp"`             // When it was last accessed
+	GitRepo     string         `json:"git_repo"`              // Git repository if available
+	Count       int            `json:"count"`                 // Total number of accesses from this location (sum of all field accesses)
+	LineNumber  int            `json:"line_number,omitempty"` // Line number in file where accessed (optional)
+	FieldAccess map[string]int `json:"field_access"`          // Per-field access counts: "password": 5, "username": 2, etc.
 }
 
 // Credential represents a stored credential with usage tracking
@@ -415,7 +416,9 @@ func (v *VaultService) AddCredential(service, username string, password []byte, 
 	return nil
 }
 
-// GetCredential retrieves a credential and tracks usage
+// GetCredential retrieves a credential without automatic tracking
+// Callers should explicitly track field access using RecordFieldAccess
+// Deprecated trackUsage parameter is ignored (kept for backward compatibility)
 func (v *VaultService) GetCredential(service string, trackUsage bool) (*Credential, error) {
 	if !v.unlocked {
 		return nil, ErrVaultLocked
@@ -426,13 +429,8 @@ func (v *VaultService) GetCredential(service string, trackUsage bool) (*Credenti
 		return nil, fmt.Errorf("%w: %s", ErrCredentialNotFound, service)
 	}
 
-	// Track usage if requested
-	if trackUsage {
-		if err := v.trackUsage(service); err != nil {
-			// Log warning but don't fail the get operation
-			fmt.Fprintf(os.Stderr, "Warning: failed to track usage: %v\n", err)
-		}
-	}
+	// NOTE: Automatic tracking removed - callers must explicitly call RecordFieldAccess
+	// with the specific field being accessed (password, username, etc.)
 
 	// T071: Log credential access (FR-020)
 	v.logAudit(security.EventCredentialAccess, security.OutcomeSuccess, service)
@@ -442,8 +440,15 @@ func (v *VaultService) GetCredential(service string, trackUsage bool) (*Credenti
 	return &cred, nil
 }
 
-// trackUsage records credential usage at current location
+// trackUsage records credential field access at current location
+// Deprecated: Use RecordFieldAccess instead for explicit field tracking
 func (v *VaultService) trackUsage(service string) error {
+	// Default to tracking all fields when no specific field is provided (backward compatibility)
+	return v.RecordFieldAccess(service, "credential")
+}
+
+// RecordFieldAccess records access to a specific credential field at current location
+func (v *VaultService) RecordFieldAccess(service, field string) error {
 	credential, exists := v.vaultData.Credentials[service]
 	if !exists {
 		return ErrCredentialNotFound
@@ -461,14 +466,25 @@ func (v *VaultService) trackUsage(service string) error {
 	// Update or create usage record
 	record, exists := credential.UsageRecord[location]
 	if exists {
+		// Increment total count
 		record.Count++
 		record.Timestamp = time.Now()
+
+		// Initialize FieldAccess map if nil (backward compatibility)
+		if record.FieldAccess == nil {
+			record.FieldAccess = make(map[string]int)
+		}
+
+		// Increment field-specific count
+		record.FieldAccess[field]++
 	} else {
+		// Create new record
 		record = UsageRecord{
-			Location:  location,
-			Timestamp: time.Now(),
-			GitRepo:   gitRepo,
-			Count:     1,
+			Location:    location,
+			Timestamp:   time.Now(),
+			GitRepo:     gitRepo,
+			Count:       1,
+			FieldAccess: map[string]int{field: 1},
 		}
 	}
 

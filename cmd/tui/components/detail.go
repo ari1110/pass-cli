@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -232,6 +233,12 @@ func (dv *DetailView) CopyPasswordToClipboard() error {
 	err = clipboard.WriteAll(passwordStr)
 	if err != nil {
 		return fmt.Errorf("failed to copy to clipboard: %w", err)
+	}
+
+	// Track password access (copy to clipboard = usage)
+	if err := dv.appState.RecordFieldAccess(cred.Service, "password"); err != nil {
+		// Log warning but don't fail the operation
+		fmt.Fprintf(os.Stderr, "Warning: failed to track password access: %v\n", err)
 	}
 
 	// T020g: Zero the password bytes immediately after clipboard write

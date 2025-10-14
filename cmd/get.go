@@ -85,48 +85,60 @@ func runGet(cmd *cobra.Command, args []string) error {
 	}
 	defer vaultService.Lock()
 
-	// Get credential with usage tracking (unless quiet mode for scripts)
-	trackUsage := !getQuiet
-	cred, err := vaultService.GetCredential(service, trackUsage)
+	// Get credential (no automatic tracking)
+	cred, err := vaultService.GetCredential(service, false)
 	if err != nil {
 		return fmt.Errorf("failed to get credential: %w", err)
 	}
 
 	// Quiet mode - output only requested field
 	if getQuiet {
-		return outputQuietMode(cred)
+		return outputQuietMode(cred, vaultService, service)
 	}
 
 	// Normal mode - display credential details
-	return outputNormalMode(cred)
+	return outputNormalMode(cred, vaultService, service)
 }
 
-func outputQuietMode(cred *vault.Credential) error {
+func outputQuietMode(cred *vault.Credential, vaultService *vault.VaultService, service string) error {
 	field := strings.ToLower(getField)
 	var value string
+	var fieldName string
 
 	switch field {
 	case "username", "user", "u":
 		value = cred.Username
+		fieldName = "username"
 	case "password", "pass", "p":
 		value = string(cred.Password) // T020d: Convert []byte to string
+		fieldName = "password"
 	case "category", "cat", "c":
 		value = cred.Category
+		fieldName = "category"
 	case "url":
 		value = cred.URL
+		fieldName = "url"
 	case "notes", "note", "n":
 		value = cred.Notes
+		fieldName = "notes"
 	case "service", "s":
 		value = cred.Service
+		fieldName = "service"
 	default:
 		return fmt.Errorf("invalid field: %s (valid: username, password, category, url, notes, service)", getField)
+	}
+
+	// Track field access
+	if err := vaultService.RecordFieldAccess(service, fieldName); err != nil {
+		// Log warning but don't fail the operation
+		fmt.Fprintf(os.Stderr, "Warning: failed to track field access: %v\n", err)
 	}
 
 	fmt.Println(value)
 	return nil
 }
 
-func outputNormalMode(cred *vault.Credential) error {
+func outputNormalMode(cred *vault.Credential, vaultService *vault.VaultService, service string) error {
 	// Display credential details
 	fmt.Printf("📝 Service: %s\n", cred.Service)
 
@@ -168,6 +180,12 @@ func outputNormalMode(cred *vault.Credential) error {
 		if err := clipboard.WriteAll(passwordStr); err != nil {
 			fmt.Fprintf(os.Stderr, "\n⚠️  Warning: failed to copy to clipboard: %v\n", err)
 		} else {
+			// Track password access (copy to clipboard = usage)
+			if err := vaultService.RecordFieldAccess(service, "password"); err != nil {
+				// Log warning but don't fail the operation
+				fmt.Fprintf(os.Stderr, "Warning: failed to track password access: %v\n", err)
+			}
+
 			// T020g: Zero the password bytes immediately after clipboard write
 			// Note: This only zeros the source []byte in cred, not the string copy
 			// The string copy is necessary for clipboard API and will be GC'd
