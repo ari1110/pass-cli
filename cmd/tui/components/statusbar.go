@@ -8,6 +8,7 @@ import (
 
 	"pass-cli/cmd/tui/models"
 	"pass-cli/cmd/tui/styles"
+	"pass-cli/internal/config"
 )
 
 // FocusContext represents the current focus context for determining which shortcuts to display.
@@ -30,12 +31,13 @@ type StatusBar struct {
 
 	app          *tview.Application // For forcing redraws
 	appState     *models.AppState
+	config       *config.Config // User configuration for keybindings
 	currentFocus FocusContext
 	messageTimer *time.Timer
 }
 
 // NewStatusBar creates and initializes a new status bar.
-func NewStatusBar(app *tview.Application, appState *models.AppState) *StatusBar {
+func NewStatusBar(app *tview.Application, appState *models.AppState, cfg *config.Config) *StatusBar {
 	theme := styles.GetCurrentTheme()
 
 	textView := tview.NewTextView().
@@ -50,6 +52,7 @@ func NewStatusBar(app *tview.Application, appState *models.AppState) *StatusBar 
 		TextView:     textView,
 		app:          app,
 		appState:     appState,
+		config:       cfg,
 		currentFocus: FocusSidebar, // Default focus
 	}
 
@@ -109,25 +112,58 @@ func (sb *StatusBar) getShortcutsForContext(focus FocusContext) string {
 	searchState := sb.appState.GetSearchState()
 	isSearchActive := searchState != nil && searchState.Active
 
+	// Helper to get display string for a keybinding action
+	getKey := func(action string) string {
+		keyStr := sb.config.GetKeybindingForAction(action)
+		if keyStr == "" {
+			return ""
+		}
+		return config.GetDisplayString(keyStr)
+	}
+
+	// Format key hint with color
+	formatKey := func(action string) string {
+		key := getKey(action)
+		if key == "" {
+			return ""
+		}
+		return fmt.Sprintf("[yellow]%s[-]", key)
+	}
+
 	if isSearchActive {
 		// Search mode shortcuts
-		return "[yellow]Type[-]:Filter  [yellow]↑↓[-]:Navigate  [yellow]Enter[-]:Select  [yellow]Esc[-]:Clear Search  [yellow]?[-]:Help"
+		helpKey := formatKey("help")
+		return fmt.Sprintf("Type:Filter  [yellow]↑↓[-]:Navigate  [yellow]Enter[-]:Select  [yellow]Esc[-]:Clear Search  %s:Help", helpKey)
 	}
+
+	// Get common keys
+	newKey := formatKey("add_credential")
+	editKey := formatKey("edit_credential")
+	delKey := formatKey("delete_credential")
+	searchKey := formatKey("search")
+	sidebarKey := formatKey("toggle_sidebar")
+	detailKey := formatKey("toggle_detail")
+	helpKey := formatKey("help")
+	quitKey := formatKey("quit")
 
 	switch focus {
 	case FocusSidebar:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]Enter[-]:Select  [yellow]n[-]:New  [yellow]/[-]:Search  [yellow]s[-]:Sidebar  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
+		return fmt.Sprintf("[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]Enter[-]:Select  %s:New  %s:Search  %s:Sidebar  %s:Details  %s:Help  %s:Quit",
+			newKey, searchKey, sidebarKey, detailKey, helpKey, quitKey)
 
 	case FocusTable:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]n[-]:New  [yellow]e[-]:Edit  [yellow]d[-]:Del  [yellow]c[-]:Copy  [yellow]/[-]:Search  [yellow]s[-]:Sidebar  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
+		return fmt.Sprintf("[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  %s:New  %s:Edit  %s:Del  [yellow]c[-]:Copy  %s:Search  %s:Sidebar  %s:Details  %s:Help  %s:Quit",
+			newKey, editKey, delKey, searchKey, sidebarKey, detailKey, helpKey, quitKey)
 
 	case FocusDetail:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]e[-]:Edit  [yellow]d[-]:Del  [yellow]p[-]:Toggle  [yellow]c[-]:Copy  [yellow]/[-]:Search  [yellow]s[-]:Sidebar  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
+		return fmt.Sprintf("[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  %s:Edit  %s:Del  [yellow]p[-]:Toggle  [yellow]c[-]:Copy  %s:Search  %s:Sidebar  %s:Details  %s:Help  %s:Quit",
+			editKey, delKey, searchKey, sidebarKey, detailKey, helpKey, quitKey)
 
 	case FocusModal:
 		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Field  [yellow]Enter[-]:Submit  [yellow]Esc[-]:Cancel"
 
 	default:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]/[-]:Search  [yellow]s[-]:Sidebar  [yellow]i[-]:Details  [yellow]?[-]:Help  [yellow]q[-]:Quit"
+		return fmt.Sprintf("[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  %s:Search  %s:Sidebar  %s:Details  %s:Help  %s:Quit",
+			searchKey, sidebarKey, detailKey, helpKey, quitKey)
 	}
 }

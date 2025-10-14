@@ -121,11 +121,11 @@ func LaunchTUI(vaultService *vault.VaultService) error {
 		return fmt.Errorf("failed to load credentials: %w", err)
 	}
 
-	// 4. Create UI components
+	// 4. Create UI components (pass config to statusBar for keybinding hints)
 	sidebar := components.NewSidebar(appState)
 	table := components.NewCredentialTable(appState)
 	detailView := components.NewDetailView(appState)
-	statusBar := components.NewStatusBar(app, appState)
+	statusBar := components.NewStatusBar(app, appState, cfg)
 
 	// 5. Store components in AppState
 	appState.SetSidebar(sidebar.TreeView)
@@ -191,8 +191,8 @@ func LaunchTUI(vaultService *vault.VaultService) error {
 		pageManager.ShowConfigValidationError(errorMessages)
 	}
 
-	// 10. Create EventHandler and setup shortcuts
-	eventHandler := events.NewEventHandler(app, appState, nav, pageManager, statusBar, detailView, layoutMgr)
+	// 10. Create EventHandler and setup shortcuts (pass config for keybindings)
+	eventHandler := events.NewEventHandler(app, appState, nav, pageManager, statusBar, detailView, layoutMgr, cfg)
 	eventHandler.SetupGlobalShortcuts()
 
 	// 11. Set up proactive resize handling to prevent crashes

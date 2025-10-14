@@ -13,6 +13,7 @@ import (
 	"pass-cli/cmd/tui/layout"
 	"pass-cli/cmd/tui/models"
 	"pass-cli/cmd/tui/styles"
+	"pass-cli/internal/config"
 	"pass-cli/internal/vault"
 )
 
@@ -88,6 +89,9 @@ func launchTUI(vaultService *vault.VaultService) error {
 	// Set rounded borders globally
 	styles.SetRoundedBorders()
 
+	// Load user configuration
+	cfg, _ := config.Load()
+
 	// Create tview application
 	app := createTUIApp()
 
@@ -106,7 +110,7 @@ func launchTUI(vaultService *vault.VaultService) error {
 	sidebar := components.NewSidebar(appState)
 	table := components.NewCredentialTable(appState)
 	detailView := components.NewDetailView(appState)
-	statusBar := components.NewStatusBar(app, appState)
+	statusBar := components.NewStatusBar(app, appState, cfg)
 
 	// Store components in AppState
 	appState.SetSidebar(sidebar.TreeView)
@@ -141,14 +145,14 @@ func launchTUI(vaultService *vault.VaultService) error {
 	})
 
 	// Create LayoutManager and build layout
-	layoutMgr := layout.NewLayoutManager(app, appState)
+	layoutMgr := layout.NewLayoutManager(app, appState, cfg)
 	mainLayout := layoutMgr.CreateMainLayout()
 
 	// Create PageManager
 	pageManager := layout.NewPageManager(app)
 
 	// Create EventHandler and setup shortcuts
-	eventHandler := events.NewEventHandler(app, appState, nav, pageManager, statusBar, detailView, layoutMgr)
+	eventHandler := events.NewEventHandler(app, appState, nav, pageManager, statusBar, detailView, layoutMgr, cfg)
 	eventHandler.SetupGlobalShortcuts()
 
 	// Set root primitive (use pages for modal support over main layout)

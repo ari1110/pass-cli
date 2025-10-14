@@ -102,10 +102,10 @@
 - [X] T031 [US2] Implement keybinding conflict detection in `internal/config/keybinding.go` Validate() (check no duplicate key assignments)
 - [X] T032 [US2] Add keybinding loading to `config.Load()` in `internal/config/config.go` (parse YAML keybindings section, validate, merge with defaults)
 - [X] T033 [US2] Create keybinding registry/lookup structure in `internal/config/keybinding.go` for runtime event matching
-- [ ] T034 [US2] Modify event handlers to use config keybindings instead of hardcoded keys (discover actual TUI event handler files, likely cmd/tui/events/ or cmd/tui/handlers/)
-- [ ] T035 [US2] Update status bar rendering to display custom keybinding hints (discover actual statusbar file, likely cmd/tui/components/ or cmd/tui/views/)
-- [ ] T036 [US2] Update help modal to display custom keybinding hints (discover actual help modal file in cmd/tui/)
-- [ ] T037 [US2] Update form hints to display custom keybinding hints (discover actual form files, likely cmd/tui/forms/ or cmd/tui/components/)
+- [X] T034 [US2] Modify event handlers to use config keybindings instead of hardcoded keys (discover actual TUI event handler files, likely cmd/tui/events/ or cmd/tui/handlers/)
+- [X] T035 [US2] Update status bar rendering to display custom keybinding hints (discover actual statusbar file, likely cmd/tui/components/ or cmd/tui/views/)
+- [X] T036 [US2] Update help modal to display custom keybinding hints (discover actual help modal file in cmd/tui/)
+- [X] T037 [US2] Update form hints to display custom keybinding hints (discover actual form files, likely cmd/tui/forms/ or cmd/tui/components/)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently - terminal config works, custom keybindings work, all UI reflects custom keys
 

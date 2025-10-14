@@ -201,3 +201,78 @@ func DetectKeybindingConflicts(bindings map[string]string) []string {
 
 	return conflicts
 }
+
+// GetKeybindingForAction returns the keybinding for a specific action from the config.
+// Returns the key string (e.g., "ctrl+q", "n") or empty string if not found.
+func (c *Config) GetKeybindingForAction(action string) string {
+	if keyStr, ok := c.Keybindings[action]; ok {
+		return keyStr
+	}
+	return ""
+}
+
+// MatchesKeybinding checks if a tcell.EventKey matches the configured binding for an action.
+// Returns true if the event matches the configured keybinding for the action.
+func (c *Config) MatchesKeybinding(event *tcell.EventKey, action string) bool {
+	// Find parsed keybinding for this action
+	for _, kb := range c.ParsedKeybindings {
+		if kb.Action != action {
+			continue
+		}
+
+		// Check if event matches the parsed keybinding
+		if event.Key() == tcell.KeyRune {
+			// For rune keys, match both rune and modifiers
+			return event.Rune() == kb.Rune && event.Modifiers() == kb.Modifiers
+		} else {
+			// For special keys, match key and modifiers
+			return event.Key() == kb.Key && event.Modifiers() == kb.Modifiers
+		}
+	}
+
+	return false
+}
+
+// GetDisplayString returns a human-readable display string for a keybinding.
+// Formats the key string for UI display (e.g., "Ctrl+Q", "N", "Enter").
+func GetDisplayString(keyStr string) string {
+	if keyStr == "" {
+		return ""
+	}
+
+	// Normalize the key string
+	normalized := strings.ToLower(strings.TrimSpace(keyStr))
+	parts := strings.Split(normalized, "+")
+
+	// Capitalize modifiers and key for display
+	displayParts := make([]string, len(parts))
+	for i, part := range parts {
+		switch part {
+		case "ctrl":
+			displayParts[i] = "Ctrl"
+		case "alt":
+			displayParts[i] = "Alt"
+		case "shift":
+			displayParts[i] = "Shift"
+		case "enter":
+			displayParts[i] = "Enter"
+		case "esc", "escape":
+			displayParts[i] = "Esc"
+		case "tab":
+			displayParts[i] = "Tab"
+		case "space":
+			displayParts[i] = "Space"
+		case "backspace":
+			displayParts[i] = "Backspace"
+		case "delete", "del":
+			displayParts[i] = "Del"
+		default:
+			// Capitalize first letter for single keys and function keys
+			if len(part) > 0 {
+				displayParts[i] = strings.ToUpper(part[0:1]) + part[1:]
+			}
+		}
+	}
+
+	return strings.Join(displayParts, "+")
+}

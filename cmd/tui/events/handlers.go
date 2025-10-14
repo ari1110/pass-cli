@@ -9,6 +9,7 @@ import (
 	"pass-cli/cmd/tui/components"
 	"pass-cli/cmd/tui/layout"
 	"pass-cli/cmd/tui/models"
+	"pass-cli/internal/config"
 )
 
 // EventHandler manages global keyboard shortcuts with focus-aware input protection.
@@ -21,6 +22,7 @@ type EventHandler struct {
 	statusBar   *components.StatusBar
 	detailView  *components.DetailView // Direct reference for password operations
 	layoutMgr   *layout.LayoutManager  // Reference for layout manipulation
+	config      *config.Config         // User configuration for keybindings
 }
 
 // NewEventHandler creates a new event handler with all required dependencies.
@@ -32,6 +34,7 @@ func NewEventHandler(
 	statusBar *components.StatusBar,
 	detailView *components.DetailView,
 	layoutMgr *layout.LayoutManager,
+	cfg *config.Config,
 ) *EventHandler {
 	return &EventHandler{
 		app:         app,
@@ -41,6 +44,7 @@ func NewEventHandler(
 		statusBar:   statusBar,
 		detailView:  detailView,
 		layoutMgr:   layoutMgr,
+		config:      cfg,
 	}
 }
 
@@ -97,41 +101,42 @@ func (eh *EventHandler) SetupGlobalShortcuts() {
 // handleGlobalKey routes keyboard events to appropriate action handlers.
 // Only called when focus is NOT on an input component.
 func (eh *EventHandler) handleGlobalKey(event *tcell.EventKey) *tcell.EventKey {
-	switch event.Key() {
-	case tcell.KeyRune:
-		switch event.Rune() {
-		case 'q':
-			eh.handleQuit()
-			return nil
-		case 'n':
-			eh.handleNewCredential()
-			return nil
-		case 'e':
-			eh.handleEditCredential()
-			return nil
-		case 'd':
-			eh.handleDeleteCredential()
-			return nil
-		case 'p':
-			eh.handleTogglePassword()
-			return nil
-		case 'c':
-			eh.handleCopyPassword()
-			return nil
-		case 'i':
-			eh.handleToggleDetailPanel()
-			return nil
-		case 's':
-			eh.handleToggleSidebar()
-			return nil
-		case '?':
-			eh.handleShowHelp()
-			return nil
-		case '/':
-			eh.handleSearchActivate()
-			return nil
-		}
+	// Check against configured keybindings
+	if eh.config.MatchesKeybinding(event, "quit") {
+		eh.handleQuit()
+		return nil
+	}
+	if eh.config.MatchesKeybinding(event, "add_credential") {
+		eh.handleNewCredential()
+		return nil
+	}
+	if eh.config.MatchesKeybinding(event, "edit_credential") {
+		eh.handleEditCredential()
+		return nil
+	}
+	if eh.config.MatchesKeybinding(event, "delete_credential") {
+		eh.handleDeleteCredential()
+		return nil
+	}
+	if eh.config.MatchesKeybinding(event, "toggle_detail") {
+		eh.handleToggleDetailPanel()
+		return nil
+	}
+	if eh.config.MatchesKeybinding(event, "toggle_sidebar") {
+		eh.handleToggleSidebar()
+		return nil
+	}
+	if eh.config.MatchesKeybinding(event, "help") {
+		eh.handleShowHelp()
+		return nil
+	}
+	if eh.config.MatchesKeybinding(event, "search") {
+		eh.handleSearchActivate()
+		return nil
+	}
 
+	// Handle hardcoded keys that are not configurable
+	switch event.Key() {
 	case tcell.KeyTab:
 		eh.handleTabFocus()
 		return nil
@@ -151,6 +156,19 @@ func (eh *EventHandler) handleGlobalKey(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyCtrlC:
 		eh.handleQuit()
 		return nil
+	}
+
+	// Additional non-configurable shortcuts (password operations)
+	// These are not in the config spec but should stay as they are context-specific
+	if event.Key() == tcell.KeyRune {
+		switch event.Rune() {
+		case 'p':
+			eh.handleTogglePassword()
+			return nil
+		case 'c':
+			eh.handleCopyPassword()
+			return nil
+		}
 	}
 
 	return event // Pass through unhandled keys
@@ -291,6 +309,15 @@ func (eh *EventHandler) handleToggleSidebar() {
 
 // handleShowHelp displays a modal with keyboard shortcuts help.
 func (eh *EventHandler) handleShowHelp() {
+	// Helper to get display string for keybinding
+	getKey := func(action string) string {
+		keyStr := eh.config.GetKeybindingForAction(action)
+		if keyStr == "" {
+			return "?"
+		}
+		return config.GetDisplayString(keyStr)
+	}
+
 	// Create table for properly aligned shortcuts (scrollable with arrow keys)
 	table := tview.NewTable().
 		SetBorders(false).
@@ -359,24 +386,24 @@ func (eh *EventHandler) handleShowHelp() {
 
 	// Actions section
 	addSection("Actions")
-	addShortcut("n", "New credential")
-	addShortcut("e", "Edit credential")
-	addShortcut("d", "Delete credential")
+	addShortcut(getKey("add_credential"), "New credential")
+	addShortcut(getKey("edit_credential"), "Edit credential")
+	addShortcut(getKey("delete_credential"), "Delete credential")
 	addShortcut("p", "Toggle password visibility")
 	addShortcut("c", "Copy password to clipboard")
 	row++ // Blank line (just skip row, don't add cells)
 
 	// View section
 	addSection("View")
-	addShortcut("i", "Toggle detail panel")
-	addShortcut("s", "Toggle sidebar")
-	addShortcut("/", "Search / Filter credentials")
+	addShortcut(getKey("toggle_detail"), "Toggle detail panel")
+	addShortcut(getKey("toggle_sidebar"), "Toggle sidebar")
+	addShortcut(getKey("search"), "Search / Filter credentials")
 	row++ // Blank line (just skip row, don't add cells)
 
 	// General section
 	addSection("General")
-	addShortcut("?", "Show this help")
-	addShortcut("q", "Quit application")
+	addShortcut(getKey("help"), "Show this help")
+	addShortcut(getKey("quit"), "Quit application")
 	addShortcut("Esc", "Close modal / Cancel search")
 	addShortcut("Ctrl+C", "Quit application")
 
