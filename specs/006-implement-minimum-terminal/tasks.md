@@ -75,19 +75,19 @@
 
 **CONSTITUTION REQUIREMENT**: Write these tests FIRST, get user approval, verify they FAIL, then implement
 
-- [ ] T011 [P] [US2] Write unit test `TestHideSizeWarning` in `cmd/tui/layout/pages_test.go` - verify warning page removed, state flag cleared
-- [ ] T012 [P] [US2] Write unit test `TestHideSizeWarning_WhenNotActive` in `cmd/tui/layout/pages_test.go` - verify safe no-op when warning not showing (idempotency test)
-- [ ] T013 [P] [US2] Write unit test `TestHandleResize_ExactlyAtMinimum` in `cmd/tui/layout/manager_test.go` - verify 60×30 does NOT trigger warning (inclusive boundary)
-- [ ] T014 [P] [US2] Write unit test `TestHandleResize_PartialFailure` in `cmd/tui/layout/manager_test.go` - verify 70×25 triggers warning (height < 30, OR logic)
-- [ ] T015 [P] [US2] Write integration test `TestFullResizeFlow_ShowAndHide` in `tests/integration/tui_resize_test.go` - verify end-to-end flow: start 50×20 (warning shows), resize 80×40 (warning hides), interface functional
+- [X] T011 [P] [US2] Write unit test `TestHideSizeWarning` in `cmd/tui/layout/pages_test.go` - verify warning page removed, state flag cleared
+- [X] T012 [P] [US2] Write unit test `TestHideSizeWarning_WhenNotActive` in `cmd/tui/layout/pages_test.go` - verify safe no-op when warning not showing (idempotency test)
+- [X] T013 [P] [US2] Write unit test `TestHandleResize_ExactlyAtMinimum` in `cmd/tui/layout/manager_test.go` - verify 60×30 does NOT trigger warning (inclusive boundary)
+- [X] T014 [P] [US2] Write unit test `TestHandleResize_PartialFailure` in `cmd/tui/layout/manager_test.go` - verify 70×25 triggers warning (height < 30, OR logic)
+- [X] T015 [P] [US2] Write integration test `TestFullResizeFlow_ShowAndHide` in `tests/integration/tui_resize_test.go` - verify end-to-end flow: start 50×20 (warning shows), resize 80×40 (warning hides), interface functional
 
 **USER APPROVAL GATE**: Present tests T011-T015 to user, verify they fail before proceeding to implementation
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US2] Implement `HideSizeWarning()` method in `cmd/tui/layout/pages.go` - check if sizeWarningActive, if true: remove "size-warning" page, clear state flag, call app.Draw()
-- [ ] T017 [US2] Modify `HandleResize(width, height int)` in `cmd/tui/layout/manager.go` - add else branch after size check to call pageManager.HideSizeWarning() when dimensions adequate
-- [ ] T018 [US2] Verify `HandleResize` does NOT return early after showing warning in `cmd/tui/layout/manager.go` - layout mode determination must continue for recovery to work
+- [X] T016 [US2] Implement `HideSizeWarning()` method in `cmd/tui/layout/pages.go` - check if sizeWarningActive, if true: remove "size-warning" page, clear state flag, call app.Draw()
+- [X] T017 [US2] Modify `HandleResize(width, height int)` in `cmd/tui/layout/manager.go` - add else branch after size check to call pageManager.HideSizeWarning() when dimensions adequate
+- [X] T018 [US2] Verify `HandleResize` does NOT return early after showing warning in `cmd/tui/layout/manager.go` - layout mode determination must continue for recovery to work
 
 **Checkpoint**: User Stories 1 AND 2 complete - warning shows/hides automatically on resize. Run tests T011-T015 to verify recovery flow.
 

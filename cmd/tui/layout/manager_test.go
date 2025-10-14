@@ -261,3 +261,155 @@ func TestHandleResize_StartupCheck(t *testing.T) {
 		t.Errorf("currentHeight = %d, want 20", mockPM.showSizeWarningArgs.currentHeight)
 	}
 }
+
+// =============================================================================
+// User Story 2 Tests: Automatic Recovery
+// =============================================================================
+
+// TestHideSizeWarning verifies HideSizeWarning removes the warning page
+// and clears the state flag.
+func TestHideSizeWarning(t *testing.T) {
+	mockPM := &mockPageManager{sizeWarningActive: true}
+	lm := &LayoutManager{
+		mediumBreakpoint: 80,
+		largeBreakpoint:  120,
+		currentMode:      LayoutSmall,
+		pageManager:      mockPM,
+	}
+
+	// Resize to adequate size
+	lm.HandleResize(80, 40)
+
+	// Verify HideSizeWarning was called
+	if !mockPM.hideSizeWarningCalled {
+		t.Error("Expected HideSizeWarning to be called when resizing to adequate size")
+	}
+
+	// Verify state was cleared
+	if mockPM.sizeWarningActive {
+		t.Error("Expected sizeWarningActive to be false after HideSizeWarning")
+	}
+}
+
+// TestHideSizeWarning_WhenNotActive verifies safe no-op when warning not showing.
+func TestHideSizeWarning_WhenNotActive(t *testing.T) {
+	mockPM := &mockPageManager{sizeWarningActive: false}
+	lm := &LayoutManager{
+		mediumBreakpoint: 80,
+		largeBreakpoint:  120,
+		currentMode:      LayoutSmall,
+		pageManager:      mockPM,
+	}
+
+	// Resize to adequate size when warning already hidden
+	lm.HandleResize(80, 40)
+
+	// Should still call HideSizeWarning (method handles idempotency)
+	if !mockPM.hideSizeWarningCalled {
+		t.Error("Expected HideSizeWarning to be called even when not active")
+	}
+
+	// State should remain false
+	if mockPM.sizeWarningActive {
+		t.Error("Expected sizeWarningActive to remain false")
+	}
+}
+
+// TestHandleResize_ExactlyAtMinimum verifies 60×30 does NOT trigger warning
+// (inclusive boundary).
+func TestHandleResize_ExactlyAtMinimum(t *testing.T) {
+	mockPM := &mockPageManager{}
+	lm := &LayoutManager{
+		mediumBreakpoint: 80,
+		largeBreakpoint:  120,
+		currentMode:      LayoutSmall,
+		pageManager:      mockPM,
+	}
+
+	// Resize to exactly minimum dimensions
+	lm.HandleResize(60, 30)
+
+	// Should NOT trigger warning
+	if mockPM.showSizeWarningCalled {
+		t.Error("Expected NO warning at exactly 60×30 (inclusive boundary)")
+	}
+
+	// Should call HideSizeWarning (to clear any existing warning)
+	if !mockPM.hideSizeWarningCalled {
+		t.Error("Expected HideSizeWarning to be called at adequate size")
+	}
+}
+
+// TestHandleResize_PartialFailure verifies 70×25 triggers warning
+// (height < 30, OR logic).
+func TestHandleResize_PartialFailure(t *testing.T) {
+	mockPM := &mockPageManager{}
+	lm := &LayoutManager{
+		mediumBreakpoint: 80,
+		largeBreakpoint:  120,
+		currentMode:      LayoutSmall,
+		pageManager:      mockPM,
+	}
+
+	// Width OK (70 >= 60), but height too small (25 < 30)
+	lm.HandleResize(70, 25)
+
+	// Should trigger warning (OR logic: width OK but height fails)
+	if !mockPM.showSizeWarningCalled {
+		t.Error("Expected warning to be shown for 70×25 (height < 30)")
+	}
+
+	// Verify correct dimensions passed
+	if mockPM.showSizeWarningArgs.currentWidth != 70 {
+		t.Errorf("currentWidth = %d, want 70", mockPM.showSizeWarningArgs.currentWidth)
+	}
+	if mockPM.showSizeWarningArgs.currentHeight != 25 {
+		t.Errorf("currentHeight = %d, want 25", mockPM.showSizeWarningArgs.currentHeight)
+	}
+}
+
+// TestFullResizeFlow_ShowAndHide verifies end-to-end resize flow:
+// start 50×20 (warning shows), resize 80×40 (warning hides), interface functional.
+func TestFullResizeFlow_ShowAndHide(t *testing.T) {
+	mockPM := &mockPageManager{}
+	lm := &LayoutManager{
+		mediumBreakpoint: 80,
+		largeBreakpoint:  120,
+		currentMode:      LayoutSmall,
+		pageManager:      mockPM,
+	}
+
+	// Step 1: Startup with small terminal
+	lm.HandleResize(50, 20)
+
+	// Verify warning shown
+	if !mockPM.showSizeWarningCalled {
+		t.Error("Expected warning to be shown at 50×20")
+	}
+	if !mockPM.sizeWarningActive {
+		t.Error("Expected sizeWarningActive=true after showing warning")
+	}
+
+	// Step 2: Resize to adequate size
+	mockPM.hideSizeWarningCalled = false // Reset flag
+	lm.HandleResize(80, 40)
+
+	// Verify warning hidden
+	if !mockPM.hideSizeWarningCalled {
+		t.Error("Expected HideSizeWarning to be called at 80×40")
+	}
+	if mockPM.sizeWarningActive {
+		t.Error("Expected sizeWarningActive=false after hiding warning")
+	}
+
+	// Step 3: Verify layout mode updated correctly (recovery functional)
+	if lm.currentMode != LayoutMedium {
+		t.Errorf("Expected LayoutMedium at width 80, got %v", lm.currentMode)
+	}
+	if lm.width != 80 {
+		t.Errorf("Expected width=80, got %d", lm.width)
+	}
+	if lm.height != 40 {
+		t.Errorf("Expected height=40, got %d", lm.height)
+	}
+}
