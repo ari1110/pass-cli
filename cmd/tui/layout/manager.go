@@ -2,10 +2,17 @@
 package layout
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"pass-cli/cmd/tui/models"
 )
+
+// MinTerminalWidth is the minimum terminal width (columns) required for usable interface.
+// Below this width, a warning overlay is displayed prompting the user to resize.
+const MinTerminalWidth = 60
+
+// MinTerminalHeight is the minimum terminal height (rows) required for usable interface.
+// Below this height, a warning overlay is displayed prompting the user to resize.
+const MinTerminalHeight = 30
 
 // LayoutMode represents the current layout configuration based on terminal width.
 type LayoutMode int
@@ -18,6 +25,14 @@ const (
 	// LayoutLarge is for terminals > 120 columns (sidebar + table + detail)
 	LayoutLarge
 )
+
+// PageManagerInterface defines the methods needed by LayoutManager for size warnings.
+// This interface allows testing with mocks while maintaining type safety.
+type PageManagerInterface interface {
+	ShowSizeWarning(currentWidth, currentHeight, minWidth, minHeight int)
+	HideSizeWarning()
+	IsSizeWarningActive() bool
+}
 
 // LayoutManager manages responsive layout composition and terminal resize handling.
 // It adapts the UI based on terminal width using breakpoints.
@@ -49,6 +64,9 @@ type LayoutManager struct {
 	// Breakpoints (configurable)
 	mediumBreakpoint int // Default: 80
 	largeBreakpoint  int // Default: 120
+
+	// PageManager for terminal size warnings
+	pageManager PageManagerInterface
 }
 
 // NewLayoutManager creates a new layout manager with default breakpoints.
@@ -91,25 +109,24 @@ func (lm *LayoutManager) CreateMainLayout() *tview.Flex {
 		AddItem(lm.contentRow, 0, 1, true). // Content area (flex height)
 		AddItem(lm.statusBar, 1, 0, false)  // Status bar (fixed 1 row)
 
-	// Setup resize detection using SetDrawFunc
-	// This detects the initial terminal size and subsequent resizes
-	lm.mainLayout.SetDrawFunc(func(screen tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		// Always check for size changes (not just initial)
-		termWidth, termHeight := screen.Size()
-		if lm.width != termWidth || lm.height != termHeight {
-			lm.HandleResize(termWidth, termHeight)
-		}
-		return x, y, width, height
-	})
-
 	return lm.mainLayout
 }
 
 // HandleResize responds to terminal size changes.
 // It determines if the layout mode needs to change and triggers a rebuild if necessary.
+// Also checks terminal size against minimum requirements and shows/hides warning overlay.
 func (lm *LayoutManager) HandleResize(width, height int) {
 	lm.width = width
 	lm.height = height
+
+	// Check minimum terminal size and show/hide warning
+	if lm.pageManager != nil {
+		if width < MinTerminalWidth || height < MinTerminalHeight {
+			lm.pageManager.ShowSizeWarning(width, height, MinTerminalWidth, MinTerminalHeight)
+		} else {
+			lm.pageManager.HideSizeWarning()
+		}
+	}
 
 	// Determine the new layout mode based on width
 	newMode := lm.determineLayoutMode(width)
@@ -222,6 +239,12 @@ func (lm *LayoutManager) GetCurrentMode() LayoutMode {
 func (lm *LayoutManager) SetBreakpoints(medium, large int) {
 	lm.mediumBreakpoint = medium
 	lm.largeBreakpoint = large
+}
+
+// SetPageManager injects the PageManager for terminal size warning functionality.
+// This must be called before HandleResize can display size warnings.
+func (lm *LayoutManager) SetPageManager(pm PageManagerInterface) {
+	lm.pageManager = pm
 }
 
 // ToggleDetailPanel manually shows/hides the detail panel, cycling through three states:

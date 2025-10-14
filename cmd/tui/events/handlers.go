@@ -48,6 +48,17 @@ func NewEventHandler(
 // CRITICAL: Implements input protection to prevent intercepting form input.
 func (eh *EventHandler) SetupGlobalShortcuts() {
 	eh.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		// ✅ CRITICAL: If size warning is active, block ALL input except Ctrl+C
+		// User must resize terminal - no interaction allowed
+		if eh.pageManager.IsSizeWarningActive() {
+			if event.Key() == tcell.KeyCtrlC {
+				eh.handleQuit()
+				return nil
+			}
+			// Block all other keys while size warning is displayed
+			return nil
+		}
+
 		// ✅ CRITICAL: When a modal is open, only intercept Ctrl+C
 		// Let modals handle Escape (for custom close logic like confirmation dialogs)
 		// All other keys go to the modal/form

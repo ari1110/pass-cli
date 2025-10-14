@@ -1,6 +1,9 @@
 package layout
 
 import (
+	"fmt"
+
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -31,6 +34,10 @@ type PageManager struct {
 
 	app        *tview.Application
 	modalStack []string // Track modal names for proper close operations
+
+	sizeWarningActive bool   // Track whether terminal size warning is currently displayed
+	pendingSizeWarning *tview.Primitive // Pending warning modal to be added on next safe opportunity
+	pendingHideWarning bool   // Flag to hide warning on next safe opportunity
 }
 
 // NewPageManager creates a new page manager for handling modals and page switching.
@@ -209,4 +216,112 @@ func (pm *PageManager) centerModal(modal tview.Primitive, width, height int) tvi
 // The global handler in handlers.go (handleQuit) provides the fallback Escape behavior.
 func (pm *PageManager) setupEscapeHandler() {
 	// No-op: Let forms and global handler manage Escape key
+}
+
+// ShowSizeWarning displays a blocking warning overlay when terminal is too small.
+// Shows current dimensions vs. minimum required dimensions in plain language.
+// The warning uses a dark red background for visual distinction.
+// Uses full-screen display to ensure visibility even at extremely small terminal sizes.
+//
+// When called from SetBeforeDrawFunc, this creates the modal but doesn't add it immediately
+// to avoid deadlock. Call ApplyPendingWarnings() after the draw cycle to apply changes.
+//
+// Parameters:
+//   - currentWidth, currentHeight: Current terminal dimensions in columns/rows
+//   - minWidth, minHeight: Minimum required dimensions in columns/rows
+func (pm *PageManager) ShowSizeWarning(currentWidth, currentHeight, minWidth, minHeight int) {
+	// Skip if already showing to avoid redundant operations
+	if pm.sizeWarningActive {
+		return
+	}
+
+	message := fmt.Sprintf(
+		"Terminal too small!\n\nCurrent: %dx%d\nMinimum required: %dx%d\n\nPlease resize your terminal window.",
+		currentWidth, currentHeight, minWidth, minHeight,
+	)
+
+	modal := tview.NewModal().
+		SetText(message).
+		SetBackgroundColor(tcell.ColorDarkRed)
+
+	// Create a Grid that layers the modal on top of a blocker
+	// Using Grid with SetMinSize(1,1) creates an overlay effect
+	grid := tview.NewGrid().
+		SetRows(0).
+		SetColumns(0)
+
+	// Add a full-screen blocker Box in the background
+	blocker := tview.NewBox().
+		SetBackgroundColor(tcell.ColorDarkRed)
+
+	grid.AddItem(blocker, 0, 0, 1, 1, 0, 0, false)
+	grid.AddItem(modal, 0, 0, 1, 1, 0, 0, true)
+
+	// Capture mouse events on the grid to prevent click-through
+	grid.SetMouseCapture(func(action tview.MouseAction, event *tcell.EventMouse) (tview.MouseAction, *tcell.EventMouse) {
+		// Consume the event by returning 0 action
+		return 0, nil
+	})
+
+	// Capture keyboard events
+	grid.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		// Block all keyboard input
+		return nil
+	})
+
+	// Store the grid to be added later (to avoid deadlock from within draw cycle)
+	primitive := tview.Primitive(grid)
+	pm.pendingSizeWarning = &primitive
+	pm.pendingHideWarning = false
+}
+
+// HideSizeWarning removes the terminal size warning overlay.
+// Safe to call even if warning is not currently showing (idempotent).
+//
+// When called from SetBeforeDrawFunc, this sets a flag but doesn't remove immediately
+// to avoid deadlock. Call ApplyPendingWarnings() after the draw cycle to apply changes.
+func (pm *PageManager) HideSizeWarning() {
+	if !pm.sizeWarningActive {
+		return
+	}
+
+	// Set flag to hide on next safe opportunity
+	pm.pendingHideWarning = true
+	pm.pendingSizeWarning = nil
+}
+
+// ApplyPendingWarnings applies any pending show/hide operations for the size warning.
+// This must be called outside of the draw cycle (e.g., in a goroutine or after SetBeforeDrawFunc).
+func (pm *PageManager) ApplyPendingWarnings() {
+	if pm.pendingSizeWarning != nil {
+		warningPrimitive := *pm.pendingSizeWarning
+		pm.AddPage("size-warning", warningPrimitive, true, true)
+		pm.sizeWarningActive = true
+		pm.pendingSizeWarning = nil
+
+		// Block all input events at the Pages level to prevent click-through
+		pm.Pages.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			// Consume all keyboard events while warning is active
+			return nil
+		})
+
+		// Set focus to the warning to ensure it receives events and blocks mouse clicks
+		pm.app.SetFocus(warningPrimitive)
+
+	} else if pm.pendingHideWarning {
+		pm.RemovePage("size-warning")
+		pm.sizeWarningActive = false
+		pm.pendingHideWarning = false
+
+		// Remove the input capture to restore normal event handling
+		pm.Pages.SetInputCapture(nil)
+
+		// Restore focus to the Pages primitive
+		pm.app.SetFocus(pm.Pages)
+	}
+}
+
+// IsSizeWarningActive returns true if the terminal size warning is currently displayed.
+func (pm *PageManager) IsSizeWarningActive() bool {
+	return pm.sizeWarningActive
 }
