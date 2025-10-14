@@ -103,16 +103,16 @@
 
 **CONSTITUTION REQUIREMENT**: Write these tests FIRST, get user approval, verify they FAIL, then implement
 
-- [ ] T019 [P] [US3] Write unit test `TestSizeWarningVisualStyle` in `cmd/tui/layout/pages_test.go` - verify modal has dark red background color (tcell.ColorDarkRed)
-- [ ] T020 [P] [US3] Write unit test `TestSizeWarningMessageClarity` in `cmd/tui/layout/pages_test.go` - verify message contains "Terminal too small!", no technical jargon
-- [ ] T021 [P] [US3] Write unit test `TestSizeWarningActionableInstructions` in `cmd/tui/layout/pages_test.go` - verify message contains "Please resize your terminal window"
+- [X] T019 [P] [US3] Write unit test `TestSizeWarningVisualStyle` in `cmd/tui/layout/pages_test.go` - verify modal has dark red background color (tcell.ColorDarkRed)
+- [X] T020 [P] [US3] Write unit test `TestSizeWarningMessageClarity` in `cmd/tui/layout/pages_test.go` - verify message contains "Terminal too small!", no technical jargon
+- [X] T021 [P] [US3] Write unit test `TestSizeWarningActionableInstructions` in `cmd/tui/layout/pages_test.go` - verify message contains "Please resize your terminal window"
 
 **USER APPROVAL GATE**: Present tests T019-T021 to user, verify they fail before proceeding to implementation
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] Update `ShowSizeWarning` message format in `cmd/tui/layout/pages.go` - ensure message reads: "Terminal too small!\n\nCurrent: {W}x{H}\nMinimum required: {minW}x{minH}\n\nPlease resize your terminal window." (plain language, clear instructions)
-- [ ] T023 [US3] Confirm implementation includes `SetBackgroundColor(tcell.ColorDarkRed)` call in `ShowSizeWarning` method in `cmd/tui/layout/pages.go` - ensure dark red background is set per visual style requirements (US3)
+- [X] T022 [US3] Update `ShowSizeWarning` message format in `cmd/tui/layout/pages.go` - ensure message reads: "Terminal too small!\n\nCurrent: {W}x{H}\nMinimum required: {minW}x{minH}\n\nPlease resize your terminal window." (plain language, clear instructions)
+- [X] T023 [US3] Confirm implementation includes `SetBackgroundColor(tcell.ColorDarkRed)` call in `ShowSizeWarning` method in `cmd/tui/layout/pages.go` - ensure dark red background is set per visual style requirements (US3)
 
 **Checkpoint**: All three user stories complete - warning is functional, auto-recovers, and visually clear. Run all tests T002-T021 to verify.
 
