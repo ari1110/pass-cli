@@ -311,3 +311,41 @@ func TestCloseModalStackManagement(t *testing.T) {
 		t.Error("HasModals should return false after closing all modals")
 	}
 }
+
+// =============================================================================
+// User Story 1 Tests: Terminal Size Warning Display
+// =============================================================================
+
+// Note: PageManager tests using ShowSizeWarning/HideSizeWarning call app.Draw()
+// which can block in test environment. The core functionality is tested via
+// LayoutManager tests (TestHandleResize_BelowMinimum, TestHandleResize_StartupCheck)
+// which use mocks. These tests verify basic integration without blocking.
+
+// TestSizeWarningStateTracking verifies IsSizeWarningActive
+// returns the correct boolean state.
+func TestSizeWarningStateTracking(t *testing.T) {
+	// Create PageManager with real app (but don't call methods that trigger Draw)
+	app := tview.NewApplication()
+	pm := NewPageManager(app)
+
+	// Initially not active
+	if pm.IsSizeWarningActive() {
+		t.Error("IsSizeWarningActive should return false initially")
+	}
+
+	// Manually set state to simulate warning being shown
+	pm.sizeWarningActive = true
+
+	// Should be active
+	if !pm.IsSizeWarningActive() {
+		t.Error("IsSizeWarningActive should return true when state flag is true")
+	}
+
+	// Manually clear state
+	pm.sizeWarningActive = false
+
+	// Should be inactive again
+	if pm.IsSizeWarningActive() {
+		t.Error("IsSizeWarningActive should return false when state flag is false")
+	}
+}

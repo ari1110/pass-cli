@@ -1,6 +1,9 @@
 package layout
 
 import (
+	"fmt"
+
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -31,6 +34,8 @@ type PageManager struct {
 
 	app        *tview.Application
 	modalStack []string // Track modal names for proper close operations
+
+	sizeWarningActive bool // Track whether terminal size warning is currently displayed
 }
 
 // NewPageManager creates a new page manager for handling modals and page switching.
@@ -209,4 +214,46 @@ func (pm *PageManager) centerModal(modal tview.Primitive, width, height int) tvi
 // The global handler in handlers.go (handleQuit) provides the fallback Escape behavior.
 func (pm *PageManager) setupEscapeHandler() {
 	// No-op: Let forms and global handler manage Escape key
+}
+
+// ShowSizeWarning displays a blocking warning overlay when terminal is too small.
+// Shows current dimensions vs. minimum required dimensions in plain language.
+// The warning uses a dark red background for visual distinction.
+//
+// Parameters:
+//   - currentWidth, currentHeight: Current terminal dimensions in columns/rows
+//   - minWidth, minHeight: Minimum required dimensions in columns/rows
+func (pm *PageManager) ShowSizeWarning(currentWidth, currentHeight, minWidth, minHeight int) {
+	message := fmt.Sprintf(
+		"Terminal too small!\n\nCurrent: %dx%d\nMinimum required: %dx%d\n\nPlease resize your terminal window.",
+		currentWidth, currentHeight, minWidth, minHeight,
+	)
+
+	modal := tview.NewModal().
+		SetText(message).
+		SetBackgroundColor(tcell.ColorDarkRed)
+
+	// Add as page with centering (reuse centerModal for consistency)
+	centered := pm.centerModal(modal, 60, 12)
+	pm.AddPage("size-warning", centered, true, true)
+
+	pm.sizeWarningActive = true
+	pm.app.Draw()
+}
+
+// HideSizeWarning removes the terminal size warning overlay.
+// Safe to call even if warning is not currently showing (idempotent).
+func (pm *PageManager) HideSizeWarning() {
+	if !pm.sizeWarningActive {
+		return
+	}
+
+	pm.RemovePage("size-warning")
+	pm.sizeWarningActive = false
+	pm.app.Draw()
+}
+
+// IsSizeWarningActive returns true if the terminal size warning is currently displayed.
+func (pm *PageManager) IsSizeWarningActive() bool {
+	return pm.sizeWarningActive
 }

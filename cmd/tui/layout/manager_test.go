@@ -144,3 +144,120 @@ func TestLayoutModeConstants(t *testing.T) {
 		t.Error("LayoutSmall and LayoutLarge should be distinct")
 	}
 }
+
+// =============================================================================
+// User Story 1 Tests: Terminal Size Warning Display
+// =============================================================================
+
+// mockPageManager is a test double for PageManager to verify ShowSizeWarning calls.
+type mockPageManager struct {
+	showSizeWarningCalled bool
+	showSizeWarningArgs   struct {
+		currentWidth  int
+		currentHeight int
+		minWidth      int
+		minHeight     int
+	}
+	hideSizeWarningCalled bool
+	sizeWarningActive     bool
+}
+
+func (m *mockPageManager) ShowSizeWarning(currentWidth, currentHeight, minWidth, minHeight int) {
+	m.showSizeWarningCalled = true
+	m.showSizeWarningArgs.currentWidth = currentWidth
+	m.showSizeWarningArgs.currentHeight = currentHeight
+	m.showSizeWarningArgs.minWidth = minWidth
+	m.showSizeWarningArgs.minHeight = minHeight
+	m.sizeWarningActive = true
+}
+
+func (m *mockPageManager) HideSizeWarning() {
+	m.hideSizeWarningCalled = true
+	m.sizeWarningActive = false
+}
+
+func (m *mockPageManager) IsSizeWarningActive() bool {
+	return m.sizeWarningActive
+}
+
+// TestHandleResize_BelowMinimum verifies HandleResize calls ShowSizeWarning
+// when width < 60 OR height < 30.
+func TestHandleResize_BelowMinimum(t *testing.T) {
+	tests := []struct {
+		name          string
+		width         int
+		height        int
+		shouldTrigger bool
+	}{
+		{"Both dimensions below minimum", 50, 20, true},
+		{"Width below minimum", 50, 40, true},
+		{"Height below minimum", 80, 20, true},
+		{"Both dimensions at minimum", 60, 30, false},
+		{"Both dimensions above minimum", 80, 40, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockPM := &mockPageManager{}
+			lm := &LayoutManager{
+				mediumBreakpoint: 80,
+				largeBreakpoint:  120,
+				currentMode:      LayoutSmall,
+				pageManager:      mockPM,
+			}
+
+			lm.HandleResize(tt.width, tt.height)
+
+			if tt.shouldTrigger && !mockPM.showSizeWarningCalled {
+				t.Errorf("Expected ShowSizeWarning to be called for %dx%d", tt.width, tt.height)
+			}
+			if !tt.shouldTrigger && mockPM.showSizeWarningCalled {
+				t.Errorf("Expected ShowSizeWarning NOT to be called for %dx%d", tt.width, tt.height)
+			}
+
+			// Verify correct arguments were passed
+			if tt.shouldTrigger {
+				if mockPM.showSizeWarningArgs.currentWidth != tt.width {
+					t.Errorf("currentWidth = %d, want %d", mockPM.showSizeWarningArgs.currentWidth, tt.width)
+				}
+				if mockPM.showSizeWarningArgs.currentHeight != tt.height {
+					t.Errorf("currentHeight = %d, want %d", mockPM.showSizeWarningArgs.currentHeight, tt.height)
+				}
+				if mockPM.showSizeWarningArgs.minWidth != MinTerminalWidth {
+					t.Errorf("minWidth = %d, want %d", mockPM.showSizeWarningArgs.minWidth, MinTerminalWidth)
+				}
+				if mockPM.showSizeWarningArgs.minHeight != MinTerminalHeight {
+					t.Errorf("minHeight = %d, want %d", mockPM.showSizeWarningArgs.minHeight, MinTerminalHeight)
+				}
+			}
+		})
+	}
+}
+
+// TestHandleResize_StartupCheck verifies startup size check triggers warning
+// if terminal is already too small.
+func TestHandleResize_StartupCheck(t *testing.T) {
+	mockPM := &mockPageManager{}
+	lm := &LayoutManager{
+		mediumBreakpoint: 80,
+		largeBreakpoint:  120,
+		currentMode:      LayoutSmall,
+		pageManager:      mockPM,
+	}
+
+	// Simulate startup with small terminal
+	lm.HandleResize(50, 20)
+
+	// Verify warning was shown
+	if !mockPM.showSizeWarningCalled {
+		t.Error("Expected ShowSizeWarning to be called on startup with small terminal")
+	}
+
+	// Verify correct dimensions passed
+	if mockPM.showSizeWarningArgs.currentWidth != 50 {
+		t.Errorf("currentWidth = %d, want 50", mockPM.showSizeWarningArgs.currentWidth)
+	}
+	if mockPM.showSizeWarningArgs.currentHeight != 20 {
+		t.Errorf("currentHeight = %d, want 20", mockPM.showSizeWarningArgs.currentHeight)
+	}
+}

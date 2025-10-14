@@ -27,6 +27,14 @@ const (
 	LayoutLarge
 )
 
+// PageManagerInterface defines the methods needed by LayoutManager for size warnings.
+// This interface allows testing with mocks while maintaining type safety.
+type PageManagerInterface interface {
+	ShowSizeWarning(currentWidth, currentHeight, minWidth, minHeight int)
+	HideSizeWarning()
+	IsSizeWarningActive() bool
+}
+
 // LayoutManager manages responsive layout composition and terminal resize handling.
 // It adapts the UI based on terminal width using breakpoints.
 type LayoutManager struct {
@@ -57,6 +65,9 @@ type LayoutManager struct {
 	// Breakpoints (configurable)
 	mediumBreakpoint int // Default: 80
 	largeBreakpoint  int // Default: 120
+
+	// PageManager for terminal size warnings
+	pageManager PageManagerInterface
 }
 
 // NewLayoutManager creates a new layout manager with default breakpoints.
@@ -115,9 +126,19 @@ func (lm *LayoutManager) CreateMainLayout() *tview.Flex {
 
 // HandleResize responds to terminal size changes.
 // It determines if the layout mode needs to change and triggers a rebuild if necessary.
+// Also checks terminal size against minimum requirements and shows/hides warning overlay.
 func (lm *LayoutManager) HandleResize(width, height int) {
 	lm.width = width
 	lm.height = height
+
+	// Check minimum terminal size and show/hide warning
+	if lm.pageManager != nil {
+		if width < MinTerminalWidth || height < MinTerminalHeight {
+			lm.pageManager.ShowSizeWarning(width, height, MinTerminalWidth, MinTerminalHeight)
+		} else {
+			lm.pageManager.HideSizeWarning()
+		}
+	}
 
 	// Determine the new layout mode based on width
 	newMode := lm.determineLayoutMode(width)
@@ -230,6 +251,12 @@ func (lm *LayoutManager) GetCurrentMode() LayoutMode {
 func (lm *LayoutManager) SetBreakpoints(medium, large int) {
 	lm.mediumBreakpoint = medium
 	lm.largeBreakpoint = large
+}
+
+// SetPageManager injects the PageManager for terminal size warning functionality.
+// This must be called before HandleResize can display size warnings.
+func (lm *LayoutManager) SetPageManager(pm PageManagerInterface) {
+	lm.pageManager = pm
 }
 
 // ToggleDetailPanel manually shows/hides the detail panel, cycling through three states:

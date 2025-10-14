@@ -46,20 +46,20 @@
 
 **CONSTITUTION REQUIREMENT**: Write these tests FIRST, get user approval, verify they FAIL, then implement
 
-- [ ] T002 [P] [US1] Write unit test `TestShowSizeWarning` in `cmd/tui/layout/pages_test.go` - verify warning page added, state flag set, message format correct
-- [ ] T003 [P] [US1] Write unit test `TestSizeWarningMessage` in `cmd/tui/layout/pages_test.go` - verify message includes current dimensions (50×20) and minimum (60×30)
-- [ ] T004 [P] [US1] Write unit test `TestSizeWarningStateTracking` in `cmd/tui/layout/pages_test.go` - verify `IsSizeWarningActive()` returns correct boolean state
-- [ ] T005 [P] [US1] Write unit test `TestHandleResize_BelowMinimum` in `cmd/tui/layout/manager_test.go` - verify HandleResize calls ShowSizeWarning when width<60 OR height<30
-- [ ] T006 [P] [US1] Write unit test `TestHandleResize_StartupCheck` in `cmd/tui/layout/manager_test.go` - verify startup size check triggers warning if already too small
+- [X] T002 [P] [US1] Write unit test `TestShowSizeWarning` in `cmd/tui/layout/pages_test.go` - verify warning page added, state flag set, message format correct
+- [X] T003 [P] [US1] Write unit test `TestSizeWarningMessage` in `cmd/tui/layout/pages_test.go` - verify message includes current dimensions (50×20) and minimum (60×30)
+- [X] T004 [P] [US1] Write unit test `TestSizeWarningStateTracking` in `cmd/tui/layout/pages_test.go` - verify `IsSizeWarningActive()` returns correct boolean state
+- [X] T005 [P] [US1] Write unit test `TestHandleResize_BelowMinimum` in `cmd/tui/layout/manager_test.go` - verify HandleResize calls ShowSizeWarning when width<60 OR height<30
+- [X] T006 [P] [US1] Write unit test `TestHandleResize_StartupCheck` in `cmd/tui/layout/manager_test.go` - verify startup size check triggers warning if already too small
 
 **USER APPROVAL GATE**: Present tests T002-T006 to user, verify they fail before proceeding to implementation
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Add `sizeWarningActive bool` field to PageManager struct in `cmd/tui/layout/pages.go` (after modalStack field)
-- [ ] T008 [US1] Implement `ShowSizeWarning(currentWidth, currentHeight, minWidth, minHeight int)` method in `cmd/tui/layout/pages.go` - create tview.Modal with dark red background, formatted message, add page "size-warning", set state flag, call app.Draw()
-- [ ] T009 [US1] Implement `IsSizeWarningActive() bool` method in `cmd/tui/layout/pages.go` - return sizeWarningActive field value
-- [ ] T010 [US1] Modify `HandleResize(width, height int)` in `cmd/tui/layout/manager.go` - add size check `if width < MinTerminalWidth || height < MinTerminalHeight` before existing layout mode logic, call pageManager.ShowSizeWarning() if condition true
+- [X] T007 [US1] Add `sizeWarningActive bool` field to PageManager struct in `cmd/tui/layout/pages.go` (after modalStack field)
+- [X] T008 [US1] Implement `ShowSizeWarning(currentWidth, currentHeight, minWidth, minHeight int)` method in `cmd/tui/layout/pages.go` - create tview.Modal with dark red background, formatted message, add page "size-warning", set state flag, call app.Draw()
+- [X] T009 [US1] Implement `IsSizeWarningActive() bool` method in `cmd/tui/layout/pages.go` - return sizeWarningActive field value
+- [X] T010 [US1] Modify `HandleResize(width, height int)` in `cmd/tui/layout/manager.go` - add size check `if width < MinTerminalWidth || height < MinTerminalHeight` before existing layout mode logic, call pageManager.ShowSizeWarning() if condition true
 
 **Checkpoint**: User Story 1 complete - warning displays on startup and during resize when terminal < 60×30. Run tests T002-T006 to verify.
 

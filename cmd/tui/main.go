@@ -167,6 +167,9 @@ func LaunchTUI(vaultService *vault.VaultService) error {
 	// 9. Create PageManager
 	pageManager := layout.NewPageManager(app)
 
+	// 9a. Wire PageManager to LayoutManager for terminal size warnings
+	layoutMgr.SetPageManager(pageManager)
+
 	// 10. Create EventHandler and setup shortcuts
 	eventHandler := events.NewEventHandler(app, appState, nav, pageManager, statusBar, detailView, layoutMgr)
 	eventHandler.SetupGlobalShortcuts()
