@@ -51,7 +51,7 @@ type ValidationWarning struct {
 
 // GetDefaults returns the default configuration with hardcoded terminal and keybinding values
 func GetDefaults() *Config {
-	return &Config{
+	cfg := &Config{
 		Terminal: TerminalConfig{
 			WarningEnabled: true,
 			MinWidth:       60,
@@ -71,6 +71,12 @@ func GetDefaults() *Config {
 		},
 		LoadErrors: []string{},
 	}
+
+	// Validate to populate ParsedKeybindings
+	// This ensures defaults are always ready for use
+	cfg.Validate()
+
+	return cfg
 }
 
 // GetConfigPath returns the OS-appropriate config file path using os.UserConfigDir()
