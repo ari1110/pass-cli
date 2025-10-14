@@ -87,6 +87,10 @@ func (m *mockVaultServiceForForms) GetCredential(service string, trackUsage bool
 	return nil, errors.New("not found")
 }
 
+func (m *mockVaultServiceForForms) RecordFieldAccess(service, field string) error {
+	return nil
+}
+
 // TestAddFormPasswordVisibilityToggle verifies the toggle changes label
 // T004: Unit test for AddForm password visibility toggle functionality
 // NOTE: tview InputField doesn't expose GetMaskCharacter(), so we test via label changes

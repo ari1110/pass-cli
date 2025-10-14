@@ -374,12 +374,27 @@ func FormatUsageLocations(cred *vault.Credential) string {
 		// Add timestamp and access count
 		b.WriteString(fmt.Sprintf(" [gray]-[-] [white]%s[-]", timestamp))
 
-		// Format access count
+		// Format total access count
 		countText := "1 time"
 		if record.Count > 1 {
 			countText = fmt.Sprintf("%d times", record.Count)
 		}
-		b.WriteString(fmt.Sprintf(" [gray]- accessed[-] [white]%s[-]\n", countText))
+		b.WriteString(fmt.Sprintf(" [gray]- accessed[-] [white]%s[-]", countText))
+
+		// Show field-level breakdown if available
+		if len(record.FieldAccess) > 0 {
+			b.WriteString(" [gray](")
+			fieldParts := []string{}
+			for field, count := range record.FieldAccess {
+				fieldParts = append(fieldParts, fmt.Sprintf("%s:%d", field, count))
+			}
+			// Sort field names for consistent display
+			sort.Strings(fieldParts)
+			b.WriteString(strings.Join(fieldParts, ", "))
+			b.WriteString(")[-]")
+		}
+
+		b.WriteString("\n")
 	}
 
 	return b.String()

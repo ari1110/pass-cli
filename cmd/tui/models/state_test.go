@@ -158,6 +158,10 @@ func (m *MockVaultService) GetCredential(service string, trackUsage bool) (*vaul
 	return nil, errors.New("credential not found")
 }
 
+func (m *MockVaultService) RecordFieldAccess(service, field string) error {
+	return nil
+}
+
 // SetCredentials sets the mock credentials for testing.
 func (m *MockVaultService) SetCredentials(creds []vault.CredentialMetadata) {
 	m.mu.Lock()

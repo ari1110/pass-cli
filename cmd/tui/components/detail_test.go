@@ -64,3 +64,7 @@ func (t *testVaultService) DeleteCredential(service string) error {
 func (t *testVaultService) GetCredential(service string, trackUsage bool) (*vault.Credential, error) {
 	return nil, nil
 }
+
+func (t *testVaultService) RecordFieldAccess(service, field string) error {
+	return nil
+}
