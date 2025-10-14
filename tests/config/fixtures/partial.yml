@@ -1,0 +1,5 @@
+# Partial config - only terminal settings (keybindings use defaults)
+terminal:
+  warning_enabled: false
+  min_width: 120
+  min_height: 60

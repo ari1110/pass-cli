@@ -146,15 +146,15 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T051 [P] Add audit logging for config load attempts (file path, success/failure) in `internal/config/config.go`
-- [ ] T052 [P] Add audit logging for validation errors in `internal/config/config.go`
-- [ ] T053 [P] Create test fixtures in `tests/config/fixtures/` (valid_minimal.yml, valid_full.yml, invalid_conflict.yml, invalid_terminal_size.yml, invalid_unknown_action.yml)
-- [ ] T054 Add unknown field warning detection (satisfies FR-020) in `internal/config/config.go` Validate()
-- [ ] T055 [P] Update constitution check in `specs/007-user-wants-to/plan.md` post-implementation
-- [ ] T056 [P] Create user-facing documentation from quickstart.md
-- [ ] T057 Code cleanup and refactoring for config package
-- [ ] T058 Run through all quickstart.md scenarios for manual validation
-- [ ] T059 [P] Performance testing: verify config load <10ms, validation <5ms
+- [X] T051 [P] Add audit logging for config load attempts (file path, success/failure) in `internal/config/config.go`
+- [X] T052 [P] Add audit logging for validation errors in `internal/config/config.go`
+- [X] T053 [P] Create test fixtures in `tests/config/fixtures/` (valid_minimal.yml, valid_full.yml, invalid_conflict.yml, invalid_terminal_size.yml, invalid_unknown_action.yml)
+- [X] T054 Add unknown field warning detection (satisfies FR-020) in `internal/config/config.go` Validate()
+- [X] T055 [P] Update constitution check in `specs/007-user-wants-to/plan.md` post-implementation
+- [X] T056 [P] Create user-facing documentation from quickstart.md
+- [X] T057 Code cleanup and refactoring for config package
+- [X] T058 Run through all quickstart.md scenarios for manual validation
+- [X] T059 [P] Performance testing: verify config load <10ms, validation <5ms
 
 ---
 

@@ -1,2 +1,3 @@
+# Minimal valid config - override only one setting
 terminal:
   min_width: 80

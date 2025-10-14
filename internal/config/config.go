@@ -200,14 +200,60 @@ keybindings:
 }
 
 // LoadFromPath loads configuration from a specific file path (useful for testing)
+
+// T054: detectUnknownFields checks for unknown fields in the config YAML
+func detectUnknownFields(v *viper.Viper) []ValidationWarning {
+	var warnings []ValidationWarning
+
+	// Get all keys from the config file
+	allKeys := v.AllKeys()
+
+	// Define known fields (all valid config keys)
+	knownFields := map[string]bool{
+		"terminal":                    true,
+		"terminal.warning_enabled":    true,
+		"terminal.min_width":          true,
+		"terminal.min_height":         true,
+		"keybindings":                 true,
+		"keybindings.quit":            true,
+		"keybindings.add_credential":  true,
+		"keybindings.edit_credential": true,
+		"keybindings.delete_credential": true,
+		"keybindings.toggle_detail":   true,
+		"keybindings.toggle_sidebar":  true,
+		"keybindings.help":            true,
+		"keybindings.search":          true,
+		"keybindings.confirm":         true,
+		"keybindings.cancel":          true,
+	}
+
+	// Check for unknown fields
+	for _, key := range allKeys {
+		if !knownFields[key] {
+			warnings = append(warnings, ValidationWarning{
+				Field:   key,
+				Message: fmt.Sprintf("unknown field '%s' (will be ignored)", key),
+			})
+		}
+	}
+
+	return warnings
+}
+
 func LoadFromPath(configPath string) (*Config, *ValidationResult) {
+	// T051: Log config load attempt
+	fmt.Fprintf(os.Stderr, "[Config] Loading config from: %s\n", configPath)
+
 	// Check if config file exists
 	fileInfo, err := os.Stat(configPath)
 	if os.IsNotExist(err) {
 		// No config file, use defaults (not an error)
+		fmt.Fprintf(os.Stderr, "[Config] No config file found, using defaults\n")
 		return GetDefaults(), &ValidationResult{Valid: true}
 	}
 	if err != nil {
+		// T051: Log file access error
+		fmt.Fprintf(os.Stderr, "[Config] Failed to access config file: %v\n", err)
 		// File stat error, use defaults
 		return GetDefaults(), &ValidationResult{
 			Valid: false,
@@ -220,6 +266,8 @@ func LoadFromPath(configPath string) (*Config, *ValidationResult) {
 	// Check file size limit (100 KB)
 	const maxFileSize = 100 * 1024 // 100 KB
 	if fileInfo.Size() > maxFileSize {
+		// T051: Log file size error
+		fmt.Fprintf(os.Stderr, "[Config] Config file too large: %d KB (max: 100 KB)\n", fileInfo.Size()/1024)
 		return GetDefaults(), &ValidationResult{
 			Valid: false,
 			Errors: []ValidationError{
@@ -247,6 +295,8 @@ func LoadFromPath(configPath string) (*Config, *ValidationResult) {
 
 	// Read and parse YAML
 	if err := v.ReadInConfig(); err != nil {
+		// T051: Log parse error
+		fmt.Fprintf(os.Stderr, "[Config] Failed to parse YAML: %v\n", err)
 		return GetDefaults(), &ValidationResult{
 			Valid: false,
 			Errors: []ValidationError{
@@ -255,9 +305,14 @@ func LoadFromPath(configPath string) (*Config, *ValidationResult) {
 		}
 	}
 
+	// T054: Detect unknown fields
+	warnings := detectUnknownFields(v)
+
 	// Unmarshal into Config struct (Viper will merge with defaults)
 	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
+		// T051: Log unmarshal error
+		fmt.Fprintf(os.Stderr, "[Config] Failed to unmarshal config: %v\n", err)
 		return GetDefaults(), &ValidationResult{
 			Valid: false,
 			Errors: []ValidationError{
@@ -269,10 +324,20 @@ func LoadFromPath(configPath string) (*Config, *ValidationResult) {
 	// Validate the loaded config
 	validationResult := cfg.Validate()
 
-	// If validation failed, return defaults instead
+	// Add unknown field warnings to validation result
+	validationResult.Warnings = append(validationResult.Warnings, warnings...)
+
+	// T052: Log validation errors
 	if !validationResult.Valid {
+		fmt.Fprintf(os.Stderr, "[Config] Validation failed with %d error(s)\n", len(validationResult.Errors))
+		for _, err := range validationResult.Errors {
+			fmt.Fprintf(os.Stderr, "[Config]   - %s: %s\n", err.Field, err.Message)
+		}
 		return GetDefaults(), validationResult
 	}
+
+	// T051: Log successful load
+	fmt.Fprintf(os.Stderr, "[Config] Successfully loaded config\n")
 
 	return &cfg, validationResult
 }

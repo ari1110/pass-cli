@@ -1,0 +1,17 @@
+# Valid config with custom keybindings
+terminal:
+  warning_enabled: true
+  min_width: 100
+  min_height: 50
+
+keybindings:
+  quit: "ctrl+q"
+  add_credential: "n"
+  edit_credential: "e"
+  delete_credential: "d"
+  toggle_detail: "tab"
+  toggle_sidebar: "ctrl+b"
+  help: "f1"
+  search: "ctrl+f"
+  confirm: "enter"
+  cancel: "esc"

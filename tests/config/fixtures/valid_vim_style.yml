@@ -1,0 +1,17 @@
+# Valid config with vim-style keybindings
+terminal:
+  warning_enabled: true
+  min_width: 60
+  min_height: 30
+
+keybindings:
+  quit: "q"
+  add_credential: "i"      # Insert mode
+  edit_credential: "e"
+  delete_credential: "d"
+  toggle_detail: "tab"
+  toggle_sidebar: "ctrl+w" # Window command
+  help: "?"
+  search: "/"
+  confirm: "enter"
+  cancel: "esc"

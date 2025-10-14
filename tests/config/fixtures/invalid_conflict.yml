@@ -1,0 +1,4 @@
+# Invalid config - conflicting keybindings
+keybindings:
+  add_credential: "d"
+  delete_credential: "d"  # Conflict!

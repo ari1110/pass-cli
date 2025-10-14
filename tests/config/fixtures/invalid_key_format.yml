@@ -1,0 +1,3 @@
+# Invalid config - bad key syntax
+keybindings:
+  quit: "ctrl++"  # Invalid format

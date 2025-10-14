@@ -1,0 +1,3 @@
+# Invalid config - unknown action name
+keybindings:
+  invalid_action: "x"  # Unknown action

@@ -1,0 +1,4 @@
+# Invalid config - out of range terminal values
+terminal:
+  min_width: -10  # Invalid: negative
+  min_height: 30

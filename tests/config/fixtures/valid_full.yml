@@ -1,0 +1,17 @@
+# Full valid config with all settings specified
+terminal:
+  warning_enabled: true
+  min_width: 80
+  min_height: 40
+
+keybindings:
+  quit: "q"
+  add_credential: "a"
+  edit_credential: "e"
+  delete_credential: "d"
+  toggle_detail: "tab"
+  toggle_sidebar: "s"
+  help: "?"
+  search: "/"
+  confirm: "enter"
+  cancel: "esc"
