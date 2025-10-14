@@ -62,16 +62,16 @@
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T015 [P] [US1] Unit test for TerminalConfig validation (positive/negative values, range checks) in `internal/config/config_test.go`
-- [ ] T016 [P] [US1] Unit test for terminal config merging with defaults in `internal/config/config_test.go`
-- [ ] T017 [P] [US1] Integration test for loading terminal config from YAML in `tests/config/cli_test.go`
+- [X] T015 [P] [US1] Unit test for TerminalConfig validation (positive/negative values, range checks) in `internal/config/config_test.go`
+- [X] T016 [P] [US1] Unit test for terminal config merging with defaults in `internal/config/config_test.go`
+- [X] T017 [P] [US1] Integration test for loading terminal config from YAML in `tests/config/cli_test.go`
 
 ### Implementation for User Story 1
 
-- [ ] T018 [P] [US1] Implement Viper-based YAML loading for terminal section in `internal/config/config.go` Load() function
-- [ ] T019 [P] [US1] Implement terminal config validation in `internal/config/config.go` Validate() method (check min_width > 0, min_height > 0, range 1-10000/1-1000)
-- [ ] T020 [US1] Implement terminal config merging with defaults in `internal/config/config.go` Load() function (depends on T018, T019)
-- [ ] T021 [US1] Add terminal config unusually large size warnings (warn if >500 width or >200 height) in `internal/config/config.go` Validate() method
+- [X] T018 [P] [US1] Implement Viper-based YAML loading for terminal section in `internal/config/config.go` Load() function
+- [X] T019 [P] [US1] Implement terminal config validation in `internal/config/config.go` Validate() method (check min_width > 0, min_height > 0, range 1-10000/1-1000)
+- [X] T020 [US1] Implement terminal config merging with defaults in `internal/config/config.go` Load() function (depends on T018, T019)
+- [X] T021 [US1] Add terminal config unusually large size warnings (warn if >500 width or >200 height) in `internal/config/config.go` Validate() method
 - [ ] T022 [US1] Modify TUI startup in `cmd/tui/main.go` to call `config.Load()` and use terminal config for size warning thresholds
 - [ ] T023 [US1] Update size warning modal display logic in TUI to respect `WarningEnabled` flag from config
 - [ ] T024 [US1] Add config validation error modal display in TUI startup (call PageManager method when Load() returns errors - discover actual TUI file with PageManager, likely cmd/tui/layout/pages.go or similar)

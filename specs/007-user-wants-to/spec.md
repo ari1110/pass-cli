@@ -95,7 +95,7 @@ As a user, I want CLI commands to manage my configuration file so that I can eas
 - **FR-001**: System MUST load configuration from `~/.config/pass-cli/config.yml` on Linux/macOS and `%APPDATA%\pass-cli\config.yml` on Windows
 - **FR-002**: System MUST use hardcoded defaults when config file does not exist
 - **FR-003**: System MUST support YAML format for configuration file
-- **FR-004**: System MUST validate config file syntax on application startup and reject files exceeding 100 KB
+- **FR-004**: System MUST validate config file syntax on both TUI startup and CLI validate command, and reject files exceeding 100 KB
 - **FR-005**: System MUST validate terminal size thresholds are positive integers
 - **FR-006**: System MUST validate keybindings do not have duplicate mappings (one key mapped to multiple actions) and reject unknown action names
 - **FR-007**: System MUST display validation errors as modal warnings in TUI on startup (show error, allow user to proceed with defaults and fix later)
@@ -107,7 +107,7 @@ As a user, I want CLI commands to manage my configuration file so that I can eas
 - **FR-013**: System MUST provide `pass-cli config edit` command to open config using EDITOR environment variable, or OS-default editor if EDITOR not set
 - **FR-014**: System MUST provide `pass-cli config validate` command to check config without starting TUI
 - **FR-015**: System MUST provide `pass-cli config reset` command to restore defaults, creating `config.yml.backup` before overwriting (overwrites previous backups)
-- **FR-016**: System MUST support standard key names (letters, numbers, F-keys) and modifiers (ctrl+, alt+, shift+)
+- **FR-016**: System MUST support standard key names and modifiers per config-schema.md pattern: single letters (a-z), numbers (0-9), special keys (enter, esc, tab, space), function keys (f1-f12), and modifiers (ctrl+, alt+, shift+)
 - **FR-017**: System MUST handle config file parse errors gracefully (show error, use defaults)
 - **FR-018**: System MUST handle config file permission errors gracefully (show error, use defaults)
 - **FR-019**: System MUST merge partial config files with defaults (e.g., only terminal settings provided)

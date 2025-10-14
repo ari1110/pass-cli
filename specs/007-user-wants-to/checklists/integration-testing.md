@@ -26,10 +26,14 @@ This checklist is extracted from `quickstart.md` to standardize with prior specs
 - [ ] `pass-cli config init` creates file with examples
 - [ ] `pass-cli config edit` opens system default editor
 - [ ] `pass-cli config edit` respects EDITOR env var
+- [ ] `pass-cli config edit` falls back through editor chain (nano > vim > vi) on Linux/macOS
+- [ ] `pass-cli config edit` shows clear error if no editor found
 - [ ] `pass-cli config validate` reports errors with details
 - [ ] `pass-cli config validate` succeeds with valid config
 - [ ] `pass-cli config validate` handles missing file gracefully
+- [ ] `pass-cli config validate` displays warnings to stdout (unknown fields)
 - [ ] `pass-cli config reset` creates backup before overwrite
+- [ ] `pass-cli config reset` overwrites existing backup file
 - [ ] `pass-cli config reset` restores defaults
 
 ## Error Handling
@@ -50,3 +54,26 @@ This checklist is extracted from `quickstart.md` to standardize with prior specs
 - [ ] Editor selection works on Windows (notepad)
 - [ ] Editor selection works on macOS (nano/vim)
 - [ ] Editor selection works on Linux (nano/vim)
+
+## Runtime Behavior
+
+- [ ] Config changes require TUI restart (no hot-reload)
+- [ ] Config loaded only once at TUI startup
+- [ ] Config validation errors displayed as modal in TUI
+- [ ] Config validation warnings displayed as modal in TUI
+- [ ] Multiple config errors shown in single modal
+
+## Audit Logging
+
+- [ ] Config load attempts logged (file path, success/failure)
+- [ ] Validation errors logged with details
+- [ ] Config file not found logged (info level)
+- [ ] Config parse errors logged (error level)
+
+## Performance
+
+- [ ] Config load completes in <10ms (valid config)
+- [ ] Config validation completes in <5ms
+- [ ] TUI startup with config completes in <500ms total
+- [ ] Config file at 99KB size limit loads successfully
+- [ ] Config file at 100KB+ size shows error within 50ms

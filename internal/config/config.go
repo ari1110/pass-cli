@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/spf13/viper"
 )
 
 // Config represents the root configuration object containing all user settings
@@ -88,19 +90,8 @@ func GetConfigPath() (string, error) {
 	return filepath.Join(configDir, "config.yml"), nil
 }
 
-// Load loads configuration from file and returns defaults for now (skeleton implementation)
-func Load() (*Config, *ValidationResult) {
-	configPath, err := GetConfigPath()
-	if err != nil {
-		// Cannot determine config path, use defaults
-		return GetDefaults(), &ValidationResult{
-			Valid: true,
-			Warnings: []ValidationWarning{
-				{Field: "config_path", Message: fmt.Sprintf("cannot determine config path: %v", err)},
-			},
-		}
-	}
-
+// LoadFromPath loads configuration from a specific file path (useful for testing)
+func LoadFromPath(configPath string) (*Config, *ValidationResult) {
 	// Check if config file exists
 	fileInfo, err := os.Stat(configPath)
 	if os.IsNotExist(err) {
@@ -131,12 +122,122 @@ func Load() (*Config, *ValidationResult) {
 		}
 	}
 
-	// TODO: Implement YAML parsing and validation in later tasks
-	return GetDefaults(), &ValidationResult{Valid: true}
+	// T018+T020: Load YAML with Viper and merge with defaults
+	v := viper.New()
+	v.SetConfigFile(configPath)
+	v.SetConfigType("yaml")
+
+	// Set defaults for merging
+	defaults := GetDefaults()
+	v.SetDefault("terminal.warning_enabled", defaults.Terminal.WarningEnabled)
+	v.SetDefault("terminal.min_width", defaults.Terminal.MinWidth)
+	v.SetDefault("terminal.min_height", defaults.Terminal.MinHeight)
+	for action, key := range defaults.Keybindings {
+		v.SetDefault(fmt.Sprintf("keybindings.%s", action), key)
+	}
+
+	// Read and parse YAML
+	if err := v.ReadInConfig(); err != nil {
+		return GetDefaults(), &ValidationResult{
+			Valid: false,
+			Errors: []ValidationError{
+				{Field: "config_file", Message: fmt.Sprintf("failed to parse YAML: %v", err)},
+			},
+		}
+	}
+
+	// Unmarshal into Config struct (Viper will merge with defaults)
+	var cfg Config
+	if err := v.Unmarshal(&cfg); err != nil {
+		return GetDefaults(), &ValidationResult{
+			Valid: false,
+			Errors: []ValidationError{
+				{Field: "config_file", Message: fmt.Sprintf("failed to unmarshal config: %v", err)},
+			},
+		}
+	}
+
+	// Validate the loaded config
+	validationResult := cfg.Validate()
+
+	// If validation failed, return defaults instead
+	if !validationResult.Valid {
+		return GetDefaults(), validationResult
+	}
+
+	return &cfg, validationResult
 }
 
-// Validate validates the configuration and returns a validation result (skeleton implementation)
+// Load loads configuration from the default config path
+func Load() (*Config, *ValidationResult) {
+	configPath, err := GetConfigPath()
+	if err != nil {
+		// Cannot determine config path, use defaults
+		return GetDefaults(), &ValidationResult{
+			Valid: true,
+			Warnings: []ValidationWarning{
+				{Field: "config_path", Message: fmt.Sprintf("cannot determine config path: %v", err)},
+			},
+		}
+	}
+
+	return LoadFromPath(configPath)
+}
+
+// Validate validates the configuration and returns a validation result
 func (c *Config) Validate() *ValidationResult {
-	// TODO: Implement actual validation logic in later tasks
-	return &ValidationResult{Valid: true}
+	result := &ValidationResult{
+		Valid:    true,
+		Errors:   []ValidationError{},
+		Warnings: []ValidationWarning{},
+	}
+
+	// Validate terminal configuration
+	result = c.validateTerminal(result)
+
+	// TODO: Add keybinding validation in Phase 4
+
+	// Set Valid flag based on error count
+	if len(result.Errors) > 0 {
+		result.Valid = false
+	}
+
+	return result
+}
+
+// validateTerminal validates terminal size configuration
+func (c *Config) validateTerminal(result *ValidationResult) *ValidationResult {
+	// T019: Validate min_width range (1-10000)
+	if c.Terminal.MinWidth < 1 || c.Terminal.MinWidth > 10000 {
+		result.Errors = append(result.Errors, ValidationError{
+			Field:   "terminal.min_width",
+			Message: fmt.Sprintf("must be between 1 and 10000 (got: %d)", c.Terminal.MinWidth),
+		})
+	}
+
+	// T019: Validate min_height range (1-1000)
+	if c.Terminal.MinHeight < 1 || c.Terminal.MinHeight > 1000 {
+		result.Errors = append(result.Errors, ValidationError{
+			Field:   "terminal.min_height",
+			Message: fmt.Sprintf("must be between 1 and 1000 (got: %d)", c.Terminal.MinHeight),
+		})
+	}
+
+	// T021: Warn if unusually large width (>500)
+	if c.Terminal.MinWidth > 500 {
+		result.Warnings = append(result.Warnings, ValidationWarning{
+			Field:   "terminal.min_width",
+			Message: fmt.Sprintf("unusually large value (%d) - most terminals are <300 columns", c.Terminal.MinWidth),
+		})
+	}
+
+	// T021: Warn if unusually large height (>200)
+	if c.Terminal.MinHeight > 200 {
+		result.Warnings = append(result.Warnings, ValidationWarning{
+			Field:   "terminal.min_height",
+			Message: fmt.Sprintf("unusually large value (%d) - most terminals are <100 rows", c.Terminal.MinHeight),
+		})
+	}
+
+	return result
 }
