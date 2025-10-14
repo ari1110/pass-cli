@@ -62,7 +62,7 @@ func GetDefaults() *Config {
 			"add_credential":    "a",
 			"edit_credential":   "e",
 			"delete_credential": "d",
-			"toggle_detail":     "tab",
+			"toggle_detail":     "i",
 			"toggle_sidebar":    "s",
 			"help":              "?",
 			"search":            "/",
@@ -178,7 +178,7 @@ keybindings:
   delete_credential: "d"       # Delete selected credential (with confirmation)
   
   # View controls
-  toggle_detail: "tab"         # Toggle detail panel visibility
+  toggle_detail: "i"           # Toggle detail panel visibility
   toggle_sidebar: "s"          # Toggle sidebar visibility
   search: "/"                  # Activate search/filter mode
   

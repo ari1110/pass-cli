@@ -9,7 +9,7 @@ keybindings:
   add_credential: "a"
   edit_credential: "e"
   delete_credential: "d"
-  toggle_detail: "tab"
+  toggle_detail: "i"
   toggle_sidebar: "s"
   help: "?"
   search: "/"

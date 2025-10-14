@@ -9,7 +9,7 @@ keybindings:
   add_credential: "i"      # Insert mode
   edit_credential: "e"
   delete_credential: "d"
-  toggle_detail: "tab"
+  toggle_detail: "v"       # Visual mode
   toggle_sidebar: "ctrl+w" # Window command
   help: "?"
   search: "/"
