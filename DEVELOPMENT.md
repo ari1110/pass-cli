@@ -357,7 +357,7 @@ go tool pprof mem.prof
 
 ## Release Process
 
-See [RELEASE.md](RELEASE.md) for detailed release instructions.
+See [RELEASE.md](docs/RELEASE.md) for detailed release instructions.
 
 Quick reference:
 
