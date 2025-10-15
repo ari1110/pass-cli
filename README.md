@@ -96,38 +96,26 @@ pass-cli get github
 
 ### Key TUI Shortcuts
 
-#### Configurable Shortcuts (can be customized via config.yml)
+#### TUI Keyboard Shortcuts
 
 | Shortcut | Action | Context |
 |----------|--------|---------|
 | `q` | Quit application | Any time |
-| `a` | Add new credential | Main view |
+| `n` | New credential | Main view |
 | `e` | Edit credential | Main view |
 | `d` | Delete credential | Main view |
-| `i` | Toggle detail panel (Auto/Hide/Show) | Main view |
-| `s` | Toggle sidebar (Auto/Hide/Show) | Main view |
+| `c` | Copy password to clipboard | Detail view |
+| `p` | Toggle password visibility | Detail view |
+| `/` | Search/filter | Main view |
 | `?` | Show help modal | Any time |
-| `/` | Activate search/filter | Main view |
-
-#### Hardcoded Shortcuts (navigation and forms)
-
-| Shortcut | Action | Context |
-|----------|--------|---------|
-| `Tab` | Next component | All views |
-| `Shift+Tab` | Previous component | All views |
-| `↑/↓` | Navigate lists | List views |
+| `Tab` | Cycle focus between panels | All views |
 | `Enter` | Select / View details | List views |
-| `Esc` | Close modal / Exit search (press twice to clear filter) | Modals, search |
-| `Ctrl+C` | Force quit application | Any time |
-| `p` | Copy password to clipboard | Detail view |
-| `c` | Copy username to clipboard | Detail view |
-| `Ctrl+H` | Toggle password visibility | Add/edit forms |
-| `Ctrl+S` | Quick-save / Submit form | Add/edit forms |
-| `PgUp/PgDn` | Scroll help modal | Help modal |
+| `Esc` | Close modal / Exit search | Modals, search |
+| `↑/↓` | Navigate lists | List views |
 
-**Total: 19 keyboard shortcuts** (8 configurable + 11 hardcoded)
+**Total: 11 keyboard shortcuts**
 
-**Customization**: See [Configuration](#configuration-file) section below for keybinding customization via `~/.pass-cli/config.yaml`
+**Customization**: Some shortcuts can be customized via `~/.pass-cli/config.yaml` (see Configuration section below)
 
 See [full keyboard shortcuts reference](docs/USAGE.md#tui-keyboard-shortcuts) for detailed context and examples.
 
@@ -437,11 +425,9 @@ terminal:
 # Custom keyboard shortcuts (TUI mode)
 keybindings:
   quit: "q"                  # Quit application
-  add_credential: "a"        # Add new credential
+  add_credential: "n"        # Add new credential
   edit_credential: "e"       # Edit credential
   delete_credential: "d"     # Delete credential
-  toggle_detail: "i"         # Toggle detail panel
-  toggle_sidebar: "s"        # Toggle sidebar
   help: "?"                  # Show help modal
   search: "/"                # Activate search
 
@@ -458,8 +444,8 @@ keybindings:
 # - Invalid config shows warning modal, app continues with defaults
 ```
 
-**Keybinding Customization** (Spec 007):
-- Customize 8 TUI shortcuts (quit, add, edit, delete, toggle_detail, toggle_sidebar, help, search)
+**Keybinding Customization**:
+- Some TUI shortcuts can be customized via config.yaml
 - Navigation shortcuts (Tab, arrows, Enter, Esc) are hardcoded and cannot be changed
 - UI hints automatically update to reflect your custom keybindings in status bar and help modal
 

@@ -178,9 +178,9 @@
 
 ### Remediation for User Story 4
 
-- [X] T081 [US4] Remediate any feature claim discrepancies found in T069-T075 → **Documentation updates only** (audit logging failure noted in audit report, requires code fix beyond documentation scope)
+- [X] T081 [US4] Remediate any feature claim discrepancies found in T069-T075 → **Fixed DISC-014** (README.md TUI shortcuts updated to match actual implementation), DISC-013 documented (audit logging failure requires code fix)
 - [X] T082 [US4] Remediate any architecture description discrepancies found in T076-T078 → **No discrepancies found** (architecture accurately documented)
-- [X] T083 [US4] Commit feature and architecture remediation: `git add docs/SECURITY.md README.md && git commit -m "docs: fix feature and architecture discrepancies"` → **Complete**: Audit report updated with findings
+- [X] T083 [US4] Commit feature and architecture remediation: `git add docs/SECURITY.md README.md && git commit -m "docs: fix feature and architecture discrepancies"` → **Complete**: README.md updated, audit report updated with findings
 
 **Checkpoint**: ✅ User Story 4 complete - All features and architecture accurately documented (critical audit logging issue documented for future code fix)
 

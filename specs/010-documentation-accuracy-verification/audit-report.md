@@ -308,10 +308,10 @@ The following discrepancies were identified during initial USAGE.md spot check (
 - **Location**: README.md TUI shortcuts section
 - **Category**: Feature Claims / Behavioral Descriptions
 - **Severity**: Medium
-- **Documented**: Specific keyboard shortcuts for TUI navigation (Ctrl+H, Ctrl+C, etc.)
-- **Actual**: Some documented shortcuts don't match actual TUI behavior
-- **Remediation**: Update README.md TUI shortcuts documentation to match actual implementation
-- **Status**: ❌ Open
+- **Documented**: 19 shortcuts including configurable vs hardcoded separation with wrong keys (a for add, Ctrl+H for password toggle, etc.)
+- **Actual**: 11 shortcuts with different key mappings (n for add, p for password toggle, c for copy, etc.)
+- **Remediation**: Updated README.md TUI shortcuts to match actual `pass-cli tui --help` output
+- **Status**: ✅ Fixed
 
 ---
 
