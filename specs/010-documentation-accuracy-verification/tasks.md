@@ -86,13 +86,13 @@
 
 ### Remediation for User Story 1
 
-- [X] T037 [US1] Remediate README.md:158,161 - remove non-existent `--generate` flag from `add` examples → **Fixed DISC-001**
-- [X] T038 [US1] Remediate docs/USAGE.md:145-147 - remove `--generate`, `--length`, `--no-symbols` from `add` flag table → **Fixed DISC-002**
-- [X] T039 [US1] Remediate docs/USAGE.md:139-147 - add missing `--category`/`-c` flag to `add` command flag table → **Fixed DISC-003**
-- [X] T040 [US1] Remediate docs/USAGE.md:165,168 - remove `--generate` from `add` code examples, add `--category` example
-- [ ] T041 [US1] Commit CLI interface remediation: `git add README.md docs/USAGE.md specs/010-documentation-accuracy-verification/tasks.md && git commit -m "docs: fix CLI interface discrepancies for add command (DISC-001, DISC-002, DISC-003)"`
+- [X] T037 [US1] Remediate README.md:158,161 - remove non-existent `--generate` flag from `add` examples → **Fixed DISC-001** (commit 14a4916)
+- [X] T038 [US1] Remediate docs/USAGE.md:145-147 - remove `--generate`, `--length`, `--no-symbols` from `add` flag table → **Fixed DISC-002** (commit 14a4916)
+- [X] T039 [US1] Remediate docs/USAGE.md:139-147 - add missing `--category`/`-c` flag to `add` command flag table → **Fixed DISC-003** (commit 14a4916)
+- [X] T040 [US1] Remediate docs/USAGE.md:165,168 - remove `--generate` from `add` code examples, add `--category` example (commit 14a4916)
+- [X] T041 [US1] Additional fixes: DISC-006 (get --copy), DISC-007 (update --generate), DISC-008 (update missing flags), DISC-009 (generate --copy) → (commit 6a0293a)
 
-**Checkpoint**: User Story 1 complete - CLI interface documentation matches actual implementation
+**Checkpoint**: ✅ User Story 1 complete - All CLI interface documentation matches actual implementation (9 discrepancies fixed)
 
 ---
 
@@ -117,13 +117,13 @@
 
 ### Remediation for User Story 2
 
-- [X] T052 [P] [US2] Remediate docs/MIGRATION.md:141-142,193,259-260,379 - remove `--generate` from migration examples (4 occurrences) → **Fixed DISC-004**
-- [X] T053 [P] [US2] Remediate docs/SECURITY.md:608 - update credential rotation recommendation to use `pass-cli generate` → **Fixed DISC-005**
-- [ ] T054 [US2] Remediate README.md code examples identified in T046 → **DEFERRED** (critical fixes prioritized)
-- [ ] T055 [US2] Remediate docs/USAGE.md code examples identified in T047 → **DEFERRED** (critical fixes prioritized)
-- [ ] T056 [US2] Commit code examples remediation: `git add docs/MIGRATION.md docs/SECURITY.md specs/010-documentation-accuracy-verification/tasks.md && git commit -m "docs: fix code example discrepancies (DISC-004, DISC-005)"`
+- [X] T052 [P] [US2] Remediate docs/MIGRATION.md:141-142,193,259-260,379 - remove `--generate` from migration examples (4 occurrences) → **Fixed DISC-004** (commit 58f4069)
+- [X] T053 [P] [US2] Remediate docs/SECURITY.md:608 - update credential rotation recommendation to use `pass-cli generate` → **Fixed DISC-005** (commit 58f4069)
+- [ ] T054 [US2] Remediate README.md code examples identified in T046
+- [ ] T055 [US2] Remediate docs/USAGE.md code examples identified in T047
+- [ ] T056 [US2] Commit additional code examples remediation (if any found in T046-T047)
 
-**Checkpoint**: User Story 2 complete - all code examples execute successfully
+**Checkpoint**: Critical code example fixes complete (DISC-004, DISC-005). Comprehensive testing (T042-T051) pending.
 
 ---
 
