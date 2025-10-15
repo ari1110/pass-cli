@@ -9,13 +9,13 @@
 
 ## Summary Statistics
 
-**Total Discrepancies**: [TBD]
+**Total Discrepancies**: 9 (DISC-001 through DISC-009)
 
 ### By Category
 
 | Category | Total | Critical | High | Medium | Low |
 |----------|-------|----------|------|--------|-----|
-| CLI Interface | - | - | - | - | - |
+| CLI Interface | 9 | 6 | 0 | 3 | 0 |
 | Code Examples | - | - | - | - | - |
 | File Paths | - | - | - | - | - |
 | Configuration | - | - | - | - | - |
@@ -31,7 +31,7 @@
 | File | Discrepancies | Status |
 |------|---------------|--------|
 | README.md | - | ❌ Not Started |
-| docs/USAGE.md | - | ❌ Not Started |
+| docs/USAGE.md | 8 | 🔧 In Progress |
 | docs/MIGRATION.md | - | ❌ Not Started |
 | docs/SECURITY.md | - | ❌ Not Started |
 | docs/TROUBLESHOOTING.md | - | ❌ Not Started |
@@ -118,6 +118,65 @@
 - **Documented**: Security best practices recommend `pass-cli update service --generate`
 - **Actual**: cmd/update.go does not define `--generate` flag
 - **Remediation**: Update recommendation to use separate `pass-cli generate` command, then `pass-cli update service --password [generated]`
+- **Status**: ❌ Open
+- **Commit**: [TBD]
+
+---
+
+#### DISC-006 [CLI/Critical] Non-existent `--copy`/`-c` flag documented for `get` command
+
+- **Location**: docs/USAGE.md:217
+- **Category**: CLI Interface
+- **Severity**: Critical
+- **Documented**: Flag table shows `--copy | -c | bool | Copy to clipboard only (no display)`
+- **Actual**: cmd/get.go defines only `--quiet/-q`, `--field/-f`, `--masked`, `--no-clipboard` flags. NO `--copy` flag exists.
+- **Remediation**: Remove `--copy` row from flag table, remove example at line 251 (`pass-cli get github --copy`)
+- **Status**: ❌ Open
+- **Commit**: [TBD]
+
+---
+
+#### DISC-007 [CLI/Critical] Non-existent `--generate` flag documented for `update` command
+
+- **Location**: docs/USAGE.md:254-256, 274, 277
+- **Category**: CLI Interface
+- **Severity**: Critical
+- **Documented**: Flag table shows `--generate`, `--length`, `--no-symbols` as flags for `update` command
+- **Actual**: cmd/update.go does not define these flags. Only defines: `--username/-u`, `--password/-p`, `--category`, `--url`, `--notes`, `--clear-category`, `--clear-notes`, `--clear-url`, `--force`
+- **Remediation**: Remove `--generate`, `--length`, `--no-symbols` from flag table and examples (lines 274, 277)
+- **Status**: ❌ Open
+- **Commit**: [TBD]
+
+---
+
+#### DISC-008 [CLI/Medium] Missing flags in `update` command documentation
+
+- **Location**: docs/USAGE.md:246-253
+- **Category**: CLI Interface
+- **Severity**: Medium
+- **Documented**: Flag table incomplete
+- **Actual**: cmd/update.go defines `--category`, `--clear-category`, `--clear-notes`, `--clear-url`, `--force` flags not documented in table
+- **Remediation**: Add missing flags to table:
+  ```markdown
+  | `--category` | | string | New category |
+  | `--clear-category` | | bool | Clear category field to empty |
+  | `--clear-notes` | | bool | Clear notes field to empty |
+  | `--clear-url` | | bool | Clear URL field to empty |
+  | `--force` | `-f` | bool | Skip confirmation prompt |
+  ```
+- **Status**: ❌ Open
+- **Commit**: [TBD]
+
+---
+
+#### DISC-009 [CLI/Medium] Non-existent `--copy` flag documented for `generate` command
+
+- **Location**: docs/USAGE.md:370, 392
+- **Category**: CLI Interface
+- **Severity**: Medium
+- **Documented**: Flag table shows `--copy | bool | Copy to clipboard only (no display)` and example at line 392
+- **Actual**: cmd/generate.go defines only `--length/-l`, `--no-clipboard`, `--no-digits`, `--no-lower`, `--no-symbols`, `--no-upper`. NO `--copy` flag exists.
+- **Remediation**: Remove `--copy` from flag table (line 370) and example (line 392: `pass-cli generate --copy`)
 - **Status**: ❌ Open
 - **Commit**: [TBD]
 

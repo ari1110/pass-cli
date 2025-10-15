@@ -214,7 +214,6 @@ pass-cli get <service> [flags]
 |------|-------|------|-------------|
 | `--quiet` | `-q` | bool | Output password only (for scripts) |
 | `--field` | `-f` | string | Extract specific field |
-| `--copy` | `-c` | bool | Copy to clipboard only (no display) |
 | `--no-clipboard` | | bool | Skip clipboard copy |
 | `--masked` | | bool | Display password as asterisks |
 
@@ -246,9 +245,6 @@ pass-cli get github -f url
 
 # Quiet mode with specific field
 pass-cli get github --field username --quiet
-
-# Copy to clipboard only (no display)
-pass-cli get github --copy
 
 # Display without clipboard
 pass-cli get github --no-clipboard
@@ -372,11 +368,13 @@ pass-cli update <service> [flags]
 |------|-------|------|-------------|
 | `--username` | `-u` | string | New username |
 | `--password` | `-p` | string | New password (not recommended) |
+| `--category` | | string | New category |
 | `--url` | | string | New URL |
 | `--notes` | | string | New notes |
-| `--generate` | | bool | Generate new random password |
-| `--length` | | int | Password length for generation (default: 20) |
-| `--no-symbols` | | bool | Exclude symbols when generating |
+| `--clear-category` | | bool | Clear category field to empty |
+| `--clear-notes` | | bool | Clear notes field to empty |
+| `--clear-url` | | bool | Clear URL field to empty |
+| `--force` | `-f` | bool | Skip confirmation prompt |
 
 #### Examples
 
@@ -393,11 +391,11 @@ pass-cli update github --url https://github.com/enterprise
 # Update notes
 pass-cli update github --notes "Updated account info"
 
-# Generate new password
-pass-cli update github --generate
+# Update category
+pass-cli update github --category "Work"
 
-# Generate with custom options
-pass-cli update github --generate --length 32 --no-symbols
+# Clear category field
+pass-cli update github --clear-category
 
 # Update multiple fields
 pass-cli update github \
@@ -490,7 +488,6 @@ pass-cli generate [flags]
 | `--no-upper` | bool | Exclude uppercase letters |
 | `--no-digits` | bool | Exclude digits |
 | `--no-symbols` | bool | Exclude symbols |
-| `--copy` | bool | Copy to clipboard only (no display) |
 | `--no-clipboard` | bool | Skip clipboard copy |
 
 #### Examples
@@ -510,9 +507,6 @@ pass-cli generate --no-lower --no-upper
 
 # Letters only (no digits or symbols)
 pass-cli generate --no-digits --no-symbols
-
-# Copy to clipboard without displaying
-pass-cli generate --copy
 
 # Display only (no clipboard)
 pass-cli generate --no-clipboard

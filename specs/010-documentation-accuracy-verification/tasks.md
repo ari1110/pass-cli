@@ -75,14 +75,14 @@
 - [X] T026 [P] [US1] Execute `pass-cli tui --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/tui.txt`
 - [X] T027 [US1] Compare `init` command help output against docs/USAGE.md:77-123 flag table, document discrepancies in audit-report.md → Verified accurate
 - [X] T028 [US1] Compare `add` command help output against docs/USAGE.md:139-170 flag table, document discrepancies → **Confirmed DISC-002, DISC-003**
-- [ ] T029 [US1] Compare `get` command help output against docs/USAGE.md flag table, document discrepancies → **DEFERRED** (critical fixes prioritized)
-- [ ] T030 [US1] Compare `list` command help output against docs/USAGE.md flag table, document discrepancies → **DEFERRED**
-- [ ] T031 [US1] Compare `update` command help output against docs/USAGE.md flag table, document discrepancies → **DEFERRED**
-- [ ] T032 [US1] Compare `delete` command help output against docs/USAGE.md flag table, document discrepancies → **DEFERRED**
-- [ ] T033 [US1] Compare `generate` command help output against docs/USAGE.md flag table, document discrepancies → **DEFERRED**
+- [X] T029 [US1] Compare `get` command help output against docs/USAGE.md flag table, document discrepancies → **Confirmed DISC-006**
+- [X] T030 [US1] Compare `list` command help output against docs/USAGE.md flag table, document discrepancies → Verified accurate
+- [X] T031 [US1] Compare `update` command help output against docs/USAGE.md flag table, document discrepancies → **Confirmed DISC-007, DISC-008**
+- [X] T032 [US1] Compare `delete` command help output against docs/USAGE.md flag table, document discrepancies → Verified accurate
+- [X] T033 [US1] Compare `generate` command help output against docs/USAGE.md flag table, document discrepancies → **Confirmed DISC-009**
 - [X] T034 [US1] Compare all command help outputs against README.md examples, document discrepancies → **Confirmed DISC-001**
-- [ ] T035 [US1] Verify command aliases (generate/gen/pwd) exist in cmd/*.go files per docs/USAGE.md:15 → **DEFERRED**
-- [ ] T036 [US1] Update audit-report.md summary statistics for Category 1 (CLI Interface) → **DEFERRED**
+- [X] T035 [US1] Verify command aliases (generate/gen/pwd, delete/rm/remove) exist in cmd/*.go files → Verified (cmd/generate.go:34, cmd/delete.go:19)
+- [X] T036 [US1] Update audit-report.md summary statistics for Category 1 (CLI Interface) → Updated with 9 total discrepancies
 
 ### Remediation for User Story 1
 
