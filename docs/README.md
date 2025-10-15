@@ -15,7 +15,7 @@ Documentation for end users of Pass-CLI.
 
 Documentation for developers contributing to Pass-CLI.
 
-- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Development setup, building from source, project structure, and contribution guidelines
+- **[DEVELOPMENT.md](development/README.md)** - Development setup, building from source, project structure, and contribution guidelines
 
 ## Maintainer Documentation
 
@@ -42,7 +42,7 @@ Historical documentation artifacts preserved for reference.
 
 - **Getting Started**: [INSTALLATION.md](INSTALLATION.md) → [USAGE.md](USAGE.md)
 - **Security Questions**: [SECURITY.md](SECURITY.md)
-- **Contributing**: [DEVELOPMENT.md](DEVELOPMENT.md)
+- **Contributing**: [DEVELOPMENT.md](development/README.md)
 - **Problems**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 ## Repository Root Documentation
