@@ -481,7 +481,7 @@ func (eh *EventHandler) handleSearchActivate() {
 	// Get table reference for arrow key forwarding
 	table := eh.appState.GetTable()
 
-	// Setup input capture to forward navigation keys to table
+	// Setup input capture to forward navigation keys and password operations
 	searchState.InputField.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyUp, tcell.KeyDown, tcell.KeyEnter:
@@ -495,6 +495,16 @@ func (eh *EventHandler) handleSearchActivate() {
 			// Handle escape to exit search
 			eh.handleSearchDeactivate()
 			return nil
+		case tcell.KeyRune:
+			// Intercept password operations even in search mode
+			switch event.Rune() {
+			case 'p':
+				eh.handleTogglePassword()
+				return nil
+			case 'c':
+				eh.handleCopyPassword()
+				return nil
+			}
 		}
 		// Let all other keys (typing) pass through to InputField
 		return event
