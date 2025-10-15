@@ -193,14 +193,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] **T021** [US3] Review `R:\Test-Projects\pass-cli\docs\USAGE.md` - TUI vs CLI mode distinction (FR-006)
+- [X] **T021** [US3] Review `R:\Test-Projects\pass-cli\docs\USAGE.md` - TUI vs CLI mode distinction (FR-006)
   - Verify "TUI vs CLI Mode" section exists with clear explanations
   - Ensure `pass-cli` (no args) → TUI mode clearly stated
   - Ensure `pass-cli <command>` → CLI mode clearly stated
   - Add comparison table showing mode triggers
   - Verify all script examples use explicit commands (never bare `pass-cli`)
 
-- [ ] **T022** [US3] Review `R:\Test-Projects\pass-cli\docs\USAGE.md` - TUI keyboard shortcuts (FR-007)
+- [X] **T022** [US3] Review `R:\Test-Projects\pass-cli\docs\USAGE.md` - TUI keyboard shortcuts (FR-007)
   - Current: May be incomplete (research.md identified 20+ shortcuts)
   - Update "TUI Keyboard Shortcuts" table to include all shortcuts (minimum 20+):
     - Navigation: Tab, Shift+Tab, ↑/↓, Enter
@@ -212,14 +212,14 @@
   - Document custom keybinding capability via config.yml (reference spec 007)
   - Verify toggle detail shortcut is 'i' by testing TUI mode directly
 
-- [ ] **T023** [US3] Review `R:\Test-Projects\pass-cli\docs\USAGE.md` - CLI command accuracy (FR-011)
+- [X] **T023** [US3] Review `R:\Test-Projects\pass-cli\docs\USAGE.md` - CLI command accuracy (FR-011)
   - Run `specs/008-review-and-update/validation/command-tests.sh` on USAGE.md
   - Verify all documented commands execute successfully
   - Verify all documented flags recognized by binary
   - Remove any references to unimplemented features
   - Fix command examples to match current release
 
-- [ ] **T024** [US3] Review `R:\Test-Projects\pass-cli\docs\USAGE.md` - File path accuracy (FR-012)
+- [X] **T024** [US3] Review `R:\Test-Projects\pass-cli\docs\USAGE.md` - File path accuracy (FR-012)
   - Verify vault location: `%USERPROFILE%\.pass-cli\vault.enc` (Windows), `~/.pass-cli/vault.enc` (Unix)
   - Verify config location: `~/.pass-cli/config.yaml` (from spec 007)
   - Verify audit log location: `~/.pass-cli/audit.log`
