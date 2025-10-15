@@ -246,40 +246,40 @@
 
 ### Implementation for User Story 4
 
-- [ ] **T025a** [US4] Verify MIGRATION.md exists or create skeleton (FR-013 prerequisite)
+- [X] **T025a** [US4] Verify MIGRATION.md exists or create skeleton (FR-013 prerequisite)
   - Check if `R:\Test-Projects\pass-cli\docs\MIGRATION.md` exists
   - If missing, create skeleton documenting PBKDF2-SHA256 iteration count migration from 100,000 to 600,000 iterations
   - Include sections: Security Rationale, Migration Command, Backward Compatibility, Performance Impact
   - Ensure consistency with constitution Principle I (600,000 iterations minimum)
   - If exists, proceed to T030
 
-- [ ] **T026** [US4] Review `R:\Test-Projects\pass-cli\docs\INSTALLATION.md` - Homebrew installation (FR-008)
+- [X] **T026** [US4] Review `R:\Test-Projects\pass-cli\docs\INSTALLATION.md` - Homebrew installation (FR-008)
   - Verify tap command: `brew tap ari1110/homebrew-tap`
   - Verify install command: `brew install pass-cli`
   - Verify verify command: `pass-cli version`
   - Test on macOS/Linux if available, or verify Homebrew tap is current
   - Check package manager status from research.md
 
-- [ ] **T027** [US4] Review `R:\Test-Projects\pass-cli\docs\INSTALLATION.md` - Scoop installation (FR-008)
+- [X] **T027** [US4] Review `R:\Test-Projects\pass-cli\docs\INSTALLATION.md` - Scoop installation (FR-008)
   - Verify bucket command: `scoop bucket add pass-cli https://github.com/ari1110/scoop-bucket`
   - Verify install command: `scoop install pass-cli`
   - Verify verify command: `pass-cli version`
   - Test on Windows if available, or verify Scoop bucket is current
   - Check package manager status from research.md
 
-- [ ] **T028** [US4] Review `R:\Test-Projects\pass-cli\docs\INSTALLATION.md` - Manual installation (FR-008)
+- [X] **T028** [US4] Review `R:\Test-Projects\pass-cli\docs\INSTALLATION.md` - Manual installation (FR-008)
   - Verify download links point to current release (v0.0.1 or later from research.md)
   - Verify checksum verification instructions accurate
   - Verify binary placement instructions for all platforms
   - Verify PATH setup instructions for Windows, macOS, Linux
 
-- [ ] **T029** [US4] Review `R:\Test-Projects\pass-cli\docs\INSTALLATION.md` - Build from source (FR-008)
+- [X] **T029** [US4] Review `R:\Test-Projects\pass-cli\docs\INSTALLATION.md` - Build from source (FR-008)
   - Verify Go version requirement: 1.25 or later
   - Verify build commands: `go build -o pass-cli .` or `make build`
   - Verify test commands: `go test ./...` or `make test`
   - Test build commands if Go installed
 
-- [ ] **T030** [US4] Review `R:\Test-Projects\pass-cli\docs\MIGRATION.md` - PBKDF2 iteration upgrade (FR-013)
+- [X] **T030** [US4] Review `R:\Test-Projects\pass-cli\docs\MIGRATION.md` - PBKDF2 iteration upgrade (FR-013)
   - **Prerequisite**: T025a must complete (MIGRATION.md exists)
   - Document migration from 100,000 to 600,000 PBKDF2-SHA256 iterations per constitution Principle I
   - Explain security rationale (OWASP recommendations, NIST SP 800-132)

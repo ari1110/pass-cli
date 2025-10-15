@@ -34,6 +34,11 @@ The January 2025 security hardening release introduces several important changes
 
 **Impact**: Vault unlock is slightly slower (~30-80ms slower) but significantly more secure.
 
+**Security Rationale**: The increase from 100,000 to 600,000 iterations aligns with current industry standards:
+- **OWASP**: Recommends 600,000+ iterations for PBKDF2-SHA256 (2023 guidance)
+- **NIST SP 800-132**: Recommends iteration counts that result in ≥100ms processing time
+- **Brute-Force Resistance**: 6x computational cost for attackers attempting password cracking
+
 ### 2. Password Policy Enforcement
 
 **New Requirements** (enforced for all passwords):
@@ -392,5 +397,6 @@ Time includes manual re-entry of credentials. Future in-place migration will be 
 
 ---
 
-**Last Updated**: 2025-01-13
-**Version**: v0.1.0 (Security Hardening Release)
+**Documentation Version**: v0.0.1
+**Last Updated**: January 2025
+**Status**: Production Ready
