@@ -776,20 +776,10 @@ pass-cli config reset
 ### Example Configuration
 
 ```yaml
-# Default vault location
-vault: ~/.pass-cli/vault.enc
-
-# Enable verbose output
-verbose: false
-
-# Clipboard timeout (seconds)
-clipboard_timeout: 30
-
-# Default password generation length
-password_length: 20
-
 # Terminal display thresholds (TUI mode)
 terminal:
+  # Enable terminal size warnings (default: true)
+  warning_enabled: true
   min_width: 60   # Minimum columns (default: 60)
   min_height: 30  # Minimum rows (default: 30)
 
@@ -803,12 +793,14 @@ keybindings:
   toggle_sidebar: "s"        # Toggle sidebar
   help: "?"                  # Show help modal
   search: "/"                # Activate search
+  confirm: "enter"           # Confirm actions in forms
+  cancel: "esc"                # Cancel actions in forms
 
 # Supported key formats for keybindings:
 # - Single letters: a-z
 # - Numbers: 0-9
 # - Function keys: f1-f12
-# - Modifiers: ctrl+, alt+, shift+
+# Modifiers: ctrl+, alt+, shift+
 # Examples: ctrl+q, alt+a, shift+f1
 ```
 
