@@ -3,20 +3,20 @@
 **Audit Date**: 2025-10-15
 **Scope**: 7 primary documentation files + all docs/ subdirectory files
 **Methodology**: Manual verification per [verification-procedures.md](./verification-procedures.md)
-**Status**: 🚧 **IN PROGRESS** (Template - to be populated during implementation)
+**Status**: 🚧 **IN PROGRESS** - 11 fixed, 3 open (79% remediation rate)
 
 ---
 
 ## Summary Statistics
 
-**Total Discrepancies**: 14 (DISC-001 through DISC-014)
+**Total Discrepancies Found**: 14 (DISC-001 through DISC-014)
 
 ### By Category
 
 | Category | Total | Critical | High | Medium | Low |
 |----------|-------|----------|------|--------|-----|
 | CLI Interface | 9 | 6 | 0 | 3 | 0 |
-| Code Examples | 2 | 0 | 0 | 1 | 1 |
+| Code Examples | 3 | 0 | 0 | 2 | 1 |
 | File Paths | 0 | 0 | 0 | 0 | 0 |
 | Configuration | 1 | 1 | 0 | 0 | 0 |
 | Feature Claims | 1 | 1 | 0 | 0 | 0 |
@@ -31,7 +31,7 @@
 | File | Discrepancies | Status |
 |------|---------------|--------|
 | README.md | 4 (extensions of DISC-006, 007, 009) | ✅ Fixed |
-| docs/USAGE.md | 8 | ✅ Fixed |
+| docs/USAGE.md | 9 (DISC-002, 003, 006, 007, 008, 009, 011, 012) | ✅ Fixed |
 | docs/MIGRATION.md | 1 (DISC-004) | ✅ Fixed |
 | docs/SECURITY.md | 1 (DISC-005) | ✅ Fixed |
 | docs/TROUBLESHOOTING.md | - | ❌ Not Started |
@@ -222,6 +222,41 @@
 
 ---
 
+#### DISC-013 [Feature/Critical] Audit logging completely non-functional
+
+- **Location**: Feature claimed in docs/SECURITY.md and implemented in internal/audit/
+- **Category**: Feature Claims
+- **Severity**: Critical
+- **Documented**: Audit logging creates HMAC-SHA256 signed entries in ~/.pass-cli/audit.log for all vault operations
+- **Actual**: Feature exists in code but audit log file is never created due to persistence failure
+- **Code Analysis**: internal/audit/audit.go implements HMAC-SHA256 correctly, but file writing fails
+- **Remediation**: Fix audit log file creation/persistence in internal/audit package
+- **Status**: ❌ Open (requires code fix, not documentation)
+- **Commit**: [TBD]
+
+---
+
+#### DISC-014 [UI/Medium] TUI keyboard shortcuts documented inconsistently
+
+- **Location**: README.md TUI shortcuts section and cmd/tui.go help text
+- **Category**: Behavioral Descriptions
+- **Severity**: Medium
+- **Documented**: Multiple inconsistencies between README.md, cmd/tui.go help text, and actual implementation
+  - README.md: 19 shortcuts with wrong keys (n for add vs config "a", missing i/s toggles, etc.)
+  - cmd/tui.go: Help text showed "n - New credential" but config defaults use "a"
+  - Both missed configurable vs hardcoded separation
+- **Actual**: 16 total shortcuts (8 configurable + 8 hardcoded) with proper key mappings
+  - Configurable: q, a, e, d, i, s, ?, /
+  - Hardcoded: Tab, Shift+Tab, ↑/↓, Enter, Esc, Ctrl+C, c, p
+- **Remediation**:
+  - Fixed cmd/tui.go help text to match config defaults
+  - Updated README.md with accurate configurable vs hardcoded separation
+  - Rebuilt binary so help output reflects corrections
+- **Status**: ✅ Fixed
+- **Commit**: 3cf1624
+
+---
+
 ## Known Issues (Pre-Audit Findings)
 
 The following discrepancies were identified during initial USAGE.md spot check (conversation leading to this spec):
@@ -240,23 +275,23 @@ The following discrepancies were identified during initial USAGE.md spot check (
 
 ### Category 1: CLI Interface Verification
 
-**Test Date**: [TBD]
+**Test Date**: 2025-10-15
 **Methodology**: Execute `pass-cli [command] --help`, compare against USAGE.md flag tables
 
 | Command | Documented Flags | Actual Flags (from --help) | Discrepancies | Status |
 |---------|------------------|---------------------------|---------------|--------|
-| init | --use-keychain, --enable-audit | [TBD] | [TBD] | ❌ Not Tested |
-| add | --username/-u, --password/-p, --category/-c, --url, --notes, --generate, --length, --no-symbols | [TBD] | DISC-002, DISC-003 | ❌ Not Tested |
-| get | [TBD] | [TBD] | [TBD] | ❌ Not Tested |
-| list | [TBD] | [TBD] | [TBD] | ❌ Not Tested |
-| update | [TBD] | [TBD] | [TBD] | ❌ Not Tested |
-| delete | [TBD] | [TBD] | [TBD] | ❌ Not Tested |
-| generate | [TBD] | [TBD] | [TBD] | ❌ Not Tested |
-| config | [TBD] | [TBD] | [TBD] | ❌ Not Tested |
-| verify-audit | [TBD] | [TBD] | [TBD] | ❌ Not Tested |
-| tui | [TBD] | [TBD] | [TBD] | ❌ Not Tested |
+| init | --use-keychain, --enable-audit | --use-keychain, --enable-audit | None | ✅ Tested |
+| add | --username/-u, --password/-p, --category/-c, --url, --notes, --generate, --length, --no-symbols | --username/-u, --password/-p, --category/-c, --url, --notes | DISC-002, DISC-003 | ✅ Fixed |
+| get | --copy/-c, --quiet/-q, --field/-f, --masked, --no-clipboard | --quiet/-q, --field/-f, --masked, --no-clipboard | DISC-006 | ✅ Fixed |
+| list | --unused, --days | --unused, --days | None | ✅ Tested |
+| update | --username/-u, --password/-p, --category, --url, --notes, --generate, --length, --no-symbols, --clear-category, --clear-notes, --clear-url, --force/-f | --username/-u, --password/-p, --category, --url, --notes, --clear-category, --clear-notes, --clear-url, --force/-f | DISC-007, DISC-008 | ✅ Fixed |
+| delete | --force/-f | --force/-f | None | ✅ Tested |
+| generate | --length/-l, --no-clipboard, --no-digits, --no-lower, --no-symbols, --no-upper, --copy | --length/-l, --no-clipboard, --no-digits, --no-lower, --no-symbols, --no-upper | DISC-009 | ✅ Fixed |
+| config | init, edit, validate, reset | init, edit, validate, reset | None | ✅ Tested |
+| verify-audit | [No flags] | [No flags] | None | ✅ Tested |
+| tui | [No flags] | [No flags] | None | ✅ Tested |
 
-**Total Discrepancies Found**: [TBD]
+**Total Discrepancies Found**: 9 (DISC-002, 003, 006, 007, 008, 009) | ✅ Fixed
 
 ---
 
@@ -284,41 +319,10 @@ The following discrepancies were identified during initial USAGE.md spot check (
 - **Issue**: Examples reference non-existent credentials (database, openai, myservice) instead of test vault data (testservice, github)
 - **Status**: ❌ Open
 
-**DISC-013 [Feature/Critical] Audit logging completely non-functional**
-
-- **Location**: Feature claimed in docs/SECURITY.md and implemented in internal/audit/
-- **Category**: Feature Claims
-- **Severity**: Critical
-- **Documented**: Audit logging creates HMAC-SHA256 signed entries in ~/.pass-cli/audit.log for all vault operations
-- **Actual**: Feature exists in code but audit log file is never created due to persistence failure
-- **Code Analysis**: internal/audit/audit.go implements HMAC-SHA256 correctly, but file writing fails
-- **Remediation**: Fix audit log file creation/persistence in internal/audit package
-- **Status**: ❌ Open (requires code fix, not documentation)
-
 ---
 
-**DISC-014 [UI/Medium] TUI keyboard shortcuts documented inconsistently**
-
-- **Location**: README.md TUI shortcuts section and cmd/tui.go help text
-- **Category**: Feature Claims / Behavioral Descriptions
-- **Severity**: Medium
-- **Documented**: Multiple inconsistencies between README.md, cmd/tui.go help text, and actual implementation
-  - README.md: 19 shortcuts with wrong keys (n for add vs config "a", missing i/s toggles, etc.)
-  - cmd/tui.go: Help text showed "n - New credential" but config defaults use "a"
-  - Both missed configurable vs hardcoded separation
-- **Actual**: 16 total shortcuts (8 configurable + 8 hardcoded) with proper key mappings
-  - Configurable: q, a, e, d, i, s, ?, /
-  - Hardcoded: Tab, Shift+Tab, ↑/↓, Enter, Esc, Ctrl+C, c, p
-- **Remediation**:
-  - Fixed cmd/tui.go help text to match config defaults
-  - Updated README.md with accurate configurable vs hardcoded separation
-  - Rebuilt binary so help output reflects corrections
-- **Status**: ✅ Fixed
-
----
-
-**Total Discrepancies Found**: 14 (DISC-001 through DISC-014)
-**Status**: 11 Fixed, 3 Open (DISC-010, DISC-011, DISC-013)
+**Total Discrepancies Found**: 3 (DISC-010, DISC-011)
+**Status**: 2 Open, 1 Needs Code Fix (DISC-013)
 
 ---
 
@@ -339,6 +343,7 @@ The following discrepancies were identified during initial USAGE.md spot check (
 - **Location**: Feature claimed in docs/SECURITY.md and implemented in internal/audit/
 - **Issue**: Audit log file never created despite feature being implemented in code
 - **Status**: ❌ Open (requires code fix, not documentation)
+- **Reference**: See DISC-013 in Discrepancy Details section
 
 
 ---
@@ -417,4 +422,4 @@ The following discrepancies were identified during initial USAGE.md spot check (
 
 ---
 
-**Report Status**: 🚧 **IN PROGRESS** - 5 discrepancies documented (from pre-audit findings), full audit pending
+**Report Status**: 🚧 **IN PROGRESS** - Comprehensive audit in progress
