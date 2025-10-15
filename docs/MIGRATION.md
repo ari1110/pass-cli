@@ -138,8 +138,9 @@ The January 2025 security hardening release introduces several important changes
    pass-cli add service1
    pass-cli add service2
 
-   # Or use --generate for policy-compliant passwords
-   pass-cli add service1 --username user@example.com --generate
+   # Or generate password separately, then add credential
+   pass-cli generate  # Copy generated password
+   pass-cli add service1 --username user@example.com  # Paste when prompted
    ```
 
 4. **Verify migration**:
@@ -190,7 +191,7 @@ pass-cli migrate --iterations 600000 --enable-audit
 
 2. **Add new credentials to new vault**:
    ```bash
-   pass-cli --vault ~/.pass-cli/vault-new.enc add newservice --generate
+   pass-cli --vault ~/.pass-cli/vault-new.enc add newservice
    ```
 
 3. **Keep old vault for existing credentials**:
@@ -256,8 +257,8 @@ MySecureP@ss2025!
 Correct-Horse-Battery-29!
 Admin#2025$Password
 
-# Or use --generate for automatic compliance
-pass-cli add service --generate
+# Or generate a policy-compliant password
+pass-cli generate  # Automatically meets policy requirements
 ```
 
 ### Problem: Vault unlock is slower after upgrade
@@ -376,7 +377,7 @@ Time includes manual re-entry of credentials. Future in-place migration will be 
 
 ### During Migration
 
-1. ✅ Use `--generate` flag for policy-compliant passwords
+1. ✅ Use `pass-cli generate` command for policy-compliant passwords
 2. ✅ Verify each credential after adding
 3. ✅ Test vault unlock multiple times
 4. ✅ Enable audit logging for compliance needs

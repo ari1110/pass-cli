@@ -117,11 +117,11 @@
 
 ### Remediation for User Story 2
 
-- [ ] T052 [P] [US2] Remediate docs/MIGRATION.md:141-142,193,259-260 - remove `--generate` from migration examples → **Fix DISC-004**
-- [ ] T053 [P] [US2] Remediate docs/SECURITY.md:608 - remove `--generate` recommendation → **Fix DISC-005**
-- [ ] T054 [US2] Remediate README.md code examples identified in T046
-- [ ] T055 [US2] Remediate docs/USAGE.md code examples identified in T047
-- [ ] T056 [US2] Commit code examples remediation: `git add docs/MIGRATION.md docs/SECURITY.md docs/USAGE.md README.md && git commit -m "docs: fix code example discrepancies (DISC-004, DISC-005)"`
+- [X] T052 [P] [US2] Remediate docs/MIGRATION.md:141-142,193,259-260,379 - remove `--generate` from migration examples (4 occurrences) → **Fixed DISC-004**
+- [X] T053 [P] [US2] Remediate docs/SECURITY.md:608 - update credential rotation recommendation to use `pass-cli generate` → **Fixed DISC-005**
+- [ ] T054 [US2] Remediate README.md code examples identified in T046 → **DEFERRED** (critical fixes prioritized)
+- [ ] T055 [US2] Remediate docs/USAGE.md code examples identified in T047 → **DEFERRED** (critical fixes prioritized)
+- [ ] T056 [US2] Commit code examples remediation: `git add docs/MIGRATION.md docs/SECURITY.md specs/010-documentation-accuracy-verification/tasks.md && git commit -m "docs: fix code example discrepancies (DISC-004, DISC-005)"`
 
 **Checkpoint**: User Story 2 complete - all code examples execute successfully
 

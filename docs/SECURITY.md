@@ -605,7 +605,8 @@ pass-cli verify-audit
 
 1. **Immediate**
    - Rotate credential immediately on actual service
-   - Update in Pass-CLI: `pass-cli update service --generate`
+   - Generate new password: `pass-cli generate` (copy output)
+   - Update in Pass-CLI: `pass-cli update service` (paste when prompted)
 
 2. **Investigation**
    - Identify leak source (logs, clipboard, screen share)
