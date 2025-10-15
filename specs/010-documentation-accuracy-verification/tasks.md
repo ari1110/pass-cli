@@ -27,10 +27,10 @@
 
 - [X] T001 Build pass-cli binary from current main branch: `go build -o pass-cli.exe`
 - [X] T002 Create test vault directory: `mkdir ~/.pass-cli-test`
-- [X] T003 Initialize test vault: `export PASS_VAULT=~/.pass-cli-test/vault.enc && ./pass-cli init` → Vault created at default location
-- [ ] T004 [P] Add test credentials to test vault: `testservice` (user: test@example.com, password: TestPass123!) → **DEFERRED** (not required for US1 CLI verification)
-- [ ] T005 [P] Add second test credential: `github` (user: user@example.com) → **DEFERRED** (not required for US1 CLI verification)
-- [ ] T006 Verify test environment ready: run `./pass-cli list` and confirm 2 credentials → **DEFERRED** (not required for US1 CLI verification)
+- [X] T003 Initialize test vault: `./pass-cli --vault ~/.pass-cli-test/vault.enc init` (master password: TestMasterP@ss123!)
+- [X] T004 [P] Add test credentials to test vault: `testservice` (user: test@example.com, password: TestPass123!@#)
+- [X] T005 [P] Add second test credential: `github` (user: user@example.com, password: GithubPass456!@#)
+- [X] T006 Verify test environment ready: run `./pass-cli --vault ~/.pass-cli-test/vault.enc list` and confirm 2 credentials
 
 ---
 
