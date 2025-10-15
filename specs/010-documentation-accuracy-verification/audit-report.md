@@ -30,10 +30,10 @@
 
 | File | Discrepancies | Status |
 |------|---------------|--------|
-| README.md | - | ❌ Not Started |
-| docs/USAGE.md | 8 | 🔧 In Progress |
-| docs/MIGRATION.md | - | ❌ Not Started |
-| docs/SECURITY.md | - | ❌ Not Started |
+| README.md | 4 (extensions of DISC-006, 007, 009) | ✅ Fixed |
+| docs/USAGE.md | 8 | ✅ Fixed |
+| docs/MIGRATION.md | 1 (DISC-004) | ✅ Fixed |
+| docs/SECURITY.md | 1 (DISC-005) | ✅ Fixed |
 | docs/TROUBLESHOOTING.md | - | ❌ Not Started |
 | docs/KNOWN_LIMITATIONS.md | - | ❌ Not Started |
 | CONTRIBUTING.md | - | ❌ Not Started |
