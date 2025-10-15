@@ -23,8 +23,8 @@
 
 **Purpose**: Create validation scripts and tracking infrastructure for documentation review
 
-- [ ] **T001** [P] Create validation scripts directory at `specs/008-review-and-update/validation/`
-- [ ] **T002** [P] Create validation tracking spreadsheet or JSON file at `specs/008-review-and-update/validation/tracking.json` (based on data-model.md structure)
+- [X] **T001** [P] Create validation scripts directory at `specs/008-review-and-update/validation/`
+- [X] **T002** [P] Create validation tracking spreadsheet or JSON file at `specs/008-review-and-update/validation/tracking.json` (based on data-model.md structure)
 - [ ] **T003** [P] Install validation tools: `npm install -g markdown-link-check` (optional but recommended)
 
 **Checkpoint**: Validation infrastructure ready
@@ -37,34 +37,34 @@
 
 **⚠️ CRITICAL**: These scripts must be complete and working before ANY documentation file review can begin
 
-- [ ] **T004** Create `specs/008-review-and-update/validation/version-audit.sh` script
+- [X] **T004** Create `specs/008-review-and-update/validation/version-audit.sh` script
   - Grep all docs for version references
   - Flag inconsistencies (multiple versions)
   - Flag outdated iteration counts (100,000 vs 600,000)
   - Output: List of files with version issues
   - Exit code 0 if clean, 1 if issues found
 
-- [ ] **T005** [P] Create `specs/008-review-and-update/validation/command-tests.sh` script
+- [X] **T005** [P] Create `specs/008-review-and-update/validation/command-tests.sh` script
   - Extract all `pass-cli <command>` examples from docs
   - Execute `<command> --help` to verify command exists
   - Log failures with file and line number
   - Output: List of invalid commands
   - Exit code 0 if all valid, 1 if failures
 
-- [ ] **T006** [P] Create `specs/008-review-and-update/validation/link-check.sh` script
+- [X] **T006** [P] Create `specs/008-review-and-update/validation/link-check.sh` script
   - Use markdown-link-check or curl to validate HTTP/HTTPS links
   - Validate internal file links resolve
   - Handle 404 errors gracefully: suggest archive.org fallback URLs (edge case E1 fix)
   - Output: List of broken links with URLs and suggested fallbacks
   - Exit code 0 if all links valid, 1 if broken links
 
-- [ ] **T007** [P] Create `specs/008-review-and-update/validation/cross-reference-check.sh` script
+- [X] **T007** [P] Create `specs/008-review-and-update/validation/cross-reference-check.sh` script
   - Parse cross-references between files (e.g., "See MIGRATION.md")
   - Verify referenced content exists in target file
   - Output: List of broken cross-references
   - Exit code 0 if all valid, 1 if broken refs
 
-- [ ] **T008** Create `specs/008-review-and-update/validation/run-all-validation.sh` wrapper script
+- [X] **T008** Create `specs/008-review-and-update/validation/run-all-validation.sh` wrapper script
   - Execute all 4 validation scripts in parallel
   - Collect exit codes
   - Generate summary report
@@ -84,32 +84,32 @@
 
 ### Implementation for User Story 1
 
-- [ ] **T009** [US1] Review `R:\Test-Projects\pass-cli\README.md` - Version accuracy (FR-001)
+- [X] **T009** [US1] Review `R:\Test-Projects\pass-cli\README.md` - Version accuracy (FR-001)
   - **Note**: T004 version-audit.sh handles automated version validation across all files
   - Manual review: Verify version v0.0.1 appears in appropriate contexts (installation, Quick Start)
   - Verify no outdated version references in prose or examples
   - Update version numbers if needed
 
-- [ ] **T010** [US1] Review `R:\Test-Projects\pass-cli\README.md` - Quick Start completeness (FR-002)
+- [X] **T010** [US1] Review `R:\Test-Projects\pass-cli\README.md` - Quick Start completeness (FR-002)
   - Verify installation commands for Homebrew, Scoop, manual present
   - Verify First Steps demonstrates: init → add → get → copy workflow
   - Execute all Quick Start commands with timer
   - Target: ≤10 minutes for new user (SC-001)
   - Fix any command errors or missing steps
 
-- [ ] **T011** [US1] Review `R:\Test-Projects\pass-cli\README.md` - TUI keyboard shortcuts (FR-007)
+- [X] **T011** [US1] Review `R:\Test-Projects\pass-cli\README.md` - TUI keyboard shortcuts (FR-007)
   - Current: Table shows only 6 shortcuts (issue from research.md)
   - Update table to include all 20+ keyboard shortcuts (standardized terminology: "keyboard shortcuts" not "keybindings" or "key hints")
   - Verify shortcuts match spec 007 implementation
   - Add reference link to full docs: `docs/USAGE.md#tui-keyboard-shortcuts`
 
-- [ ] **T012** [US1] Review `R:\Test-Projects\pass-cli\README.md` - Configuration documentation (FR-010)
+- [X] **T012** [US1] Review `R:\Test-Projects\pass-cli\README.md` - Configuration documentation (FR-010)
   - Add section documenting config.yml feature from spec 007
   - Explain keybinding customization capability
   - Provide example config path: `~/.pass-cli/config.yaml`
   - Reference full config docs: `docs/USAGE.md#configuration`
 
-- [ ] **T013** [US1] Review `R:\Test-Projects\pass-cli\README.md` - Feature roadmap accuracy (FR-015)
+- [X] **T013** [US1] Review `R:\Test-Projects\pass-cli\README.md` - Feature roadmap accuracy (FR-015)
   - Review specs 001-007 implementation status from research.md
   - Mark completed features with `[x]` checkbox
   - Ensure no implemented features listed as "planned"

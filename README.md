@@ -2,6 +2,8 @@
 
 > A secure, cross-platform command-line password manager designed for developers
 
+**Version**: v0.0.1 | **Status**: Production Ready | **Last Updated**: January 2025
+
 Pass-CLI is a fast, secure password and API key manager that stores credentials locally with AES-256-GCM encryption. Built for developers who need quick, script-friendly access to credentials without cloud dependencies.
 
 ## ✨ Key Features
@@ -93,19 +95,44 @@ pass-cli get github
 - **Search & Filter**: Press `/` to search, `Esc` to clear
 - **Keyboard Shortcuts**: Press `?` to see all available shortcuts
 - **Responsive Layout**: Sidebar and detail panel adapt to terminal size
+- **Minimum Terminal Size**: Requires 60 columns × 30 rows (warning overlay displays if terminal is too small)
 
 ### Key TUI Shortcuts
 
+#### Configurable Shortcuts (can be customized via config.yml)
+
 | Shortcut | Action | Context |
 |----------|--------|---------|
-| `Ctrl+H` | Toggle password visibility | Add/edit forms |
-| `/` | Activate search mode | Main view |
-| `s` | Toggle sidebar | Main view |
-| `i` | Toggle detail panel | Main view |
-| `?` | Show help | Any time |
-| `q` | Quit | Any time |
+| `q` | Quit application | Any time |
+| `a` | Add new credential | Main view |
+| `e` | Edit credential | Main view |
+| `d` | Delete credential | Main view |
+| `i` | Toggle detail panel (Auto/Hide/Show) | Main view |
+| `s` | Toggle sidebar (Auto/Hide/Show) | Main view |
+| `?` | Show help modal | Any time |
+| `/` | Activate search/filter | Main view |
 
-See [full keyboard shortcuts reference](docs/USAGE.md#tui-keyboard-shortcuts) for complete list.
+#### Hardcoded Shortcuts (navigation and forms)
+
+| Shortcut | Action | Context |
+|----------|--------|---------|
+| `Tab` | Next component | All views |
+| `Shift+Tab` | Previous component | All views |
+| `↑/↓` | Navigate lists | List views |
+| `Enter` | Select / View details | List views |
+| `Esc` | Close modal / Exit search (press twice to clear filter) | Modals, search |
+| `Ctrl+C` | Force quit application | Any time |
+| `p` | Copy password to clipboard | Detail view |
+| `c` | Copy username to clipboard | Detail view |
+| `Ctrl+H` | Toggle password visibility | Add/edit forms |
+| `Ctrl+S` | Quick-save / Submit form | Add/edit forms |
+| `PgUp/PgDn` | Scroll help modal | Help modal |
+
+**Total: 19 keyboard shortcuts** (8 configurable + 11 hardcoded)
+
+**Customization**: See [Configuration](#configuration-file) section below for keybinding customization via `~/.pass-cli/config.yaml`
+
+See [full keyboard shortcuts reference](docs/USAGE.md#tui-keyboard-shortcuts) for detailed context and examples.
 
 ## 📖 Usage
 
@@ -384,13 +411,68 @@ pass-cli --verbose get myservice
 
 ### Configuration File
 
-Create `~/.pass-cli/config.yaml`:
+Pass-CLI supports user configuration via `config.yaml` (added in January 2025). This allows you to customize keybindings, terminal thresholds, and default settings.
+
+**Configuration Location**:
+- **Linux/macOS**: `~/.config/pass-cli/config.yml`
+- **Windows**: `%APPDATA%\pass-cli\config.yml`
+
+**Create and Edit Configuration**:
+
+```bash
+# Initialize default config
+pass-cli config init
+
+# Edit config in default editor
+pass-cli config edit
+
+# Validate config syntax
+pass-cli config validate
+
+# Reset to defaults
+pass-cli config reset
+```
+
+**Example Configuration**:
 
 ```yaml
-# Default configuration
-verbose: false
-vault: ~/.pass-cli/vault.enc
+# ~/.config/pass-cli/config.yml
+
+# Terminal display thresholds
+terminal:
+  min_width: 60   # Minimum columns (default: 60)
+  min_height: 30  # Minimum rows (default: 30)
+
+# Custom keyboard shortcuts (TUI mode)
+keybindings:
+  quit: "q"                  # Quit application
+  add_credential: "a"        # Add new credential
+  edit_credential: "e"       # Edit credential
+  delete_credential: "d"     # Delete credential
+  toggle_detail: "i"         # Toggle detail panel
+  toggle_sidebar: "s"        # Toggle sidebar
+  help: "?"                  # Show help modal
+  search: "/"                # Activate search
+
+# Supported key formats:
+# - Single letters: a-z
+# - Numbers: 0-9
+# - Function keys: f1-f12
+# - Modifiers: ctrl+, alt+, shift+
+# Examples: ctrl+q, alt+a, shift+f1
+
+# Validation: Config is validated on load
+# - Duplicate keys rejected (conflict detection)
+# - Unknown actions rejected
+# - Invalid config shows warning modal, app continues with defaults
 ```
+
+**Keybinding Customization** (Spec 007):
+- Customize 8 TUI shortcuts (quit, add, edit, delete, toggle_detail, toggle_sidebar, help, search)
+- Navigation shortcuts (Tab, arrows, Enter, Esc) are hardcoded and cannot be changed
+- UI hints automatically update to reflect your custom keybindings in status bar and help modal
+
+For complete configuration reference, see [docs/USAGE.md#configuration](docs/USAGE.md#configuration).
 
 ## 🏗️ Building from Source
 
@@ -452,13 +534,15 @@ make fmt
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) first.
+Contributions are welcome!
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+See [docs/development/](docs/development/) for development guidelines and setup.
 
 ## 📋 Requirements
 
