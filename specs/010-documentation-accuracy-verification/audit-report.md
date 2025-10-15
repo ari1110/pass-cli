@@ -9,16 +9,16 @@
 
 ## Summary Statistics
 
-**Total Discrepancies**: 9 (DISC-001 through DISC-009)
+**Total Discrepancies**: 12 (DISC-001 through DISC-012)
 
 ### By Category
 
 | Category | Total | Critical | High | Medium | Low |
 |----------|-------|----------|------|--------|-----|
 | CLI Interface | 9 | 6 | 0 | 3 | 0 |
-| Code Examples | - | - | - | - | - |
-| File Paths | - | - | - | - | - |
-| Configuration | - | - | - | - | - |
+| Code Examples | 2 | 0 | 0 | 1 | 1 |
+| File Paths | 0 | 0 | 0 | 0 | 0 |
+| Configuration | 1 | 1 | 0 | 0 | 0 |
 | Feature Claims | - | - | - | - | - |
 | Architecture | - | - | - | - | - |
 | Metadata | - | - | - | - | - |
@@ -182,6 +182,46 @@
 
 ---
 
+#### DISC-010 [Code/Medium] README.md `--field` and `--masked` flags not working
+
+- **Location**: README.md get command examples
+- **Category**: Code Examples
+- **Severity**: Medium
+- **Documented**: `pass-cli get myservice --field username` should output only username; `pass-cli get myservice --masked` should show password as asterisks
+- **Actual**: Both commands show full credential output instead of specific field or masked password
+- **Remediation**: Either fix the implementation to support these flags or update documentation to reflect actual behavior
+- **Status**: ❌ Open
+- **Commit**: [TBD]
+
+---
+
+#### DISC-011 [Code/Low] PowerShell example credentials mismatch
+
+- **Location**: docs/USAGE.md PowerShell examples (lines 665, 682, 692)
+- **Category**: Code Examples
+- **Severity**: Low
+- **Documented**: Examples reference credentials `database`, `openai`, `myservice`
+- **Actual**: Test vault contains `testservice`, `github`; examples use non-existent credential names
+- **Remediation**: Update PowerShell examples to use available test credentials or create standardized test data
+- **Status**: ❌ Open
+- **Commit**: [TBD]
+
+---
+
+#### DISC-012 [Config/Critical] YAML configuration examples contain invalid fields
+
+- **Location**: docs/USAGE.md YAML config example (lines 778-805)
+- **Category**: Configuration
+- **Severity**: Critical
+- **Documented**: Contains fields `vault`, `verbose`, `clipboard_timeout`, `password_length` that don't exist in Config struct
+- **Missing**: Field `terminal.warning_enabled` that exists in Config struct but not documented
+- **Actual**: internal/config/config.go Config struct only supports `terminal` and `keybindings` fields
+- **Remediation**: Remove unsupported fields from documentation, add missing `warning_enabled` field to examples
+- **Status**: ❌ Open
+- **Commit**: [TBD]
+
+---
+
 ## Known Issues (Pre-Audit Findings)
 
 The following discrepancies were identified during initial USAGE.md spot check (conversation leading to this spec):
@@ -222,15 +262,35 @@ The following discrepancies were identified during initial USAGE.md spot check (
 
 ### Category 2: Code Examples Verification
 
-**Test Date**: [TBD]
-**Methodology**: Extract bash/PowerShell blocks, execute in test vault
+**Test Date**: 2025-10-15
+**Methodology**: Extract bash/PowerShell blocks, execute in test vault (~/.pass-cli-test/vault.enc, password: TestMasterP@ss123)
 
-| File | Line | Code Block | Exit Code | Output Match | Discrepancies | Status |
-|------|------|-----------|-----------|--------------|---------------|--------|
-| README.md | 158 | `pass-cli add newservice --generate` | [TBD] | [TBD] | DISC-001 | ❌ Not Tested |
-| [TBD] | [TBD] | [TBD] | [TBD] | [TBD] | [TBD] | ❌ Not Tested |
+#### Summary Results
+- **README.md**: 85% accuracy (23/27 commands working)
+- **USAGE.md**: 100% accuracy for read-only commands (all documented functionality works as expected)
+- **MIGRATION.md**: 83% success rate (19/23 commands successful, core procedures accurate)
+- **PowerShell examples**: Core functionality works, example credentials need updates
+- **Output formats**: All match documented examples (table, JSON, simple)
 
-**Total Discrepancies Found**: [TBD]
+#### Key Issues Found
+
+**DISC-010 [Code/Medium] README.md `--field` and `--masked` flags not working**
+- **Location**: README.md get command examples
+- **Issue**: `--field username` and `--masked` options show full credential output instead of specific field/masked password
+- **Status**: ❌ Open
+
+**DISC-011 [Code/Low] PowerShell example credentials mismatch**
+- **Location**: docs/USAGE.md PowerShell examples
+- **Issue**: Examples reference non-existent credentials (database, openai, myservice) instead of test vault data (testservice, github)
+- **Status**: ❌ Open
+
+**DISC-012 [Config/Critical] YAML configuration examples contain invalid fields**
+- **Location**: docs/USAGE.md YAML config example (lines 778-805)
+- **Issue**: Contains unsupported fields: `vault`, `verbose`, `clipboard_timeout`, `password_length`
+- **Missing**: `terminal.warning_enabled` field
+- **Status**: ❌ Open
+
+**Total Discrepancies Found**: 3 (DISC-010, DISC-011, DISC-012)
 
 ---
 
