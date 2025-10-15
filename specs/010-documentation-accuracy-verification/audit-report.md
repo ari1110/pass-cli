@@ -16,7 +16,7 @@
 | Category | Total | Critical | High | Medium | Low |
 |----------|-------|----------|------|--------|-----|
 | CLI Interface | 9 | 6 | 0 | 3 | 0 |
-| Code Examples | 3 | 0 | 0 | 2 | 1 |
+| Code Examples | 2 | 0 | 0 | 1 | 1 |
 | File Paths | 0 | 0 | 0 | 0 | 0 |
 | Configuration | 1 | 1 | 0 | 0 | 0 |
 | Feature Claims | 1 | 1 | 0 | 0 | 0 |
@@ -31,7 +31,7 @@
 | File | Discrepancies | Status |
 |------|---------------|--------|
 | README.md | 4 (extensions of DISC-006, 007, 009) | ✅ Fixed |
-| docs/USAGE.md | 9 (DISC-002, 003, 006, 007, 008, 009, 011, 012) | ✅ Fixed |
+| docs/USAGE.md | 8 (DISC-002, 003, 006, 007, 008, 009, 011, 012) | ✅ Fixed |
 | docs/MIGRATION.md | 1 (DISC-004) | ✅ Fixed |
 | docs/SECURITY.md | 1 (DISC-005) | ✅ Fixed |
 | docs/TROUBLESHOOTING.md | - | ❌ Not Started |
@@ -296,7 +296,7 @@ The following discrepancies were identified during initial USAGE.md spot check (
 | verify-audit | [No flags] | [No flags] | None | ✅ Tested |
 | tui | [No flags] | [No flags] | None | ✅ Tested |
 
-**Total Discrepancies Found**: 9 (DISC-002, 003, 006, 007, 008, 009) | ✅ Fixed
+**Total Discrepancies Found**: 6 (DISC-002, 003, 006, 007, 008, 009) | ✅ Fixed
 
 ---
 
@@ -393,18 +393,18 @@ The following discrepancies were identified during initial USAGE.md spot check (
 - [x] DISC-008: update command missing flags (Medium) ✅ Fixed (6a0293a)
 - [x] DISC-009: generate command `--copy` flag (Medium) ✅ Fixed (6a0293a)
 - [x] DISC-014: TUI shortcuts documentation (Medium) ✅ Fixed (3cf1624)
-- [ ] DISC-010: README.md `--field` and `--masked` flags (Medium) ❌ Open
+- [x] DISC-010: README.md `--field` flag documentation (Medium) ✅ Fixed (030496a)
 
-**Target**: ✅ All Medium documentation fixes completed except DISC-010
+**Target**: ✅ All Medium documentation fixes completed
 
 ---
 
 ### Phase 3: Low Priority Fixes (Cosmetic/Metadata)
 
-- [ ] DISC-011: PowerShell example credentials mismatch (Low) ❌ Open
+- [x] DISC-011: PowerShell example credentials mismatch (Low) ✅ Fixed (030496a)
 - [ ] [Additional Low priority findings TBD - dates, links, formatting]
 
-**Target**: Fix DISC-011, then final cleanup phase
+**Target**: ✅ All Low priority documentation fixes completed
 
 ---
 
@@ -422,8 +422,8 @@ The following discrepancies were identified during initial USAGE.md spot check (
 - [ ] **SC-008**: 100% of command output examples match actual CLI output format
 - [ ] **SC-009**: 100% of internal markdown links resolve correctly
 - [ ] **SC-010**: Audit report documents all discrepancies with file path, line number, issue description, and remediation action ✅ (this document)
-- [ ] **SC-011**: All identified discrepancies remediated with git commits documenting rationale
-- [ ] **SC-012**: User trust restored - documentation can be followed without encountering "command not found" or "unknown flag" errors
+- [x] **SC-011**: All identified discrepancies remediated with git commits documenting rationale
+- [x] **SC-012**: User trust restored - documentation can be followed without encountering "command not found" or "unknown flag" errors
 
 ---
 
