@@ -621,14 +621,14 @@ pass-cli list --format simple
 #!/bin/bash
 
 # Export password
-export DB_PASSWORD=$(pass-cli get database --quiet)
+export SERVICE_PASSWORD=$(pass-cli get testservice --quiet)
 
 # Export specific field
-export DB_USER=$(pass-cli get database --field username --quiet)
+export SERVICE_USER=$(pass-cli get testservice --field username --quiet)
 
 # Use in command
-mysql -u "$(pass-cli get database -f username -q)" \
-      -p"$(pass-cli get database -q)" \
+mysql -u "$(pass-cli get testservice -f username -q)" \
+      -p"$(pass-cli get testservice -q)" \
       mydb
 ```
 
@@ -636,9 +636,9 @@ mysql -u "$(pass-cli get database -f username -q)" \
 
 ```bash
 # Check if credential exists
-if pass-cli get myservice --quiet &>/dev/null; then
+if pass-cli get testservice --quiet &>/dev/null; then
     echo "Credential exists"
-    export API_KEY=$(pass-cli get myservice --quiet)
+    export API_KEY=$(pass-cli get testservice --quiet)
 else
     echo "Credential not found"
     exit 1
@@ -662,14 +662,14 @@ done
 
 ```powershell
 # Export password
-$env:DB_PASSWORD = pass-cli get database --quiet
+$env:SERVICE_PASSWORD = pass-cli get testservice --quiet
 
 # Export specific field
-$env:DB_USER = pass-cli get database --field username --quiet
+$env:SERVICE_USER = pass-cli get testservice --field username --quiet
 
 # Use in command
-$apiKey = pass-cli get openai --quiet
-Invoke-RestMethod -Uri "https://api.openai.com" -Headers @{
+$apiKey = pass-cli get github --quiet
+Invoke-RestMethod -Uri "https://api.github.com" -Headers @{
     "Authorization" = "Bearer $apiKey"
 }
 ```
@@ -679,7 +679,7 @@ Invoke-RestMethod -Uri "https://api.openai.com" -Headers @{
 ```powershell
 # Check if credential exists
 try {
-    $password = pass-cli get myservice --quiet 2>$null
+    $password = pass-cli get testservice --quiet 2>$null
     Write-Host "Credential exists"
     $env:API_KEY = $password
 } catch {
@@ -1103,7 +1103,7 @@ Pass-CLI automatically tracks where credentials are accessed based on your curre
 ```bash
 # Access from project directory
 cd ~/projects/my-app
-pass-cli get database
+pass-cli get testservice
 
 # Usage tracking is automatic based on current directory
 ```
@@ -1193,7 +1193,7 @@ npm run dev
 NEW_PWD=$(pass-cli generate --length 32 --quiet)
 
 # Update service
-pass-cli update myservice --password "$NEW_PWD"
+pass-cli update testservice --password "$NEW_PWD"
 
 # Use new password
 echo "$NEW_PWD" | some-service-update-command

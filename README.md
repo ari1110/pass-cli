@@ -170,7 +170,7 @@ pass-cli get myservice --copy
 pass-cli get myservice --quiet
 
 # Get specific field
-pass-cli get myservice --field username
+pass-cli get myservice --field username --quiet
 
 # Display with masked password
 pass-cli get myservice --masked
