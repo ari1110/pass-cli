@@ -446,6 +446,15 @@ func (eh *EventHandler) handleShowHelp() {
 		SetTitle(" Help ").
 		SetBorderColor(tcell.ColorWhite)
 
+	// Add input capture to handle Escape key to close modal
+	helpContent.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyEscape {
+			eh.pageManager.CloseModal("help")
+			return nil
+		}
+		return event
+	})
+
 	eh.pageManager.ShowModal("help", helpContent, layout.HelpModalWidth, layout.HelpModalHeight)
 }
 
