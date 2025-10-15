@@ -182,14 +182,15 @@
 
 ---
 
-#### DISC-010 [Code/Medium] README.md `--field` and `--masked` flags not working
+#### DISC-010 [Code/Medium] README.md `--field` flag documentation incomplete
 
-- **Location**: README.md get command examples
+- **Location**: README.md:173
 - **Category**: Code Examples
 - **Severity**: Medium
-- **Documented**: `pass-cli get myservice --field username` should output only username; `pass-cli get myservice --masked` should show password as asterisks
-- **Actual**: Both commands show full credential output instead of specific field or masked password
-- **Remediation**: Either fix the implementation to support these flags or update documentation to reflect actual behavior
+- **Documented**: `pass-cli get myservice --field username` should output only username
+- **Actual**: `--field` flag requires `--quiet` flag to output only the specified field (line 95-96 in cmd/get.go)
+- **Code Analysis**: Field extraction only occurs in `outputQuietMode()` function; without `--quiet`, command uses `outputNormalMode()` which ignores `--field` parameter
+- **Remediation**: Update README.md example to include required `--quiet` flag: `pass-cli get myservice --field username --quiet`
 - **Status**: ❌ Open
 - **Commit**: [TBD]
 
@@ -197,12 +198,12 @@
 
 #### DISC-011 [Code/Low] PowerShell example credentials mismatch
 
-- **Location**: docs/USAGE.md PowerShell examples (lines 665, 682, 692)
+- **Location**: docs/USAGE.md:624, 627, 630, 631, 639, 641, 665, 668, 671, 682, 1106, 1196
 - **Category**: Code Examples
 - **Severity**: Low
 - **Documented**: Examples reference credentials `database`, `openai`, `myservice`
 - **Actual**: Test vault contains `testservice`, `github`; examples use non-existent credential names
-- **Remediation**: Update PowerShell examples to use available test credentials or create standardized test data
+- **Remediation**: Update PowerShell examples to use available test credentials (`testservice`, `github`) or create standardized test data
 - **Status**: ❌ Open
 - **Commit**: [TBD]
 
@@ -222,16 +223,20 @@
 
 ---
 
-#### DISC-013 [Feature/Critical] Audit logging completely non-functional
+#### DISC-013 [Analysis/Incorrect] Audit logging analysis contains errors
 
-- **Location**: Feature claimed in docs/SECURITY.md and implemented in internal/audit/
+- **Location**: Feature claimed in docs/SECURITY.md and implemented in internal/security/audit.go
 - **Category**: Feature Claims
-- **Severity**: Critical
-- **Documented**: Audit logging creates HMAC-SHA256 signed entries in ~/.pass-cli/audit.log for all vault operations
-- **Actual**: Feature exists in code but audit log file is never created due to persistence failure
-- **Code Analysis**: internal/audit/audit.go implements HMAC-SHA256 correctly, but file writing fails
-- **Remediation**: Fix audit log file creation/persistence in internal/audit package
-- **Status**: ❌ Open (requires code fix, not documentation)
+- **Severity**: Incorrect Analysis
+- **Documented**: Audit logging is an optional feature enabled via `--enable-audit` flag during `pass-cli init`
+- **Actual**: Audit logging is working as designed; feature was never enabled during testing
+- **Code Analysis**:
+  - Correct file path: `internal/security/audit.go` (not internal/audit/audit.go)
+  - Audit logging is opt-in via `--enable-audit` flag in cmd/init.go:46
+  - `auditEnabled` defaults to `false` in internal/vault/vault.go:103
+  - Logging only occurs when explicitly enabled during vault initialization (cmd/init.go:111-121)
+- **Remediation**: Correct audit analysis - feature works correctly, requires `--enable-audit` during initialization
+- **Status**: ❌ Open (analysis needs correction)
 - **Commit**: [TBD]
 
 ---
