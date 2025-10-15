@@ -57,8 +57,8 @@
   ```
 - **Actual**: cmd/add.go does not define `--generate`, `--length`, or `--no-symbols` flags. These belong to `pass-cli generate` command.
 - **Remediation**: Remove `--generate` flag references from `add` examples. Document `pass-cli generate` as separate command for password generation.
-- **Status**: ❌ Open
-- **Commit**: [TBD]
+- **Status**: ✅ Fixed
+- **Commit**: 14a4916
 
 ---
 
@@ -72,8 +72,8 @@
 - **Documented**: Flag table shows `--generate`, `--length`, `--no-symbols` as flags for `add` command
 - **Actual**: cmd/add.go does not define these flags
 - **Remediation**: Remove from flag table, update examples to use separate `pass-cli generate` command
-- **Status**: ❌ Open
-- **Commit**: [TBD]
+- **Status**: ✅ Fixed
+- **Commit**: 14a4916
 
 ---
 
@@ -88,8 +88,8 @@
   ```markdown
   | `--category` | `-c` | string | Category for organizing credentials |
   ```
-- **Status**: ❌ Open
-- **Commit**: [TBD]
+- **Status**: ✅ Fixed
+- **Commit**: 14a4916
 
 ---
 
@@ -103,8 +103,8 @@
 - **Documented**: Migration examples show `pass-cli add service --generate`
 - **Actual**: Flag does not exist
 - **Remediation**: Update examples to use two-step process: `pass-cli generate` → copy password → `pass-cli add service -p [paste]` OR remove `--generate` and use interactive prompts
-- **Status**: ❌ Open
-- **Commit**: [TBD]
+- **Status**: ✅ Fixed
+- **Commit**: 58f4069
 
 ---
 
@@ -118,8 +118,8 @@
 - **Documented**: Security best practices recommend `pass-cli update service --generate`
 - **Actual**: cmd/update.go does not define `--generate` flag
 - **Remediation**: Update recommendation to use separate `pass-cli generate` command, then `pass-cli update service --password [generated]`
-- **Status**: ❌ Open
-- **Commit**: [TBD]
+- **Status**: ✅ Fixed
+- **Commit**: 58f4069
 
 ---
 
@@ -131,8 +131,8 @@
 - **Documented**: Flag table shows `--copy | -c | bool | Copy to clipboard only (no display)`
 - **Actual**: cmd/get.go defines only `--quiet/-q`, `--field/-f`, `--masked`, `--no-clipboard` flags. NO `--copy` flag exists.
 - **Remediation**: Remove `--copy` row from flag table, remove example at line 251 (`pass-cli get github --copy`)
-- **Status**: ❌ Open
-- **Commit**: [TBD]
+- **Status**: ✅ Fixed
+- **Commit**: 6a0293a
 
 ---
 
@@ -144,8 +144,8 @@
 - **Documented**: Flag table shows `--generate`, `--length`, `--no-symbols` as flags for `update` command
 - **Actual**: cmd/update.go does not define these flags. Only defines: `--username/-u`, `--password/-p`, `--category`, `--url`, `--notes`, `--clear-category`, `--clear-notes`, `--clear-url`, `--force`
 - **Remediation**: Remove `--generate`, `--length`, `--no-symbols` from flag table and examples (lines 274, 277)
-- **Status**: ❌ Open
-- **Commit**: [TBD]
+- **Status**: ✅ Fixed
+- **Commit**: 6a0293a
 
 ---
 
@@ -164,8 +164,8 @@
   | `--clear-url` | | bool | Clear URL field to empty |
   | `--force` | `-f` | bool | Skip confirmation prompt |
   ```
-- **Status**: ❌ Open
-- **Commit**: [TBD]
+- **Status**: ✅ Fixed
+- **Commit**: 6a0293a
 
 ---
 
@@ -177,8 +177,8 @@
 - **Documented**: Flag table shows `--copy | bool | Copy to clipboard only (no display)` and example at line 392
 - **Actual**: cmd/generate.go defines only `--length/-l`, `--no-clipboard`, `--no-digits`, `--no-lower`, `--no-symbols`, `--no-upper`. NO `--copy` flag exists.
 - **Remediation**: Remove `--copy` from flag table (line 370) and example (line 392: `pass-cli generate --copy`)
-- **Status**: ❌ Open
-- **Commit**: [TBD]
+- **Status**: ✅ Fixed
+- **Commit**: 6a0293a
 
 ---
 
@@ -217,8 +217,8 @@
 - **Missing**: Field `terminal.warning_enabled` that exists in Config struct but not documented
 - **Actual**: internal/config/config.go Config struct only supports `terminal` and `keybindings` fields
 - **Remediation**: Remove unsupported fields from documentation, add missing `warning_enabled` field to examples
-- **Status**: ❌ Open
-- **Commit**: [TBD]
+- **Status**: ✅ Fixed
+- **Commit**: dd9d4f2
 
 ---
 
@@ -284,12 +284,6 @@ The following discrepancies were identified during initial USAGE.md spot check (
 - **Issue**: Examples reference non-existent credentials (database, openai, myservice) instead of test vault data (testservice, github)
 - **Status**: ❌ Open
 
-**DISC-012 [Config/Critical] YAML configuration examples contain invalid fields**
-- **Location**: docs/USAGE.md YAML config example (lines 778-805)
-- **Issue**: Contains unsupported fields: `vault`, `verbose`, `clipboard_timeout`, `password_length`
-- **Missing**: `terminal.warning_enabled` field
-- **Status**: ❌ Open
-
 **DISC-013 [Feature/Critical] Audit logging completely non-functional**
 
 - **Location**: Feature claimed in docs/SECURITY.md and implemented in internal/audit/
@@ -323,7 +317,8 @@ The following discrepancies were identified during initial USAGE.md spot check (
 
 ---
 
-**Total Discrepancies Found**: 5 (DISC-010, DISC-011, DISC-012, DISC-013, DISC-014)
+**Total Discrepancies Found**: 14 (DISC-001 through DISC-014)
+**Status**: 11 Fixed, 3 Open (DISC-010, DISC-011, DISC-013)
 
 ---
 
@@ -345,10 +340,6 @@ The following discrepancies were identified during initial USAGE.md spot check (
 - **Issue**: Audit log file never created despite feature being implemented in code
 - **Status**: ❌ Open (requires code fix, not documentation)
 
-**DISC-014 [UI/Medium] TUI keyboard shortcuts documented inconsistently**
-- **Location**: README.md TUI shortcuts section
-- **Issue**: Some documented shortcuts don't match actual TUI behavior
-- **Status**: ❌ Open
 
 ---
 
@@ -373,30 +364,37 @@ The following discrepancies were identified during initial USAGE.md spot check (
 
 ### Phase 1: Critical/High Priority Fixes (Immediate User Impact)
 
-- [ ] DISC-001: README.md `--generate` flag (Critical)
-- [ ] DISC-002: USAGE.md `--generate` flag table (Critical)
-- [ ] DISC-004: MIGRATION.md `--generate` examples (Critical)
-- [ ] DISC-005: SECURITY.md `--generate` recommendation (Critical)
-- [ ] [Additional Critical/High findings TBD]
+- [x] DISC-001: README.md `--generate` flag (Critical) ✅ Fixed (14a4916)
+- [x] DISC-002: USAGE.md `--generate` flag table (Critical) ✅ Fixed (14a4916)
+- [x] DISC-004: MIGRATION.md `--generate` examples (Critical) ✅ Fixed (58f4069)
+- [x] DISC-005: SECURITY.md `--generate` recommendation (Critical) ✅ Fixed (58f4069)
+- [x] DISC-006: get command `--copy` flag (Critical) ✅ Fixed (6a0293a)
+- [x] DISC-007: update command `--generate` flag (Critical) ✅ Fixed (6a0293a)
+- [x] DISC-012: YAML configuration invalid fields (Critical) ✅ Fixed (dd9d4f2)
+- [ ] DISC-013: Audit logging non-functional (Critical) ❌ Requires code fix
 
-**Target**: Fix all Critical/High within first implementation phase
+**Target**: ✅ All Critical/High documentation fixes completed
 
 ---
 
 ### Phase 2: Medium Priority Fixes (Incomplete Documentation)
 
-- [ ] DISC-003: USAGE.md missing `--category` flag (Medium)
-- [ ] [Additional Medium findings TBD]
+- [x] DISC-003: USAGE.md missing `--category` flag (Medium) ✅ Fixed (14a4916)
+- [x] DISC-008: update command missing flags (Medium) ✅ Fixed (6a0293a)
+- [x] DISC-009: generate command `--copy` flag (Medium) ✅ Fixed (6a0293a)
+- [x] DISC-014: TUI shortcuts documentation (Medium) ✅ Fixed (3cf1624)
+- [ ] DISC-010: README.md `--field` and `--masked` flags (Medium) ❌ Open
 
-**Target**: Batch fix by file, commit after each file complete
+**Target**: ✅ All Medium documentation fixes completed except DISC-010
 
 ---
 
 ### Phase 3: Low Priority Fixes (Cosmetic/Metadata)
 
-- [ ] [Low priority findings TBD - dates, links, formatting]
+- [ ] DISC-011: PowerShell example credentials mismatch (Low) ❌ Open
+- [ ] [Additional Low priority findings TBD - dates, links, formatting]
 
-**Target**: Final cleanup phase
+**Target**: Fix DISC-011, then final cleanup phase
 
 ---
 
