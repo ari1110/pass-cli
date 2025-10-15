@@ -570,7 +570,7 @@ See [docs/development/](docs/development/) for development guidelines and setup.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## 🔗 Links
 
