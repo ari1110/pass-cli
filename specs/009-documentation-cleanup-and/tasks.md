@@ -23,13 +23,13 @@
 
 **Purpose**: Capture baseline metrics and prepare tooling for documentation review
 
-- [ ] T001 [US1+US2+US3] Capture baseline documentation metrics using specs/009-documentation-cleanup-and/audit-checklist.md Phase 1.1 commands:
-  - Total doc file count: `find docs/ specs/ -name "*.md" | wc -l`
-  - Sample time to update 3 random docs (for SC-001 baseline)
-  - List all duplicate topic areas found via keyword searches (for SC-004 baseline)
-  - Count search results for 5 common queries: installation, usage, configuration, troubleshooting, security (for SC-006 baseline)
-- [ ] T002 [P] [US1+US2+US3] Verify ripgrep available for duplicate detection (`rg --version`)
-- [ ] T003 [P] [US1+US2+US3] Verify git status clean and branch `009-documentation-cleanup-and` active
+- [X] T001 [US1+US2+US3] Capture baseline documentation metrics using specs/009-documentation-cleanup-and/audit-checklist.md Phase 1.1 commands:
+  - Total doc file count: `find docs/ specs/ -name "*.md" | wc -l` → **93 files**
+  - Sample time to update 3 random docs (for SC-001 baseline) → Manual task (deferred)
+  - List all duplicate topic areas found via keyword searches (for SC-004 baseline) → **5 topic areas**
+  - Count search results for 5 common queries: installation, usage, configuration, troubleshooting, security (for SC-006 baseline) → **7/17/14/12/28 results**
+- [X] T002 [P] [US1+US2+US3] Verify ripgrep available for duplicate detection (`rg --version`) → **14.1.1 ✓**
+- [X] T003 [P] [US1+US2+US3] Verify git status clean and branch `009-documentation-cleanup-and` active → **✓ Clean, on 009-documentation-cleanup-and**
 
 ---
 
@@ -41,16 +41,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Create `docs/DOCUMENTATION_LIFECYCLE.md` using template from specs/009-documentation-cleanup-and/policy-structure.md
-- [ ] T005 [US1] Fill Section 1 (Purpose & Scope) in `docs/DOCUMENTATION_LIFECYCLE.md` per policy-structure.md template
-- [ ] T006 [P] [US1] Fill Section 2 (Document Classification) table in `docs/DOCUMENTATION_LIFECYCLE.md` with 7 document types
-- [ ] T007 [P] [US1] Fill Section 3 (Retention Rules) in `docs/DOCUMENTATION_LIFECYCLE.md` including Rule 1 (indefinite spec retention per FR-008)
-- [ ] T008 [P] [US1] Fill Section 4 (Archival Triggers) in `docs/DOCUMENTATION_LIFECYCLE.md` with 4 trigger categories
-- [ ] T009 [P] [US1] Fill Section 5 (Decision Authority) in `docs/DOCUMENTATION_LIFECYCLE.md` with maintainer process
-- [ ] T010 [P] [US1] Fill Section 6 (Process Workflow) in `docs/DOCUMENTATION_LIFECYCLE.md` with commit message templates
-- [ ] T011 [US1] Update version and dates in `docs/DOCUMENTATION_LIFECYCLE.md` (Version 1.0.0, Effective: 2025-01-15)
-- [ ] T012 [US1] Read `CONTRIBUTING.md` to identify appropriate section for policy integration
-- [ ] T013 [US1] Add "Documentation Governance" section to `CONTRIBUTING.md` with 2-3 sentence summary and link to `docs/DOCUMENTATION_LIFECYCLE.md` per clarification #2
+- [X] T004 [US1] Create `docs/DOCUMENTATION_LIFECYCLE.md` using template from specs/009-documentation-cleanup-and/policy-structure.md
+- [X] T005 [US1] Fill Section 1 (Purpose & Scope) in `docs/DOCUMENTATION_LIFECYCLE.md` per policy-structure.md template
+- [X] T006 [P] [US1] Fill Section 2 (Document Classification) table in `docs/DOCUMENTATION_LIFECYCLE.md` with 7 document types
+- [X] T007 [P] [US1] Fill Section 3 (Retention Rules) in `docs/DOCUMENTATION_LIFECYCLE.md` including Rule 1 (indefinite spec retention per FR-008)
+- [X] T008 [P] [US1] Fill Section 4 (Archival Triggers) in `docs/DOCUMENTATION_LIFECYCLE.md` with 4 trigger categories
+- [X] T009 [P] [US1] Fill Section 5 (Decision Authority) in `docs/DOCUMENTATION_LIFECYCLE.md` with maintainer process
+- [X] T010 [P] [US1] Fill Section 6 (Process Workflow) in `docs/DOCUMENTATION_LIFECYCLE.md` with commit message templates
+- [X] T011 [US1] Update version and dates in `docs/DOCUMENTATION_LIFECYCLE.md` (Version 1.0.0, Effective: 2025-01-15)
+- [X] T012 [US1] Read `CONTRIBUTING.md` to identify appropriate section for policy integration → **File didn't exist, created new**
+- [X] T013 [US1] Add "Documentation Governance" section to `CONTRIBUTING.md` with 2-3 sentence summary and link to `docs/DOCUMENTATION_LIFECYCLE.md` per clarification #2 → **Section added as first content section**
 - [ ] T014 [US1] Commit policy creation: `git commit -m "docs: create documentation lifecycle policy - establishes governance for doc management"`
 
 **Checkpoint**: Policy document exists and is integrated into CONTRIBUTING.md - all cleanup decisions can now follow documented standards (FR-001, FR-002, FR-010, SC-003)
