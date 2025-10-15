@@ -65,9 +65,6 @@ pass-cli add github
 # Retrieve it
 pass-cli get github
 
-# Copy password to clipboard
-pass-cli get github --copy
-
 # Use in scripts (quiet mode)
 export API_KEY=$(pass-cli get myservice --quiet --field password)
 ```
@@ -201,8 +198,6 @@ pass-cli update myservice --username newuser@example.com
 pass-cli update myservice --url https://new-url.com
 pass-cli update myservice --notes "Updated notes"
 
-# Regenerate password
-pass-cli update myservice --generate
 ```
 
 ### Delete Credentials
@@ -226,9 +221,6 @@ pass-cli generate --length 32
 
 # Alphanumeric only (no symbols)
 pass-cli generate --no-symbols
-
-# Copy to clipboard
-pass-cli generate --copy
 ```
 
 ### Version Information
@@ -365,7 +357,6 @@ steps:
 | `--quiet` | Password only | Scripts, export to variables |
 | `--field <name>` | Specific field | Extract username, URL, etc. |
 | `--masked` | Masked password | Display password as asterisks |
-| `--copy` | Clipboard | Quick copy without display |
 
 ## 📊 Usage Tracking
 
