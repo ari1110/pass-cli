@@ -422,8 +422,8 @@ The following discrepancies were identified during initial USAGE.md spot check (
 - [ ] **SC-008**: 100% of command output examples match actual CLI output format
 - [ ] **SC-009**: 100% of internal markdown links resolve correctly
 - [ ] **SC-010**: Audit report documents all discrepancies with file path, line number, issue description, and remediation action ✅ (this document)
-- [x] **SC-011**: All identified discrepancies remediated with git commits documenting rationale
-- [x] **SC-012**: User trust restored - documentation can be followed without encountering "command not found" or "unknown flag" errors
+- [ ] **SC-011**: All identified discrepancies remediated with git commits documenting rationale
+- [ ] **SC-012**: User trust restored - documentation can be followed without encountering "command not found" or "unknown flag" errors
 
 ---
 
