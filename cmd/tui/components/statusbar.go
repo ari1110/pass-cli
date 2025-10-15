@@ -131,9 +131,9 @@ func (sb *StatusBar) getShortcutsForContext(focus FocusContext) string {
 	}
 
 	if isSearchActive {
-		// Search mode shortcuts
+		// Search mode shortcuts - First Esc exits search input (keeps filter), second Esc clears filter
 		helpKey := formatKey("help")
-		return fmt.Sprintf("Type:Filter  [yellow]↑↓[-]:Navigate  [yellow]Enter[-]:Select  [yellow]Esc[-]:Clear Search  %s:Help", helpKey)
+		return fmt.Sprintf("[white]Type to filter  [yellow]↑↓[-]:Navigate  [yellow]Enter[-]:Select  [yellow]Esc[-]:Exit search  [yellow]p[-]:Show  [yellow]c[-]:Copy  %s:Help", helpKey)
 	}
 
 	// Get common keys
@@ -141,29 +141,27 @@ func (sb *StatusBar) getShortcutsForContext(focus FocusContext) string {
 	editKey := formatKey("edit_credential")
 	delKey := formatKey("delete_credential")
 	searchKey := formatKey("search")
-	sidebarKey := formatKey("toggle_sidebar")
-	detailKey := formatKey("toggle_detail")
 	helpKey := formatKey("help")
 	quitKey := formatKey("quit")
 
 	switch focus {
 	case FocusSidebar:
-		return fmt.Sprintf("[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  [yellow]Enter[-]:Select  %s:New  %s:Search  %s:Sidebar  %s:Details  %s:Help  %s:Quit",
-			newKey, searchKey, sidebarKey, detailKey, helpKey, quitKey)
+		return fmt.Sprintf("[yellow]Tab[-]:Switch  [yellow]↑↓[-]:Navigate  [yellow]Enter[-]:Select  %s:New  %s:Search  %s:Help  %s:Quit",
+			newKey, searchKey, helpKey, quitKey)
 
 	case FocusTable:
-		return fmt.Sprintf("[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  [yellow]↑↓[-]:Nav  %s:New  %s:Edit  %s:Del  [yellow]c[-]:Copy  %s:Search  %s:Sidebar  %s:Details  %s:Help  %s:Quit",
-			newKey, editKey, delKey, searchKey, sidebarKey, detailKey, helpKey, quitKey)
+		return fmt.Sprintf("[yellow]Tab[-]:Switch  [yellow]↑↓[-]:Navigate  %s:New  %s:Edit  %s:Delete  [yellow]p[-]:Show  [yellow]c[-]:Copy  %s:Search  %s:Help  %s:Quit",
+			newKey, editKey, delKey, searchKey, helpKey, quitKey)
 
 	case FocusDetail:
-		return fmt.Sprintf("[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  %s:Edit  %s:Del  [yellow]p[-]:Toggle  [yellow]c[-]:Copy  %s:Search  %s:Sidebar  %s:Details  %s:Help  %s:Quit",
-			editKey, delKey, searchKey, sidebarKey, detailKey, helpKey, quitKey)
+		return fmt.Sprintf("[yellow]Tab[-]:Switch  %s:Edit  %s:Delete  [yellow]p[-]:Toggle  [yellow]c[-]:Copy  %s:Search  %s:Help  %s:Quit",
+			editKey, delKey, searchKey, helpKey, quitKey)
 
 	case FocusModal:
-		return "[yellow]Tab[white]/[yellow]Shift+Tab[-]:Field  [yellow]Enter[-]:Submit  [yellow]Esc[-]:Cancel"
+		return "[yellow]Tab[-]:Next field  [yellow]Enter[-]:Submit  [yellow]Esc[-]:Cancel"
 
 	default:
-		return fmt.Sprintf("[yellow]Tab[white]/[yellow]Shift+Tab[-]:Switch  %s:Search  %s:Sidebar  %s:Details  %s:Help  %s:Quit",
-			searchKey, sidebarKey, detailKey, helpKey, quitKey)
+		return fmt.Sprintf("[yellow]Tab[-]:Switch  %s:Search  %s:Help  %s:Quit",
+			searchKey, helpKey, quitKey)
 	}
 }
