@@ -100,7 +100,7 @@ Master Key = PBKDF2(
 
 2. **Derive Encryption Key**
    ```
-   key = PBKDF2(master_password, salt, 100000, SHA256, 32)
+   key = PBKDF2(master_password, salt, 600000, SHA256, 32)
    ```
 
 3. **Generate Nonce**
@@ -710,6 +710,6 @@ pass-cli version
 
 ---
 
-**Last Updated**: 2025-01-13
-**Version**: v0.1.0 (Security Hardening Release)
-**Maintained By**: Pass-CLI Security Team
+**Documentation Version**: v0.0.1
+**Last Updated**: January 2025
+**Status**: Production Ready

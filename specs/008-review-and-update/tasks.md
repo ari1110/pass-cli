@@ -135,7 +135,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] **T015** [US2] Review `R:\Test-Projects\pass-cli\docs\SECURITY.md` - Cryptographic specifications (FR-003)
+- [X] **T015** [US2] Review `R:\Test-Projects\pass-cli\docs\SECURITY.md` - Cryptographic specifications (FR-003)
   - Verify AES-256-GCM explicitly documented
   - Verify PBKDF2-SHA256 with **600,000 iterations minimum** (not 100,000) per constitution Principle I
   - Verify 32-byte salt, 12-byte nonce documented
@@ -143,14 +143,14 @@
   - Add NIST compliance references: SP 800-38D (GCM), SP 800-132 (PBKDF2)
   - Ensure all parameters visible without reading source code
 
-- [ ] **T016** [US2] Review `R:\Test-Projects\pass-cli\docs\SECURITY.md` - Password policy documentation (FR-004)
+- [X] **T016** [US2] Review `R:\Test-Projects\pass-cli\docs\SECURITY.md` - Password policy documentation (FR-004)
   - Verify 12+ character minimum documented
   - Verify complexity requirements: uppercase, lowercase, digit, symbol
   - Verify applies to vault AND credential passwords
   - Add January 2025 introduction date
   - Reference TUI strength indicator feature
 
-- [ ] **T017** [US2] Review `R:\Test-Projects\pass-cli\docs\SECURITY.md` - Audit logging documentation (FR-005)
+- [X] **T017** [US2] Review `R:\Test-Projects\pass-cli\docs\SECURITY.md` - Audit logging documentation (FR-005)
   - Verify HMAC-SHA256 tamper-evident signatures explained
   - Verify HMAC key storage in OS keychain documented
   - Verify log rotation policy: 10MB, 7-day retention
@@ -158,14 +158,14 @@
   - Verify privacy guarantee: service names logged, passwords NEVER logged
   - Verify opt-in nature: `--enable-audit` flag
 
-- [ ] **T018** [US2] Review `R:\Test-Projects\pass-cli\docs\SECURITY.md` - Migration path (FR-013)
+- [X] **T018** [US2] Review `R:\Test-Projects\pass-cli\docs\SECURITY.md` - Migration path (FR-013)
   - Document upgrade from 100,000 to 600,000 PBKDF2-SHA256 iterations per constitution Principle I
   - Reference MIGRATION.md for detailed instructions
   - Explain backward compatibility (old vaults work)
   - Document performance impact (~50-100ms on modern CPUs)
   - Ensure cross-reference consistency with MIGRATION.md
 
-- [ ] **T019** [US2] Review `R:\Test-Projects\pass-cli\docs\SECURITY.md` - TUI security warnings (FR-014)
+- [X] **T019** [US2] Review `R:\Test-Projects\pass-cli\docs\SECURITY.md` - TUI security warnings (FR-014)
   - Add shoulder surfing risk warning
   - Add screen recording exposure warning (service names visible)
   - Add shared terminal session dangers
