@@ -3,7 +3,7 @@
 **Audit Date**: 2025-10-15
 **Scope**: 7 primary documentation files + all docs/ subdirectory files
 **Methodology**: Manual verification per [verification-procedures.md](./verification-procedures.md)
-**Status**: 🚧 **IN PROGRESS** - 11 fixed, 3 open (79% remediation rate)
+**Status**: 🚧 **IN PROGRESS** - 13 fixed, 1 open (93% remediation rate)
 
 ---
 
@@ -191,8 +191,8 @@
 - **Actual**: `--field` flag requires `--quiet` flag to output only the specified field (line 95-96 in cmd/get.go)
 - **Code Analysis**: Field extraction only occurs in `outputQuietMode()` function; without `--quiet`, command uses `outputNormalMode()` which ignores `--field` parameter
 - **Remediation**: Update README.md example to include required `--quiet` flag: `pass-cli get myservice --field username --quiet`
-- **Status**: ❌ Open
-- **Commit**: [TBD]
+- **Status**: ✅ Fixed
+- **Commit**: 030496a
 
 ---
 
@@ -204,8 +204,8 @@
 - **Documented**: Examples reference credentials `database`, `openai`, `myservice`
 - **Actual**: Test vault contains `testservice`, `github`; examples use non-existent credential names
 - **Remediation**: Update PowerShell examples to use available test credentials (`testservice`, `github`) or create standardized test data
-- **Status**: ❌ Open
-- **Commit**: [TBD]
+- **Status**: ✅ Fixed
+- **Commit**: 030496a
 
 ---
 
@@ -326,8 +326,8 @@ The following discrepancies were identified during initial USAGE.md spot check (
 
 ---
 
-**Total Discrepancies Found**: 3 (DISC-010, DISC-011)
-**Status**: 2 Open, 1 Needs Code Fix (DISC-013)
+**Total Discrepancies Found**: 1 (DISC-013)
+**Status**: 1 Analysis Needs Correction (DISC-013)
 
 ---
 
