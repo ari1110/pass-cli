@@ -222,10 +222,20 @@ func (c *Config) MatchesKeybinding(event *tcell.EventKey, action string) bool {
 
 		// Check if event matches the parsed keybinding
 		if event.Key() == tcell.KeyRune {
-			// For rune keys, match both rune and modifiers
-			return event.Rune() == kb.Rune && event.Modifiers() == kb.Modifiers
+			// For rune keys, match rune and check meaningful modifiers (Ctrl, Alt)
+			// Ignore Shift modifier since it's implicit in the rune itself
+			// (e.g., '?' is inherently Shift+/, 'A' is inherently Shift+a)
+			if event.Rune() != kb.Rune {
+				continue
+			}
+
+			// Compare modifiers, but mask out Shift since it's implicit
+			eventMods := event.Modifiers() &^ tcell.ModShift
+			kbMods := kb.Modifiers &^ tcell.ModShift
+
+			return eventMods == kbMods
 		} else {
-			// For special keys, match key and modifiers
+			// For special keys, match key and modifiers exactly
 			return event.Key() == kb.Key && event.Modifiers() == kb.Modifiers
 		}
 	}
