@@ -209,5 +209,5 @@ Security > convenience for password managers.
 ---
 
 **Documentation Version**: v0.0.1
-**Last Updated**: January 2025
+**Last Updated**: October 2025
 **Status**: Production Ready

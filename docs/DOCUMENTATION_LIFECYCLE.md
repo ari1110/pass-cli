@@ -1,7 +1,7 @@
 # Documentation Lifecycle Policy
 
 **Version**: 1.0.0
-**Effective**: 2025-01-15
+**Effective**: 2025-10-15
 **Owner**: Repository Maintainers
 
 ## 1. Purpose & Scope
@@ -223,4 +223,4 @@ Maintainers MUST follow this policy for all documentation changes. Violations sh
 
 ---
 
-**Version**: 1.0.0 | **Effective**: 2025-01-15 | **Last Amended**: N/A
+**Version**: 1.0.0 | **Effective**: 2025-10-15 | **Last Amended**: N/A
