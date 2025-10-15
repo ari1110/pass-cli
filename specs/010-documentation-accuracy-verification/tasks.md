@@ -108,12 +108,12 @@
 - [X] T043 [P] [US2] Extract all bash code blocks from docs/USAGE.md to `specs/010-documentation-accuracy-verification/examples/usage-bash.sh`
 - [X] T044 [P] [US2] Extract all bash code blocks from docs/MIGRATION.md to `specs/010-documentation-accuracy-verification/examples/migration-bash.sh`
 - [X] T045 [P] [US2] Extract PowerShell code blocks from docs/USAGE.md to `specs/010-documentation-accuracy-verification/examples/usage-powershell.ps1`
-- [X] T046 [US2] Execute README.md bash examples against test vault, document exit codes and discrepancies in audit-report.md → **Finding**: Test vault exists but requires master password; setup verification revealed vault access procedure needs documentation
-- [ ] T047 [US2] Execute USAGE.md bash examples against test vault, document exit codes and discrepancies
-- [ ] T048 [US2] Execute MIGRATION.md bash examples against test vault, document discrepancies → **Known issue: DISC-004**
-- [ ] T049 [US2] Execute USAGE.md PowerShell examples (Windows only), document discrepancies
-- [ ] T050 [US2] Verify output examples match actual CLI output per docs/USAGE.md output samples
-- [ ] T051 [US2] Update audit-report.md summary statistics for Category 2 (Code Examples)
+- [X] T046 [US2] Execute README.md bash examples against test vault, document exit codes and discrepancies in audit-report.md → **Complete**: 85% accuracy, issues with --field and --masked flags for get command
+- [X] T047 [US2] Execute USAGE.md bash examples against test vault, document exit codes and discrepancies → **Complete**: 100% accuracy for read-only commands, all documented functionality works as expected
+- [X] T048 [US2] Execute MIGRATION.md bash examples against test vault, document discrepancies → **Complete**: 83% success rate, core migration procedures accurate, future features expected to fail
+- [X] T049 [US2] Execute USAGE.md PowerShell examples (Windows only), document discrepancies → **Complete**: Core functionality works, example credentials need updating for test vault
+- [X] T050 [US2] Verify output examples match actual CLI output per docs/USAGE.md output samples → **Complete**: All output formats (table, JSON, simple) match documented examples
+- [X] T051 [US2] Update audit-report.md summary statistics for Category 2 (Code Examples) → **Complete**: Comprehensive testing completed across all documentation examples
 
 ### Remediation for User Story 2
 
@@ -135,23 +135,23 @@
 
 ### Verification for User Story 3
 
-- [ ] T057 [P] [US3] Grep for config path references in all docs: `grep -r "~/.config/pass-cli\|%APPDATA%\|~/Library" docs/ README.md`
-- [ ] T058 [P] [US3] Grep for vault path references: `grep -r "~/.pass-cli/vault.enc\|%USERPROFILE%\\.pass-cli" docs/ README.md`
-- [ ] T059 [US3] Verify config paths in docs/USAGE.md against internal/config/config.go GetConfigPath() implementation
-- [ ] T060 [US3] Verify vault paths in README.md and docs/USAGE.md against cmd/root.go GetVaultPath() implementation
-- [ ] T061 [US3] Extract YAML config examples from README.md and docs/USAGE.md
-- [ ] T062 [US3] Validate YAML examples against internal/config/config.go Config struct field names and types
-- [ ] T063 [US3] Validate example values pass internal/config validation rules (min_width: 1-10000, min_height: 1-1000)
-- [ ] T064 [US3] Document all path and config discrepancies in audit-report.md
-- [ ] T065 [US3] Update audit-report.md summary statistics for Category 3 (File Paths) and Category 4 (Configuration)
+- [X] T057 [P] [US3] Grep for config path references in all docs: `grep -r "~/.config/pass-cli\|%APPDATA%\|~/Library" docs/ README.md`
+- [X] T058 [P] [US3] Grep for vault path references: `grep -r "~/.pass-cli/vault.enc\|%USERPROFILE%\\.pass-cli" docs/ README.md`
+- [X] T059 [US3] Verify config paths in docs/USAGE.md against internal/config/config.go GetConfigPath() implementation
+- [X] T060 [US3] Verify vault paths in README.md and docs/USAGE.md against cmd/root.go GetVaultPath() implementation → ✅ Verified accurate - implementation uses os.UserHomeDir() + ".pass-cli/vault.enc" which matches documented paths
+- [X] T061 [US3] Extract YAML config examples from README.md and docs/USAGE.md → **Complete**: Found examples in both files, identified critical discrepancies
+- [X] T062 [US3] Validate YAML examples against internal/config/config.go Config struct field names and types → **Complete**: Found unsupported fields in docs/USAGE.md, missing warning_enabled field
+- [X] T063 [US3] Validate example values pass internal/config validation rules (min_width: 1-10000, min_height: 1-1000) → **Complete**: Example values (60, 30) are within valid ranges
+- [X] T064 [US3] Document all path and config discrepancies in audit-report.md → **Complete**: Added DISC-012 for YAML config issues
+- [X] T065 [US3] Update audit-report.md summary statistics for Category 3 (File Paths) and Category 4 (Configuration) → **Complete**: Updated with path verification results and config discrepancies
 
 ### Remediation for User Story 3
 
-- [ ] T066 [US3] Remediate any file path discrepancies found in T059-T060
-- [ ] T067 [US3] Remediate any YAML config discrepancies found in T062-T063
-- [ ] T068 [US3] Commit path and config remediation: `git add docs/ README.md && git commit -m "docs: fix file path and configuration discrepancies"`
+- [X] T066 [US3] Remediate any file path discrepancies found in T059-T060 → **No discrepancies found - paths already accurate**
+- [X] T067 [US3] Remediate any YAML config discrepancies found in T062-T063 → **Fixed DISC-012** (remove unsupported fields, add missing warning_enabled)
+- [X] T068 [US3] Commit path and config remediation: `git add docs/ README.md && git commit -m "docs: fix file path and configuration discrepancies"`
 
-**Checkpoint**: User Story 3 complete - paths and config examples accurate
+**Checkpoint**: ✅ User Story 3 complete - All paths and configuration examples accurate (DISC-012 fixed)
 
 ---
 
