@@ -277,9 +277,17 @@ func GetDisplayString(keyStr string) string {
 		case "delete", "del":
 			displayParts[i] = "Del"
 		default:
-			// Capitalize first letter for single keys and function keys
+			// Keep lowercase for single-letter keys to match terminal behavior
+			// (typing 'a' not 'A', 'q' not 'Q', etc.)
+			// Capitalize function keys (F1, F2, etc.)
 			if len(part) > 0 {
-				displayParts[i] = strings.ToUpper(part[0:1]) + part[1:]
+				if len(part) >= 2 && part[0] == 'f' {
+					// Function key - capitalize (f1 -> F1)
+					displayParts[i] = strings.ToUpper(part[0:1]) + part[1:]
+				} else {
+					// Single letter or other - keep as-is (lowercase)
+					displayParts[i] = part
+				}
 			}
 		}
 	}
