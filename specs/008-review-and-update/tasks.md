@@ -310,19 +310,19 @@
 
 ### Implementation for User Story 5
 
-- [ ] **T032** [US5] Review `R:\Test-Projects\pass-cli\docs\TROUBLESHOOTING.md` - TUI-specific issues (FR-009)
+- [X] **T032** [US5] Review `R:\Test-Projects\pass-cli\docs\TROUBLESHOOTING.md` - TUI-specific issues (FR-009)
   - Verify coverage: TUI rendering artifacts, keyboard shortcuts not working, black screen, search not filtering, Ctrl+H toggle, sidebar/detail panel visibility
   - Ensure each issue has actionable solution with specific commands
   - Verify platform-specific solutions: Windows (Credential Manager), macOS (Keychain), Linux (Secret Service, D-Bus)
   - Add TUI issues from spec 007 if missing (e.g., toggle detail panel 'i' key)
 
-- [ ] **T033** [US5] Review `R:\Test-Projects\pass-cli\docs\TROUBLESHOOTING.md` - Solution quality
+- [X] **T033** [US5] Review `R:\Test-Projects\pass-cli\docs\TROUBLESHOOTING.md` - Solution quality
   - Time yourself finding solution for "TUI rendering" issue (should be ≤5 minutes)
   - Verify each solution is actionable (not just "check the docs")
   - Verify commands in solutions execute successfully
   - Organize sections for findability (clear headings, table of contents)
 
-- [ ] **T034** [US5] Review `R:\Test-Projects\pass-cli\docs\KNOWN_LIMITATIONS.md` - Current limitations accurate
+- [X] **T034** [US5] Review `R:\Test-Projects\pass-cli\docs\KNOWN_LIMITATIONS.md` - Current limitations accurate
   - Review specs 001-007 from research.md to identify resolved limitations
   - Remove any limitations that were addressed (e.g., no "no TUI mode" if TUI exists)
   - Verify each listed limitation exists in current release

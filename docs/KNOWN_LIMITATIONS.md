@@ -208,5 +208,6 @@ Security > convenience for password managers.
 
 ---
 
-**Last Updated**: 2025-01-13
-**Version**: v0.1.0 (Security Hardening Release)
+**Documentation Version**: v0.0.1
+**Last Updated**: January 2025
+**Status**: Production Ready
