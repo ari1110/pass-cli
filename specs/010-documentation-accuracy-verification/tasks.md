@@ -7,6 +7,8 @@
 
 **Organization**: Tasks are grouped by user story (verification category) to enable independent execution of each category.
 
+**Phase Numbering Note**: This tasks.md uses execution-based phase numbers (Phase 1-8), while plan.md uses workflow-based phase names (Phase 0: Research, Phase 1: Audit Design). Both refer to the same work - plan.md describes the conceptual workflow, tasks.md provides the execution sequence.
+
 ## Format: `[ID] [P?] [Story] Description`
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (US1, US2, US3, US4, US5)
@@ -96,7 +98,7 @@
 
 ## Phase 4: User Story 2 - Code Examples Verification (Priority: P2)
 
-**Goal**: Verify all bash, PowerShell, Python code examples in documentation execute successfully
+**Goal**: Verify all bash and PowerShell code examples in documentation execute successfully
 
 **Independent Test**: Extract all code blocks, execute in test vault, verify exit codes and output
 
@@ -232,7 +234,7 @@
 - [ ] T109 Verify SC-012: User trust restored - run through USAGE.md examples end-to-end, confirm zero "command not found" or "unknown flag" errors
 - [ ] T110 Update audit-report.md final status: change "🚧 IN PROGRESS" to "✅ COMPLETE"
 - [ ] T111 Update audit-report.md Final Validation Checklist: mark all SC-001 through SC-012 as complete
-- [ ] T112 Document verification process in CONTRIBUTING.md: add section "Documentation Verification" with workflow and reference to verification-procedures.md
+- [ ] T112 Document verification process in CONTRIBUTING.md: add new section "Documentation Verification" at end of file with workflow description and reference to `specs/010-documentation-accuracy-verification/verification-procedures.md` for detailed test procedures
 - [ ] T113 Cleanup test environment: `rm -rf ~/.pass-cli-test`
 - [ ] T114 Commit final validation: `git add specs/010-documentation-accuracy-verification/audit-report.md CONTRIBUTING.md && git commit -m "docs: complete documentation accuracy audit - all success criteria met"`
 

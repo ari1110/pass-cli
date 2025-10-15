@@ -26,7 +26,7 @@ Repository maintainers need to verify that all documented commands, flags, alias
 
 ### User Story 2 - Code Examples Verification (Priority: P2)
 
-Repository maintainers need to verify that all bash, PowerShell, Python, and Makefile code examples in documentation actually execute successfully and produce the documented results to prevent users from following broken tutorials.
+Repository maintainers need to verify that all bash and PowerShell code examples in documentation actually execute successfully and produce the documented results to prevent users from following broken tutorials.
 
 **Why this priority**: Broken code examples are the second-highest priority because they lead to frustration and wasted time. Users copy-paste examples expecting them to work. Failed examples severely damage trust in the project.
 
@@ -106,7 +106,7 @@ Repository maintainers need to verify that version numbers, dates, status labels
 
 - **FR-001**: Maintainers MUST be able to audit all CLI commands and flags documented across README.md, USAGE.md, MIGRATION.md, SECURITY.md against actual cmd/*.go implementations to identify discrepancies
 - **FR-002**: Verification process MUST compare documented flag names, types, short flags, and descriptions against `pass-cli [command] --help` output and cobra command definitions
-- **FR-003**: Verification process MUST extract and test all bash, PowerShell, Python, and Makefile code examples from documentation in isolated environment to confirm they execute successfully
+- **FR-003**: Verification process MUST extract and test all bash and PowerShell code examples from documentation in isolated environment to confirm they execute successfully
 - **FR-004**: Verification process MUST validate all file path references (config locations, vault paths, directories) exist at documented locations by checking implementation in internal/config and cmd/ packages
 - **FR-005**: Verification process MUST parse all YAML configuration examples and validate against internal/config package validation rules to ensure examples are syntactically correct
 - **FR-006**: Verification process MUST verify all documented features (audit logging, keychain integration, password policies, TUI shortcuts) exist by testing actual functionality
