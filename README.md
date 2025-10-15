@@ -98,22 +98,33 @@ pass-cli get github
 
 #### TUI Keyboard Shortcuts
 
+**Configurable Shortcuts** (can be customized via config.yml):
+
 | Shortcut | Action | Context |
 |----------|--------|---------|
 | `q` | Quit application | Any time |
-| `n` | New credential | Main view |
+| `a` | New credential | Main view |
 | `e` | Edit credential | Main view |
 | `d` | Delete credential | Main view |
-| `c` | Copy password to clipboard | Detail view |
-| `p` | Toggle password visibility | Detail view |
-| `/` | Search/filter | Main view |
+| `i` | Toggle detail panel | Main view |
+| `s` | Toggle sidebar | Main view |
 | `?` | Show help modal | Any time |
-| `Tab` | Cycle focus between panels | All views |
+| `/` | Search/filter | Main view |
+
+**Hardcoded Shortcuts** (navigation and forms):
+
+| Shortcut | Action | Context |
+|----------|--------|---------|
+| `Tab` | Next component | All views |
+| `Shift+Tab` | Previous component | All views |
+| `↑/↓` | Navigate lists | List views |
 | `Enter` | Select / View details | List views |
 | `Esc` | Close modal / Exit search | Modals, search |
-| `↑/↓` | Navigate lists | List views |
+| `Ctrl+C` | Force quit application | Any time |
+| `c` | Copy password to clipboard | Detail view |
+| `p` | Toggle password visibility | Detail view |
 
-**Total: 11 keyboard shortcuts**
+**Total: 16 keyboard shortcuts** (8 configurable + 8 hardcoded)
 
 **Customization**: Some shortcuts can be customized via `~/.pass-cli/config.yaml` (see Configuration section below)
 

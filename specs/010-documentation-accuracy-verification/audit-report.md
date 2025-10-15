@@ -305,12 +305,20 @@ The following discrepancies were identified during initial USAGE.md spot check (
 
 **DISC-014 [UI/Medium] TUI keyboard shortcuts documented inconsistently**
 
-- **Location**: README.md TUI shortcuts section
+- **Location**: README.md TUI shortcuts section and cmd/tui.go help text
 - **Category**: Feature Claims / Behavioral Descriptions
 - **Severity**: Medium
-- **Documented**: 19 shortcuts including configurable vs hardcoded separation with wrong keys (a for add, Ctrl+H for password toggle, etc.)
-- **Actual**: 11 shortcuts with different key mappings (n for add, p for password toggle, c for copy, etc.)
-- **Remediation**: Updated README.md TUI shortcuts to match actual `pass-cli tui --help` output
+- **Documented**: Multiple inconsistencies between README.md, cmd/tui.go help text, and actual implementation
+  - README.md: 19 shortcuts with wrong keys (n for add vs config "a", missing i/s toggles, etc.)
+  - cmd/tui.go: Help text showed "n - New credential" but config defaults use "a"
+  - Both missed configurable vs hardcoded separation
+- **Actual**: 16 total shortcuts (8 configurable + 8 hardcoded) with proper key mappings
+  - Configurable: q, a, e, d, i, s, ?, /
+  - Hardcoded: Tab, Shift+Tab, ↑/↓, Enter, Esc, Ctrl+C, c, p
+- **Remediation**:
+  - Fixed cmd/tui.go help text to match config defaults
+  - Updated README.md with accurate configurable vs hardcoded separation
+  - Rebuilt binary so help output reflects corrections
 - **Status**: ✅ Fixed
 
 ---

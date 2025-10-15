@@ -30,11 +30,13 @@ The TUI provides a visual interface with keyboard shortcuts for:
   • Toggling password visibility
 
 Keyboard shortcuts:
-  n - New credential
+  a - New credential
   e - Edit credential
   d - Delete credential
   c - Copy password
   p - Toggle password visibility
+  i - Toggle detail panel
+  s - Toggle sidebar
   / - Search/filter
   ? - Show help
   Tab - Cycle focus between panels
