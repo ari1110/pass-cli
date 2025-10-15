@@ -765,7 +765,24 @@ pass-cli get github
 
 ## Configuration
 
-Configuration file: `~/.pass-cli/config.yaml`
+**Configuration Location** (added January 2025):
+- **Linux/macOS**: `~/.config/pass-cli/config.yml`
+- **Windows**: `%APPDATA%\pass-cli\config.yml`
+
+**Management Commands**:
+```bash
+# Initialize default config
+pass-cli config init
+
+# Edit config in default editor
+pass-cli config edit
+
+# Validate config syntax
+pass-cli config validate
+
+# Reset to defaults
+pass-cli config reset
+```
 
 ### Example Configuration
 
@@ -781,7 +798,47 @@ clipboard_timeout: 30
 
 # Default password generation length
 password_length: 20
+
+# Terminal display thresholds (TUI mode)
+terminal:
+  min_width: 60   # Minimum columns (default: 60)
+  min_height: 30  # Minimum rows (default: 30)
+
+# Custom keyboard shortcuts (TUI mode)
+keybindings:
+  quit: "q"                  # Quit application
+  add_credential: "a"        # Add new credential
+  edit_credential: "e"       # Edit credential
+  delete_credential: "d"     # Delete credential
+  toggle_detail: "i"         # Toggle detail panel
+  toggle_sidebar: "s"        # Toggle sidebar
+  help: "?"                  # Show help modal
+  search: "/"                # Activate search
+
+# Supported key formats for keybindings:
+# - Single letters: a-z
+# - Numbers: 0-9
+# - Function keys: f1-f12
+# - Modifiers: ctrl+, alt+, shift+
+# Examples: ctrl+q, alt+a, shift+f1
 ```
+
+### Keybinding Customization
+
+**Configurable Actions**:
+- `quit`, `add_credential`, `edit_credential`, `delete_credential`
+- `toggle_detail`, `toggle_sidebar`, `help`, `search`
+
+**Hardcoded Shortcuts** (cannot be changed):
+- Navigation: Tab, Shift+Tab, ↑/↓, Enter, Esc
+- Forms: Ctrl+H, Ctrl+S, Ctrl+C
+- Detail view: p, c
+
+**Validation**:
+- Duplicate key assignments rejected (conflict detection)
+- Unknown actions rejected
+- Invalid config shows warning modal, app continues with defaults
+- UI hints automatically update to reflect custom keybindings
 
 ### Configuration Priority
 
@@ -878,6 +935,8 @@ Both modes access the same encrypted vault file (`~/.pass-cli/vault.enc`).
 | `q` | Quit application | Main view |
 | `Esc` | Close modal / Cancel search | Modals, search mode |
 | `Ctrl+C` | Quit application | Any time |
+
+**Note**: Configurable shortcuts (a, e, d, i, s, ?, /, q) can be customized via `~/.config/pass-cli/config.yml`. See [Configuration](#configuration) section for keybinding customization details. Navigation shortcuts (Tab, arrows, Enter, Esc, Ctrl+H, Ctrl+S, Ctrl+C) are hardcoded and cannot be changed.
 
 ### Search & Filter
 
@@ -1165,3 +1224,9 @@ echo "$NEW_PWD" | some-service-update-command
 - See [README](../README.md) for overview
 - Check [Troubleshooting Guide](TROUBLESHOOTING.md) for common issues
 - Visit [GitHub Issues](https://github.com/ari1110/pass-cli/issues)
+
+---
+
+**Documentation Version**: v0.0.1
+**Last Updated**: January 2025
+**Status**: Production Ready

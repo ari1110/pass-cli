@@ -565,8 +565,8 @@ Set-Acl "$env:USERPROFILE\.pass-cli\vault.enc" $acl
 1. **Check terminal size**
    ```bash
    # Check dimensions
-   tput cols  # Width (should be >60)
-   tput lines # Height (should be >20)
+   tput cols  # Width (should be ≥60)
+   tput lines # Height (should be ≥30)
 
    # Resize terminal window if needed
    ```
@@ -937,10 +937,11 @@ sudo aa-complain /usr/local/bin/pass-cli
 
 **Symptom**: First access takes several seconds
 
-**Cause**: PBKDF2 key derivation (100,000 iterations)
+**Cause**: PBKDF2 key derivation (600,000 iterations as of January 2025)
 
 **Expected Behavior**:
-- First unlock: 300-500ms (key derivation)
+- First unlock: 50-100ms on modern CPUs (600k iterations)
+- Older CPUs: 500-1000ms (600k iterations)
 - Cached access: <100ms
 
 **Solutions**:
@@ -1187,7 +1188,7 @@ pass-cli list --format json | jq '.[] | .service'
 
 A: See [SECURITY.md](SECURITY.md) for full details:
 - AES-256-GCM encryption
-- PBKDF2 key derivation (100,000 iterations)
+- PBKDF2 key derivation (600,000 iterations as of January 2025)
 - System keychain integration
 - No cloud dependencies
 - Limitations explained in security doc
@@ -1251,5 +1252,6 @@ pass-cli <command> --verbose 2>&1
 
 ---
 
-**Last Updated**: 2025-01-20
-**Version**: 1.0.0
+**Documentation Version**: v0.0.1
+**Last Updated**: January 2025
+**Status**: Production Ready
