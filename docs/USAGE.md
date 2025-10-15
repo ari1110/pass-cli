@@ -140,11 +140,9 @@ pass-cli add <service> [flags]
 |------|-------|------|-------------|
 | `--username` | `-u` | string | Username for the credential |
 | `--password` | `-p` | string | Password (not recommended, use prompt) |
+| `--category` | `-c` | string | Category for organizing credentials (e.g., 'Cloud', 'Databases') |
 | `--url` | | string | Service URL |
 | `--notes` | | string | Additional notes |
-| `--generate` | | bool | Generate a random password |
-| `--length` | | int | Password length for generation (default: 20) |
-| `--no-symbols` | | bool | Exclude symbols when generating |
 
 #### Examples
 
@@ -161,11 +159,8 @@ pass-cli add github \
   --url https://github.com \
   --notes "Personal account"
 
-# Generate a password during add
-pass-cli add newservice --generate
-
-# Generate with custom length and no symbols
-pass-cli add newservice --generate --length 32 --no-symbols
+# With category
+pass-cli add github -u user@example.com -c "Version Control"
 
 # All flags (not recommended for password)
 pass-cli add github \
@@ -198,7 +193,7 @@ Credential passwords must meet the same complexity requirements as master passwo
 - Service names must be unique
 - Password input is hidden by default
 - Passing password via `-p` flag is insecure (visible in shell history)
-- Use `--generate` for strong random passwords that meet policy requirements
+- Use `pass-cli generate` to create strong random passwords that meet policy requirements
 - Usage tracking begins when credential is first accessed
 
 ---

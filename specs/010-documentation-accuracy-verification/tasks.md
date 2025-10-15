@@ -25,12 +25,12 @@
 
 **Purpose**: Prepare isolated test environment for verification workflow
 
-- [ ] T001 Build pass-cli binary from current main branch: `go build -o pass-cli.exe`
-- [ ] T002 Create test vault directory: `mkdir ~/.pass-cli-test`
-- [ ] T003 Initialize test vault: `export PASS_VAULT=~/.pass-cli-test/vault.enc && ./pass-cli init`
-- [ ] T004 [P] Add test credentials to test vault: `testservice` (user: test@example.com, password: TestPass123!)
-- [ ] T005 [P] Add second test credential: `github` (user: user@example.com)
-- [ ] T006 Verify test environment ready: run `./pass-cli list` and confirm 2 credentials
+- [X] T001 Build pass-cli binary from current main branch: `go build -o pass-cli.exe`
+- [X] T002 Create test vault directory: `mkdir ~/.pass-cli-test`
+- [X] T003 Initialize test vault: `export PASS_VAULT=~/.pass-cli-test/vault.enc && ./pass-cli init` → Vault created at default location
+- [ ] T004 [P] Add test credentials to test vault: `testservice` (user: test@example.com, password: TestPass123!) → **DEFERRED** (not required for US1 CLI verification)
+- [ ] T005 [P] Add second test credential: `github` (user: user@example.com) → **DEFERRED** (not required for US1 CLI verification)
+- [ ] T006 Verify test environment ready: run `./pass-cli list` and confirm 2 credentials → **DEFERRED** (not required for US1 CLI verification)
 
 ---
 
@@ -57,40 +57,40 @@
 
 ### Verification for User Story 1
 
-- [ ] T011 [P] [US1] Execute `pass-cli init --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/init.txt`
-- [ ] T012 [P] [US1] Execute `pass-cli add --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/add.txt`
-- [ ] T013 [P] [US1] Execute `pass-cli get --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/get.txt`
-- [ ] T014 [P] [US1] Execute `pass-cli list --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/list.txt`
-- [ ] T015 [P] [US1] Execute `pass-cli update --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/update.txt`
-- [ ] T016 [P] [US1] Execute `pass-cli delete --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/delete.txt`
-- [ ] T017 [P] [US1] Execute `pass-cli generate --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/generate.txt`
-- [ ] T018 [P] [US1] Execute `pass-cli change-password --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/change-password.txt`
-- [ ] T019 [P] [US1] Execute `pass-cli version --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/version.txt`
-- [ ] T020 [P] [US1] Execute `pass-cli verify-audit --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/verify-audit.txt`
-- [ ] T021 [P] [US1] Execute `pass-cli config --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/config.txt`
-- [ ] T022 [P] [US1] Execute `pass-cli config init --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/config-init.txt`
-- [ ] T023 [P] [US1] Execute `pass-cli config edit --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/config-edit.txt`
-- [ ] T024 [P] [US1] Execute `pass-cli config validate --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/config-validate.txt`
-- [ ] T025 [P] [US1] Execute `pass-cli config reset --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/config-reset.txt`
-- [ ] T026 [P] [US1] Execute `pass-cli tui --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/tui.txt`
-- [ ] T027 [US1] Compare `init` command help output against docs/USAGE.md:77-123 flag table, document discrepancies in audit-report.md
-- [ ] T028 [US1] Compare `add` command help output against docs/USAGE.md:139-170 flag table, document discrepancies → **Known issue: DISC-002, DISC-003**
-- [ ] T029 [US1] Compare `get` command help output against docs/USAGE.md flag table, document discrepancies
-- [ ] T030 [US1] Compare `list` command help output against docs/USAGE.md flag table, document discrepancies
-- [ ] T031 [US1] Compare `update` command help output against docs/USAGE.md flag table, document discrepancies
-- [ ] T032 [US1] Compare `delete` command help output against docs/USAGE.md flag table, document discrepancies
-- [ ] T033 [US1] Compare `generate` command help output against docs/USAGE.md flag table, document discrepancies
-- [ ] T034 [US1] Compare all command help outputs against README.md examples, document discrepancies → **Known issue: DISC-001**
-- [ ] T035 [US1] Verify command aliases (generate/gen/pwd) exist in cmd/*.go files per docs/USAGE.md:15
-- [ ] T036 [US1] Update audit-report.md summary statistics for Category 1 (CLI Interface)
+- [X] T011 [P] [US1] Execute `pass-cli init --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/init.txt`
+- [X] T012 [P] [US1] Execute `pass-cli add --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/add.txt`
+- [X] T013 [P] [US1] Execute `pass-cli get --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/get.txt`
+- [X] T014 [P] [US1] Execute `pass-cli list --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/list.txt`
+- [X] T015 [P] [US1] Execute `pass-cli update --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/update.txt`
+- [X] T016 [P] [US1] Execute `pass-cli delete --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/delete.txt`
+- [X] T017 [P] [US1] Execute `pass-cli generate --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/generate.txt`
+- [X] T018 [P] [US1] Execute `pass-cli change-password --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/change-password.txt`
+- [X] T019 [P] [US1] Execute `pass-cli version --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/version.txt`
+- [X] T020 [P] [US1] Execute `pass-cli verify-audit --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/verify-audit.txt`
+- [X] T021 [P] [US1] Execute `pass-cli config --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/config.txt`
+- [X] T022 [P] [US1] Execute `pass-cli config init --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/config-init.txt`
+- [X] T023 [P] [US1] Execute `pass-cli config edit --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/config-edit.txt`
+- [X] T024 [P] [US1] Execute `pass-cli config validate --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/config-validate.txt`
+- [X] T025 [P] [US1] Execute `pass-cli config reset --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/config-reset.txt`
+- [X] T026 [P] [US1] Execute `pass-cli tui --help`, capture output to `specs/010-documentation-accuracy-verification/help-output/tui.txt`
+- [X] T027 [US1] Compare `init` command help output against docs/USAGE.md:77-123 flag table, document discrepancies in audit-report.md → Verified accurate
+- [X] T028 [US1] Compare `add` command help output against docs/USAGE.md:139-170 flag table, document discrepancies → **Confirmed DISC-002, DISC-003**
+- [ ] T029 [US1] Compare `get` command help output against docs/USAGE.md flag table, document discrepancies → **DEFERRED** (critical fixes prioritized)
+- [ ] T030 [US1] Compare `list` command help output against docs/USAGE.md flag table, document discrepancies → **DEFERRED**
+- [ ] T031 [US1] Compare `update` command help output against docs/USAGE.md flag table, document discrepancies → **DEFERRED**
+- [ ] T032 [US1] Compare `delete` command help output against docs/USAGE.md flag table, document discrepancies → **DEFERRED**
+- [ ] T033 [US1] Compare `generate` command help output against docs/USAGE.md flag table, document discrepancies → **DEFERRED**
+- [X] T034 [US1] Compare all command help outputs against README.md examples, document discrepancies → **Confirmed DISC-001**
+- [ ] T035 [US1] Verify command aliases (generate/gen/pwd) exist in cmd/*.go files per docs/USAGE.md:15 → **DEFERRED**
+- [ ] T036 [US1] Update audit-report.md summary statistics for Category 1 (CLI Interface) → **DEFERRED**
 
 ### Remediation for User Story 1
 
-- [ ] T037 [US1] Remediate README.md:158,161 - remove non-existent `--generate` flag from `add` examples → **Fix DISC-001**
-- [ ] T038 [US1] Remediate docs/USAGE.md:145-147 - remove `--generate`, `--length`, `--no-symbols` from `add` flag table → **Fix DISC-002**
-- [ ] T039 [US1] Remediate docs/USAGE.md:139-147 - add missing `--category`/`-c` flag to `add` command flag table → **Fix DISC-003**
-- [ ] T040 [US1] Remediate docs/USAGE.md:165,168 - remove `--generate` from `add` code examples
-- [ ] T041 [US1] Commit CLI interface remediation: `git add README.md docs/USAGE.md && git commit -m "docs: fix CLI interface discrepancies for add command (DISC-001, DISC-002, DISC-003)"`
+- [X] T037 [US1] Remediate README.md:158,161 - remove non-existent `--generate` flag from `add` examples → **Fixed DISC-001**
+- [X] T038 [US1] Remediate docs/USAGE.md:145-147 - remove `--generate`, `--length`, `--no-symbols` from `add` flag table → **Fixed DISC-002**
+- [X] T039 [US1] Remediate docs/USAGE.md:139-147 - add missing `--category`/`-c` flag to `add` command flag table → **Fixed DISC-003**
+- [X] T040 [US1] Remediate docs/USAGE.md:165,168 - remove `--generate` from `add` code examples, add `--category` example
+- [ ] T041 [US1] Commit CLI interface remediation: `git add README.md docs/USAGE.md specs/010-documentation-accuracy-verification/tasks.md && git commit -m "docs: fix CLI interface discrepancies for add command (DISC-001, DISC-002, DISC-003)"`
 
 **Checkpoint**: User Story 1 complete - CLI interface documentation matches actual implementation
 

@@ -154,11 +154,11 @@ pass-cli add myservice
 # With URL and notes
 pass-cli add github --url https://github.com --notes "Personal account"
 
-# Generate a strong password
-pass-cli add newservice --generate
-
-# Custom password generation
-pass-cli add newservice --generate --length 32 --no-symbols
+# Generate a strong password separately, then add credential
+pass-cli generate
+# Copy generated password, then:
+pass-cli add newservice
+# (Paste password when prompted)
 ```
 
 ### Retrieve Credentials
