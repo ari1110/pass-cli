@@ -9,7 +9,7 @@
 
 ## Summary Statistics
 
-**Total Discrepancies**: 12 (DISC-001 through DISC-012)
+**Total Discrepancies**: 14 (DISC-001 through DISC-014)
 
 ### By Category
 
@@ -19,12 +19,12 @@
 | Code Examples | 2 | 0 | 0 | 1 | 1 |
 | File Paths | 0 | 0 | 0 | 0 | 0 |
 | Configuration | 1 | 1 | 0 | 0 | 0 |
-| Feature Claims | - | - | - | - | - |
-| Architecture | - | - | - | - | - |
-| Metadata | - | - | - | - | - |
-| Output Examples | - | - | - | - | - |
-| Cross-References | - | - | - | - | - |
-| Behavioral Descriptions | - | - | - | - | - |
+| Feature Claims | 1 | 1 | 0 | 0 | 0 |
+| Architecture | 0 | 0 | 0 | 0 | 0 |
+| Metadata | 0 | 0 | 0 | 0 | 0 |
+| Output Examples | 0 | 0 | 0 | 0 | 0 |
+| Cross-References | 0 | 0 | 0 | 0 | 0 |
+| Behavioral Descriptions | 1 | 0 | 0 | 1 | 0 |
 
 ### By File
 
@@ -290,11 +290,74 @@ The following discrepancies were identified during initial USAGE.md spot check (
 - **Missing**: `terminal.warning_enabled` field
 - **Status**: ❌ Open
 
-**Total Discrepancies Found**: 3 (DISC-010, DISC-011, DISC-012)
+**DISC-013 [Feature/Critical] Audit logging completely non-functional**
+
+- **Location**: Feature claimed in docs/SECURITY.md and implemented in internal/audit/
+- **Category**: Feature Claims
+- **Severity**: Critical
+- **Documented**: Audit logging creates HMAC-SHA256 signed entries in ~/.pass-cli/audit.log for all vault operations
+- **Actual**: Feature exists in code but audit log file is never created due to persistence failure
+- **Code Analysis**: internal/audit/audit.go implements HMAC-SHA256 correctly, but file writing fails
+- **Remediation**: Fix audit log file creation/persistence in internal/audit package
+- **Status**: ❌ Open (requires code fix, not documentation)
 
 ---
 
-### Categories 3-10: [To Be Populated During Implementation]
+**DISC-014 [UI/Medium] TUI keyboard shortcuts documented inconsistently**
+
+- **Location**: README.md TUI shortcuts section
+- **Category**: Feature Claims / Behavioral Descriptions
+- **Severity**: Medium
+- **Documented**: Specific keyboard shortcuts for TUI navigation (Ctrl+H, Ctrl+C, etc.)
+- **Actual**: Some documented shortcuts don't match actual TUI behavior
+- **Remediation**: Update README.md TUI shortcuts documentation to match actual implementation
+- **Status**: ❌ Open
+
+---
+
+**Total Discrepancies Found**: 5 (DISC-010, DISC-011, DISC-012, DISC-013, DISC-014)
+
+---
+
+### Category 5: Feature Claims Verification
+
+**Test Date**: 2025-10-15
+**Methodology**: Manual testing of documented features, code inspection
+
+#### Summary Results
+- **Audit Logging**: **CRITICAL FAILURE** - Feature implemented but non-functional due to file persistence issues
+- **Keychain Integration**: ✅ Working correctly - Windows Credential Manager integration verified
+- **Password Policy**: ✅ Working correctly - Enforces 12+ chars with complexity requirements
+- **TUI Functionality**: ✅ Working with documentation inconsistencies found
+
+#### Key Issues Found
+
+**DISC-013 [Feature/Critical] Audit logging completely non-functional**
+- **Location**: Feature claimed in docs/SECURITY.md and implemented in internal/audit/
+- **Issue**: Audit log file never created despite feature being implemented in code
+- **Status**: ❌ Open (requires code fix, not documentation)
+
+**DISC-014 [UI/Medium] TUI keyboard shortcuts documented inconsistently**
+- **Location**: README.md TUI shortcuts section
+- **Issue**: Some documented shortcuts don't match actual TUI behavior
+- **Status**: ❌ Open
+
+---
+
+### Category 6: Architecture Verification
+
+**Test Date**: 2025-10-15
+**Methodology**: Code inspection of internal/ package structure
+
+#### Summary Results
+- **Package Structure**: ✅ Accurate - Matches docs/SECURITY.md architecture descriptions
+- **Cryptographic Implementation**: ✅ Verified - AES-GCM, PBKDF2, HMAC all implemented as documented
+- **Library Separation**: ✅ Verified - Vault package properly separated for library usage
+- **No discrepancies found** - Architecture documentation is accurate
+
+---
+
+### Categories 7-10: [To Be Populated During Implementation]
 
 ---
 
