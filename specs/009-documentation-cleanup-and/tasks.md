@@ -23,7 +23,11 @@
 
 **Purpose**: Capture baseline metrics and prepare tooling for documentation review
 
-- [ ] T001 [US1+US2+US3] Capture baseline documentation metrics using specs/009-documentation-cleanup-and/audit-checklist.md Phase 1.1 commands
+- [ ] T001 [US1+US2+US3] Capture baseline documentation metrics using specs/009-documentation-cleanup-and/audit-checklist.md Phase 1.1 commands:
+  - Total doc file count: `find docs/ specs/ -name "*.md" | wc -l`
+  - Sample time to update 3 random docs (for SC-001 baseline)
+  - List all duplicate topic areas found via keyword searches (for SC-004 baseline)
+  - Count search results for 5 common queries: installation, usage, configuration, troubleshooting, security (for SC-006 baseline)
 - [ ] T002 [P] [US1+US2+US3] Verify ripgrep available for duplicate detection (`rg --version`)
 - [ ] T003 [P] [US1+US2+US3] Verify git status clean and branch `009-documentation-cleanup-and` active
 
@@ -127,12 +131,12 @@
 
 **Purpose**: Validate all success criteria and prepare for merge
 
-- [ ] T046 [Polish] Verify SC-001: Calculate documentation maintenance effort reduction (baseline file count vs. post-cleanup) using audit-checklist.md Phase 6.1
+- [ ] T046 [Polish] Verify SC-001: Calculate documentation maintenance effort reduction using formula `(baseline_file_count - final_file_count) / baseline_file_count >= 0.30` per audit-checklist.md Phase 6.1
 - [ ] T047 [Polish] Verify SC-002: Confirm zero broken internal links (manual verification of all links tested) using audit-checklist.md Phase 6.1
 - [ ] T048 [Polish] Verify SC-003: Confirm `docs/DOCUMENTATION_LIFECYCLE.md` exists with `CONTRIBUTING.md` integration using audit-checklist.md Phase 6.1
-- [ ] T049 [Polish] Verify SC-004: Calculate 50%+ reduction in duplicate/overlapping documentation (topic areas before vs. after) using audit-checklist.md Phase 6.1
+- [ ] T049 [Polish] Verify SC-004: Calculate duplicate reduction using formula `(baseline_duplicate_topic_areas - final_duplicate_topic_areas) / baseline_duplicate_topic_areas >= 0.50` per audit-checklist.md Phase 6.1
 - [ ] T050 [Polish] Verify SC-005: Review all cleanup commits have documented rationale: `git log --grep="docs:" --oneline` using audit-checklist.md Phase 6.1
-- [ ] T051 [Polish] Verify SC-006: Measure 40% improvement in documentation search clarity (multiple search results for same topic before vs. after) using audit-checklist.md Phase 6.1
+- [ ] T051 [Polish] Verify SC-006: Measure search clarity improvement using formula `(baseline_avg_search_results - final_avg_search_results) / baseline_avg_search_results >= 0.40` per audit-checklist.md Phase 6.1 (average across 5 common queries from T001)
 - [ ] T052 [Polish] Verify SC-007: Confirm zero historical context loss (all deleted files accessible via git history, specs retained) using audit-checklist.md Phase 6.1
 - [ ] T053 [Polish] Capture final metrics using audit-checklist.md Phase 6.2 (total doc file count, total line count, spec count)
 - [ ] T054 [Polish] Complete audit completion summary in audit-checklist.md (date started/completed, total time, docs reviewed/deleted/consolidated, broken links fixed, commits created)
@@ -235,5 +239,6 @@ Task: "Fill Section 6 (Process Workflow) in docs/DOCUMENTATION_LIFECYCLE.md"
 - **Policy first**: US1 MUST complete before US2/US3 to ensure consistent cleanup decisions
 - **Git history as archive**: Deleted files remain accessible via `git log --follow` and `git show <commit>:<path>` per research.md Section 3
 - **Success criteria tracking**: audit-checklist.md provides templates for all SC-001 through SC-007 validation
+- **Empty-set handling**: For tasks stating "For EACH file/spec/duplicate set", if zero items are found matching criteria, document the finding (e.g., "Zero obsolete files in docs/archive/") and proceed to next task. This is a valid outcome, not a failure.
 
 **Commit discipline**: Follow constitution Development Workflow: commit frequently after each task or logical group with detailed rationale in commit messages.

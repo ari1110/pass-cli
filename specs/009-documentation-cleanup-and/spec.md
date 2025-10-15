@@ -89,7 +89,7 @@ Repository maintainers need to identify and merge overlapping documentation to c
 ### Key Entities
 
 - **Documentation Lifecycle Policy**: Defines retention periods, archival triggers (feature removal, version obsolescence, content superseded), approval workflows, and format-specific rules. Serves as decision-making framework for all cleanup activities.
-- **Documentation Inventory**: Catalog of all documentation files with metadata including type, creation date, last update, referenced features/versions, and retention status. Used to track cleanup progress and justify retention decisions.
+- **Documentation Inventory**: Catalog of all documentation files with metadata including type, creation date, last update, referenced features/versions, and retention status. Implemented via `specs/009-documentation-cleanup-and/audit-checklist.md` template which tracks cleanup progress and justifies retention decisions.
 - **Cleanup Decision Log**: Record of all archival/removal decisions maintained in git commit messages with rationale, date, and affected files. Provides audit trail via git history for future maintenance.
 
 ## Success Criteria *(mandatory)*
