@@ -492,8 +492,13 @@ func (eh *EventHandler) handleSearchActivate() {
 				return nil // Consume event
 			}
 		case tcell.KeyEscape:
-			// Handle escape to exit search
-			eh.handleSearchDeactivate()
+			// Exit search input but keep filter active
+			// User can press p/c to view/copy password of filtered results
+			table := eh.appState.GetTable()
+			if table != nil {
+				eh.app.SetFocus(table)
+			}
+			eh.statusBar.ShowInfo("Filter active. Press '/' to edit search, Esc again to clear.")
 			return nil
 		}
 		// Let all other keys (typing) pass through to InputField
