@@ -585,8 +585,8 @@ Set-Acl "$env:USERPROFILE\.pass-cli\vault.enc" $acl
 
 4. **Check for error messages**
    ```bash
-   # Run with verbose flag (if supported)
-   pass-cli --verbose 2>&1 | tee tui-error.log
+   # Run TUI with verbose flag to capture debug output
+   pass-cli tui --verbose 2>&1 | tee tui-error.log
    ```
 
 ---

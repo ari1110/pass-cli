@@ -9,13 +9,13 @@
 
 ## Summary Statistics
 
-**Total Discrepancies Found**: 14 (DISC-001 through DISC-014)
+**Total Discrepancies Found**: 15 (DISC-001 through DISC-015)
 
 ### By Category
 
 | Category | Total | Critical | High | Medium | Low |
 |----------|-------|----------|------|--------|-----|
-| CLI Interface | 9 | 5 | 0 | 4 | 0 |
+| CLI Interface | 10 | 5 | 0 | 5 | 0 |
 | Code Examples | 2 | 0 | 0 | 1 | 1 |
 | File Paths | 0 | 0 | 0 | 0 | 0 |
 | Configuration | 1 | 1 | 0 | 0 | 0 |
@@ -40,10 +40,10 @@
 | docs/USAGE.md | 8 (DISC-002, 003, 006, 007, 008, 009, 011, 012) | ✅ Fixed |
 | docs/MIGRATION.md | 1 (DISC-004) | ✅ Fixed |
 | docs/SECURITY.md | 1 (DISC-005) | ✅ Fixed |
-| docs/TROUBLESHOOTING.md | - | ❌ Not Started |
-| docs/KNOWN_LIMITATIONS.md | - | ❌ Not Started |
-| CONTRIBUTING.md | - | ❌ Not Started |
-| docs/INSTALLATION.md | - | ❌ Not Started |
+| docs/TROUBLESHOOTING.md | 1 (DISC-015) | ✅ Fixed |
+| docs/KNOWN_LIMITATIONS.md | 0 | ✅ Verified |
+| CONTRIBUTING.md | 0 | ✅ Verified |
+| docs/INSTALLATION.md | 0 | ✅ Verified |
 
 ---
 
@@ -266,6 +266,26 @@
   - Rebuilt binary so help output reflects corrections
 - **Status**: ✅ Fixed
 - **Commit**: 3cf1624
+
+---
+
+### docs/TROUBLESHOOTING.md
+
+#### DISC-015 [CLI/Medium] Invalid `--verbose` flag usage without command
+
+- **Location**: docs/TROUBLESHOOTING.md:589
+- **Category**: CLI Interface
+- **Severity**: Medium
+- **Documented**:
+  ```bash
+  # Run with verbose flag (if supported)
+  pass-cli --verbose 2>&1 | tee tui-error.log
+  ```
+- **Actual**: `--verbose` is a global flag that requires a command. Running `pass-cli --verbose` attempts to launch TUI with verbose flag instead of showing usage error.
+- **Issue**: The documentation suggests using `--verbose` without a command for debugging TUI issues, but this is invalid syntax. The comment "(if supported)" suggests uncertainty about the flag.
+- **Remediation**: Change to `pass-cli tui --verbose 2>&1 | tee tui-error.log` to properly debug TUI mode with verbose output
+- **Status**: ✅ Fixed
+- **Commit**: [TBD - Phase 9]
 
 ---
 
