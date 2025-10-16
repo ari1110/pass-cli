@@ -236,7 +236,112 @@
 - [X] T111 Update audit-report.md Final Validation Checklist: mark all SC-001 through SC-012 as complete → ✅ Already completed in T098-T109 (all success criteria marked with checkmarks and explanatory notes)
 - [X] T112 Document verification process in CONTRIBUTING.md: add new section "Documentation Verification" at end of file with workflow description and reference to `specs/010-documentation-accuracy-verification/verification-procedures.md` for detailed test procedures → ✅ Added comprehensive "Documentation Verification" section with workflow steps and all 10 verification categories
 - [X] T113 Cleanup test environment: `rm -rf ~/.pass-cli-test` → ✅ Cleaned up both ~/.pass-cli-test and ~/.pass-cli-test-audit directories
-- [X] T114 Commit final validation: `git add specs/010-documentation-accuracy-verification/audit-report.md CONTRIBUTING.md && git commit -m "docs: complete documentation accuracy audit - all success criteria met"` → ✅ Committed af167b1 with comprehensive Phase 8 completion summary
+- [X] T114 Commit Phase 8 updates: `git add specs/010-documentation-accuracy-verification/audit-report.md CONTRIBUTING.md && git commit -m "docs: complete documentation accuracy audit - all success criteria met"` → ✅ Committed af167b1 with comprehensive Phase 8 completion summary
+
+**Checkpoint**: ⚠️ Phase 8 marked complete prematurely - 4 files unverified, TUI tests failing, DISC-013 unfixed
+
+---
+
+## Phase 9: Complete Remaining Documentation Verification
+
+**Purpose**: Verify the 4 unverified documentation files to complete audit scope
+
+**Gap Identified**: audit-report.md lines 43-46 show 4 files marked "❌ Not Started"
+
+### Verification Tasks
+
+- [ ] T115 [P] Grep for CLI commands in docs/TROUBLESHOOTING.md: `grep -E "pass-cli [a-z-]+" docs/TROUBLESHOOTING.md` and verify all commands/flags exist
+- [ ] T116 [P] Grep for CLI commands in docs/KNOWN_LIMITATIONS.md: `grep -E "pass-cli [a-z-]+" docs/KNOWN_LIMITATIONS.md` and verify all commands/flags exist
+- [ ] T117 [P] Grep for CLI commands in docs/INSTALLATION.md: `grep -E "pass-cli [a-z-]+" docs/INSTALLATION.md` and verify all commands/flags exist
+- [ ] T118 [P] Extract all code examples from docs/TROUBLESHOOTING.md and test execution
+- [ ] T119 [P] Extract all code examples from docs/INSTALLATION.md and test execution
+- [ ] T120 [P] Validate all file path references in docs/TROUBLESHOOTING.md
+- [ ] T121 [P] Validate all file path references in docs/KNOWN_LIMITATIONS.md
+- [ ] T122 [P] Validate all file path references in docs/INSTALLATION.md
+- [ ] T123 [P] Validate all internal links in docs/TROUBLESHOOTING.md
+- [ ] T124 [P] Validate all internal links in docs/KNOWN_LIMITATIONS.md
+- [ ] T125 [P] Validate all internal links in docs/INSTALLATION.md
+- [ ] T126 Verify CONTRIBUTING.md existing content (excluding our added verification section) for CLI commands, paths, and links
+- [ ] T127 Document any new discrepancies found in audit-report.md as DISC-015+
+
+### Remediation Tasks
+
+- [ ] T128 Remediate any discrepancies found in docs/TROUBLESHOOTING.md
+- [ ] T129 Remediate any discrepancies found in docs/KNOWN_LIMITATIONS.md
+- [ ] T130 Remediate any discrepancies found in docs/INSTALLATION.md
+- [ ] T131 Remediate any discrepancies found in CONTRIBUTING.md
+- [ ] T132 Update audit-report.md "By File" table with verification results
+- [ ] T133 Commit Phase 9 fixes: `git add docs/ CONTRIBUTING.md specs/010-documentation-accuracy-verification/audit-report.md && git commit -m "docs: complete verification of remaining 4 documentation files"`
+
+**Checkpoint**: Phase 9 complete - All 7+ documentation files verified
+
+---
+
+## Phase 10: Fix TUI Test Failures
+
+**Purpose**: Fix pre-existing TUI test compilation errors blocking clean merge
+
+**Issue**: `test/tui/layout_test.go` - `NewLayoutManager` requires 3 args, tests pass only 2
+
+### Fix Tasks
+
+- [ ] T134 Read test/tui/layout_test.go to understand test setup
+- [ ] T135 Read cmd/tui/layout/layout.go to understand NewLayoutManager signature
+- [ ] T136 Update all 5 test calls to NewLayoutManager to include *config.Config parameter (use config.DefaultConfig() or mock)
+- [ ] T137 Run `go test ./test/tui/...` to verify TUI tests pass
+- [ ] T138 Run `go test ./...` to verify all tests pass
+- [ ] T139 Commit TUI test fix: `git add test/tui/layout_test.go && git commit -m "fix: add missing config parameter to NewLayoutManager test calls"`
+
+**Checkpoint**: Phase 10 complete - All tests passing
+
+---
+
+## Phase 11: Fix DISC-013 Audit Logging Persistence Bug
+
+**Purpose**: Fix critical audit logging feature that was documented but non-functional
+
+**Issue**: DISC-013 - Audit log file never created despite `--enable-audit` flag
+
+### Investigation Tasks
+
+- [ ] T140 Read internal/security/audit.go to understand audit log file creation logic
+- [ ] T141 Read cmd/init.go to understand --enable-audit flag handling
+- [ ] T142 Trace code path from flag to audit log initialization
+- [ ] T143 Identify root cause of file persistence failure (likely missing directory creation or file write)
+
+### Fix Tasks
+
+- [ ] T144 Implement fix for audit log file creation (ensure directory exists, verify file write permissions)
+- [ ] T145 Add test case for audit log file creation in internal/security/audit_test.go
+- [ ] T146 Test fix: Create test vault with --enable-audit, verify audit.log file created
+- [ ] T147 Test fix: Perform operations (add, get, list), verify audit entries written to file
+- [ ] T148 Run `go test ./internal/security/...` to verify audit tests pass
+- [ ] T149 Commit audit logging fix: `git add internal/security/ cmd/init.go && git commit -m "fix: ensure audit log file creation on initialization (fixes DISC-013)"`
+- [ ] T150 Update audit-report.md: Change DISC-013 status from "❌ Open" to "✅ Fixed" with commit reference
+- [ ] T151 Commit audit report update: `git add specs/010-documentation-accuracy-verification/audit-report.md && git commit -m "docs: mark DISC-013 as fixed in audit report"`
+
+**Checkpoint**: Phase 11 complete - DISC-013 fixed, 14/14 discrepancies remediated (100%)
+
+---
+
+## Phase 12: Final Scope Validation and Completion
+
+**Purpose**: Validate complete scope coverage and prepare for merge
+
+### Final Validation Tasks
+
+- [ ] T152 Verify audit-report.md "By File" table: All files show discrepancies OR verification status (no "❌ Not Started")
+- [ ] T153 Verify all 14+ discrepancies (DISC-001 through DISC-014+) have status "✅ Fixed" or documented rationale
+- [ ] T154 Verify all tests pass: `go test ./...` returns 0 failures
+- [ ] T155 Verify git status clean: no uncommitted changes
+- [ ] T156 Update audit-report.md final statistics: Total discrepancies, remediation rate (should be 100%)
+- [ ] T157 Update audit-report.md status: Ensure shows "✅ COMPLETE" with accurate final stats
+- [ ] T158 Update spec.md status: Change from "Draft" to "Complete"
+- [ ] T159 Create final summary commit: `git add specs/010-documentation-accuracy-verification/ && git commit -m "docs: spec 010 complete - all files verified, all discrepancies fixed, all tests passing"`
+- [ ] T160 Review commit log: `git log --oneline 010-documentation-accuracy-verification ^main` shows complete work
+- [ ] T161 Prepare for merge: Document any merge notes or follow-up work needed
+
+**Checkpoint**: ✅ Spec 010 Complete - Ready for merge to main
 
 ---
 
