@@ -11,7 +11,7 @@ import (
 func TestSidebarToggleCycles(t *testing.T) {
 	app := SimulateApp(t)
 	appState := models.NewAppState(nil) // nil vault for testing
-	lm := layout.NewLayoutManager(app, appState)
+	lm := layout.NewLayoutManager(app, appState, nil) // nil config for testing
 
 	// Initial state should be Auto (nil)
 	if lm.GetSidebarOverride() != nil {
@@ -57,7 +57,7 @@ func TestSidebarToggleCycles(t *testing.T) {
 func TestSidebarManualOverridePersistsAcrossResize(t *testing.T) {
 	app := SimulateApp(t)
 	appState := models.NewAppState(nil)
-	lm := layout.NewLayoutManager(app, appState)
+	lm := layout.NewLayoutManager(app, appState, nil)
 
 	// Create layout to initialize components
 	lm.CreateMainLayout()
@@ -123,7 +123,7 @@ func TestShouldShowSidebarLogic(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			app := SimulateApp(t)
 			appState := models.NewAppState(nil)
-			lm := layout.NewLayoutManager(app, appState)
+			lm := layout.NewLayoutManager(app, appState, nil)
 			lm.SetBreakpoints(tt.mediumBreakpoint, 120)
 
 			// Create layout
@@ -150,7 +150,7 @@ func TestShouldShowSidebarLogic(t *testing.T) {
 func TestSidebarToggleStatusBarMessages(t *testing.T) {
 	app := SimulateApp(t)
 	appState := models.NewAppState(nil)
-	lm := layout.NewLayoutManager(app, appState)
+	lm := layout.NewLayoutManager(app, appState, nil)
 
 	tests := []struct {
 		name            string
@@ -175,7 +175,7 @@ func TestSidebarToggleStatusBarMessages(t *testing.T) {
 func TestSidebarToggleWithActiveSelection(t *testing.T) {
 	app := SimulateApp(t)
 	appState := models.NewAppState(nil)
-	lm := layout.NewLayoutManager(app, appState)
+	lm := layout.NewLayoutManager(app, appState, nil)
 
 	// Create layout
 	lm.CreateMainLayout()
