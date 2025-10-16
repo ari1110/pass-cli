@@ -80,7 +80,7 @@ func TestInitialize(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize vault
-	err := vault.Initialize([]byte(password), false)
+	err := vault.Initialize([]byte(password), false, "", "")
 	if err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
@@ -96,7 +96,7 @@ func TestInitializeWithShortPassword(t *testing.T) {
 	defer cleanup()
 
 	// Try with password < 8 characters
-	err := vault.Initialize([]byte("short"), false)
+	err := vault.Initialize([]byte("short"), false, "", "")
 	if err == nil {
 		t.Error("Initialize() should fail with short password")
 	}
@@ -109,13 +109,13 @@ func TestInitializeExistingVault(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize once
-	err := vault.Initialize([]byte(password), false)
+	err := vault.Initialize([]byte(password), false, "", "")
 	if err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 
 	// Try to initialize again
-	err = vault.Initialize([]byte(password), false)
+	err = vault.Initialize([]byte(password), false, "", "")
 	if err == nil {
 		t.Error("Initialize() should fail on existing vault")
 	}
@@ -128,7 +128,7 @@ func TestUnlock(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize and unlock
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 
@@ -148,7 +148,7 @@ func TestUnlockWithWrongPassword(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 
@@ -170,7 +170,7 @@ func TestLock(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize and unlock
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -192,7 +192,7 @@ func TestAddCredential(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize and unlock
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -223,7 +223,7 @@ func TestAddCredentialWhenLocked(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize but don't unlock
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 
@@ -241,7 +241,7 @@ func TestAddDuplicateCredential(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize and unlock
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -267,7 +267,7 @@ func TestGetCredential(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -311,7 +311,7 @@ func TestGetCredentialWithUsageTracking(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -377,7 +377,7 @@ func TestUpdateCredential(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -444,7 +444,7 @@ func TestUpdateCredentialClearFields(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential with category and URL
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -494,7 +494,7 @@ func TestUpdateCredentialPartial(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -545,7 +545,7 @@ func TestUpdateCredentialFields(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -592,7 +592,7 @@ func TestUpdateCredentialFieldsEmptyMeansNoChange(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -639,7 +639,7 @@ func TestListCredentialsWithMetadataIncludesCategoryAndURL(t *testing.T) {
 
 	pw := "TestPassword123!"
 	// T020d: Convert to []byte
-	if err := v.Initialize([]byte(pw), false); err != nil {
+	if err := v.Initialize([]byte(pw), false, "", ""); err != nil {
 		t.Fatal(err)
 	}
 	if err := v.Unlock([]byte(pw)); err != nil {
@@ -672,7 +672,7 @@ func TestDeleteCredential(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize, unlock, and add credential
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -706,7 +706,7 @@ func TestDeleteNonExistentCredential(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize and unlock
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -738,7 +738,7 @@ func TestPersistence(t *testing.T) {
 
 	// Initialize and add credential
 	// T020d: Convert to []byte
-	if err := vault1.Initialize([]byte(password), false); err != nil {
+	if err := vault1.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault1.Unlock([]byte(password)); err != nil {
@@ -783,7 +783,7 @@ func TestChangePassword(t *testing.T) {
 
 	// Initialize and unlock
 	// T020d: Convert to []byte
-	if err := vault.Initialize([]byte(oldPassword), false); err != nil {
+	if err := vault.Initialize([]byte(oldPassword), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(oldPassword)); err != nil {
@@ -832,7 +832,7 @@ func TestBackwardCompatibility(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize and unlock
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -881,7 +881,7 @@ func TestIterationsMigrationOnPasswordChange(t *testing.T) {
 	newPassword := "NewPassword789!"
 
 	// Initialize vault (will use 600k iterations by default)
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 
@@ -963,7 +963,7 @@ func TestMigrationRollbackOnPowerLoss(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize vault with 100k iterations (simulating legacy vault)
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(password)); err != nil {
@@ -1088,7 +1088,7 @@ func TestInitialize_WeakPasswordRejected(t *testing.T) {
 
 	for _, tt := range weakPasswords {
 		t.Run(tt.name, func(t *testing.T) {
-			err := vault.Initialize([]byte(tt.password), false)
+			err := vault.Initialize([]byte(tt.password), false, "", "")
 			if err == nil {
 				t.Errorf("Initialize() should reject weak password: %s", tt.reason)
 			}
@@ -1110,7 +1110,7 @@ func TestInitialize_StrongPasswordAccepted(t *testing.T) {
 			vault, _, cleanup := setupTestVault(t)
 			defer cleanup()
 
-			err := vault.Initialize([]byte(password), false)
+			err := vault.Initialize([]byte(password), false, "", "")
 			if err != nil {
 				t.Errorf("Initialize() should accept strong password %s: %v", password, err)
 			}
@@ -1125,7 +1125,7 @@ func TestChangePassword_WeakPasswordRejected(t *testing.T) {
 	initialPassword := "GoodInitialPass123!"
 
 	// Initialize with strong password
-	if err := vault.Initialize([]byte(initialPassword), false); err != nil {
+	if err := vault.Initialize([]byte(initialPassword), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(initialPassword)); err != nil {
@@ -1192,7 +1192,7 @@ func TestChangePassword_StrongPasswordAccepted(t *testing.T) {
 	}
 
 	// Initialize with strong password
-	if err := vault.Initialize([]byte(initialPassword), false); err != nil {
+	if err := vault.Initialize([]byte(initialPassword), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 	if err := vault.Unlock([]byte(initialPassword)); err != nil {
@@ -1256,7 +1256,7 @@ func TestPasswordPolicy_ErrorMessagesDescriptive(t *testing.T) {
 			// T051a: Reset rate limiter between subtests
 			vault.rateLimiter.Reset()
 
-			err := vault.Initialize([]byte(tt.password), false)
+			err := vault.Initialize([]byte(tt.password), false, "", "")
 			if err == nil {
 				t.Errorf("Initialize() should reject password: %s", tt.password)
 				return
@@ -1278,7 +1278,7 @@ func TestVaultOperationsWithFailedAuditLogging(t *testing.T) {
 	password := "TestPassword123!"
 
 	// Initialize vault (audit logging not configured - should succeed anyway)
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() should succeed even without audit logging: %v", err)
 	}
 
@@ -1321,7 +1321,7 @@ func TestVaultOperationsWithInvalidAuditPath(t *testing.T) {
 	// TODO: Once audit logging is implemented, configure with invalid path
 	// For now, test that operations work without audit configuration
 
-	if err := vault.Initialize([]byte(password), false); err != nil {
+	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
 

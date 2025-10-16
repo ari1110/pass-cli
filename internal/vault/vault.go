@@ -55,6 +55,10 @@ type Credential struct {
 type VaultData struct {
 	Credentials map[string]Credential `json:"credentials"` // Map of service name -> Credential
 	Version     int                   `json:"version"`
+	// Audit configuration persistence (fix for DISC-013)
+	AuditEnabled bool   `json:"audit_enabled,omitempty"` // Whether audit logging is enabled
+	AuditLogPath string `json:"audit_log_path,omitempty"` // Path to audit log file
+	VaultID      string `json:"vault_id,omitempty"`       // Vault identifier for audit key
 }
 
 // VaultService manages credentials with encryption and keychain integration
@@ -107,6 +111,7 @@ func New(vaultPath string) (*VaultService, error) {
 
 // T066: EnableAudit enables audit logging for this vault
 // vaultID should be a unique identifier for the vault (e.g., filepath or UUID)
+// DISC-013 fix: Now persists audit config to vault data
 func (v *VaultService) EnableAudit(auditLogPath, vaultID string) error {
 	if v.auditEnabled {
 		return nil // Already enabled
@@ -119,6 +124,18 @@ func (v *VaultService) EnableAudit(auditLogPath, vaultID string) error {
 
 	v.auditLogger = logger
 	v.auditEnabled = true
+
+	// DISC-013 fix: Persist audit configuration to vault data
+	if v.vaultData != nil {
+		v.vaultData.AuditEnabled = true
+		v.vaultData.AuditLogPath = auditLogPath
+		v.vaultData.VaultID = vaultID
+		// Save vault data to persist audit configuration
+		if err := v.save(); err != nil {
+			return fmt.Errorf("failed to persist audit configuration: %w", err)
+		}
+	}
+
 	return nil
 }
 
@@ -151,7 +168,8 @@ func (v *VaultService) logAudit(eventType, outcome, credentialName string) {
 // Initialize creates a new vault with a master password
 // T010: Updated signature to accept []byte, T014: Added deferred cleanup
 // T045: Added password policy validation (FR-016)
-func (v *VaultService) Initialize(masterPassword []byte, useKeychain bool) error {
+// DISC-013 fix: Added audit parameters to set config during initialization
+func (v *VaultService) Initialize(masterPassword []byte, useKeychain bool, auditLogPath, vaultID string) error {
 	defer crypto.ClearBytes(masterPassword) // T014: Ensure cleanup even on error
 
 	// T045 [US3]: Validate master password against policy (FR-016)
@@ -179,10 +197,27 @@ func (v *VaultService) Initialize(masterPassword []byte, useKeychain bool) error
 		return errors.New("vault already exists")
 	}
 
-	// Create empty vault data
+	// DISC-013 fix: Create vault data with audit config if provided
 	vaultData := &VaultData{
 		Credentials: make(map[string]Credential),
 		Version:     1,
+	}
+
+	// Set audit configuration if provided (non-empty path means enabled)
+	if auditLogPath != "" && vaultID != "" {
+		vaultData.AuditEnabled = true
+		vaultData.AuditLogPath = auditLogPath
+		vaultData.VaultID = vaultID
+
+		// DISC-013 fix: Create audit logger for immediate use
+		logger, err := security.NewAuditLogger(auditLogPath, vaultID)
+		if err != nil {
+			// Don't fail init if audit logger creation fails (graceful degradation)
+			fmt.Fprintf(os.Stderr, "Warning: failed to create audit logger: %v\n", err)
+		} else {
+			v.auditLogger = logger
+			v.auditEnabled = true
+		}
 	}
 
 	// Marshal to JSON
@@ -287,6 +322,14 @@ func (v *VaultService) Unlock(masterPassword []byte) error {
 	v.masterPassword = make([]byte, len(masterPassword))
 	copy(v.masterPassword, masterPassword)
 	v.vaultData = &vaultData
+
+	// DISC-013 fix: Restore audit logging if it was enabled
+	if vaultData.AuditEnabled && vaultData.AuditLogPath != "" && vaultData.VaultID != "" {
+		if err := v.EnableAudit(vaultData.AuditLogPath, vaultData.VaultID); err != nil {
+			// Log warning but don't fail unlock - audit logging is optional
+			fmt.Fprintf(os.Stderr, "Warning: failed to restore audit logging: %v\n", err)
+		}
+	}
 
 	// T036f: Remove backup file after successful unlock
 	// This confirms the vault is readable and migration (if any) was successful

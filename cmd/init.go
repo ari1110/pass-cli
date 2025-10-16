@@ -102,22 +102,21 @@ func runInit(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to create vault service: %w", err)
 	}
 
-	// Initialize vault
-	if err := vaultService.Initialize(password, useKeychain); err != nil {
+	// T073/DISC-013 fix: Prepare audit parameters if requested
+	var auditLogPath, vaultID string
+	if enableAudit {
+		auditLogPath = getAuditLogPath(vaultPath)
+		vaultID = getVaultID(vaultPath)
+	}
+
+	// Initialize vault (with audit config if requested)
+	if err := vaultService.Initialize(password, useKeychain, auditLogPath, vaultID); err != nil {
 		return fmt.Errorf("failed to initialize vault: %w", err)
 	}
 
-	// T073: Enable audit logging if requested (FR-025)
-	if enableAudit {
-		auditLogPath := getAuditLogPath(vaultPath)
-		vaultID := getVaultID(vaultPath)
-		if err := vaultService.EnableAudit(auditLogPath, vaultID); err != nil {
-			// T074: Graceful degradation - warn but don't fail init
-			fmt.Fprintf(os.Stderr, "⚠️  Warning: failed to enable audit logging: %v\n", err)
-			fmt.Fprintf(os.Stderr, "   Vault initialized successfully but audit logging is disabled.\n")
-		} else {
-			fmt.Printf("📊 Audit logging enabled: %s\n", auditLogPath)
-		}
+	// Display audit logging status
+	if enableAudit && auditLogPath != "" {
+		fmt.Printf("📊 Audit logging enabled: %s\n", auditLogPath)
 	}
 
 	// Success message

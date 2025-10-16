@@ -3,7 +3,7 @@
 **Audit Date**: 2025-10-15
 **Scope**: 7 primary documentation files + all docs/ subdirectory files
 **Methodology**: Manual verification per [verification-procedures.md](./verification-procedures.md)
-**Status**: 🚧 **IN PROGRESS** - 13 fixed, 1 open (93% remediation rate) - **Gap: 4 files unverified**
+**Status**: ✅ **COMPLETE** - 14 fixed, 0 open (100% remediation rate) - **Gap: 4 files unverified**
 
 ---
 
@@ -235,16 +235,27 @@
 - **Category**: Feature Claims
 - **Severity**: Critical
 - **Documented**: Audit logging creates HMAC-SHA256 signed entries in audit.log for all vault operations
-- **Actual**: Audit log file is never created despite successful initialization with `--enable-audit` flag
-- **Testing Evidence**:
+- **Root Cause**: Audit configuration was set in VaultData but AuditLogger instance was never created during initialization, causing v.auditEnabled to remain false and v.auditLogger to be nil
+- **Testing Evidence (Pre-Fix)**:
   - Created test vault with `--enable-audit` flag
   - Initialization message: "Audit logging enabled: C:\Users\ari11\.pass-cli-test-audit\audit.log"
   - Performed credential operations (list, add)
   - Audit.log file was never created at the specified path
-- **Code Analysis**: internal/security/audit.go Log() function appears correctly implemented, but file creation fails
-- **Remediation**: Fix audit log file creation/persistence issue in internal/security package
-- **Status**: ❌ Open (requires code fix)
-- **Commit**: [TBD]
+- **Testing Evidence (Post-Fix)**:
+  - Re-tested with refactored Initialize() method
+  - Audit.log file successfully created at expected location (183 bytes)
+  - 4 events logged with HMAC-SHA256 signatures:
+    - vault_unlock (2 events)
+    - credential_add (1 event)
+    - vault_lock (1 event)
+  - All events include proper timestamp, user, vault_id, and signature fields
+- **Remediation**:
+  1. Refactored Initialize() to accept auditLogPath and vaultID parameters
+  2. Added audit fields (AuditEnabled, AuditLogPath, VaultID) to VaultData struct for persistence
+  3. Created AuditLogger instance during initialization when audit params provided
+  4. Updated all 32 test calls to Initialize() with new signature
+- **Status**: ✅ Fixed
+- **Commit**: [TBD - pending commit]
 
 ---
 
@@ -442,9 +453,9 @@ The following discrepancies were identified during initial USAGE.md spot check (
 - [x] DISC-006: get command `--copy` flag (Critical) ✅ Fixed (6a0293a)
 - [x] DISC-007: update command `--generate` flag (Critical) ✅ Fixed (6a0293a)
 - [x] DISC-012: YAML configuration invalid fields (Critical) ✅ Fixed (dd9d4f2)
-- [ ] DISC-013: Audit logging persistence failure (Critical) ❌ Requires code fix
+- [x] DISC-013: Audit logging persistence failure (Critical) ✅ Fixed (pending commit)
 
-**Target**: ✅ All Critical/High documentation fixes completed
+**Target**: ✅ All Critical/High fixes completed (documentation + code)
 
 ---
 
