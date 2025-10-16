@@ -167,7 +167,7 @@ func (l *AuditLogger) Log(entry *AuditLogEntry) error {
 	if err != nil {
 		return fmt.Errorf("failed to open log file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// Write JSON entry with newline
 	if _, err := f.Write(append(data, '\n')); err != nil {

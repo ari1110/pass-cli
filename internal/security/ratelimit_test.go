@@ -36,9 +36,9 @@ func TestValidationRateLimiter_CooldownEnforcement(t *testing.T) {
 	rl := NewValidationRateLimiter()
 
 	// Trigger cooldown
-	rl.CheckAndRecordFailure()
-	rl.CheckAndRecordFailure()
-	rl.CheckAndRecordFailure()
+	_ = rl.CheckAndRecordFailure()
+	_ = rl.CheckAndRecordFailure()
+	_ = rl.CheckAndRecordFailure()
 
 	// Attempt during cooldown - should fail
 	err := rl.CheckAndRecordFailure()
@@ -61,8 +61,8 @@ func TestValidationRateLimiter_Reset(t *testing.T) {
 	rl := NewValidationRateLimiter()
 
 	// Record two failures
-	rl.CheckAndRecordFailure()
-	rl.CheckAndRecordFailure()
+	_ = rl.CheckAndRecordFailure()
+	_ = rl.CheckAndRecordFailure()
 
 	// Reset
 	rl.Reset()
@@ -89,8 +89,8 @@ func TestValidationRateLimiter_AutoReset(t *testing.T) {
 	rl := NewValidationRateLimiter()
 
 	// Record two failures
-	rl.CheckAndRecordFailure()
-	rl.CheckAndRecordFailure()
+	_ = rl.CheckAndRecordFailure()
+	_ = rl.CheckAndRecordFailure()
 
 	// Manually advance last failure time (simulate 31 seconds passing)
 	rl.mu.Lock()
@@ -121,7 +121,7 @@ func TestValidationRateLimiter_ConcurrentAccess(t *testing.T) {
 	done := make(chan bool, 10)
 	for i := 0; i < 10; i++ {
 		go func() {
-			rl.CheckAndRecordFailure()
+			_ = rl.CheckAndRecordFailure()
 			done <- true
 		}()
 	}
@@ -139,9 +139,9 @@ func TestValidationRateLimiter_RemainingTimeMessage(t *testing.T) {
 	rl := NewValidationRateLimiter()
 
 	// Trigger cooldown
-	rl.CheckAndRecordFailure()
-	rl.CheckAndRecordFailure()
-	rl.CheckAndRecordFailure()
+	_ = rl.CheckAndRecordFailure()
+	_ = rl.CheckAndRecordFailure()
+	_ = rl.CheckAndRecordFailure()
 
 	// Wait 1 second
 	time.Sleep(1 * time.Second)

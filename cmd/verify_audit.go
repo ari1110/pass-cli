@@ -70,7 +70,7 @@ func runVerifyAudit(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open audit log: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// Read and verify each entry
 	scanner := bufio.NewScanner(file)

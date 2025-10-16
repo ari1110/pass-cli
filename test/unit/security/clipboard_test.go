@@ -11,10 +11,11 @@ import (
 // This test simulates the clipboard auto-clear behavior implemented in cmd/get.go.
 func TestClipboardSecurityVerification(t *testing.T) {
 	// Skip if clipboard is not available (e.g., headless CI)
-	if !clipboard.Unsupported {
-		if err := clipboard.WriteAll("test-check"); err != nil {
-			t.Skip("Clipboard not available, skipping test")
-		}
+	if clipboard.Unsupported {
+		t.Skip("Clipboard not supported on this platform")
+	}
+	if err := clipboard.WriteAll("test-check"); err != nil {
+		t.Skipf("Clipboard not available: %v", err)
 	}
 
 	// Test password
@@ -69,10 +70,11 @@ func TestClipboardClearingTiming(t *testing.T) {
 	}
 
 	// Skip if clipboard is not available (e.g., headless CI)
-	if !clipboard.Unsupported {
-		if err := clipboard.WriteAll("test-check"); err != nil {
-			t.Skip("Clipboard not available, skipping test")
-		}
+	if clipboard.Unsupported {
+		t.Skip("Clipboard not supported on this platform")
+	}
+	if err := clipboard.WriteAll("test-check"); err != nil {
+		t.Skipf("Clipboard not available: %v", err)
 	}
 
 	testPassword := "timing-test-password"

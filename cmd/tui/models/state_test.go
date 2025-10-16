@@ -318,7 +318,7 @@ func TestUpdateCredential(t *testing.T) {
 		{Service: "AWS", Username: "admin", Category: "Cloud", URL: "https://old-url.com", Notes: "Old notes", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	// Track callback invocation
 	callbackInvoked := false
@@ -382,7 +382,7 @@ func TestUpdateCredential_ClearFields(t *testing.T) {
 		{Service: "AWS", Username: "admin", Category: "Cloud", URL: "https://aws.amazon.com", Notes: "Important notes", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	// Clear category and notes by passing non-nil pointers to empty strings
 	emptyCategory := ""
@@ -426,7 +426,7 @@ func TestDeleteCredential(t *testing.T) {
 		{Service: "GitHub", Username: "user", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	// Track callback invocation
 	callbackInvoked := false
@@ -536,7 +536,7 @@ func TestConcurrentAccess(t *testing.T) {
 		go func(n int) {
 			defer wg.Done()
 			service := "Service" + string(rune(n))
-			state.AddCredential(service, "user", "pass", "", "", "")
+			_ = state.AddCredential(service, "user", "pass", "", "", "")
 		}(i)
 	}
 

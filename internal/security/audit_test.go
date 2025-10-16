@@ -58,8 +58,8 @@ func TestAuditLogEntry_Verify(t *testing.T) {
 func TestAuditLogEntry_VerifyWithWrongKey(t *testing.T) {
 	key1 := make([]byte, 32)
 	key2 := make([]byte, 32)
-	rand.Read(key1)
-	rand.Read(key2)
+	_, _ = rand.Read(key1)
+	_, _ = rand.Read(key2)
 
 	entry := &AuditLogEntry{
 		Timestamp:      time.Now(),
@@ -82,7 +82,7 @@ func TestAuditLogEntry_VerifyWithWrongKey(t *testing.T) {
 // T053: Tamper detection tests - modify log entry, verify Verify fails
 func TestAuditLogEntry_TamperDetection_ModifiedEventType(t *testing.T) {
 	key := make([]byte, 32)
-	rand.Read(key)
+	_, _ = rand.Read(key)
 
 	entry := &AuditLogEntry{
 		Timestamp:      time.Now(),
@@ -107,7 +107,7 @@ func TestAuditLogEntry_TamperDetection_ModifiedEventType(t *testing.T) {
 
 func TestAuditLogEntry_TamperDetection_ModifiedOutcome(t *testing.T) {
 	key := make([]byte, 32)
-	rand.Read(key)
+	_, _ = rand.Read(key)
 
 	entry := &AuditLogEntry{
 		Timestamp:      time.Now(),
@@ -131,7 +131,7 @@ func TestAuditLogEntry_TamperDetection_ModifiedOutcome(t *testing.T) {
 
 func TestAuditLogEntry_TamperDetection_ModifiedCredentialName(t *testing.T) {
 	key := make([]byte, 32)
-	rand.Read(key)
+	_, _ = rand.Read(key)
 
 	entry := &AuditLogEntry{
 		Timestamp:      time.Now(),
@@ -155,7 +155,7 @@ func TestAuditLogEntry_TamperDetection_ModifiedCredentialName(t *testing.T) {
 
 func TestAuditLogEntry_TamperDetection_ModifiedTimestamp(t *testing.T) {
 	key := make([]byte, 32)
-	rand.Read(key)
+	_, _ = rand.Read(key)
 
 	entry := &AuditLogEntry{
 		Timestamp:      time.Now(),
@@ -206,7 +206,7 @@ func TestAuditLogger_Rotate(t *testing.T) {
 	}
 
 	key := make([]byte, 32)
-	rand.Read(key)
+	_, _ = rand.Read(key)
 
 	logger := &AuditLogger{
 		filePath:     logPath,
@@ -267,7 +267,7 @@ func TestAuditLogger_Log_NoPasswordInOutput(t *testing.T) {
 	logPath := filepath.Join(tempDir, "audit.log")
 
 	key := make([]byte, 32)
-	rand.Read(key)
+	_, _ = rand.Read(key)
 
 	logger := &AuditLogger{
 		filePath:     logPath,
