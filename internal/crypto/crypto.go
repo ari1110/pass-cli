@@ -168,7 +168,13 @@ func ClearBytes(data []byte) {
 // Supports PASS_CLI_ITERATIONS environment variable override (T034).
 // Returns DefaultIterations if env var is not set or invalid.
 // Minimum value enforced is MinIterations (600,000).
+// Special case: In test mode (PASS_CLI_TEST=1), uses 1000 iterations for speed.
 func GetIterations() int {
+	// Test mode: use minimal iterations for speed (not secure, but tests don't need security)
+	if os.Getenv("PASS_CLI_TEST") == "1" {
+		return 1000
+	}
+
 	envVal := os.Getenv("PASS_CLI_ITERATIONS")
 	if envVal == "" {
 		return DefaultIterations

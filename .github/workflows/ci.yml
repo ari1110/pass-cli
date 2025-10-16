@@ -54,10 +54,14 @@ jobs:
       - name: Run unit tests
         run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
         shell: bash
+        env:
+          PASS_CLI_TEST: "1"
 
       - name: Run integration tests
         run: go test -v -tags=integration -timeout 5m ./test
         shell: bash
+        env:
+          PASS_CLI_TEST: "1"
 
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest'
