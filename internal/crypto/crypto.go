@@ -164,10 +164,21 @@ func ClearBytes(data []byte) {
 	subtle.ConstantTimeCompare(data, dummy)
 }
 
+// GetMinIterations returns the minimum PBKDF2 iteration count allowed.
+// In test mode (PASS_CLI_TEST=1), returns 1000 for faster tests.
+// In production mode, returns MinIterations (600,000).
+func GetMinIterations() int {
+	// Test mode: use minimal iterations for speed (not secure, but tests don't need security)
+	if os.Getenv("PASS_CLI_TEST") == "1" {
+		return 1000
+	}
+	return MinIterations
+}
+
 // GetIterations returns the PBKDF2 iteration count to use for new vaults.
 // Supports PASS_CLI_ITERATIONS environment variable override (T034).
 // Returns DefaultIterations if env var is not set or invalid.
-// Minimum value enforced is MinIterations (600,000).
+// Minimum value enforced is GetMinIterations() (600,000 in production, 1000 in test mode).
 // Special case: In test mode (PASS_CLI_TEST=1), uses 1000 iterations for speed.
 func GetIterations() int {
 	// Test mode: use minimal iterations for speed (not secure, but tests don't need security)
@@ -188,9 +199,10 @@ func GetIterations() int {
 	}
 
 	// Enforce minimum (security requirement)
-	if iterations < MinIterations {
-		fmt.Fprintf(os.Stderr, "Warning: PASS_CLI_ITERATIONS (%d) below minimum (%d), using minimum\n", iterations, MinIterations)
-		return MinIterations
+	minIter := GetMinIterations()
+	if iterations < minIter {
+		fmt.Fprintf(os.Stderr, "Warning: PASS_CLI_ITERATIONS (%d) below minimum (%d), using minimum\n", iterations, minIter)
+		return minIter
 	}
 
 	return iterations
