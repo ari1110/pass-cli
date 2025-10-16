@@ -45,10 +45,13 @@ git checkout main
 git pull origin main
 
 # Run all tests
-make test-all
+go test ./...
+go test -v -tags=integration -timeout 5m ./test
 
 # Run code quality checks
-make check
+go fmt ./...
+go vet ./...
+golangci-lint run
 
 # Update version in CHANGELOG.md if you maintain one
 ```
@@ -223,7 +226,7 @@ ls LICENSE README.md CHANGELOG.md
 
 ## Best Practices
 
-1. **Test before tagging**: Always run `make test-all && make check`
+1. **Test before tagging**: Always run full test suite and quality checks
 2. **Use semantic versioning**: Follow semver strictly
 3. **Write good commit messages**: They become release notes
 4. **Keep CHANGELOG updated**: Manual changelog alongside auto-generated notes

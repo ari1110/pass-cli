@@ -151,7 +151,7 @@ xattr -d com.apple.quarantine /usr/local/bin/pass-cli
 ```bash
 git clone https://github.com/ari1110/pass-cli
 cd pass-cli
-make build
+go build -o pass-cli .
 sudo mv pass-cli /usr/local/bin/
 ```
 

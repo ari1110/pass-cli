@@ -631,10 +631,10 @@ ls -la ~/.pass-cli/
 grep -r "password.*=" .
 
 # Run security scanner
-make security-scan
+gosec ./...
 
 # Check for vulnerable dependencies
-go list -json -m all | nancy sleuth
+govulncheck ./...
 ```
 
 ### External Audits

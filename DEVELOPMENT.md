@@ -13,7 +13,6 @@ This guide covers the development workflow for Pass-CLI contributors.
 
 ### Optional Tools
 
-- **Make**: For convenient command shortcuts (Windows: via Git Bash, WSL, or install GNU Make)
 - **gosec**: Security scanner (`go install github.com/securego/gosec/v2/cmd/gosec@latest`)
 - **govulncheck**: Vulnerability checker (`go install golang.org/x/vuln/cmd/govulncheck@latest`)
 
@@ -37,69 +36,112 @@ go test ./...
 ./pass-cli --help
 ```
 
-## Makefile Commands
-
-The project includes a comprehensive Makefile with many convenient targets.
+## Common Commands
 
 ### Building
 
 ```bash
-make build                  # Build the binary
-make build-dev              # Build with debug info
-make build-all              # Cross-compile for all platforms
-make install                # Install to GOPATH
+# Build the binary
+go build -o pass-cli .
+
+# Build with debug info
+go build -gcflags="all=-N -l" -o pass-cli .
+
+# Install to GOPATH
+go install .
+
+# Cross-compile (example for Windows)
+GOOS=windows GOARCH=amd64 go build -o pass-cli.exe .
 ```
 
 ### Testing
 
 ```bash
-make test                   # Run unit tests
-make test-race              # Run tests with race detection
-make test-coverage          # Generate HTML coverage report
-make test-coverage-report   # Show coverage summary + HTML
-make test-integration       # Run integration tests (5min)
-make test-integration-short # Quick integration tests
-make test-all               # All tests (unit + integration)
+# Run unit tests
+go test ./...
+
+# Run tests with race detection
+go test -race ./...
+
+# Generate HTML coverage report
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out -o coverage.html
+
+# Show coverage summary
+go test -coverprofile=coverage.out ./...
+go tool cover -func=coverage.out
+
+# Run integration tests (5min timeout)
+go test -v -tags=integration -timeout 5m ./test
+
+# Run integration tests (skip slow tests)
+go test -v -tags=integration -short -timeout 2m ./test
 ```
 
 ### Code Quality
 
 ```bash
-make fmt                    # Format code
-make vet                    # Run go vet
-make lint                   # Run golangci-lint
-make check                  # Run fmt + vet + lint + test
-make pre-commit             # Comprehensive pre-commit checks
-make pre-release            # Full pre-release validation
+# Format code
+go fmt ./...
+
+# Run go vet
+go vet ./...
+
+# Run golangci-lint
+golangci-lint run
+
+# Pre-commit checks (run all)
+go fmt ./...
+go vet ./...
+golangci-lint run
+go test -race ./...
+gosec ./...
 ```
 
 ### Security
 
 ```bash
-make security-scan          # Run gosec security scanner
-make vuln-check             # Check for vulnerable dependencies
+# Run gosec security scanner
+gosec ./...
+
+# Check for vulnerable dependencies
+govulncheck ./...
 ```
 
 ### Release
 
 ```bash
-make release-check          # Validate GoReleaser config
-make release-dry-run        # Test full release (no publish)
-make release-snapshot       # Build snapshot release locally
+# Validate GoReleaser config
+goreleaser check
+
+# Test full release (no publish)
+goreleaser release --snapshot --clean --skip=publish
+
+# Build snapshot release locally
+goreleaser build --snapshot --clean
 ```
 
 ### Dependencies
 
 ```bash
-make deps-tidy              # Tidy and verify go.mod
-make deps-update            # Update all dependencies
-make deps-graph             # Show dependency graph
+# Tidy and verify go.mod
+go mod tidy
+go mod verify
+
+# Update all dependencies
+go get -u ./...
+go mod tidy
+
+# Show dependency graph
+go mod graph | grep pass-cli | head -20
 ```
 
 ### Cleanup
 
 ```bash
-make clean                  # Remove build artifacts
+# Remove build artifacts
+go clean
+rm -f pass-cli pass-cli.exe coverage.out coverage.html
 ```
 
 ## Development Workflow
@@ -118,9 +160,10 @@ make clean                  # Remove build artifacts
 
 3. **Test your changes**:
    ```bash
-   make test-all              # Run all tests
-   make lint                  # Check code quality
-   make security-scan         # Security check
+   go test ./...                              # Run unit tests
+   go test -v -tags=integration ./test        # Run integration tests
+   golangci-lint run                          # Check code quality
+   gosec ./...                                # Security check
    ```
 
 4. **Commit your changes**:
@@ -140,24 +183,29 @@ make clean                  # Remove build artifacts
 Run the pre-commit checks:
 
 ```bash
-make pre-commit
+go fmt ./...
+go vet ./...
+golangci-lint run
+go test -race ./...
+gosec ./...
 ```
 
-This runs:
-- Code formatting
-- `go vet`
-- golangci-lint
-- Tests with race detection
-- Security scanning
+This ensures:
+- Code is properly formatted
+- No suspicious constructs (`go vet`)
+- Passes linter checks
+- No race conditions
+- No security issues
 
 ### Before Creating a PR
 
 Ensure all tests pass:
 
 ```bash
-make test-all              # Unit + integration tests
-make lint                  # Linting
-make security-scan         # Security check
+go test ./...                              # Unit tests
+go test -v -tags=integration ./test        # Integration tests
+golangci-lint run                          # Linting
+gosec ./...                                # Security check
 ```
 
 ### Before Releasing
@@ -165,7 +213,14 @@ make security-scan         # Security check
 Run full pre-release validation:
 
 ```bash
-make pre-release
+go fmt ./...
+go vet ./...
+golangci-lint run
+go test -race ./...
+go test -v -tags=integration ./test
+gosec ./...
+govulncheck ./...
+goreleaser check
 ```
 
 This runs:
@@ -226,8 +281,6 @@ Code is formatted with `gofmt`:
 
 ```bash
 go fmt ./...
-# or
-make fmt
 ```
 
 ### Linting
@@ -236,8 +289,6 @@ We use golangci-lint with strict configuration:
 
 ```bash
 golangci-lint run
-# or
-make lint
 ```
 
 ### Documentation
@@ -276,7 +327,6 @@ pass-cli/
 ├── docs/                 # Documentation
 ├── .github/              # GitHub Actions workflows
 ├── main.go               # Application entry point
-├── Makefile              # Build commands
 └── .goreleaser.yml       # Release configuration
 ```
 
@@ -295,13 +345,13 @@ pass-cli/
 Run gosec regularly:
 
 ```bash
-make security-scan
+gosec ./...
 ```
 
 Check for vulnerable dependencies:
 
 ```bash
-make vuln-check
+govulncheck ./...
 ```
 
 ## Debugging
@@ -315,8 +365,6 @@ make vuln-check
 ### Build with Debug Info
 
 ```bash
-make build-dev
-# or
 go build -gcflags="all=-N -l" -o pass-cli .
 ```
 
@@ -363,7 +411,12 @@ Quick reference:
 
 ```bash
 # 1. Test everything
-make pre-release
+go test ./...
+go test -v -tags=integration ./test
+golangci-lint run
+gosec ./...
+govulncheck ./...
+goreleaser check
 
 # 2. Create tag
 git tag -a v1.0.0 -m "Release v1.0.0"
@@ -379,14 +432,10 @@ git push origin v1.0.0
 
 ### Common Issues
 
-**"golangci-lint not found"**:
+**"golangci-lint: command not found"**:
 ```bash
 go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 ```
-
-**"make: command not found" (Windows)**:
-- Use Git Bash, WSL, or install GNU Make
-- Or run commands directly (see Makefile for exact commands)
 
 **Tests failing with keychain errors**:
 - Some keychain tests may fail without proper OS configuration
@@ -405,7 +454,7 @@ Contributions are welcome! Please:
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes following the development workflow above
-4. Run all tests and quality checks (`make pre-commit`)
+4. Run all tests and quality checks (see "Before Committing" section)
 5. Submit a pull request
 
 For questions or discussions, visit [GitHub Discussions](https://github.com/ari1110/pass-cli/discussions).

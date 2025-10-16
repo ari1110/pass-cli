@@ -467,7 +467,6 @@ For complete configuration reference, see [docs/USAGE.md#configuration](docs/USA
 ### Prerequisites
 
 - Go 1.25 or later
-- Make (optional, for convenience)
 
 ### Build
 
@@ -479,14 +478,12 @@ cd pass-cli
 # Build binary
 go build -o pass-cli .
 
-# Or use Make
-make build
-
 # Run tests
-make test
+go test ./...
 
 # Run with coverage
-make test-coverage
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
 ```
 
 ## 📝 Development
@@ -503,21 +500,22 @@ go test -cover ./...
 # Integration tests
 go test -tags=integration ./test/
 
-# All tests
-make test-all
+# All tests (unit + integration)
+go test ./...
+go test -v -tags=integration -timeout 5m ./test
 ```
 
 ### Code Quality
 
 ```bash
 # Run linter
-make lint
+golangci-lint run
 
 # Security scan
-make security-scan
+gosec ./...
 
 # Format code
-make fmt
+go fmt ./...
 ```
 
 ## 🤝 Contributing

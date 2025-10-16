@@ -179,7 +179,8 @@ git checkout main
 git pull origin main
 
 # Run full test suite
-make test-all
+go test ./...
+go test -v -tags=integration -timeout 5m ./test
 
 # Create and push tag
 git tag -a v1.0.0 -m "Release v1.0.0"

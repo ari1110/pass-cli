@@ -299,14 +299,12 @@ Building from source gives you the latest development version and allows customi
 
 - **Go**: Version 1.25 or later ([download](https://golang.org/dl/))
 - **Git**: For cloning the repository
-- **Make**: Optional, for convenience (macOS/Linux have it by default)
 
 Verify prerequisites:
 
 ```bash
 go version    # Should show 1.25+
 git --version
-make --version  # Optional
 ```
 
 ### Build Steps
@@ -326,18 +324,6 @@ git checkout main
 ```
 
 #### Build Binary
-
-**Using Make (recommended):**
-
-```bash
-# Build for current platform
-make build
-
-# Binary will be in current directory
-./pass-cli version
-```
-
-**Using Go directly:**
 
 ```bash
 # Build for current platform
@@ -428,16 +414,14 @@ ls dist/
 
 ```bash
 # Run all tests
-make test
-
-# Or using go
 go test ./...
 
 # With coverage
-make test-coverage
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
 
 # Integration tests
-make test-integration
+go test -v -tags=integration -timeout 5m ./test
 ```
 
 ## Post-Installation
