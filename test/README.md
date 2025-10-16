@@ -4,14 +4,20 @@ This directory contains end-to-end integration tests for Pass-CLI.
 
 ## Test Types
 
-Pass-CLI uses two types of tests:
+Pass-CLI uses three types of tests:
 
-- **Unit Tests**: `*_test.go` files adjacent to source code in `cmd/` and `internal/` directories
+- **Unit Tests (Adjacent)**: `*_test.go` files adjacent to source code in `cmd/` and `internal/` directories
   - Test individual functions and components in isolation
   - Fast execution, no external dependencies
   - Run during development for quick feedback
 
-- **Integration Tests**: `*.go` files in this `test/` directory
+- **Unit Tests (Organized)**: `*.go` files in `test/unit/` subdirectories
+  - Domain-specific unit tests organized by category
+  - `test/unit/config/` - Configuration validation tests
+  - `test/unit/security/` - Security tests (clipboard, input, memory)
+  - Run alongside other unit tests
+
+- **Integration Tests**: `*.go` files in this `test/` directory (excluding `unit/` and `tui/` subdirectories)
   - Test complete workflows and end-to-end scenarios
   - Build actual binary and test real execution
   - Use build tag `//go:build integration` to separate from unit tests
@@ -29,8 +35,18 @@ go test -coverprofile=coverage.out ./...
 
 ### Run Unit Tests Only
 ```bash
-# Run unit tests in cmd/ and internal/
+# Run unit tests in cmd/, internal/, and test/unit/
+go test ./cmd/... ./internal/... ./test/unit/...
+
+# Run just adjacent unit tests
 go test ./cmd/... ./internal/...
+
+# Run just organized unit tests
+go test ./test/unit/...
+
+# Run specific unit test category
+go test ./test/unit/config/...
+go test ./test/unit/security/...
 ```
 
 ### Run Integration Tests Only
