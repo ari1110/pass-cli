@@ -36,13 +36,15 @@ func TestClipboardSecurityVerification(t *testing.T) {
 	}
 
 	// Simulate the 5-second auto-clear from cmd/get.go
-	cleared := false
+	done := make(chan bool, 1)
 	go func() {
 		time.Sleep(5 * time.Second)
 		// Only clear if clipboard still contains our password
 		if current, err := clipboard.ReadAll(); err == nil && current == testPassword {
 			_ = clipboard.WriteAll("")
-			cleared = true
+			done <- true
+		} else {
+			done <- false
 		}
 	}()
 
@@ -50,8 +52,13 @@ func TestClipboardSecurityVerification(t *testing.T) {
 	time.Sleep(6 * time.Second)
 
 	// Verify clipboard was cleared
-	if !cleared {
-		t.Error("Clipboard was not cleared within expected time")
+	select {
+	case cleared := <-done:
+		if !cleared {
+			t.Error("Clipboard was not cleared within expected time")
+		}
+	default:
+		t.Error("Clipboard clear goroutine did not complete")
 	}
 
 	content, err = clipboard.ReadAll()

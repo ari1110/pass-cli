@@ -9,18 +9,24 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
 )
 
 const (
-	binaryName       = "pass-cli.exe"
 	testVaultDir     = "test-vault"
 	performanceLoops = 100
 )
 
 var (
+	binaryName = func() string {
+		if runtime.GOOS == "windows" {
+			return "pass-cli.exe"
+		}
+		return "pass-cli"
+	}()
 	binaryPath string
 	testDir    string
 )
