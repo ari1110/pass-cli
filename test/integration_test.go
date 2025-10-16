@@ -104,7 +104,7 @@ func runCommandWithInput(t *testing.T, input string, args ...string) (string, st
 
 // TestIntegration_CompleteWorkflow tests the full user workflow
 func TestIntegration_CompleteWorkflow(t *testing.T) {
-	testPassword := "test-master-password-123"
+	testPassword := "Test-Master-Pass@123"
 
 	t.Run("1_Init_Vault", func(t *testing.T) {
 		input := testPassword + "\n" + testPassword + "\n" + "n\n" // password, confirm, skip keychain
@@ -268,7 +268,7 @@ func TestIntegration_CompleteWorkflow(t *testing.T) {
 
 // TestIntegration_ErrorHandling tests error scenarios
 func TestIntegration_ErrorHandling(t *testing.T) {
-	testPassword := "error-test-password"
+	testPassword := "Error-Test-Pass@123"
 
 	// Initialize vault for error tests
 	vaultPath := filepath.Join(testDir, "error-vault", "vault.enc")
@@ -327,7 +327,7 @@ func TestIntegration_ErrorHandling(t *testing.T) {
 
 // TestIntegration_ScriptFriendly tests quiet/machine-readable output
 func TestIntegration_ScriptFriendly(t *testing.T) {
-	testPassword := "script-test-password"
+	testPassword := "Script-Test-Pass@123"
 
 	// Initialize vault
 	vaultPath := filepath.Join(testDir, "script-vault", "vault.enc")
@@ -404,7 +404,7 @@ func TestIntegration_Performance(t *testing.T) {
 		t.Skip("Skipping performance test in short mode")
 	}
 
-	testPassword := "perf-test-password"
+	testPassword := "Perf-Test-Pass@123"
 
 	// Initialize vault
 	vaultPath := filepath.Join(testDir, "perf-vault", "vault.enc")
@@ -459,7 +459,7 @@ func TestIntegration_StressTest(t *testing.T) {
 		t.Skip("Skipping stress test in short mode")
 	}
 
-	testPassword := "stress-test-password"
+	testPassword := "Stress-Test-Pass@123"
 
 	// Initialize vault
 	vaultPath := filepath.Join(testDir, "stress-vault", "vault.enc")

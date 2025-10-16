@@ -16,7 +16,7 @@ import (
 // TestIntegration_TUILaunchDetection verifies TUI launches with no args
 func TestIntegration_TUILaunchDetection(t *testing.T) {
 	// Create a test vault first
-	testPassword := "test-password-tui-123"
+	testPassword := "Test-Password-TUI@123"
 	vaultDir := filepath.Join(testDir, "tui-test-vault")
 	vaultPath := filepath.Join(vaultDir, "vault.enc")
 
@@ -101,7 +101,7 @@ func TestIntegration_TUILaunchDetection(t *testing.T) {
 
 // TestIntegration_TUIVaultPath verifies TUI respects vault path configuration
 func TestIntegration_TUIVaultPath(t *testing.T) {
-	testPassword := "test-password-123"
+	testPassword := "Test-Password@123"
 
 	t.Run("Uses_Flag_Vault_Path", func(t *testing.T) {
 		// Create vault in custom location
@@ -148,7 +148,7 @@ func TestIntegration_TUIVaultPath(t *testing.T) {
 
 // TestIntegration_TUIWithExistingVault verifies TUI works with populated vault
 func TestIntegration_TUIWithExistingVault(t *testing.T) {
-	testPassword := "test-password-456"
+	testPassword := "Test-Password@456"
 	vaultDir := filepath.Join(testDir, "tui-populated-vault")
 	vaultPath := filepath.Join(vaultDir, "vault.enc")
 
@@ -223,7 +223,7 @@ func TestIntegration_TUIKeychainDetection(t *testing.T) {
 	// This test verifies that the TUI can detect keychain availability
 	// The actual behavior depends on the OS and keychain availability
 
-	testPassword := "test-password-keychain"
+	testPassword := "Test-Password-Key@ch"
 	vaultDir := filepath.Join(testDir, "tui-keychain-vault")
 	vaultPath := filepath.Join(vaultDir, "vault.enc")
 
@@ -309,7 +309,7 @@ func TestIntegration_TUIBuildSuccess(t *testing.T) {
 // BenchmarkTUIStartup measures TUI startup time
 func BenchmarkTUIStartup(b *testing.B) {
 	// Create a test vault
-	testPassword := "bench-password-123"
+	testPassword := "Bench-Password@123"
 	vaultDir := filepath.Join(testDir, "bench-tui-vault")
 	vaultPath := filepath.Join(vaultDir, "vault.enc")
 
@@ -354,7 +354,7 @@ func isTUIRunning(pid int) bool {
 
 // TestIntegration_TUIComponentIntegration verifies components work together
 func TestIntegration_TUIComponentIntegration(t *testing.T) {
-	testPassword := "test-integration-789"
+	testPassword := "Test-Integration@789"
 	vaultDir := filepath.Join(testDir, "tui-component-vault")
 	vaultPath := filepath.Join(vaultDir, "vault.enc")
 
@@ -411,7 +411,7 @@ func TestIntegration_TUIComponentIntegration(t *testing.T) {
 
 // TestIntegration_TUIFullFieldSupport verifies all 6 credential fields are properly handled
 func TestIntegration_TUIFullFieldSupport(t *testing.T) {
-	testPassword := "test-full-fields-123"
+	testPassword := "Test-Full-Fields@123"
 	vaultDir := filepath.Join(testDir, "tui-full-fields-vault")
 	vaultPath := filepath.Join(vaultDir, "vault.enc")
 
@@ -494,7 +494,7 @@ func TestIntegration_TUIFullFieldSupport(t *testing.T) {
 
 // TestIntegration_TUIEmptyOptionalFields verifies backward compatibility with empty optional fields
 func TestIntegration_TUIEmptyOptionalFields(t *testing.T) {
-	testPassword := "test-empty-fields-456"
+	testPassword := "Test-Empty-Fields@456"
 	vaultDir := filepath.Join(testDir, "tui-empty-fields-vault")
 	vaultPath := filepath.Join(vaultDir, "vault.enc")
 
@@ -559,7 +559,7 @@ func TestIntegration_TUIEmptyOptionalFields(t *testing.T) {
 
 // TestIntegration_TUIUpdateFields verifies updating all 6 credential fields via CLI
 func TestIntegration_TUIUpdateFields(t *testing.T) {
-	testPassword := "test-update-789"
+	testPassword := "Test-Update@789"
 	vaultDir := filepath.Join(testDir, "tui-update-vault")
 	vaultPath := filepath.Join(vaultDir, "vault.enc")
 
@@ -744,7 +744,7 @@ func TestIntegration_TUIUpdateFields(t *testing.T) {
 
 // TestIntegration_TUIDeleteCredential verifies deleting credentials and list/get consistency
 func TestIntegration_TUIDeleteCredential(t *testing.T) {
-	testPassword := "test-delete-abc"
+	testPassword := "Test-Delete@ABC"
 	vaultDir := filepath.Join(testDir, "tui-delete-vault")
 	vaultPath := filepath.Join(vaultDir, "vault.enc")
 

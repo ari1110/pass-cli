@@ -22,7 +22,7 @@ func TestIntegration_KeychainWorkflow(t *testing.T) {
 		t.Skip("System keychain not available - skipping keychain integration tests")
 	}
 
-	testPassword := "keychain-test-password-123"
+	testPassword := "Keychain-Test-Pass@123"
 	vaultPath := filepath.Join(testDir, "keychain-vault", "vault.enc")
 
 	// Ensure clean state
@@ -205,7 +205,7 @@ func TestIntegration_KeychainFallback(t *testing.T) {
 		t.Skip("System keychain not available - skipping keychain fallback tests")
 	}
 
-	testPassword := "fallback-test-password-789"
+	testPassword := "Fallback-Test-Pass@789"
 	vaultPath := filepath.Join(testDir, "fallback-vault", "vault.enc")
 
 	// Ensure clean state
@@ -257,7 +257,7 @@ func TestIntegration_KeychainUnavailable(t *testing.T) {
 		t.Skip("Keychain is available - cannot test unavailable scenario")
 	}
 
-	testPassword := "no-keychain-password-456"
+	testPassword := "NoKeychain-Pass@456"
 	vaultPath := filepath.Join(testDir, "no-keychain-vault", "vault.enc")
 
 	t.Run("Init_Without_Keychain_Available", func(t *testing.T) {
@@ -302,7 +302,7 @@ func TestIntegration_MultipleVaultsKeychain(t *testing.T) {
 	// This test documents the current behavior and can be updated if we add
 	// per-vault keychain support in the future
 
-	testPassword := "multi-vault-password-999"
+	testPassword := "MultiVault-Pass@999"
 	vault1Path := filepath.Join(testDir, "multi-vault-1", "vault.enc")
 	vault2Path := filepath.Join(testDir, "multi-vault-2", "vault.enc")
 
@@ -360,7 +360,7 @@ func TestIntegration_KeychainVerboseOutput(t *testing.T) {
 		t.Skip("System keychain not available - skipping verbose output test")
 	}
 
-	testPassword := "verbose-test-password-321"
+	testPassword := "Verbose-Test-Pass@321"
 	vaultPath := filepath.Join(testDir, "verbose-vault", "vault.enc")
 
 	defer cleanupKeychain(t, ks)
