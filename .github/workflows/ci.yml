@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  security-events: write  # For SARIF upload
 
 jobs:
   test:
@@ -23,6 +24,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
+      # Cache Go modules and build artifacts
+      - name: Cache Go dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
@@ -33,43 +45,37 @@ jobs:
         run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
         shell: bash
 
+      - name: Run integration tests
+        run: go test -v -tags=integration -timeout 5m ./test
+        shell: bash
+
       - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v5
         with:
           files: ./coverage.txt
           flags: unittests
-          name: codecov-${{ matrix.os }}
+          name: codecov-ubuntu
         continue-on-error: true
 
-  integration-test:
-    name: Integration Test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        go-version: ['1.25']
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: ${{ matrix.go-version }}
-          cache: true
-
-      - name: Run integration tests
-        run: go test -v -tags=integration -timeout 5m ./test
-
-  lint:
-    name: Lint
+  lint-and-security:
+    name: Lint & Security
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+
+      # Cache Go modules and build artifacts
+      - name: Cache Go dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -81,21 +87,7 @@ jobs:
         uses: golangci/golangci-lint-action@v8
         with:
           version: v2.5
-          args: --timeout=5m
-
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.25'
-          cache: true
+          args: --timeout=3m
 
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
@@ -111,13 +103,24 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [test, lint]
+    needs: [test, lint-and-security]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
+      # Cache Go modules and build artifacts
+      - name: Cache Go dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -130,10 +133,3 @@ jobs:
         with:
           version: latest
           args: build --snapshot --clean
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: dist/
-          retention-days: 7

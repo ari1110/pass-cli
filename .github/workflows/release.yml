@@ -10,8 +10,9 @@ permissions:
   packages: write
 
 jobs:
-  test:
-    name: Test Before Release
+  # Quick smoke test - trust that CI already validated thoroughly
+  validate:
+    name: Pre-Release Validation
     runs-on: ubuntu-latest
 
     steps:
@@ -20,25 +21,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Go
-        uses: actions/setup-go@v6
+      # Cache Go modules and build artifacts
+      - name: Cache Go dependencies
+        uses: actions/cache@v4
         with:
-          go-version: '1.25'
-          cache: true
-
-      - name: Run unit tests
-        run: go test -v -race ./...
-
-      - name: Run integration tests
-        run: go test -v -tags=integration -timeout 5m ./test
-
-  lint:
-    name: Lint Before Release
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -46,41 +38,33 @@ jobs:
           go-version: '1.25'
           cache: true
 
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v8
-        with:
-          version: v2.5
-          args: --timeout=5m
-
-  security:
-    name: Security Scan Before Release
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.25'
-          cache: true
-
-      - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
-        with:
-          args: './...'
+      # Quick smoke test (not full test suite - CI already validated)
+      - name: Quick validation
+        run: |
+          go test -short ./...
+          go vet ./...
 
   release:
     name: Release
     runs-on: ubuntu-latest
-    needs: [test, lint, security]
+    needs: [validate]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
+      # Cache Go modules and build artifacts
+      - name: Cache Go dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
       - name: Set up Go
         uses: actions/setup-go@v6
