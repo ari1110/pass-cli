@@ -37,6 +37,41 @@ All code contributions should include appropriate tests. Run the test suite befo
 go test ./...
 ```
 
+## Documentation Verification
+
+Pass-CLI maintains accurate, trustworthy documentation through systematic verification workflows. When documentation discrepancies are identified (e.g., documented flags that don't exist, broken examples), we follow a structured audit and remediation process.
+
+### Verification Workflow
+
+The documentation verification process includes:
+
+1. **Audit Scope**: Identify documentation files to verify (README.md, docs/, code examples, configuration)
+2. **Verification Execution**: Test documented commands, flags, examples, and features against actual implementation
+3. **Discrepancy Tracking**: Document all issues in structured audit reports with severity levels and remediation plans
+4. **Remediation**: Fix documentation (not code) to match actual implementation
+5. **Success Criteria Validation**: Verify 100% accuracy across all verification categories
+
+### Detailed Test Procedures
+
+For complete verification methodology, category definitions, and detailed test procedures, see:
+
+- **Verification Procedures**: [specs/010-documentation-accuracy-verification/verification-procedures.md](specs/010-documentation-accuracy-verification/verification-procedures.md)
+- **Example Audit Report**: [specs/010-documentation-accuracy-verification/audit-report.md](specs/010-documentation-accuracy-verification/audit-report.md)
+
+The verification-procedures.md document covers all 10 verification categories:
+- CLI Interface (commands, flags, aliases)
+- Code Examples (bash/PowerShell execution)
+- File Paths (config, vault, audit log paths)
+- Configuration (YAML examples, validation)
+- Feature Claims (documented features vs implementation)
+- Architecture (package structure, crypto descriptions)
+- Metadata (version numbers, dates)
+- Output Examples (command output format)
+- Cross-References (internal markdown links)
+- Behavioral Descriptions (keyboard shortcuts, workflows)
+
+When contributing documentation changes, consider running verification tests for affected categories to ensure accuracy.
+
 ## Questions?
 
 If you have questions about contributing, please open a GitHub Issue for discussion.
