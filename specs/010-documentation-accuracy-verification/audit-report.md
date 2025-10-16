@@ -15,7 +15,7 @@
 
 | Category | Total | Critical | High | Medium | Low |
 |----------|-------|----------|------|--------|-----|
-| CLI Interface | 9 | 6 | 0 | 3 | 0 |
+| CLI Interface | 9 | 5 | 0 | 4 | 0 |
 | Code Examples | 2 | 0 | 0 | 1 | 1 |
 | File Paths | 0 | 0 | 0 | 0 | 0 |
 | Configuration | 1 | 1 | 0 | 0 | 0 |
@@ -26,11 +26,17 @@
 | Cross-References | 0 | 0 | 0 | 0 | 0 |
 | Behavioral Descriptions | 1 | 0 | 0 | 1 | 0 |
 
+### Categories 3-4: File Paths, Configuration, Cross-References, Output Examples
+
+**Status**: ✅ No discrepancies found in these categories during testing
+
+---
+
 ### By File
 
 | File | Discrepancies | Status |
 |------|---------------|--------|
-| README.md | 4 (extensions of DISC-006, 007, 009) | ✅ Fixed |
+| README.md | 3 (DISC-001, 010, 014) | ✅ Fixed |
 | docs/USAGE.md | 8 (DISC-002, 003, 006, 007, 008, 009, 011, 012) | ✅ Fixed |
 | docs/MIGRATION.md | 1 (DISC-004) | ✅ Fixed |
 | docs/SECURITY.md | 1 (DISC-005) | ✅ Fixed |
@@ -223,20 +229,21 @@
 
 ---
 
-#### DISC-013 [Analysis/Incorrect] Audit logging analysis contains errors
+#### DISC-013 [Feature/Critical] Audit logging persistence failure confirmed
 
 - **Location**: Feature claimed in docs/SECURITY.md and implemented in internal/security/audit.go
 - **Category**: Feature Claims
-- **Severity**: Incorrect Analysis
-- **Documented**: Audit logging is an optional feature enabled via `--enable-audit` flag during `pass-cli init`
-- **Actual**: Audit logging is working as designed; feature was never enabled during testing
-- **Code Analysis**:
-  - Correct file path: `internal/security/audit.go` (not internal/audit/audit.go)
-  - Audit logging is opt-in via `--enable-audit` flag in cmd/init.go:46
-  - `auditEnabled` defaults to `false` in internal/vault/vault.go:103
-  - Logging only occurs when explicitly enabled during vault initialization (cmd/init.go:111-121)
-- **Remediation**: Correct audit analysis - feature works correctly, requires `--enable-audit` during initialization
-- **Status**: ❌ Open (analysis needs correction)
+- **Severity**: Critical
+- **Documented**: Audit logging creates HMAC-SHA256 signed entries in audit.log for all vault operations
+- **Actual**: Audit log file is never created despite successful initialization with `--enable-audit` flag
+- **Testing Evidence**:
+  - Created test vault with `--enable-audit` flag
+  - Initialization message: "Audit logging enabled: C:\Users\ari11\.pass-cli-test-audit\audit.log"
+  - Performed credential operations (list, add)
+  - Audit.log file was never created at the specified path
+- **Code Analysis**: internal/security/audit.go Log() function appears correctly implemented, but file creation fails
+- **Remediation**: Fix audit log file creation/persistence issue in internal/security package
+- **Status**: ❌ Open (requires code fix)
 - **Commit**: [TBD]
 
 ---
@@ -314,15 +321,15 @@ The following discrepancies were identified during initial USAGE.md spot check (
 
 #### Key Issues Found
 
-**DISC-010 [Code/Medium] README.md `--field` and `--masked` flags not working**
+**DISC-010 [Code/Medium] README.md `--field` flag documentation incomplete**
 - **Location**: README.md get command examples
-- **Issue**: `--field username` and `--masked` options show full credential output instead of specific field/masked password
-- **Status**: ❌ Open
+- **Issue**: `--field` flag requires `--quiet` flag to work correctly
+- **Status**: ✅ Fixed (030496a)
 
 **DISC-011 [Code/Low] PowerShell example credentials mismatch**
 - **Location**: docs/USAGE.md PowerShell examples
 - **Issue**: Examples reference non-existent credentials (database, openai, myservice) instead of test vault data (testservice, github)
-- **Status**: ❌ Open
+- **Status**: ✅ Fixed (030496a)
 
 ---
 
@@ -344,10 +351,10 @@ The following discrepancies were identified during initial USAGE.md spot check (
 
 #### Key Issues Found
 
-**DISC-013 [Feature/Critical] Audit logging completely non-functional**
-- **Location**: Feature claimed in docs/SECURITY.md and implemented in internal/audit/
-- **Issue**: Audit log file never created despite feature being implemented in code
-- **Status**: ❌ Open (requires code fix, not documentation)
+**DISC-013 [Feature/Critical] Audit logging persistence failure confirmed**
+- **Location**: Feature claimed in docs/SECURITY.md and implemented in internal/security/audit.go
+- **Issue**: Audit log file never created despite being enabled during initialization with --enable-audit flag
+- **Status**: ❌ Open (requires code fix - persistence failure confirmed through testing)
 - **Reference**: See DISC-013 in Discrepancy Details section
 
 
@@ -381,7 +388,7 @@ The following discrepancies were identified during initial USAGE.md spot check (
 - [x] DISC-006: get command `--copy` flag (Critical) ✅ Fixed (6a0293a)
 - [x] DISC-007: update command `--generate` flag (Critical) ✅ Fixed (6a0293a)
 - [x] DISC-012: YAML configuration invalid fields (Critical) ✅ Fixed (dd9d4f2)
-- [ ] DISC-013: Audit logging non-functional (Critical) ❌ Requires code fix
+- [ ] DISC-013: Audit logging persistence failure (Critical) ❌ Requires code fix
 
 **Target**: ✅ All Critical/High documentation fixes completed
 
