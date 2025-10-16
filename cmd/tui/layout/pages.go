@@ -300,7 +300,7 @@ func (pm *PageManager) ApplyPendingWarnings() {
 		pm.pendingSizeWarning = nil
 
 		// Block all input events at the Pages level to prevent click-through
-		pm.Pages.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		pm.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			// Consume all keyboard events while warning is active
 			return nil
 		})
@@ -314,7 +314,7 @@ func (pm *PageManager) ApplyPendingWarnings() {
 		pm.pendingHideWarning = false
 
 		// Remove the input capture to restore normal event handling
-		pm.Pages.SetInputCapture(nil)
+		pm.SetInputCapture(nil)
 
 		// Restore focus to the Pages primitive
 		pm.app.SetFocus(pm.Pages)

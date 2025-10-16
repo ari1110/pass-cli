@@ -195,9 +195,9 @@ func outputNormalMode(cred *vault.Credential, vaultService *vault.VaultService, 
 
 			fmt.Println("\n✅ Password copied to clipboard!")
 
-			// Schedule clipboard clear in background (30 seconds)
+			// Schedule clipboard clear in background (5 seconds)
 			go func() {
-				time.Sleep(30 * time.Second)
+				time.Sleep(5 * time.Second)
 				// Only clear if the clipboard still contains our password
 				if current, err := clipboard.ReadAll(); err == nil && current == passwordStr {
 					_ = clipboard.WriteAll("")

@@ -483,13 +483,6 @@ func (v *VaultService) GetCredential(service string, trackUsage bool) (*Credenti
 	return &cred, nil
 }
 
-// trackUsage records credential field access at current location
-// Deprecated: Use RecordFieldAccess instead for explicit field tracking
-func (v *VaultService) trackUsage(service string) error {
-	// Default to tracking all fields when no specific field is provided (backward compatibility)
-	return v.RecordFieldAccess(service, "credential")
-}
-
 // RecordFieldAccess records access to a specific credential field at current location
 func (v *VaultService) RecordFieldAccess(service, field string) error {
 	credential, exists := v.vaultData.Credentials[service]

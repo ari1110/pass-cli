@@ -7,7 +7,7 @@ import (
 	"github.com/atotto/clipboard"
 )
 
-// TestClipboardSecurityVerification verifies 30-second auto-clear per constitution.
+// TestClipboardSecurityVerification verifies 5-second auto-clear per constitution.
 // This test simulates the clipboard auto-clear behavior implemented in cmd/get.go.
 func TestClipboardSecurityVerification(t *testing.T) {
 	// Skip if clipboard is not available (e.g., headless CI)
@@ -35,10 +35,10 @@ func TestClipboardSecurityVerification(t *testing.T) {
 		t.Errorf("Clipboard content mismatch: expected %q, got %q", testPassword, content)
 	}
 
-	// Simulate the 30-second auto-clear from cmd/get.go:169-180
+	// Simulate the 5-second auto-clear from cmd/get.go
 	cleared := false
 	go func() {
-		time.Sleep(30 * time.Second)
+		time.Sleep(5 * time.Second)
 		// Only clear if clipboard still contains our password
 		if current, err := clipboard.ReadAll(); err == nil && current == testPassword {
 			_ = clipboard.WriteAll("")
@@ -46,8 +46,8 @@ func TestClipboardSecurityVerification(t *testing.T) {
 		}
 	}()
 
-	// Wait 31 seconds to ensure auto-clear happened
-	time.Sleep(31 * time.Second)
+	// Wait 6 seconds to ensure auto-clear happened
+	time.Sleep(6 * time.Second)
 
 	// Verify clipboard was cleared
 	if !cleared {
@@ -63,7 +63,7 @@ func TestClipboardSecurityVerification(t *testing.T) {
 	}
 }
 
-// TestClipboardClearingTiming verifies clipboard is cleared within 30 seconds per FR-001.
+// TestClipboardClearingTiming verifies clipboard is cleared within 5 seconds per FR-001.
 func TestClipboardClearingTiming(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping timing test in short mode")
@@ -89,14 +89,14 @@ func TestClipboardClearingTiming(t *testing.T) {
 
 	// Simulate auto-clear
 	go func() {
-		time.Sleep(30 * time.Second)
+		time.Sleep(5 * time.Second)
 		if current, _ := clipboard.ReadAll(); current == testPassword {
 			_ = clipboard.WriteAll("")
 		}
 	}()
 
 	// Poll clipboard every second to detect when it's cleared
-	for i := 0; i < 35; i++ {
+	for i := 0; i < 10; i++ {
 		time.Sleep(1 * time.Second)
 		content, err := clipboard.ReadAll()
 		if err != nil {
@@ -104,16 +104,16 @@ func TestClipboardClearingTiming(t *testing.T) {
 		}
 		if content == "" {
 			elapsed := time.Since(start)
-			// Verify cleared within 31 seconds (30s + 1s tolerance)
-			if elapsed > 31*time.Second {
-				t.Errorf("Clipboard cleared too late: took %v, should be <= 31s", elapsed)
+			// Verify cleared within 6 seconds (5s + 1s tolerance)
+			if elapsed > 6*time.Second {
+				t.Errorf("Clipboard cleared too late: took %v, should be <= 6s", elapsed)
 			}
-			if elapsed < 29*time.Second {
-				t.Errorf("Clipboard cleared too early: took %v, should be >= 29s", elapsed)
+			if elapsed < 4*time.Second {
+				t.Errorf("Clipboard cleared too early: took %v, should be >= 4s", elapsed)
 			}
 			return
 		}
 	}
 
-	t.Error("Clipboard was never cleared within 35 seconds")
+	t.Error("Clipboard was never cleared within 10 seconds")
 }

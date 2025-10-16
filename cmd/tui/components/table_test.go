@@ -53,7 +53,7 @@ func TestCredentialTableRefresh(t *testing.T) {
 		{Service: "Database", Username: "dbuser", CreatedAt: time.Now(), LastAccessed: time.Time{}},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	table := NewCredentialTable(state)
 
@@ -95,7 +95,7 @@ func TestCredentialTableRefresh_CategoryFilter(t *testing.T) {
 		{Service: "aws-dev", Username: "backup", Category: "Work", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	table := NewCredentialTable(state)
 
@@ -135,7 +135,7 @@ func TestCredentialTableRefresh_NoFilter(t *testing.T) {
 		{Service: "Database", Username: "dbuser", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	table := NewCredentialTable(state)
 
@@ -162,7 +162,7 @@ func TestCredentialTableSelection(t *testing.T) {
 		{Service: "GitHub", Username: "user", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	table := NewCredentialTable(state)
 
@@ -204,7 +204,7 @@ func TestCredentialTableSelection_ShortCircuit(t *testing.T) {
 		{Service: "GitHub", Username: "user", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	table := NewCredentialTable(state)
 
@@ -259,7 +259,7 @@ func TestCredentialTableSelection_HeaderRow(t *testing.T) {
 		{Service: "AWS", Username: "admin", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	table := NewCredentialTable(state)
 
@@ -296,7 +296,7 @@ func TestCredentialTablePopulateRows(t *testing.T) {
 		{Service: "Database", Username: "dbuser", CreatedAt: now, LastAccessed: time.Time{}},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	table := NewCredentialTable(state)
 	table.Refresh()
@@ -385,7 +385,7 @@ func TestCredentialTableRefresh_UpdatesTitle(t *testing.T) {
 		{Service: "Database", Username: "dbuser", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	table := NewCredentialTable(state)
 

@@ -148,40 +148,6 @@ func (ct *CredentialTable) Refresh() {
 	}
 }
 
-// populateRows adds credential rows to the table.
-// Stores credential reference in cell metadata for selection handling.
-func (ct *CredentialTable) populateRows(credentials []vault.CredentialMetadata) {
-	theme := styles.GetCurrentTheme()
-
-	for i, cred := range credentials {
-		row := i + 1 // +1 to skip header row
-
-		// Service column
-		serviceCell := tview.NewTableCell(cred.Service).
-			SetTextColor(theme.TextPrimary). // White text
-			SetAlign(tview.AlignLeft).
-			SetReference(cred) // Store credential in cell for selection
-
-		// Username column
-		usernameCell := tview.NewTableCell(cred.Username).
-			SetTextColor(theme.TableHeader). // Purple text
-			SetAlign(tview.AlignLeft)
-
-		// Last used column
-		lastUsed := "Never"
-		if !cred.LastAccessed.IsZero() {
-			lastUsed = formatRelativeTime(cred.LastAccessed)
-		}
-		lastUsedCell := tview.NewTableCell(lastUsed).
-			SetTextColor(theme.TextSecondary). // Gray text
-			SetAlign(tview.AlignLeft)
-
-		ct.SetCell(row, 0, serviceCell)
-		ct.SetCell(row, 1, usernameCell)
-		ct.SetCell(row, 2, lastUsedCell)
-	}
-}
-
 // applySelection applies selection for a given row by updating AppState.
 // Used by both arrow key navigation and Enter key activation handlers.
 // Sources credentials via FindCredentialByService to ensure consistency and avoid stale pointers.

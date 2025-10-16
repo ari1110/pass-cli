@@ -103,7 +103,7 @@ func (p *PasswordPolicy) Validate(password []byte) error {
 // FR-017: Calculate weak/medium/strong based on length and character variety
 // Algorithm per data-model.md:186-238
 func (p *PasswordPolicy) Strength(password []byte) PasswordStrength {
-	if password == nil || len(password) == 0 {
+	if len(password) == 0 {
 		return PasswordStrengthWeak
 	}
 

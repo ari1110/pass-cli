@@ -504,7 +504,7 @@ func TestConcurrentAccess(t *testing.T) {
 		{Service: "AWS", Username: "admin", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	// Track callback invocations
 	var callbackCount int
@@ -652,7 +652,7 @@ func TestGetFullCredential(t *testing.T) {
 		{Service: "AWS", Username: "admin", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	// Get full credential
 	fullCred, err := state.GetFullCredential("AWS")
@@ -733,7 +733,7 @@ func TestGetCategories_ReturnsACopy(t *testing.T) {
 		{Service: "GitHub", Username: "user", Category: "Development", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	// Get categories
 	categories1 := state.GetCategories()

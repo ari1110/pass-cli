@@ -14,41 +14,6 @@ import (
 	"pass-cli/internal/vault"
 )
 
-// readOnlyLabel wraps TextView as a non-focusable FormItem for display-only content.
-// Used for password strength indicators and keyboard hints.
-type readOnlyLabel struct {
-	*tview.TextView
-}
-
-func newReadOnlyLabel() *readOnlyLabel {
-	tv := tview.NewTextView()
-	tv.SetDynamicColors(true)
-	tv.SetWrap(true)
-	tv.SetWordWrap(true)
-	tv.SetScrollable(false) // Don't allow scrolling in single-line labels
-
-	return &readOnlyLabel{TextView: tv}
-}
-
-// FormItem interface implementation
-func (r *readOnlyLabel) GetLabel() string                        { return "" }
-func (r *readOnlyLabel) SetLabel(label string) tview.FormItem    { return r }
-func (r *readOnlyLabel) GetLabelWidth() int                      { return 0 }
-func (r *readOnlyLabel) SetLabelWidth(width int) tview.FormItem  { return r }
-func (r *readOnlyLabel) GetFieldWidth() int                      { return 0 }
-func (r *readOnlyLabel) SetFieldWidth(width int) tview.FormItem  { return r }
-func (r *readOnlyLabel) GetFieldHeight() int                     { return 1 }
-func (r *readOnlyLabel) SetDisabled(disabled bool) tview.FormItem { return r }
-func (r *readOnlyLabel) GetDisabled() bool                       { return true }
-func (r *readOnlyLabel) SetFinishedFunc(handler func(key tcell.Key)) tview.FormItem {
-	return r
-}
-func (r *readOnlyLabel) SetFormAttributes(labelWidth int, labelColor, bgColor, fieldTextColor, fieldBgColor tcell.Color) tview.FormItem {
-	r.SetBackgroundColor(bgColor)
-	r.SetTextColor(fieldTextColor)
-	return r
-}
-
 // normalizeCategory converts the "Uncategorized" UI label to empty string for storage.
 // Prevents the UI label from leaking into credential data.
 func normalizeCategory(c string) string {
@@ -113,19 +78,18 @@ func NewAddForm(appState *models.AppState) *AddForm {
 func (af *AddForm) buildFormFields() {
 	categories := af.getCategories()
 
-	// Ensure "Uncategorized" is always present and find its index
-	uncategorizedIndex := -1
-	for i, cat := range categories {
+	// Ensure "Uncategorized" is always present for autocomplete
+	hasUncategorized := false
+	for _, cat := range categories {
 		if cat == "Uncategorized" {
-			uncategorizedIndex = i
+			hasUncategorized = true
 			break
 		}
 	}
 
 	// If "Uncategorized" is not present, prepend it to the list
-	if uncategorizedIndex == -1 {
+	if !hasUncategorized {
 		categories = append([]string{"Uncategorized"}, categories...)
-		uncategorizedIndex = 0
 	}
 
 	// Core credential fields
@@ -727,28 +691,6 @@ func (ef *EditForm) getCategories() []string {
 		return []string{"Uncategorized"}
 	}
 	return categories
-}
-
-// findCategoryIndex finds the index of the credential's category in the dropdown.
-// Returns 0 if category not found.
-func (ef *EditForm) findCategoryIndex(categories []string) int {
-	// If credential has empty category, prefer "Uncategorized" in dropdown
-	if ef.credential.Category == "" {
-		for i, c := range categories {
-			if c == "Uncategorized" {
-				return i
-			}
-		}
-		return 0
-	}
-	// Match credential's category against the categories list
-	for i, c := range categories {
-		if c == ef.credential.Category {
-			return i
-		}
-	}
-	// Return 0 (first category) if no match found
-	return 0
 }
 
 // wrapInFrame wraps the form in a Flex with a TextView footer for keyboard hints.

@@ -133,7 +133,7 @@ func TestSidebarRefresh(t *testing.T) {
 		{Service: "Database", Username: "dbuser", Category: "Database", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	sidebar := NewSidebar(state)
 
@@ -239,7 +239,7 @@ func TestSidebarSelection_RootNode(t *testing.T) {
 		{Service: "GitHub", Username: "user", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	sidebar := NewSidebar(state)
 
@@ -264,7 +264,7 @@ func TestSidebarSelection_CategoryNode(t *testing.T) {
 		{Service: "GitHub", Username: "user", Category: "GitHub", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	sidebar := NewSidebar(state)
 
@@ -297,7 +297,7 @@ func TestSidebarSelection_CredentialNode(t *testing.T) {
 		{Service: "GitHub", Username: "user", Category: "GitHub", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	sidebar := NewSidebar(state)
 
@@ -344,7 +344,7 @@ func TestSidebarSelection_UpdatesAppState(t *testing.T) {
 		{Service: "GitHub", Username: "user", Category: "GitHub", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	sidebar := NewSidebar(state)
 
@@ -402,7 +402,7 @@ func TestSidebarRefresh_ClearsOldCategories(t *testing.T) {
 		{Service: "GitHub", Username: "user", Category: "GitHub", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 	sidebar.Refresh()
 
 	// Verify 2 categories
@@ -424,7 +424,7 @@ func TestSidebarRefresh_ClearsOldCategories(t *testing.T) {
 		{Service: "Database", Username: "dbuser", Category: "Database", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(newCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 	sidebar.Refresh()
 
 	// Verify old categories cleared, only new one present
@@ -468,7 +468,7 @@ func TestSidebarRefresh_UncategorizedCredentials(t *testing.T) {
 		{Service: "Service2", Username: "user2", Category: "", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	sidebar := NewSidebar(state)
 	sidebar.Refresh()
@@ -523,7 +523,7 @@ func TestSidebarRefresh_MixedCategoriesAndUncategorized(t *testing.T) {
 		{Service: "Service2", Username: "user2", Category: "", CreatedAt: time.Now()},
 	}
 	mockVault.SetCredentials(mockCreds)
-	state.LoadCredentials()
+	_ = state.LoadCredentials()
 
 	sidebar := NewSidebar(state)
 	sidebar.Refresh()
