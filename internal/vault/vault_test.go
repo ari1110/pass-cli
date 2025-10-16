@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"pass-cli/internal/crypto"
 	"pass-cli/internal/storage"
 )
 
@@ -880,7 +881,7 @@ func TestIterationsMigrationOnPasswordChange(t *testing.T) {
 	password := "TestPassword123!"
 	newPassword := "NewPassword789!"
 
-	// Initialize vault (will use 600k iterations by default)
+	// Initialize vault (will use crypto.GetIterations() by default)
 	if err := vault.Initialize([]byte(password), false, "", ""); err != nil {
 		t.Fatalf("Initialize() failed: %v", err)
 	}
@@ -918,15 +919,16 @@ func TestIterationsMigrationOnPasswordChange(t *testing.T) {
 		t.Fatalf("Expected initial iterations 100000, got %d", currentIterations)
 	}
 
-	// Change password - should trigger migration to 600k iterations (T033)
+	// Change password - should trigger migration to crypto.GetIterations() (T033)
 	if err := vault.ChangePassword([]byte(newPassword)); err != nil {
 		t.Fatalf("ChangePassword() failed: %v", err)
 	}
 
-	// Verify iterations were upgraded to 600k
+	// Verify iterations were upgraded to crypto.GetIterations()
 	newIterations := storageService.GetIterations()
-	if newIterations != 600000 {
-		t.Errorf("Expected iterations upgraded to 600000, got %d", newIterations)
+	expectedIterations := crypto.GetIterations()
+	if newIterations != expectedIterations {
+		t.Errorf("Expected iterations upgraded to %d, got %d", expectedIterations, newIterations)
 	}
 
 	// Lock and unlock with new password to verify migration worked
@@ -951,7 +953,7 @@ func TestIterationsMigrationOnPasswordChange(t *testing.T) {
 		t.Errorf("Notes = %s, want 'test migration'", cred.Notes)
 	}
 
-	t.Log("Migration from 100k to 600k iterations successful")
+	t.Logf("Migration from 100k to %d iterations successful", crypto.GetIterations())
 }
 
 // T036h [US2]: Test migration safety with simulated power loss
