@@ -147,9 +147,9 @@ func TestIntegration_KeychainWorkflow(t *testing.T) {
 
 	t.Run("5_Update_Without_Password_Prompt", func(t *testing.T) {
 		// Update credential - should NOT prompt for master password
-		input := "updateduser\n" + "updatedpass456\n"
-		cmd := exec.Command(binaryPath, "--vault", vaultPath, "update", "github.com")
-		cmd.Stdin = strings.NewReader(input)
+		// Use flags to avoid interactive mode (readPassword() requires terminal)
+		cmd := exec.Command(binaryPath, "--vault", vaultPath, "update", "github.com", "--username", "updateduser", "--password", "updatedpass456")
+		cmd.Stdin = strings.NewReader("") // No input needed with flags
 
 		var stdout, stderr bytes.Buffer
 		cmd.Stdout = &stdout

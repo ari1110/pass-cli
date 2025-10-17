@@ -223,7 +223,7 @@ func TestIntegration_TUIKeychainDetection(t *testing.T) {
 	// This test verifies that the TUI can detect keychain availability
 	// The actual behavior depends on the OS and keychain availability
 
-	testPassword := "Test-Password-Key@ch"
+	testPassword := "Test-Password-Key@ch123"
 	vaultDir := filepath.Join(testDir, "tui-keychain-vault")
 	vaultPath := filepath.Join(vaultDir, "vault.enc")
 
@@ -744,7 +744,7 @@ func TestIntegration_TUIUpdateFields(t *testing.T) {
 
 // TestIntegration_TUIDeleteCredential verifies deleting credentials and list/get consistency
 func TestIntegration_TUIDeleteCredential(t *testing.T) {
-	testPassword := "Test-Delete@ABC"
+	testPassword := "Test-Delete@ABC123"
 	vaultDir := filepath.Join(testDir, "tui-delete-vault")
 	vaultPath := filepath.Join(vaultDir, "vault.enc")
 
