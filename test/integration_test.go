@@ -182,15 +182,13 @@ func TestIntegration_CompleteWorkflow(t *testing.T) {
 	})
 
 	t.Run("5_Update_Credential", func(t *testing.T) {
-		input := testPassword + "\n" + "newuser\n" + "new-github-pass-789\n"
-		stdout, stderr, err := runCommandWithInput(t, input, "update", "github.com")
+		// Use flags to avoid interactive mode (readPassword() requires terminal)
+		input := testPassword + "\n"
+		stdout, stderr, err := runCommandWithInput(t, input, "update", "github.com", "--username", "newuser", "--password", "new-github-pass-789")
 
 		if err != nil {
 			t.Fatalf("Update failed: %v\nStdout: %s\nStderr: %s", err, stdout, stderr)
 		}
-
-		// Give it a moment to flush
-		time.Sleep(100 * time.Millisecond)
 
 		// Verify the update
 		input = testPassword + "\n"
@@ -200,10 +198,8 @@ func TestIntegration_CompleteWorkflow(t *testing.T) {
 			t.Fatalf("Get after update failed: %v", err)
 		}
 
-		if !strings.Contains(stdout, "newuser") && !strings.Contains(stdout, "new-github-pass-789") {
-			// Update might not be implemented yet or behaves differently
-			t.Logf("Update test skipped - feature may need verification. Output: %s", stdout)
-			t.Skip("Update command behavior needs verification")
+		if !strings.Contains(stdout, "newuser") || !strings.Contains(stdout, "new-github-pass-789") {
+			t.Errorf("Expected updated credentials in output.\nStdout: %s", stdout)
 		}
 	})
 
