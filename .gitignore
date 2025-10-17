@@ -41,12 +41,16 @@ Thumbs.db
 # Project specific
 *.enc
 *.backup
-error.log
+*.log
 
 # Tool directories (keep local only)
 .claude/
 .serena/
+.specify/
 .mcp.json
 .spec-workflow/approvals/
 .github/prompts/
 .spec-workflow/
+
+# Test debugging
+test-debug/
