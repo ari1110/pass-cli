@@ -140,17 +140,56 @@ func runGenerate(cmd *cobra.Command, args []string) error {
 }
 
 // generatePassword creates a cryptographically secure random password
+// Guarantees at least one character from each enabled character type
 func generatePassword(length int, charset string) (string, error) {
 	password := make([]byte, length)
-	charsetLen := big.NewInt(int64(len(charset)))
 
-	for i := 0; i < length; i++ {
-		// Generate cryptographically secure random index
+	// Build list of required character sets
+	var requiredSets []string
+	if !genNoLower {
+		requiredSets = append(requiredSets, lowerChars)
+	}
+	if !genNoUpper {
+		requiredSets = append(requiredSets, upperChars)
+	}
+	if !genNoDigits {
+		requiredSets = append(requiredSets, digitChars)
+	}
+	if !genNoSymbols {
+		requiredSets = append(requiredSets, symbolChars)
+	}
+
+	// Step 1: Ensure at least one char from each required set
+	for i, reqSet := range requiredSets {
+		if i >= length {
+			break // Not enough space for all required types
+		}
+		setLen := big.NewInt(int64(len(reqSet)))
+		randomIndex, err := rand.Int(rand.Reader, setLen)
+		if err != nil {
+			return "", fmt.Errorf("failed to generate random number: %w", err)
+		}
+		password[i] = reqSet[randomIndex.Int64()]
+	}
+
+	// Step 2: Fill remaining positions with random chars from full charset
+	charsetLen := big.NewInt(int64(len(charset)))
+	for i := len(requiredSets); i < length; i++ {
 		randomIndex, err := rand.Int(rand.Reader, charsetLen)
 		if err != nil {
 			return "", fmt.Errorf("failed to generate random number: %w", err)
 		}
 		password[i] = charset[randomIndex.Int64()]
+	}
+
+	// Step 3: Shuffle password to avoid predictable positions
+	for i := length - 1; i > 0; i-- {
+		randomIndex, err := rand.Int(rand.Reader, big.NewInt(int64(i+1)))
+		if err != nil {
+			return "", fmt.Errorf("failed to generate random number: %w", err)
+		}
+		j := randomIndex.Int64()
+		password[i], password[j] = password[j], password[i]
 	}
 
 	return string(password), nil
