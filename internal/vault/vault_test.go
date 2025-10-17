@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"pass-cli/internal/crypto"
 	"pass-cli/internal/storage"
 )
 
@@ -898,7 +897,7 @@ func TestIterationsMigrationOnPasswordChange(t *testing.T) {
 	// Lock and manually downgrade iterations to simulate legacy vault
 	vault.Lock()
 
-	// Simulate legacy vault by saving with 100k iterations directly
+	// Simulate legacy vault by saving with 100k iterations
 	if err := vault.Unlock([]byte(password)); err != nil {
 		t.Fatalf("Unlock() failed: %v", err)
 	}
@@ -909,24 +908,25 @@ func TestIterationsMigrationOnPasswordChange(t *testing.T) {
 		t.Fatalf("Failed to marshal vault data: %v", err)
 	}
 
-	if err := storageService.SaveVaultWithIterationsUnsafe(data, password, 100000); err != nil {
+	legacyIterations := 100000 // Simulate legacy 100k vault
+	if err := storageService.SaveVaultWithIterationsUnsafe(data, password, legacyIterations); err != nil {
 		t.Fatalf("Failed to save legacy vault: %v", err)
 	}
 
-	// Verify starting with 100k iterations
+	// Verify starting with legacy iterations
 	currentIterations := storageService.GetIterations()
-	if currentIterations != 100000 {
-		t.Fatalf("Expected initial iterations 100000, got %d", currentIterations)
+	if currentIterations != legacyIterations {
+		t.Fatalf("Expected initial iterations %d, got %d", legacyIterations, currentIterations)
 	}
 
-	// Change password - should trigger migration to crypto.GetIterations() (T033)
+	// Change password - should trigger migration to 600k iterations (T033)
 	if err := vault.ChangePassword([]byte(newPassword)); err != nil {
 		t.Fatalf("ChangePassword() failed: %v", err)
 	}
 
-	// Verify iterations were upgraded to crypto.GetIterations()
+	// Verify iterations were upgraded to 600k
 	newIterations := storageService.GetIterations()
-	expectedIterations := crypto.GetIterations()
+	expectedIterations := 600000
 	if newIterations != expectedIterations {
 		t.Errorf("Expected iterations upgraded to %d, got %d", expectedIterations, newIterations)
 	}
@@ -953,7 +953,7 @@ func TestIterationsMigrationOnPasswordChange(t *testing.T) {
 		t.Errorf("Notes = %s, want 'test migration'", cred.Notes)
 	}
 
-	t.Logf("Migration from 100k to %d iterations successful", crypto.GetIterations())
+	t.Logf("Migration from %dk to 600k iterations successful", legacyIterations/1000)
 }
 
 // T036h [US2]: Test migration safety with simulated power loss

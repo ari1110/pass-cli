@@ -151,9 +151,8 @@ func (s *StorageService) SaveVault(data []byte, password string) error {
 // SaveVaultWithIterations saves vault data with an updated iteration count.
 // Used for migration from legacy iteration counts (T033).
 func (s *StorageService) SaveVaultWithIterations(data []byte, password string, iterations int) error {
-	minIter := crypto.GetMinIterations()
-	if iterations < minIter {
-		return fmt.Errorf("iterations must be >= %d", minIter)
+	if iterations < crypto.MinIterations {
+		return fmt.Errorf("iterations must be >= %d", crypto.MinIterations)
 	}
 
 	// T036d: Pre-flight checks before migration (FR-012)
@@ -233,9 +232,8 @@ func (s *StorageService) GetIterations() int {
 // This will take effect on the next SaveVault call.
 // Used for migration from legacy iteration counts (T033).
 func (s *StorageService) SetIterations(iterations int) error {
-	minIter := crypto.GetMinIterations()
-	if iterations < minIter {
-		return fmt.Errorf("iterations must be >= %d", minIter)
+	if iterations < crypto.MinIterations {
+		return fmt.Errorf("iterations must be >= %d", crypto.MinIterations)
 	}
 
 	encryptedVault, err := s.loadEncryptedVault()
@@ -301,9 +299,8 @@ func (s *StorageService) ValidateVault() error {
 
 	// Validate Iterations field (T025 - FR-007)
 	// Allow 0 for backward compatibility (will default to 100000 on load)
-	minIter := crypto.GetMinIterations()
-	if encryptedVault.Metadata.Iterations != 0 && encryptedVault.Metadata.Iterations < minIter {
-		return fmt.Errorf("%w: iterations must be >= %d", ErrVaultCorrupted, minIter)
+	if encryptedVault.Metadata.Iterations != 0 && encryptedVault.Metadata.Iterations < crypto.MinIterations {
+		return fmt.Errorf("%w: iterations must be >= %d", ErrVaultCorrupted, crypto.MinIterations)
 	}
 
 	return nil
