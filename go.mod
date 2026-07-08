@@ -9,7 +9,7 @@ require (
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef
 	github.com/mdp/qrterminal/v3 v3.2.1
 	github.com/olekukonko/tablewriter v1.1.4
-	github.com/pelletier/go-toml/v2 v2.2.4
+	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pquerna/otp v1.5.0
 	github.com/rivo/tview v0.42.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
